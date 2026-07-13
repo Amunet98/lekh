@@ -4,19 +4,8 @@ export interface Language {
   label: string
 }
 
+// Scoped to English<->Nepali only for this pass — see project notes on the
+// scan-a-document feature. TranslationProvider itself is language-agnostic;
+// widening this back out later doesn't require touching the providers.
+export const ENGLISH: Language = { code: 'en', nllb: 'eng_Latn', label: 'English' }
 export const NEPALI: Language = { code: 'ne', nllb: 'npi_Deva', label: 'Nepali' }
-
-export const LANGUAGES: Language[] = [
-  { code: 'en', nllb: 'eng_Latn', label: 'English' },
-  { code: 'hi', nllb: 'hin_Deva', label: 'Hindi' },
-  { code: 'es', nllb: 'spa_Latn', label: 'Spanish' },
-  { code: 'fr', nllb: 'fra_Latn', label: 'French' },
-  { code: 'zh', nllb: 'zho_Hans', label: 'Chinese' },
-  { code: 'ar', nllb: 'arb_Arab', label: 'Arabic' },
-  { code: 'pt', nllb: 'por_Latn', label: 'Portuguese' },
-  { code: 'ru', nllb: 'rus_Cyrl', label: 'Russian' },
-  { code: 'ja', nllb: 'jpn_Jpan', label: 'Japanese' },
-  { code: 'de', nllb: 'deu_Latn', label: 'German' },
-]
-
-export const ALL_LANGUAGES: Language[] = [...LANGUAGES, NEPALI]

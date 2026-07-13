@@ -1,0 +1,67 @@
+.camera {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.camera__video-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: #000;
+}
+.camera__video-wrap--mirrored .camera__video {
+  transform: scaleX(-1);
+}
+.camera__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.camera__loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.5);
+}
+.camera__flip {
+  position: absolute;
+  bottom: 0.6rem;
+  right: 0.6rem;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 0;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+}
+.camera__flip:hover,
+.camera__flip:focus-visible {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.camera__actions {
+  display: flex;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.camera--fallback {
+  align-items: flex-start;
+  padding: 1.2rem;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+}

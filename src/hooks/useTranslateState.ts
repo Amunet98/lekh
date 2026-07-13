@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { LANGUAGES, NEPALI, type Language } from '../lib/translation/languages'
+import { ENGLISH, NEPALI, type Language } from '../lib/translation/languages'
 import { myMemoryProvider } from '../lib/translation/myMemoryProvider'
 import { onDeviceProvider } from '../lib/translation/onDeviceProvider'
 
 export type TranslateMode = 'online' | 'ondevice'
+export type Direction = 'ne-en' | 'en-ne'
 type Status = 'idle' | 'loading' | 'error'
 
 export function useTranslateState() {
-  const [sourceLang, setSourceLang] = useState<Language>(LANGUAGES[0])
-  const [targetLang, setTargetLang] = useState<Language>(NEPALI)
+  const [direction, setDirection] = useState<Direction>('ne-en')
   const [sourceText, setSourceText] = useState('')
   const [translated, setTranslated] = useState('')
   const [mode, setMode] = useState<TranslateMode>('online')
@@ -17,6 +17,9 @@ export function useTranslateState() {
   const [modelProgress, setModelProgress] = useState<number | null>(null)
   const debounceRef = useRef<number | undefined>(undefined)
   const requestIdRef = useRef(0)
+
+  const sourceLang: Language = direction === 'ne-en' ? NEPALI : ENGLISH
+  const targetLang: Language = direction === 'ne-en' ? ENGLISH : NEPALI
 
   const runOnline = useCallback(async (text: string, source: Language, target: Language) => {
     if (!text.trim()) {
@@ -69,11 +72,10 @@ export function useTranslateState() {
   }, [sourceText, sourceLang, targetLang])
 
   const swap = useCallback(() => {
-    setSourceLang(targetLang)
-    setTargetLang(sourceLang)
+    setDirection((d) => (d === 'ne-en' ? 'en-ne' : 'ne-en'))
     setSourceText(translated)
     setTranslated(sourceText)
-  }, [sourceLang, targetLang, sourceText, translated])
+  }, [sourceText, translated])
 
   const switchToOnDevice = useCallback(() => {
     setMode('ondevice')
@@ -86,10 +88,10 @@ export function useTranslateState() {
   }, [])
 
   return {
+    direction,
+    setDirection,
     sourceLang,
     targetLang,
-    setSourceLang,
-    setTargetLang,
     sourceText,
     setSourceText,
     translated,

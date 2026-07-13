@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { DotMatrixBackground } from './components/DotMatrixBackground'
 import { TabSwitcher, type Tab } from './components/TabSwitcher'
 import { TypePage } from './components/TypePage'
-import { Translate } from './components/Translate'
+import { ScanPage } from './components/ScanPage'
 import './App.css'
 
 function App() {
@@ -13,7 +13,7 @@ function App() {
       <DotMatrixBackground />
       <div className="page">
         <header className="page-header">
-          <span className="tag">Nepali typing &amp; translation</span>
+          <span className="tag">Nepali typing, scanning &amp; translation</span>
           <h1>
             <span className="dev">लेख</span>
             <span className="sep">/</span>lekh
@@ -28,7 +28,7 @@ function App() {
 
         <TabSwitcher active={tab} onChange={setTab} />
 
-        {tab === 'type' ? <TypePage /> : <Translate />}
+        {tab === 'type' ? <TypePage /> : <ScanPage />}
       </div>
     </>
   )

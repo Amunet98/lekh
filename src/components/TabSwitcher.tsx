@@ -1,6 +1,6 @@
 import './TabSwitcher.css'
 
-export type Tab = 'type' | 'translate'
+export type Tab = 'type' | 'scan'
 
 interface TabSwitcherProps {
   active: Tab
@@ -22,11 +22,11 @@ export function TabSwitcher({ active, onChange }: TabSwitcherProps) {
       <button
         type="button"
         role="tab"
-        aria-selected={active === 'translate'}
-        className={`tab-switcher__btn${active === 'translate' ? ' tab-switcher__btn--active' : ''}`}
-        onClick={() => onChange('translate')}
+        aria-selected={active === 'scan'}
+        className={`tab-switcher__btn${active === 'scan' ? ' tab-switcher__btn--active' : ''}`}
+        onClick={() => onChange('scan')}
       >
-        Translate
+        Scan
       </button>
     </div>
   )
