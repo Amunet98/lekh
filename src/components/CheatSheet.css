@@ -1,0 +1,79 @@
+.cheat-sheet h2 {
+  margin: 0.9rem 0 0.9rem;
+  font-family: var(--mono);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-h);
+}
+.sub {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text);
+  margin: 1.4rem 0 0.5rem;
+}
+h2 + .sub {
+  margin-top: 0;
+}
+
+.cons-group + .cons-group {
+  margin-top: 0.6rem;
+}
+.cons-group__label {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  color: var(--text);
+  opacity: 0.75;
+  margin: 0.5rem 0 0.3rem;
+}
+
+.cells {
+  display: grid;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.cells--4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+.cells--5 {
+  grid-template-columns: repeat(5, 1fr);
+}
+.cell {
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  padding: 0.38rem 0.15rem;
+  text-align: center;
+  border: 0;
+  cursor: pointer;
+  min-height: 44px;
+  font: inherit;
+}
+.cell:hover,
+.cell:focus-visible {
+  background: var(--accent-bg);
+}
+.cell:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.cell .g {
+  display: block;
+  font-family: var(--devanagari);
+  font-size: 1.08rem;
+  line-height: 1.4;
+  color: var(--text-h);
+}
+.cell .r {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  color: var(--text);
+  margin-top: 0.1rem;
+}
+.map-caption {
+  margin: 0.6rem 0 0;
+  font-size: 0.78rem;
+}

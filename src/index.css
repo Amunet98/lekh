@@ -1,0 +1,103 @@
+@import 'tailwindcss';
+
+:root {
+  --text: #6b6375;
+  --text-h: #08060d;
+  --bg: #fff;
+  --border: #e5e4e7;
+  --code-bg: #f4f3ec;
+  --accent: #dc2626;
+  --accent-bg: rgba(220, 38, 38, 0.1);
+  --accent-border: rgba(220, 38, 38, 0.45);
+
+  --dark-text: #9ca3af;
+  --dark-text-h: #f3f4f6;
+  --dark-bg: #16171d;
+  --dark-border: #2e303a;
+  --dark-code-bg: #1f2028;
+  --dark-accent: #f87171;
+  --dark-accent-bg: rgba(248, 113, 113, 0.14);
+  --dark-accent-border: rgba(248, 113, 113, 0.48);
+
+  --sans: 'IBM Plex Sans', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  --devanagari: 'Noto Sans Devanagari', 'Nirmala UI', 'Kohinoor Devanagari',
+    'Devanagari MT', 'Lohit Devanagari', sans-serif;
+
+  color-scheme: light dark;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --text: var(--dark-text);
+    --text-h: var(--dark-text-h);
+    --bg: var(--dark-bg);
+    --border: var(--dark-border);
+    --code-bg: var(--dark-code-bg);
+    --accent: var(--dark-accent);
+    --accent-bg: var(--dark-accent-bg);
+    --accent-border: var(--dark-accent-border);
+  }
+}
+
+/* No manual toggle in Lekh — OS preference only. Kept structurally identical
+   to the portfolio's token set in case a manual toggle is ever added later. */
+:root[data-theme='dark'] {
+  --text: var(--dark-text);
+  --text-h: var(--dark-text-h);
+  --bg: var(--dark-bg);
+  --border: var(--dark-border);
+  --code-bg: var(--dark-code-bg);
+  --accent: var(--dark-accent);
+  --accent-bg: var(--dark-accent-bg);
+  --accent-border: var(--dark-accent-border);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  overflow-x: clip;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.55 var(--sans);
+  letter-spacing: 0.18px;
+}
+
+#root {
+  min-height: 100svh;
+  position: relative;
+}
+
+.dev,
+textarea {
+  font-family: var(--devanagari);
+}
+
+h1,
+h2 {
+  font-family: var(--mono);
+  color: var(--text-h);
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+code {
+  font-family: var(--mono);
+}

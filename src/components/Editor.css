@@ -1,0 +1,214 @@
+.editor {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: blur(6px);
+  overflow: hidden;
+}
+@supports not (backdrop-filter: blur(6px)) {
+  .editor {
+    background: var(--bg);
+  }
+}
+.editor:focus-within {
+  border-color: var(--accent-border);
+}
+.editor-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--code-bg);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text);
+}
+.editor-bar .dots {
+  display: flex;
+  gap: 5px;
+  margin-right: 0.4rem;
+}
+.editor-bar .dots i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--border);
+  display: block;
+}
+
+.sugg {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  min-height: 3rem;
+  padding: 0.55rem 0.85rem;
+  border-bottom: 1px solid var(--border);
+}
+.sugg-hint {
+  font-size: 0.82rem;
+  opacity: 0.75;
+}
+.chip {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-h);
+  border-radius: 999px;
+  padding: 0.24rem 0.75rem;
+  font-size: 1rem;
+  cursor: pointer;
+  min-height: 44px;
+}
+.chip:hover,
+.chip:focus-visible {
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+}
+.chip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.chip--primary {
+  color: var(--accent);
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+}
+.chip--raw {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text);
+}
+.chip kbd {
+  font-family: var(--mono);
+  font-size: 0.62em;
+  color: var(--text);
+  margin-left: 0.35rem;
+}
+
+textarea {
+  display: block;
+  width: 100%;
+  min-height: 12rem;
+  padding: 1rem 1.1rem;
+  border: 0;
+  resize: vertical;
+  background: transparent;
+  color: var(--text-h);
+  font-size: 1.4rem;
+  line-height: 1.8;
+}
+textarea:focus {
+  outline: none;
+}
+textarea::placeholder {
+  color: var(--text);
+  opacity: 0.65;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  padding: 0.6rem 0.85rem;
+  border-top: 1px solid var(--border);
+}
+.btn {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-h);
+  border-radius: 6px;
+  padding: 0.34rem 0.85rem;
+  cursor: pointer;
+  min-height: 44px;
+}
+.btn:hover,
+.btn:focus-visible {
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+}
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.btn--toggle[aria-pressed='true'] {
+  color: var(--accent);
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+}
+.count {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.samples {
+  margin-top: 1.5rem;
+}
+.samples-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.7rem;
+}
+.sample {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  border: 1px dashed var(--border);
+  background: transparent;
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.28rem 0.8rem;
+  cursor: pointer;
+  min-height: 44px;
+}
+.sample:hover,
+.sample:focus-visible {
+  border-color: var(--accent-border);
+  color: var(--text-h);
+}
+.sample:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.keys-hint {
+  margin-top: 1rem;
+  font-size: 0.84rem;
+}
+.keys-hint kbd {
+  font-family: var(--mono);
+  font-size: 0.78em;
+  color: var(--text-h);
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.06rem 0.38rem;
+}
+.privacy {
+  margin-top: 2rem;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  color: var(--text);
+}
+.privacy::before {
+  content: '// ';
+  color: var(--accent);
+}
+
+/* Section tags — transparent accent pills, matching portfolio's .section__tag */
+.tag {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  border-radius: 999px;
+  padding: 0.18rem 0.7rem;
+}

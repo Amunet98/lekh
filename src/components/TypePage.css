@@ -1,0 +1,25 @@
+.type-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(280px, 1fr);
+  gap: clamp(1.25rem, 3vw, 2.75rem);
+}
+.type-page__right {
+  border-left: 1px solid var(--border);
+  padding-left: clamp(1.25rem, 3vw, 2.75rem);
+  min-width: 0;
+}
+.type-page__right section + section {
+  margin-top: 2.4rem;
+}
+
+@media (max-width: 860px) {
+  .type-page {
+    grid-template-columns: 1fr;
+  }
+  .type-page__right {
+    border-left: 0;
+    border-top: 1px solid var(--border);
+    padding-left: 0;
+    padding-top: 2rem;
+  }
+}

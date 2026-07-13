@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('theme')
+          if (stored === 'light' || stored === 'dark') {
+            document.documentElement.dataset.theme = stored
+          }
+        } catch (e) {
+          /* localStorage unavailable — falls back to OS preference */
+        }
+      })()
+    </script>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>लेख · Lekh — Nepali typing</title>
+    <meta
+      name="description"
+      content="Type Nepali the way you already text it. Romanized-to-Devanagari transliteration, a full script cheat sheet, and English⇄Nepali translation — runs entirely in your browser."
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
