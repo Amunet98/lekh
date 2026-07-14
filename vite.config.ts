@@ -23,8 +23,9 @@ export default defineConfig({
         theme_color: '#16171d',
         background_color: '#16171d',
         icons: [
-          { src: '/android-chrome-192x192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/android-chrome-512x512.png', sizes: '512x512', type: 'image/png' },
+          { src: '/android-chrome-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: '/android-chrome-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: '/maskable-icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
       workbox: {
