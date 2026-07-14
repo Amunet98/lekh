@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ENGLISH, NEPALI, type Language } from '../lib/translation/languages'
-import { myMemoryProvider } from '../lib/translation/myMemoryProvider'
+import { onlineProvider } from '../lib/translation/onlineProvider'
 import { onDeviceProvider } from '../lib/translation/onDeviceProvider'
+import type { ModelLoadProgress } from '../lib/translation/provider'
 
 export type TranslateMode = 'online' | 'ondevice'
 export type Direction = 'ne-en' | 'en-ne'
@@ -14,7 +15,7 @@ export function useTranslateState() {
   const [mode, setMode] = useState<TranslateMode>('online')
   const [status, setStatus] = useState<Status>('idle')
   const [error, setError] = useState<string | null>(null)
-  const [modelProgress, setModelProgress] = useState<number | null>(null)
+  const [modelLoad, setModelLoad] = useState<ModelLoadProgress | null>(null)
   const debounceRef = useRef<number | undefined>(undefined)
   const requestIdRef = useRef(0)
 
@@ -30,7 +31,7 @@ export function useTranslateState() {
     const requestId = ++requestIdRef.current
     setStatus('loading')
     try {
-      const result = await myMemoryProvider.translate(text, source, target)
+      const result = await onlineProvider.translate(text, source, target)
       if (requestId !== requestIdRef.current) return
       setTranslated(result)
       setStatus('idle')
@@ -55,10 +56,11 @@ export function useTranslateState() {
     if (!sourceText.trim()) return
     setStatus('loading')
     setError(null)
-    setModelProgress(0)
     try {
       const result = await onDeviceProvider.translate(sourceText, sourceLang, targetLang, {
-        onProgress: setModelProgress,
+        // 'done' means the model is ready and inference is starting — clear
+        // the load UI so the pane shows plain "Translating…" from there.
+        onModelProgress: (p) => setModelLoad(p.phase === 'done' ? null : p),
       })
       setTranslated(result)
       setStatus('idle')
@@ -67,7 +69,7 @@ export function useTranslateState() {
       setError('On-device translation failed on this device — switched back to online.')
       setMode('online')
     } finally {
-      setModelProgress(null)
+      setModelLoad(null)
     }
   }, [sourceText, sourceLang, targetLang])
 
@@ -98,7 +100,7 @@ export function useTranslateState() {
     mode,
     status,
     error,
-    modelProgress,
+    modelLoad,
     runOnDevice,
     swap,
     switchToOnDevice,

@@ -93,6 +93,59 @@
   font-family: var(--sans);
 }
 
+.model-status {
+  display: block;
+  margin: -0.4rem 0 1rem;
+}
+
+.model-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  width: 100%;
+  align-self: center;
+}
+.model-progress-track {
+  height: 6px;
+  border-radius: 999px;
+  border: 1px solid var(--accent-border);
+  background: var(--accent-bg);
+  overflow: hidden;
+  position: relative;
+}
+.model-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: width 0.2s;
+}
+.model-progress-fill--indeterminate {
+  width: 35%;
+  position: absolute;
+  animation: model-progress-slide 1.4s ease-in-out infinite;
+}
+@keyframes model-progress-slide {
+  0% {
+    left: -35%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .model-progress-fill--indeterminate {
+    animation: none;
+    left: 0;
+    width: 100%;
+    opacity: 0.4;
+  }
+}
+.model-progress-label {
+  font-size: 0.85rem;
+  opacity: 0.75;
+  font-family: var(--sans);
+}
+
 .scan-actions {
   display: flex;
   align-items: center;

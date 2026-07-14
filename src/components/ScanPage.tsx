@@ -1,22 +1,35 @@
 import { useState } from 'react'
 import { useTranslateState } from '../hooks/useTranslateState'
-import { hasConfirmedDownload, setConfirmedDownload } from '../lib/translation/onDeviceProvider'
+import {
+  hasConfirmedDownload,
+  setConfirmedDownload,
+  hasDownloadedModel,
+} from '../lib/translation/onDeviceProvider'
 import { recognizeText } from '../lib/ocr/tesseract'
 import { Camera } from './Camera'
 import './ScanPage.css'
+
+const formatMB = (bytes: number) => `${Math.round(bytes / 1e6)} MB`
 
 export function ScanPage() {
   const t = useTranslateState()
   const [showConfirm, setShowConfirm] = useState(false)
   const [ocrStatus, setOcrStatus] = useState<'idle' | 'recognizing' | 'error'>('idle')
   const [ocrProgress, setOcrProgress] = useState<number | null>(null)
+  // localStorage isn't reactive — seed from it, refresh after a successful run.
+  const [modelDownloaded, setModelDownloaded] = useState(() => hasDownloadedModel())
 
   const requestOnDevice = () => {
-    if (hasConfirmedDownload()) {
+    if (hasConfirmedDownload() || hasDownloadedModel()) {
       t.switchToOnDevice()
     } else {
       setShowConfirm(true)
     }
+  }
+
+  const translateOnDevice = async () => {
+    await t.runOnDevice()
+    setModelDownloaded(hasDownloadedModel())
   }
 
   const confirmDownload = () => {
@@ -92,10 +105,18 @@ export function ScanPage() {
         </button>
       </div>
 
+      {t.mode === 'ondevice' && (
+        <p className="sugg-hint model-status">
+          {modelDownloaded
+            ? 'Model downloaded — loads from browser cache.'
+            : 'Model not downloaded yet — ~900MB one-time download.'}
+        </p>
+      )}
+
       {showConfirm && (
         <div className="confirm-banner" role="dialog" aria-label="Download on-device model">
           <p>
-            The on-device model is about ~600MB and downloads once (cached in your browser
+            The on-device model is about ~900MB and downloads once (cached in your browser
             afterward). Recommended on WiFi — continue?
           </p>
           <div className="confirm-actions">
@@ -118,8 +139,41 @@ export function ScanPage() {
           onChange={(e) => t.setSourceText(e.target.value)}
         />
         <div className="translate-output dev" aria-live="polite">
-          {t.status === 'loading' && t.mode === 'ondevice' && t.modelProgress !== null ? (
-            <span className="sugg-hint">Loading model… {Math.round(t.modelProgress * 100)}%</span>
+          {t.status === 'loading' && t.modelLoad !== null ? (
+            t.modelLoad.phase === 'downloading' ? (
+              <div className="model-progress">
+                <div
+                  className="model-progress-track"
+                  role="progressbar"
+                  aria-label="Model download"
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={Math.floor(
+                    (t.modelLoad.loadedBytes / t.modelLoad.totalBytes) * 100,
+                  )}
+                >
+                  <div
+                    className="model-progress-fill"
+                    style={{
+                      width: `${(t.modelLoad.loadedBytes / t.modelLoad.totalBytes) * 100}%`,
+                    }}
+                  />
+                </div>
+                <span className="model-progress-label">
+                  Downloading model… {formatMB(t.modelLoad.loadedBytes)} /{' '}
+                  {formatMB(t.modelLoad.totalBytes)}
+                </span>
+              </div>
+            ) : (
+              <div className="model-progress">
+                <div className="model-progress-track" role="progressbar" aria-label="Model load">
+                  <div className="model-progress-fill model-progress-fill--indeterminate" />
+                </div>
+                <span className="model-progress-label">
+                  {modelDownloaded ? 'Loading model from cache…' : 'Preparing model…'}
+                </span>
+              </div>
+            )
           ) : t.status === 'loading' ? (
             <span className="sugg-hint">Translating…</span>
           ) : t.translated ? (
@@ -138,7 +192,7 @@ export function ScanPage() {
           <button
             type="button"
             className="btn btn--primary"
-            onClick={() => void t.runOnDevice()}
+            onClick={() => void translateOnDevice()}
             disabled={t.status === 'loading' || !t.sourceText.trim()}
           >
             Translate on-device
@@ -159,7 +213,7 @@ export function ScanPage() {
 
       <p className="privacy">
         {t.mode === 'online'
-          ? 'translation uses a free online API (mymemory.translated.net) — the photo itself never leaves your browser, only the recognized text is sent'
+          ? 'translation uses a free online service (Google Translate, falling back to mymemory.translated.net) — the photo itself never leaves your browser, only the recognized text is sent'
           : 'on-device mode — nothing, not even the recognized text, ever leaves your browser'}
       </p>
     </section>
