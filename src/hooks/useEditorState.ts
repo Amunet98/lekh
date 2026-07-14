@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
-import { convert, DICT } from '../lib/engine'
+import { convert, suggest } from '../lib/engine'
 import type { Chip } from '../lib/engine/types'
 
 function computePending(text: string): string {
@@ -29,23 +29,7 @@ export function useEditorState() {
     setTimeout(() => setFlashing(false), 350)
   }, [])
 
-  const chips = useMemo<Chip[]>(() => {
-    if (!pending) return []
-    const seen = new Set<string>()
-    const result: Chip[] = []
-    const primary = convert(pending)
-    result.push({ text: primary, primary: true })
-    seen.add(primary)
-    const lower = pending.toLowerCase()
-    for (const key of Object.keys(DICT)) {
-      if (result.length >= 5) break
-      if (key.startsWith(lower) && !seen.has(DICT[key])) {
-        result.push({ text: DICT[key], primary: false })
-        seen.add(DICT[key])
-      }
-    }
-    return result
-  }, [pending])
+  const chips = useMemo<Chip[]>(() => suggest(pending), [pending])
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
