@@ -41,6 +41,24 @@ function setDownloadedModel(): void {
   }
 }
 
+// The localStorage flag above is only an instant-paint hint — it can go
+// stale in both directions (browser evicts the Cache Storage entry under
+// storage pressure; or the flag is lost while the cache survives). This
+// checks the actual Cache API entry transformers.js reads from
+// ('transformers-cache', confirmed against node_modules/@huggingface/
+// transformers/src/utils/hub.js) so the UI never lies about a real
+// ~900MB re-download.
+export async function isModelCached(): Promise<boolean> {
+  try {
+    if (typeof caches === 'undefined') return hasDownloadedModel()
+    const cache = await caches.open('transformers-cache')
+    const keys = await cache.keys()
+    return keys.some((req) => req.url.includes(MODEL_ID) && req.url.endsWith('.onnx'))
+  } catch {
+    return hasDownloadedModel()
+  }
+}
+
 type TranslationPipeline = (
   text: string,
   options: { src_lang: string; tgt_lang: string },

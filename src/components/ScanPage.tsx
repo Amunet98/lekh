@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslateState } from '../hooks/useTranslateState'
 import {
   hasConfirmedDownload,
   setConfirmedDownload,
   hasDownloadedModel,
+  isModelCached,
 } from '../lib/translation/onDeviceProvider'
 import { recognizeText } from '../lib/ocr/tesseract'
 import { Camera } from './Camera'
@@ -16,8 +17,15 @@ export function ScanPage() {
   const [showConfirm, setShowConfirm] = useState(false)
   const [ocrStatus, setOcrStatus] = useState<'idle' | 'recognizing' | 'error'>('idle')
   const [ocrProgress, setOcrProgress] = useState<number | null>(null)
-  // localStorage isn't reactive — seed from it, refresh after a successful run.
+  // localStorage isn't reactive — seed from it for an instant paint, then
+  // self-heal against the real Cache Storage entry (the flag can go stale
+  // in either direction: cache evicted under storage pressure, or flag lost
+  // while the cache survives).
   const [modelDownloaded, setModelDownloaded] = useState(() => hasDownloadedModel())
+
+  useEffect(() => {
+    void isModelCached().then(setModelDownloaded)
+  }, [])
 
   const requestOnDevice = () => {
     if (hasConfirmedDownload() || hasDownloadedModel()) {
@@ -160,8 +168,8 @@ export function ScanPage() {
                   />
                 </div>
                 <span className="model-progress-label">
-                  Downloading model… {formatMB(t.modelLoad.loadedBytes)} /{' '}
-                  {formatMB(t.modelLoad.totalBytes)}
+                  {modelDownloaded ? 'Loading model from cache…' : 'Downloading model…'}{' '}
+                  {formatMB(t.modelLoad.loadedBytes)} / {formatMB(t.modelLoad.totalBytes)}
                 </span>
               </div>
             ) : (

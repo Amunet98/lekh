@@ -16,6 +16,12 @@ function commitText(text: string, replacement?: string): string {
   return text.slice(0, text.length - p.length) + conv
 }
 
+// Enter is deliberately excluded — it should only insert a newline, never
+// trigger a conversion (owner decision after the phone test).
+function isTrigger(ch: string): boolean {
+  return ch === ' ' || ch === '.' || ',?!;:'.includes(ch)
+}
+
 export function useEditorState() {
   const [text, setText] = useState('')
   const [nepali, setNepali] = useState(true)
@@ -39,10 +45,6 @@ export function useEditorState() {
         e.preventDefault()
         if (pending) triggerFlash()
         setText((t) => commitText(t) + ' ')
-      } else if (e.key === 'Enter') {
-        e.preventDefault()
-        if (pending) triggerFlash()
-        setText((t) => commitText(t) + '\n')
       } else if (e.key === '.') {
         e.preventDefault()
         if (pending) triggerFlash()
@@ -57,6 +59,34 @@ export function useEditorState() {
       }
     },
     [nepali, pending, triggerFlash],
+  )
+
+  // Android IME keyboards (Gboard) fire keydown with key='Unidentified'
+  // during composition, so handleKeyDown's trigger matching never fires
+  // there — this is the only commit path that reaches phone users.
+  // Desktop's handleKeyDown already preventDefault()s trigger keys, so this
+  // never double-fires there; after a commit the trailing pending run is
+  // empty, so a stray call here is a no-op anyway.
+  const handleChange = useCallback(
+    (newValue: string, selectionEnd: number) => {
+      if (!nepali) {
+        setText(newValue)
+        return
+      }
+      const grew = newValue.length >= text.length
+      const atEnd = selectionEnd === newValue.length
+      const lastChar = newValue.slice(-1)
+      if (grew && atEnd && isTrigger(lastChar)) {
+        const body = newValue.slice(0, -1)
+        const hadPending = computePending(body) !== ''
+        if (hadPending) triggerFlash()
+        const suffix = lastChar === '.' ? '।' : lastChar
+        setText(commitText(body) + suffix)
+        return
+      }
+      setText(newValue)
+    },
+    [nepali, text, triggerFlash],
   )
 
   const chooseChip = useCallback(
@@ -111,6 +141,7 @@ export function useEditorState() {
     copied,
     flashing,
     handleKeyDown,
+    handleChange,
     chooseChip,
     keepRaw,
     toggleMode,

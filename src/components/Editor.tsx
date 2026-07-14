@@ -87,10 +87,12 @@ export function Editor({ editor, textareaRef }: EditorProps) {
           rows={5}
           spellCheck={false}
           autoComplete="off"
+          autoCapitalize="off"
+          autoCorrect="off"
           aria-label="Nepali editor — type romanized Nepali"
           placeholder="namaste — start typing, press space to convert…"
           value={editor.text}
-          onChange={(e) => editor.setText(e.target.value)}
+          onChange={(e) => editor.handleChange(e.target.value, e.target.selectionEnd)}
           onKeyDown={editor.handleKeyDown}
         />
 
