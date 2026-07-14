@@ -59,7 +59,8 @@
   flex-wrap: wrap;
 }
 
-.camera--fallback {
+.camera--fallback,
+.camera--choose {
   align-items: flex-start;
   padding: 1.2rem;
   border: 1px dashed var(--border);

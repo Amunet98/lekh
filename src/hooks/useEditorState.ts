@@ -20,8 +20,14 @@ export function useEditorState() {
   const [text, setText] = useState('')
   const [nepali, setNepali] = useState(true)
   const [copied, setCopied] = useState(false)
+  const [flashing, setFlashing] = useState(false)
 
   const pending = useMemo(() => (nepali ? computePending(text) : ''), [text, nepali])
+
+  const triggerFlash = useCallback(() => {
+    setFlashing(true)
+    setTimeout(() => setFlashing(false), 350)
+  }, [])
 
   const chips = useMemo<Chip[]>(() => {
     if (!pending) return []
@@ -47,27 +53,35 @@ export function useEditorState() {
       if (e.metaKey || e.ctrlKey || e.altKey) return
       if (e.key === ' ') {
         e.preventDefault()
+        if (pending) triggerFlash()
         setText((t) => commitText(t) + ' ')
       } else if (e.key === 'Enter') {
         e.preventDefault()
+        if (pending) triggerFlash()
         setText((t) => commitText(t) + '\n')
       } else if (e.key === '.') {
         e.preventDefault()
+        if (pending) triggerFlash()
         setText((t) => commitText(t) + '।')
       } else if (',?!;:'.includes(e.key) && e.key.length === 1) {
         e.preventDefault()
+        if (pending) triggerFlash()
         setText((t) => commitText(t) + e.key)
       } else if (e.key === 'Escape') {
         e.preventDefault()
         setText((t) => t + ' ') // keep the English word as-is
       }
     },
-    [nepali],
+    [nepali, pending, triggerFlash],
   )
 
-  const chooseChip = useCallback((chipText: string) => {
-    setText((t) => commitText(t, chipText) + ' ')
-  }, [])
+  const chooseChip = useCallback(
+    (chipText: string) => {
+      triggerFlash()
+      setText((t) => commitText(t, chipText) + ' ')
+    },
+    [triggerFlash],
+  )
 
   const keepRaw = useCallback(() => {
     setText((t) => t + ' ')
@@ -111,6 +125,7 @@ export function useEditorState() {
     pending,
     chips,
     copied,
+    flashing,
     handleKeyDown,
     chooseChip,
     keepRaw,

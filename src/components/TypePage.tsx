@@ -2,7 +2,6 @@ import { useRef } from 'react'
 import { useEditorState } from '../hooks/useEditorState'
 import { Editor } from './Editor'
 import { CheatSheet } from './CheatSheet'
-import { Roadmap } from './Roadmap'
 import './TypePage.css'
 
 export function TypePage() {
@@ -21,7 +20,6 @@ export function TypePage() {
             textareaRef.current?.focus()
           }}
         />
-        <Roadmap />
       </div>
     </div>
   )

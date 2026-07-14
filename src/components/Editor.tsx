@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import type { RefObject } from 'react'
 import type { EditorState } from '../hooks/useEditorState'
 import { SAMPLES } from '../data/samples'
+import { hasHintBeenDismissed, markHintDismissed } from '../lib/onboarding'
 import './Editor.css'
 
 interface EditorProps {
@@ -9,9 +11,33 @@ interface EditorProps {
 }
 
 export function Editor({ editor, textareaRef }: EditorProps) {
+  const [hintDismissed, setHintDismissed] = useState(() => hasHintBeenDismissed())
+
+  const handleDismissHint = () => {
+    setHintDismissed(true)
+    markHintDismissed()
+  }
+
   return (
     <div>
-      <div className="editor">
+      {!hintDismissed && (
+        <div className="hint-banner">
+          <p>
+            Type Latin letters phonetically — <span className="dev">kasto chha</span> becomes{' '}
+            <span className="dev">कस्तो छ</span> as you type.
+          </p>
+          <button
+            type="button"
+            className="hint-dismiss"
+            aria-label="Dismiss hint"
+            onClick={handleDismissHint}
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      <div className={`editor${editor.flashing ? ' editor--flash' : ''}`}>
         <div className="editor-bar">
           <span className="dots" aria-hidden="true">
             <i />
