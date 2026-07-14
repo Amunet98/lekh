@@ -46,8 +46,8 @@
   }
 }
 
-/* No manual toggle in Lekh — OS preference only. Kept structurally identical
-   to the portfolio's token set in case a manual toggle is ever added later. */
+/* Manual override — set by ThemeToggle (and the index.html bootstrap script
+   pre-paint). data-theme='light' opts out of the OS-dark rule above. */
 :root[data-theme='dark'] {
   --text: var(--dark-text);
   --text-h: var(--dark-text-h);

@@ -3,6 +3,7 @@ import { DotMatrixBackground } from './components/DotMatrixBackground'
 import { TabSwitcher, type Tab } from './components/TabSwitcher'
 import { TypePage } from './components/TypePage'
 import { ScanPage } from './components/ScanPage'
+import { ThemeToggle } from './components/ThemeToggle'
 import './App.css'
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
       <DotMatrixBackground />
       <div className="page">
         <header className="page-header">
+          <ThemeToggle />
           <span className="tag">Nepali typing, scanning &amp; translation</span>
           <h1>
             <span className="dev">लेख</span>

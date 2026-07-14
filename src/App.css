@@ -6,6 +6,15 @@
   padding: clamp(1.5rem, 4vw, 3.5rem) clamp(1rem, 4vw, 2.5rem);
 }
 
+.page-header {
+  position: relative;
+}
+@media (max-width: 600px) {
+  /* keep the tag pill from running under the absolutely-positioned toggle */
+  .page-header {
+    padding-right: 3.4rem;
+  }
+}
 .page-header h1 {
   margin: 0.9rem 0 0;
   font-family: var(--mono);
