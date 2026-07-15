@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTranslateState } from '../hooks/useTranslateState'
 import { recognizeText } from '../lib/ocr/tesseract'
-import { Camera, type CameraInput } from './Camera'
+import { FileUpload, type ScanInput } from './FileUpload'
 import { DirectionToggle, TranslateControls } from './translate/TranslateControls'
 import { TranslationOutput } from './translate/TranslationOutput'
 import { TranslateActions } from './translate/TranslateActions'
@@ -24,7 +24,7 @@ export function ScanPage({ onEditInTranslate }: ScanPageProps) {
   // correction and the Translate handoff.
   const [showRecognized, setShowRecognized] = useState(false)
 
-  const handleInput = async (input: CameraInput) => {
+  const handleInput = async (input: ScanInput) => {
     setReadStatus('reading')
     setReadProgress(0)
     const lang = t.direction === 'ne-en' ? 'nep' : 'eng'
@@ -66,7 +66,7 @@ export function ScanPage({ onEditInTranslate }: ScanPageProps) {
 
       <DirectionToggle t={t} />
 
-      <Camera onInput={(input) => void handleInput(input)} />
+      <FileUpload onInput={(input) => void handleInput(input)} />
 
       {readStatus === 'reading' && (
         <p className="sugg-hint">

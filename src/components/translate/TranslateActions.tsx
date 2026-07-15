@@ -3,8 +3,9 @@ import './translate.css'
 
 interface TranslateActionsProps {
   t: TranslateState
-  // Scan's photo never leaves the browser even in online mode (only the
-  // OCR'd text is sent) — Translate has no photo, so the copy differs.
+  // Scan's uploaded photo/document never leaves the browser even in online
+  // mode (only the recognized text is sent) — Translate has no upload, so
+  // the copy differs.
   context: 'scan' | 'translate'
 }
 
@@ -47,7 +48,7 @@ export function TranslateActions({ t, context }: TranslateActionsProps) {
       <p className="privacy translate-privacy">
         {t.mode === 'online'
           ? context === 'scan'
-            ? 'translation uses a free online service (Google Translate, falling back to mymemory.translated.net) — the photo itself never leaves your browser, only the recognized text is sent'
+            ? 'translation uses a free online service (Google Translate, falling back to mymemory.translated.net) — the photo or document itself never leaves your browser, only the recognized text is sent'
             : 'translation uses a free online service (Google Translate, falling back to mymemory.translated.net) — only the text you enter is sent'
           : context === 'scan'
             ? 'on-device mode — nothing, not even the recognized text, ever leaves your browser'

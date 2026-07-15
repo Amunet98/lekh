@@ -1,3 +1,12 @@
+.type-page-intro {
+  margin: 0 0 1.25rem;
+  max-width: 42rem;
+  color: var(--text);
+}
+.type-page-intro .dev {
+  color: var(--text-h);
+}
+
 .type-page {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(340px, 1fr);

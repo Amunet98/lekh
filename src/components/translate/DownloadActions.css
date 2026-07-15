@@ -5,6 +5,31 @@
   margin-top: 1rem;
 }
 
+.download-actions__select {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-h);
+  border-radius: 6px;
+  padding: 0.34rem 0.85rem;
+  cursor: pointer;
+  min-height: 44px;
+}
+.download-actions__select:hover,
+.download-actions__select:focus-visible {
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+}
+.download-actions__select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.download-actions__select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .print-sheet {
   display: none;
 }

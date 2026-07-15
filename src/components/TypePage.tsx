@@ -9,18 +9,24 @@ export function TypePage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   return (
-    <div className="type-page">
-      <div className="type-page__left">
-        <Editor editor={editor} textareaRef={textareaRef} />
+    <>
+      <p className="type-page-intro">
+        Type Nepali the way you already text it — <span className="dev">kasto chha</span> becomes{' '}
+        <span className="dev">कस्तो छ</span> as you type.
+      </p>
+      <div className="type-page">
+        <div className="type-page__left">
+          <Editor editor={editor} textareaRef={textareaRef} />
+        </div>
+        <div className="type-page__right">
+          <CheatSheet
+            onInsert={(ch) => {
+              editor.insertAtCursor(ch)
+              textareaRef.current?.focus()
+            }}
+          />
+        </div>
       </div>
-      <div className="type-page__right">
-        <CheatSheet
-          onInsert={(ch) => {
-            editor.insertAtCursor(ch)
-            textareaRef.current?.focus()
-          }}
-        />
-      </div>
-    </div>
+    </>
   )
 }

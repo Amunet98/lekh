@@ -44,22 +44,31 @@ export function DownloadActions({ t }: { t: TranslateState }) {
     window.print()
   }
 
+  const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const format = e.target.value
+    // Reset immediately so re-selecting the same option fires onChange again.
+    e.target.value = ''
+    if (format === 'txt') downloadTxt()
+    else if (format === 'docx') void downloadDocx()
+    else if (format === 'pdf') printPdf()
+  }
+
   return (
     <div className="download-actions">
-      <button type="button" className="btn" onClick={downloadTxt} disabled={!enabled}>
-        Download .txt
-      </button>
-      <button
-        type="button"
-        className="btn"
-        onClick={() => void downloadDocx()}
+      <select
+        className="download-actions__select"
+        value=""
+        onChange={handleSelect}
         disabled={!enabled || busy}
+        aria-label="Download translation as"
       >
-        Download .docx
-      </button>
-      <button type="button" className="btn" onClick={printPdf} disabled={!enabled}>
-        Save as PDF
-      </button>
+        <option value="" disabled>
+          Download ▾
+        </option>
+        <option value="txt">.txt</option>
+        <option value="docx">.docx</option>
+        <option value="pdf">Save as PDF</option>
+      </select>
       <div id="print-sheet" ref={printSheetRef} className="print-sheet" />
     </div>
   )
