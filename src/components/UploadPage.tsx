@@ -1,20 +1,20 @@
 import { useState } from 'react'
 import { useTranslateState } from '../hooks/useTranslateState'
 import { recognizeText } from '../lib/ocr/tesseract'
-import { FileUpload, type ScanInput } from './FileUpload'
+import { FileUpload, type UploadInput } from './FileUpload'
 import { DirectionToggle, TranslateControls } from './translate/TranslateControls'
 import { TranslationOutput } from './translate/TranslationOutput'
 import { TranslateActions } from './translate/TranslateActions'
 import { DownloadActions } from './translate/DownloadActions'
-import './ScanPage.css'
+import './UploadPage.css'
 
-interface ScanPageProps {
+interface UploadPageProps {
   onEditInTranslate: (text: string) => void
 }
 
 type ReadStatus = 'idle' | 'reading' | 'error'
 
-export function ScanPage({ onEditInTranslate }: ScanPageProps) {
+export function UploadPage({ onEditInTranslate }: UploadPageProps) {
   const t = useTranslateState()
   const [readStatus, setReadStatus] = useState<ReadStatus>('idle')
   const [readLabel, setReadLabel] = useState('Reading text…')
@@ -24,7 +24,7 @@ export function ScanPage({ onEditInTranslate }: ScanPageProps) {
   // correction and the Translate handoff.
   const [showRecognized, setShowRecognized] = useState(false)
 
-  const handleInput = async (input: ScanInput) => {
+  const handleInput = async (input: UploadInput) => {
     setReadStatus('reading')
     setReadProgress(0)
     const lang = t.direction === 'ne-en' ? 'nep' : 'eng'
@@ -60,9 +60,9 @@ export function ScanPage({ onEditInTranslate }: ScanPageProps) {
   }
 
   return (
-    <section className="scan">
-      <span className="tag">Scan</span>
-      <h2>Scan a document — Nepali ⇄ English</h2>
+    <section className="upload">
+      <span className="tag">Upload</span>
+      <h2>Upload a document — Nepali ⇄ English</h2>
 
       <DirectionToggle t={t} />
 
@@ -87,7 +87,7 @@ export function ScanPage({ onEditInTranslate }: ScanPageProps) {
 
       <button
         type="button"
-        className="btn scan-toggle"
+        className="btn upload-toggle"
         onClick={() => setShowRecognized((v) => !v)}
         aria-expanded={showRecognized}
       >
@@ -95,7 +95,7 @@ export function ScanPage({ onEditInTranslate }: ScanPageProps) {
       </button>
 
       {showRecognized && (
-        <div className="scan-recognized">
+        <div className="upload-recognized">
           <div className="translate-panes translate-panes--single">
             <textarea
               className="translate-input dev"
@@ -111,7 +111,7 @@ export function ScanPage({ onEditInTranslate }: ScanPageProps) {
         </div>
       )}
 
-      <TranslateActions t={t} context="scan" />
+      <TranslateActions t={t} context="upload" />
       <DownloadActions t={t} />
     </section>
   )

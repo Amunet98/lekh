@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import './TabSwitcher.css'
 
-export type Tab = 'type' | 'scan' | 'translate'
+export type Tab = 'type' | 'upload' | 'translate'
 
 interface TabSwitcherProps {
   active: Tab
@@ -31,11 +31,12 @@ function TypeIcon() {
   )
 }
 
-function ScanIcon() {
+function UploadIcon() {
   return (
     <svg {...iconProps()}>
-      <path d="M3 7h3l2-2h8l2 2h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1Z" />
-      <circle cx="12" cy="13" r="3.5" />
+      <path d="M12 15V4" />
+      <path d="M7.5 8.5 12 4l4.5 4.5" />
+      <path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" />
     </svg>
   )
 }
@@ -51,7 +52,7 @@ function TranslateIcon() {
 
 const TABS: { id: Tab; label: string; icon: ReactNode }[] = [
   { id: 'type', label: 'Type', icon: <TypeIcon /> },
-  { id: 'scan', label: 'Scan', icon: <ScanIcon /> },
+  { id: 'upload', label: 'Upload', icon: <UploadIcon /> },
   { id: 'translate', label: 'Translate', icon: <TranslateIcon /> },
 ]
 

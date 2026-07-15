@@ -3,10 +3,10 @@ import './translate.css'
 
 interface TranslateActionsProps {
   t: TranslateState
-  // Scan's uploaded photo/document never leaves the browser even in online
-  // mode (only the recognized text is sent) — Translate has no upload, so
-  // the copy differs.
-  context: 'scan' | 'translate'
+  // Upload's photo/document never leaves the browser even in online mode
+  // (only the recognized text is sent) — Translate has no upload, so the
+  // copy differs.
+  context: 'upload' | 'translate'
 }
 
 export function TranslateActions({ t, context }: TranslateActionsProps) {
@@ -47,10 +47,10 @@ export function TranslateActions({ t, context }: TranslateActionsProps) {
 
       <p className="privacy translate-privacy">
         {t.mode === 'online'
-          ? context === 'scan'
+          ? context === 'upload'
             ? 'translation uses a free online service (Google Translate, falling back to mymemory.translated.net) — the photo or document itself never leaves your browser, only the recognized text is sent'
             : 'translation uses a free online service (Google Translate, falling back to mymemory.translated.net) — only the text you enter is sent'
-          : context === 'scan'
+          : context === 'upload'
             ? 'on-device mode — nothing, not even the recognized text, ever leaves your browser'
             : 'on-device mode — nothing you enter ever leaves your browser'}
       </p>

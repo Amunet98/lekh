@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { DotMatrixBackground } from './components/DotMatrixBackground'
 import { TabSwitcher, type Tab } from './components/TabSwitcher'
 import { TypePage } from './components/TypePage'
-import { ScanPage } from './components/ScanPage'
+import { UploadPage } from './components/UploadPage'
 import { TranslatePage } from './components/TranslatePage'
 import { ThemeToggle } from './components/ThemeToggle'
 import { InstallButton } from './components/InstallButton'
@@ -11,8 +11,8 @@ import './App.css'
 
 function App() {
   const [tab, setTab] = useState<Tab>('type')
-  // Scan's "Edit in Translate" handoff — TranslatePage consumes and clears
-  // this on mount so re-entering Scan later doesn't replay a stale handoff.
+  // Upload's "Edit in Translate" handoff — TranslatePage consumes and clears
+  // this on mount so re-entering Upload later doesn't replay a stale handoff.
   const [handoffText, setHandoffText] = useState<string | null>(null)
 
   const editInTranslate = (text: string) => {
@@ -40,8 +40,8 @@ function App() {
 
         {tab === 'type' ? (
           <TypePage />
-        ) : tab === 'scan' ? (
-          <ScanPage onEditInTranslate={editInTranslate} />
+        ) : tab === 'upload' ? (
+          <UploadPage onEditInTranslate={editInTranslate} />
         ) : (
           <TranslatePage
             handoffText={handoffText}

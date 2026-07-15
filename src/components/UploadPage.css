@@ -1,22 +1,22 @@
-.scan h2 {
+.upload h2 {
   margin: 0.9rem 0 1.2rem;
   font-family: var(--mono);
   font-size: 1.4rem;
   font-weight: 600;
 }
 
-.scan > .file-upload {
+.upload > .file-upload {
   margin-bottom: 1rem;
 }
 
-.scan-toggle {
+.upload-toggle {
   margin-top: 0.8rem;
 }
 
-.scan-recognized {
+.upload-recognized {
   margin-top: 0.8rem;
 }
-.scan-recognized .translate-panes {
+.upload-recognized .translate-panes {
   margin-top: 0;
   margin-bottom: 0.6rem;
 }

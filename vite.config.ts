@@ -24,7 +24,7 @@ export default defineConfig({
         start_url: '/',
         scope: '/',
         description:
-          'Type Nepali the way you already text it. Romanized-to-Devanagari transliteration, a full script cheat sheet, and a camera scanner that reads Nepali or English documents and translates them — runs entirely in your browser.',
+          'Type Nepali the way you already text it. Romanized-to-Devanagari transliteration, a full script cheat sheet, and a document/photo upload that reads Nepali or English text and translates it — runs entirely in your browser.',
         display: 'standalone',
         theme_color: '#16171d',
         background_color: '#16171d',

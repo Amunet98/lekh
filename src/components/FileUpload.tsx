@@ -1,10 +1,10 @@
 import { useRef } from 'react'
 import './FileUpload.css'
 
-export type ScanInput = { kind: 'image'; canvas: HTMLCanvasElement } | { kind: 'file'; file: File }
+export type UploadInput = { kind: 'image'; canvas: HTMLCanvasElement } | { kind: 'file'; file: File }
 
 interface FileUploadProps {
-  onInput: (input: ScanInput) => void
+  onInput: (input: UploadInput) => void
 }
 
 const FILE_ACCEPT = 'image/*,.pdf,.docx,.txt'
