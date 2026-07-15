@@ -1,6 +1,26 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { applyTheme, getInitialTheme, type Theme } from '../lib/theme'
 import './ThemeToggle.css'
+
+function AutoIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect x="3" y="4" width="18" height="13" rx="1.5" />
+      <line x1="8" y1="21" x2="16" y2="21" />
+      <line x1="12" y1="17" x2="12" y2="21" />
+    </svg>
+  )
+}
 
 function SunIcon() {
   return (
@@ -38,6 +58,12 @@ function MoonIcon() {
   )
 }
 
+const OPTIONS: { id: Theme; label: string; icon: ReactNode }[] = [
+  { id: 'auto', label: 'Auto', icon: <AutoIcon /> },
+  { id: 'light', label: 'Light', icon: <SunIcon /> },
+  { id: 'dark', label: 'Dark', icon: <MoonIcon /> },
+]
+
 export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>(getInitialTheme)
 
@@ -48,16 +74,31 @@ export function ThemeToggle() {
     window.dispatchEvent(new Event('resize'))
   }, [theme])
 
+  useEffect(() => {
+    if (theme !== 'auto') return
+    const query = matchMedia('(prefers-color-scheme: dark)')
+    const onChange = () => {
+      applyTheme('auto')
+      window.dispatchEvent(new Event('resize'))
+    }
+    query.addEventListener('change', onChange)
+    return () => query.removeEventListener('change', onChange)
+  }, [theme])
+
   return (
-    <button
-      type="button"
-      className="theme-toggle"
-      aria-label={
-        theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'
-      }
-      onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
-    >
-      {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
-    </button>
+    <div className="theme-toggle" role="group" aria-label="Theme">
+      {OPTIONS.map(({ id, label, icon }) => (
+        <button
+          key={id}
+          type="button"
+          className={`theme-toggle__btn${theme === id ? ' theme-toggle__btn--active' : ''}`}
+          aria-label={label}
+          aria-pressed={theme === id}
+          onClick={() => setTheme(id)}
+        >
+          {icon}
+        </button>
+      ))}
+    </div>
   )
 }

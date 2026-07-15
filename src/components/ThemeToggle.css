@@ -1,23 +1,33 @@
 .theme-toggle {
   flex-shrink: 0;
   display: inline-flex;
+  gap: 0.15rem;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+.theme-toggle__btn {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  border: 1px solid var(--border);
+  width: 34px;
+  height: 34px;
+  border: 1px solid transparent;
   background: transparent;
-  color: var(--text-h);
-  border-radius: 6px;
+  color: var(--text);
+  border-radius: 999px;
   cursor: pointer;
 }
-.theme-toggle:hover,
-.theme-toggle:focus-visible {
-  border-color: var(--accent-border);
-  background: var(--accent-bg);
+.theme-toggle__btn:hover,
+.theme-toggle__btn:focus-visible {
   color: var(--accent);
 }
-.theme-toggle:focus-visible {
+.theme-toggle__btn:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
+}
+.theme-toggle__btn--active {
+  color: var(--accent);
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
 }

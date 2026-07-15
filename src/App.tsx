@@ -6,6 +6,7 @@ import { ScanPage } from './components/ScanPage'
 import { TranslatePage } from './components/TranslatePage'
 import { ThemeToggle } from './components/ThemeToggle'
 import { InstallButton } from './components/InstallButton'
+import { Footer } from './components/Footer'
 import './App.css'
 
 function App() {
@@ -22,25 +23,19 @@ function App() {
   return (
     <>
       <DotMatrixBackground />
-      <div className="page">
-        <header className="page-header">
-          <div className="page-header__actions">
+      <header className="app-bar">
+        <div className="app-bar__inner">
+          <span className="app-bar__brand">
+            <span className="dev">लेख</span>
+            <span className="sep">/</span>lekh
+          </span>
+          <div className="app-bar__actions">
             <InstallButton />
             <ThemeToggle />
           </div>
-          <span className="tag">Nepali typing, scanning &amp; translation</span>
-          <h1>
-            <span className="dev">लेख</span>
-            <span className="sep">/</span>lekh
-          </h1>
-          <p className="tagline">
-            Type Nepali the way you already text it —{' '}
-            <span className="dev">kasto chha</span> becomes{' '}
-            <span className="dev">कस्तो छ</span> as you type. No app install, no account,
-            no cloud.
-          </p>
-        </header>
-
+        </div>
+      </header>
+      <div className="page">
         <TabSwitcher active={tab} onChange={setTab} />
 
         {tab === 'type' ? (
@@ -53,6 +48,8 @@ function App() {
             onHandoffConsumed={() => setHandoffText(null)}
           />
         )}
+
+        <Footer />
       </div>
     </>
   )

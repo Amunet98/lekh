@@ -1,27 +1,39 @@
-export type Theme = 'light' | 'dark'
+export type Theme = 'light' | 'dark' | 'auto'
+type ResolvedTheme = 'light' | 'dark'
 
 // Bare 'theme' key (not lekh:-prefixed) — must match the FOUC bootstrap
-// script in index.html, which reads it before first paint.
+// script in index.html, which reads it before first paint. The bootstrap
+// script only special-cases the literal 'light'/'dark' strings — 'auto'
+// (and anything else, including a missing key) already falls through to
+// its own matchMedia check there, so it needs no changes for 'auto'.
 const THEME_KEY = 'theme'
 
 export function getInitialTheme(): Theme {
   try {
     const stored = localStorage.getItem(THEME_KEY)
-    if (stored === 'light' || stored === 'dark') return stored
+    if (stored === 'light' || stored === 'dark' || stored === 'auto') return stored
   } catch {
-    // localStorage unavailable — fall through to the OS preference
+    // localStorage unavailable — fall through to the default
   }
-  return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  return 'auto'
+}
+
+export function resolveTheme(theme: Theme): ResolvedTheme {
+  if (theme === 'auto') {
+    return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  }
+  return theme
 }
 
 export function applyTheme(theme: Theme): void {
-  document.documentElement.dataset.theme = theme
+  const resolved = resolveTheme(theme)
+  document.documentElement.dataset.theme = resolved
   // Keeps the installed PWA's Android status bar in sync with the app
   // theme — Chrome applies live meta changes in standalone mode, no
   // reinstall needed. Must match --bg for each theme in index.css.
   document.querySelector('meta[name="theme-color"]')?.setAttribute(
     'content',
-    theme === 'dark' ? '#16171d' : '#ffffff',
+    resolved === 'dark' ? '#16171d' : '#ffffff',
   )
   try {
     localStorage.setItem(THEME_KEY, theme)
