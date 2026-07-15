@@ -30,12 +30,12 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        // The ~19MB tesseract/tessdata payload stays out of the app-shell
-        // precache — it's fetched (and cached) on first scan instead.
-        globIgnores: ['tesseract/**', 'tessdata/**'],
+        // The ~19MB tesseract/tessdata payload (and the pdf.js worker) stay
+        // out of the app-shell precache — fetched (and cached) on first use.
+        globIgnores: ['tesseract/**', 'tessdata/**', 'pdfjs/**'],
         runtimeCaching: [
           {
-            urlPattern: /\/(tesseract|tessdata)\//,
+            urlPattern: /\/(tesseract|tessdata|pdfjs)\//,
             handler: 'CacheFirst',
             options: {
               cacheName: 'lekh-ocr-assets',

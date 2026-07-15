@@ -23,3 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
+
+# private session notes (not for the public repo)
+lekh-chat.md

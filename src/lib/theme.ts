@@ -16,6 +16,13 @@ export function getInitialTheme(): Theme {
 
 export function applyTheme(theme: Theme): void {
   document.documentElement.dataset.theme = theme
+  // Keeps the installed PWA's Android status bar in sync with the app
+  // theme — Chrome applies live meta changes in standalone mode, no
+  // reinstall needed. Must match --bg for each theme in index.css.
+  document.querySelector('meta[name="theme-color"]')?.setAttribute(
+    'content',
+    theme === 'dark' ? '#16171d' : '#ffffff',
+  )
   try {
     localStorage.setItem(THEME_KEY, theme)
   } catch {

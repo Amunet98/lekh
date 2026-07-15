@@ -3,18 +3,31 @@ import { DotMatrixBackground } from './components/DotMatrixBackground'
 import { TabSwitcher, type Tab } from './components/TabSwitcher'
 import { TypePage } from './components/TypePage'
 import { ScanPage } from './components/ScanPage'
+import { TranslatePage } from './components/TranslatePage'
 import { ThemeToggle } from './components/ThemeToggle'
+import { InstallButton } from './components/InstallButton'
 import './App.css'
 
 function App() {
   const [tab, setTab] = useState<Tab>('type')
+  // Scan's "Edit in Translate" handoff — TranslatePage consumes and clears
+  // this on mount so re-entering Scan later doesn't replay a stale handoff.
+  const [handoffText, setHandoffText] = useState<string | null>(null)
+
+  const editInTranslate = (text: string) => {
+    setHandoffText(text)
+    setTab('translate')
+  }
 
   return (
     <>
       <DotMatrixBackground />
       <div className="page">
         <header className="page-header">
-          <ThemeToggle />
+          <div className="page-header__actions">
+            <InstallButton />
+            <ThemeToggle />
+          </div>
           <span className="tag">Nepali typing, scanning &amp; translation</span>
           <h1>
             <span className="dev">लेख</span>
@@ -30,7 +43,16 @@ function App() {
 
         <TabSwitcher active={tab} onChange={setTab} />
 
-        {tab === 'type' ? <TypePage /> : <ScanPage />}
+        {tab === 'type' ? (
+          <TypePage />
+        ) : tab === 'scan' ? (
+          <ScanPage onEditInTranslate={editInTranslate} />
+        ) : (
+          <TranslatePage
+            handoffText={handoffText}
+            onHandoffConsumed={() => setHandoffText(null)}
+          />
+        )}
       </div>
     </>
   )

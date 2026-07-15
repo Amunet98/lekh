@@ -1,63 +1,61 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTranslateState } from '../hooks/useTranslateState'
-import {
-  hasConfirmedDownload,
-  setConfirmedDownload,
-  hasDownloadedModel,
-  isModelCached,
-} from '../lib/translation/onDeviceProvider'
 import { recognizeText } from '../lib/ocr/tesseract'
-import { Camera } from './Camera'
+import { Camera, type CameraInput } from './Camera'
+import { DirectionToggle, TranslateControls } from './translate/TranslateControls'
+import { TranslationOutput } from './translate/TranslationOutput'
+import { TranslateActions } from './translate/TranslateActions'
+import { DownloadActions } from './translate/DownloadActions'
 import './ScanPage.css'
 
-const formatMB = (bytes: number) => `${Math.round(bytes / 1e6)} MB`
+interface ScanPageProps {
+  onEditInTranslate: (text: string) => void
+}
 
-export function ScanPage() {
+type ReadStatus = 'idle' | 'reading' | 'error'
+
+export function ScanPage({ onEditInTranslate }: ScanPageProps) {
   const t = useTranslateState()
-  const [showConfirm, setShowConfirm] = useState(false)
-  const [ocrStatus, setOcrStatus] = useState<'idle' | 'recognizing' | 'error'>('idle')
-  const [ocrProgress, setOcrProgress] = useState<number | null>(null)
-  // localStorage isn't reactive — seed from it for an instant paint, then
-  // self-heal against the real Cache Storage entry (the flag can go stale
-  // in either direction: cache evicted under storage pressure, or flag lost
-  // while the cache survives).
-  const [modelDownloaded, setModelDownloaded] = useState(() => hasDownloadedModel())
+  const [readStatus, setReadStatus] = useState<ReadStatus>('idle')
+  const [readLabel, setReadLabel] = useState('Reading text…')
+  const [readProgress, setReadProgress] = useState<number | null>(null)
+  // Recognized/extracted text is collapsed by default — the translation is
+  // the primary output; this stays around (and editable) for OCR-error
+  // correction and the Translate handoff.
+  const [showRecognized, setShowRecognized] = useState(false)
 
-  useEffect(() => {
-    void isModelCached().then(setModelDownloaded)
-  }, [])
-
-  const requestOnDevice = () => {
-    if (hasConfirmedDownload() || hasDownloadedModel()) {
-      t.switchToOnDevice()
-    } else {
-      setShowConfirm(true)
-    }
-  }
-
-  const translateOnDevice = async () => {
-    await t.runOnDevice()
-    setModelDownloaded(hasDownloadedModel())
-  }
-
-  const confirmDownload = () => {
-    setConfirmedDownload()
-    setShowConfirm(false)
-    t.switchToOnDevice()
-  }
-
-  const handleCapture = async (canvas: HTMLCanvasElement) => {
-    setOcrStatus('recognizing')
-    setOcrProgress(0)
+  const handleInput = async (input: CameraInput) => {
+    setReadStatus('reading')
+    setReadProgress(0)
+    const lang = t.direction === 'ne-en' ? 'nep' : 'eng'
     try {
-      const lang = t.direction === 'ne-en' ? 'nep' : 'eng'
-      const text = await recognizeText(canvas, lang, setOcrProgress)
-      t.setSourceText(text)
-      setOcrStatus('idle')
+      if (input.kind === 'image') {
+        setReadLabel('Reading text…')
+        const text = await recognizeText(input.canvas, lang, setReadProgress)
+        t.setSourceText(text)
+      } else {
+        const ext = input.file.name.split('.').pop()?.toLowerCase()
+        if (ext === 'txt') {
+          setReadLabel('Reading file…')
+          t.setSourceText(await input.file.text())
+        } else if (ext === 'docx') {
+          setReadLabel('Reading document…')
+          const { extractDocxText } = await import('../lib/docs/docxInput')
+          t.setSourceText(await extractDocxText(input.file))
+        } else if (ext === 'pdf') {
+          const { extractPdfText } = await import('../lib/docs/pdfInput')
+          const text = await extractPdfText(input.file, lang, (p) => {
+            setReadLabel(`Reading page ${p.page}/${p.totalPages}…`)
+            setReadProgress(p.page / p.totalPages)
+          })
+          t.setSourceText(text)
+        }
+      }
+      setReadStatus('idle')
     } catch {
-      setOcrStatus('error')
+      setReadStatus('error')
     } finally {
-      setOcrProgress(null)
+      setReadProgress(null)
     }
   }
 
@@ -66,164 +64,55 @@ export function ScanPage() {
       <span className="tag">Scan</span>
       <h2>Scan a document — Nepali ⇄ English</h2>
 
-      <div className="scan-direction">
-        <button
-          type="button"
-          className={`mode-btn${t.direction === 'ne-en' ? ' mode-btn--active' : ''}`}
-          onClick={() => t.setDirection('ne-en')}
-        >
-          Nepali → English
-        </button>
-        <button
-          type="button"
-          className={`mode-btn${t.direction === 'en-ne' ? ' mode-btn--active' : ''}`}
-          onClick={() => t.setDirection('en-ne')}
-        >
-          English → Nepali
-        </button>
-      </div>
+      <DirectionToggle t={t} />
 
-      <Camera onCapture={(canvas) => void handleCapture(canvas)} />
+      <Camera onInput={(input) => void handleInput(input)} />
 
-      {ocrStatus === 'recognizing' && (
+      {readStatus === 'reading' && (
         <p className="sugg-hint">
-          Reading text… {ocrProgress !== null ? Math.round(ocrProgress * 100) : 0}%
+          {readLabel} {readProgress !== null ? `${Math.round(readProgress * 100)}%` : ''}
         </p>
       )}
-      {ocrStatus === 'error' && (
+      {readStatus === 'error' && (
         <div className="error-banner" role="alert">
-          Couldn&rsquo;t read text from that photo — try a clearer, well-lit shot.
+          Couldn&rsquo;t read that document — try a clearer photo or a different file.
         </div>
       )}
 
-      <div className="translate-mode">
-        <button
-          type="button"
-          className={`mode-btn${t.mode === 'online' ? ' mode-btn--active' : ''}`}
-          onClick={t.switchToOnline}
-        >
-          Online
-        </button>
-        <button
-          type="button"
-          className={`mode-btn${t.mode === 'ondevice' ? ' mode-btn--active' : ''}`}
-          onClick={requestOnDevice}
-        >
-          On-device
-        </button>
+      <TranslateControls t={t} />
+
+      <div className="translate-panes translate-panes--single">
+        <TranslationOutput t={t} />
       </div>
 
-      {t.mode === 'ondevice' && (
-        <p className="sugg-hint model-status">
-          {modelDownloaded
-            ? 'Model downloaded — loads from browser cache.'
-            : 'Model not downloaded yet — ~900MB one-time download.'}
-        </p>
-      )}
+      <button
+        type="button"
+        className="btn scan-toggle"
+        onClick={() => setShowRecognized((v) => !v)}
+        aria-expanded={showRecognized}
+      >
+        {showRecognized ? 'Hide recognized text ▾' : 'Show recognized text ▸'}
+      </button>
 
-      {showConfirm && (
-        <div className="confirm-banner" role="dialog" aria-label="Download on-device model">
-          <p>
-            The on-device model is about ~900MB and downloads once (cached in your browser
-            afterward). Recommended on WiFi — continue?
-          </p>
-          <div className="confirm-actions">
-            <button type="button" className="btn" onClick={confirmDownload}>
-              Download &amp; enable
-            </button>
-            <button type="button" className="btn" onClick={() => setShowConfirm(false)}>
-              Cancel
-            </button>
+      {showRecognized && (
+        <div className="scan-recognized">
+          <div className="translate-panes translate-panes--single">
+            <textarea
+              className="translate-input dev"
+              rows={6}
+              placeholder="Recognized text appears here — capture a photo, or edit it directly…"
+              value={t.sourceText}
+              onChange={(e) => t.setSourceText(e.target.value)}
+            />
           </div>
-        </div>
-      )}
-
-      <div className="translate-panes">
-        <textarea
-          className="translate-input dev"
-          rows={6}
-          placeholder="Recognized text appears here — capture a photo, or edit it directly…"
-          value={t.sourceText}
-          onChange={(e) => t.setSourceText(e.target.value)}
-        />
-        <div className="translate-output dev" aria-live="polite">
-          {t.status === 'loading' && t.modelLoad !== null ? (
-            t.modelLoad.phase === 'downloading' ? (
-              <div className="model-progress">
-                <div
-                  className="model-progress-track"
-                  role="progressbar"
-                  aria-label="Model download"
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                  aria-valuenow={Math.floor(
-                    (t.modelLoad.loadedBytes / t.modelLoad.totalBytes) * 100,
-                  )}
-                >
-                  <div
-                    className="model-progress-fill"
-                    style={{
-                      width: `${(t.modelLoad.loadedBytes / t.modelLoad.totalBytes) * 100}%`,
-                    }}
-                  />
-                </div>
-                <span className="model-progress-label">
-                  {modelDownloaded ? 'Loading model from cache…' : 'Downloading model…'}{' '}
-                  {formatMB(t.modelLoad.loadedBytes)} / {formatMB(t.modelLoad.totalBytes)}
-                </span>
-              </div>
-            ) : (
-              <div className="model-progress">
-                <div className="model-progress-track" role="progressbar" aria-label="Model load">
-                  <div className="model-progress-fill model-progress-fill--indeterminate" />
-                </div>
-                <span className="model-progress-label">
-                  {modelDownloaded ? 'Loading model from cache…' : 'Preparing model…'}
-                </span>
-              </div>
-            )
-          ) : t.status === 'loading' ? (
-            <span className="sugg-hint">Translating…</span>
-          ) : t.translated ? (
-            t.translated
-          ) : (
-            <span className="sugg-hint">Translation appears here.</span>
-          )}
-        </div>
-      </div>
-
-      <div className="scan-actions">
-        <button type="button" className="swap-btn" onClick={t.swap} title="Swap direction" aria-label="Swap direction">
-          ⇄
-        </button>
-        {t.mode === 'ondevice' && (
-          <button
-            type="button"
-            className="btn btn--primary"
-            onClick={() => void translateOnDevice()}
-            disabled={t.status === 'loading' || !t.sourceText.trim()}
-          >
-            Translate on-device
+          <button type="button" className="btn" onClick={() => onEditInTranslate(t.sourceText)}>
+            Edit in Translate →
           </button>
-        )}
-      </div>
-
-      {t.error && (
-        <div className="error-banner" role="alert">
-          <span>{t.error}</span>
-          {t.mode === 'online' && (
-            <button type="button" className="btn" onClick={requestOnDevice}>
-              Switch to on-device
-            </button>
-          )}
         </div>
       )}
 
-      <p className="privacy">
-        {t.mode === 'online'
-          ? 'translation uses a free online service (Google Translate, falling back to mymemory.translated.net) — the photo itself never leaves your browser, only the recognized text is sent'
-          : 'on-device mode — nothing, not even the recognized text, ever leaves your browser'}
-      </p>
+      <TranslateActions t={t} context="scan" />
+      <DownloadActions t={t} />
     </section>
   )
 }

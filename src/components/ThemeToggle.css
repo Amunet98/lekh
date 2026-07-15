@@ -1,7 +1,5 @@
 .theme-toggle {
-  position: absolute;
-  top: 0;
-  right: 0;
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;

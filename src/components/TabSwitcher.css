@@ -33,3 +33,9 @@
   background: var(--accent-bg);
   border: 1px solid var(--accent-border);
 }
+@media (max-width: 420px) {
+  .tab-switcher__btn {
+    font-size: 0.72rem;
+    padding: 0.5rem 0.4rem;
+  }
+}

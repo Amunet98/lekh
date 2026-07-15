@@ -1,0 +1,39 @@
+.download-actions {
+  display: flex;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.print-sheet {
+  display: none;
+}
+
+/* Save-as-PDF: hide the app shell (dot-matrix background, header, tabs,
+   controls) and show only the populated sheet, full-page, black-on-white.
+   visibility (not display) keeps layout stable regardless of where
+   #print-sheet sits in the tree. */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #print-sheet,
+  #print-sheet * {
+    visibility: visible;
+  }
+  #print-sheet {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    margin: 0;
+    padding: 1.5cm;
+    color: #000;
+    background: #fff;
+    font-family: var(--devanagari), var(--sans);
+    font-size: 12pt;
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+}

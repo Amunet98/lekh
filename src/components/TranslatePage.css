@@ -1,0 +1,6 @@
+.translate-page h2 {
+  margin: 0.9rem 0 1.2rem;
+  font-family: var(--mono);
+  font-size: 1.4rem;
+  font-weight: 600;
+}
