@@ -2,19 +2,26 @@ import type { TranslateState } from '../../hooks/useTranslateState'
 import './translate.css'
 
 export function DirectionToggle({ t }: { t: TranslateState }) {
+  // Picking the inactive direction doubles as the old standalone swap
+  // button: it flips direction AND carries the current translation back
+  // into the source field, not just a bare direction change.
   return (
     <div className="direction-toggle">
       <button
         type="button"
         className={`mode-btn${t.direction === 'ne-en' ? ' mode-btn--active' : ''}`}
-        onClick={() => t.setDirection('ne-en')}
+        onClick={() => {
+          if (t.direction !== 'ne-en') t.swap()
+        }}
       >
         Nepali → English
       </button>
       <button
         type="button"
         className={`mode-btn${t.direction === 'en-ne' ? ' mode-btn--active' : ''}`}
-        onClick={() => t.setDirection('en-ne')}
+        onClick={() => {
+          if (t.direction !== 'en-ne') t.swap()
+        }}
       >
         English → Nepali
       </button>

@@ -139,7 +139,6 @@ export function useTranslateState() {
 
   return {
     direction,
-    setDirection,
     sourceLang,
     targetLang,
     sourceText,

@@ -147,23 +147,6 @@
   gap: 0.6rem;
   margin-top: 1rem;
 }
-.swap-btn {
-  flex-shrink: 0;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text-h);
-  cursor: pointer;
-  font-size: 1.1rem;
-}
-.swap-btn:hover,
-.swap-btn:focus-visible {
-  border-color: var(--accent-border);
-  background: var(--accent-bg);
-}
-
 .btn--primary {
   color: var(--accent);
   border-color: var(--accent-border);

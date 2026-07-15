@@ -12,17 +12,8 @@ interface TranslateActionsProps {
 export function TranslateActions({ t, context }: TranslateActionsProps) {
   return (
     <>
-      <div className="translate-actions">
-        <button
-          type="button"
-          className="swap-btn"
-          onClick={t.swap}
-          title="Swap direction"
-          aria-label="Swap direction"
-        >
-          ⇄
-        </button>
-        {t.mode === 'ondevice' && (
+      {t.mode === 'ondevice' && (
+        <div className="translate-actions">
           <button
             type="button"
             className="btn btn--primary"
@@ -31,8 +22,8 @@ export function TranslateActions({ t, context }: TranslateActionsProps) {
           >
             Translate on-device
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       {t.error && (
         <div className="error-banner" role="alert">
