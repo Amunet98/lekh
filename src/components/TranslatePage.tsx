@@ -27,7 +27,7 @@ export function TranslatePage({ handoffText, onHandoffConsumed }: TranslatePageP
   return (
     <section className="translate-page">
       <span className="tag">Translate</span>
-      <h2>Translate — Nepali ⇄ English</h2>
+      <h2>Translate — English ⇄ Nepali</h2>
 
       <DirectionToggle t={t} />
       <TranslateControls t={t} />
@@ -36,7 +36,7 @@ export function TranslatePage({ handoffText, onHandoffConsumed }: TranslatePageP
         <textarea
           className="translate-input dev"
           rows={6}
-          placeholder="Type Nepali (or romanized Nepali like 'mero naam') or English…"
+          placeholder="Type English or Nepali (or romanized Nepali like 'mero naam')…"
           value={t.sourceText}
           onChange={(e) => t.setSourceText(e.target.value)}
         />

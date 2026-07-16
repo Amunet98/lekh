@@ -62,7 +62,7 @@ export function UploadPage({ onEditInTranslate }: UploadPageProps) {
   return (
     <section className="upload">
       <span className="tag">Upload</span>
-      <h2>Upload a document — Nepali ⇄ English</h2>
+      <h2>Upload a document — English ⇄ Nepali</h2>
 
       <DirectionToggle t={t} />
 
