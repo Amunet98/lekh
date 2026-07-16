@@ -24,7 +24,7 @@ function romanizedHint(text: string, direction: Direction): string | null {
 }
 
 export function useTranslateState() {
-  const [direction, setDirection] = useState<Direction>('ne-en')
+  const [direction, setDirection] = useState<Direction>('en-ne')
   const [sourceText, setSourceText] = useState('')
   const [translated, setTranslated] = useState('')
   const [mode, setMode] = useState<TranslateMode>('online')
