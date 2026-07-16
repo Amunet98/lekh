@@ -38,8 +38,36 @@ export function FileUpload({ onInput }: FileUploadProps) {
   return (
     <div className="file-upload">
       <button type="button" className="file-upload__card" onClick={() => fileInputRef.current?.click()}>
-        <span className="file-upload__icon" aria-hidden="true">
-          🖼️
+        <span className="file-upload__icon">
+          <svg
+            width="40"
+            height="40"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.6}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 3h8l4 4v6" />
+            <path d="M6 3v18h6" />
+            <path d="M14 3v4h4" />
+            <text
+              x="11"
+              y="13.6"
+              fontSize="7.5"
+              textAnchor="middle"
+              fill="currentColor"
+              stroke="none"
+              style={{ fontFamily: 'var(--devanagari)', fontWeight: 600 }}
+            >
+              ले
+            </text>
+            <circle cx="17.5" cy="17.5" r="4.3" />
+            <path d="M17.5 19.6v-4" />
+            <path d="M15.7 17.3l1.8-1.8 1.8 1.8" />
+          </svg>
         </span>
         <span className="file-upload__label">Upload a photo or document</span>
         <span className="file-upload__caption">Image, PDF, DOCX or TXT</span>
