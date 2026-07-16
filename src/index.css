@@ -101,3 +101,43 @@ p {
 code {
   font-family: var(--mono);
 }
+
+/* Custom scrollbar — floating pill. The track margin shortens the bar so it
+   doesn't run edge-to-edge like browser chrome. */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  margin-block: 14px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--text) 45%, transparent);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--accent-border);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background-color: var(--accent);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Firefox fallback — must not reach Chrome: standard scrollbar properties
+   disable the ::-webkit-scrollbar styling above. */
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--text) 45%, transparent) transparent;
+  }
+}
