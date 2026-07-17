@@ -1,32 +1,53 @@
-# React + TypeScript + Vite
+# Lekh (लेख) — Nepali Typing
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+[![Live](https://img.shields.io/badge/Live-lekh--gamma.vercel.app-facc15)](https://lekh-gamma.vercel.app)
+[![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Vite](https://img.shields.io/badge/Vite-646cff?logo=vite&logoColor=white)](https://vite.dev)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-06b6d4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![PWA](https://img.shields.io/badge/PWA-installable-5a0fc8)](https://lekh-gamma.vercel.app)
 
-Currently, two official plugins are available:
+Type Nepali without a Nepali keyboard: write romanized Nepali — `kasto chha`
+— and Lekh converts it to Devanagari — कस्तो छ — as you type, IME-style,
+right in the browser.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+**Live (install from there):** https://lekh-gamma.vercel.app
 
-## React Compiler
+## What it does
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Type** — a phonetic transliteration engine backed by a 700+ word
+  dictionary shows suggestion chips (with spelling variants) as you type;
+  a built-in Devanagari cheat sheet covers the long tail. Works with
+  mobile keyboards/IMEs (Gboard-style commit flow).
+- **Upload** — OCR documents **entirely in the browser** via
+  [Tesseract.js](https://github.com/naptha/tesseract.js): images, PDF,
+  DOCX, and TXT, in English and Nepali. Nothing is uploaded to any server.
+- **Translate** — English ↔ Nepali with a Google-style language switcher.
+  Online translation by default, plus an optional **fully on-device**
+  NLLB-200 model ([Transformers.js](https://github.com/huggingface/transformers.js))
+  — private and offline-capable once cached (large download, fetched in
+  phases with progress).
 
-## Expanding the Oxlint configuration
+Lekh is an installable PWA with a real service worker — the typing engine,
+dictionary, and cheat sheet work offline. There's an explicit Install
+button in the header (captures `beforeinstallprompt`), plus light/dark
+themes.
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+## Stack
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+React 19 · TypeScript · Vite · Tailwind CSS v4 · Tesseract.js ·
+@huggingface/transformers
+
+## Run locally
+
+```bash
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Deployment is automatic: pushes to `main` build and deploy production on
+Vercel.
+
+---
+
+More of my work: **[bimeshpoudel.com.np](https://www.bimeshpoudel.com.np)**
