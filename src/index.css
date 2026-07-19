@@ -1,25 +1,42 @@
 @import 'tailwindcss';
 
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #dc2626;
-  --accent-bg: rgba(220, 38, 38, 0.1);
-  --accent-border: rgba(220, 38, 38, 0.45);
+  --text: #57534e;
+  --text-h: #1c1917;
+  --bg: #faf5ec;
+  --surface: #fffdf8;
+  --muted: #a8a29e;
+  --border: #eae0ce;
+  --border-strong: #e5dac4;
+  --code-bg: #f3ebdc;
+  --accent: #b8202f;
+  --accent-bg: rgba(184, 32, 47, 0.12);
+  --accent-border: rgba(184, 32, 47, 0.4);
+  --grain-dot: rgba(120, 90, 60, 0.055);
+  --shadow-card: 0 2px 6px rgba(120, 80, 30, 0.06), 0 18px 40px -18px rgba(120, 80, 30, 0.18);
+  --shadow-accent: 0 4px 14px -4px rgba(184, 32, 47, 0.45);
 
-  --dark-text: #9ca3af;
-  --dark-text-h: #f3f4f6;
-  --dark-bg: #16171d;
-  --dark-border: #2e303a;
-  --dark-code-bg: #1f2028;
-  --dark-accent: #f87171;
-  --dark-accent-bg: rgba(248, 113, 113, 0.14);
-  --dark-accent-border: rgba(248, 113, 113, 0.48);
+  --dark-text: #b3a897;
+  --dark-text-h: #ede5d8;
+  --dark-bg: #191512;
+  --dark-surface: #241e19;
+  --dark-muted: #7a7062;
+  --dark-border: #38302a;
+  --dark-border-strong: #453b33;
+  --dark-code-bg: #241e19;
+  --dark-accent: #e4576b;
+  --dark-accent-bg: rgba(228, 87, 107, 0.14);
+  --dark-accent-border: rgba(228, 87, 107, 0.45);
+  --dark-grain-dot: rgba(255, 232, 200, 0.028);
+  --dark-shadow-card: 0 2px 6px rgba(0, 0, 0, 0.3), 0 18px 40px -18px rgba(0, 0, 0, 0.55);
+  --dark-shadow-accent: 0 4px 14px -4px rgba(228, 87, 107, 0.5);
 
-  --sans: 'IBM Plex Sans', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --radius-card: 16px;
+  --radius-pill: 999px;
+
+  --serif: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --serif-dev: 'Noto Serif Devanagari', 'Fraunces', Georgia, serif;
+  --sans: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   --devanagari: 'Noto Sans Devanagari', 'Nirmala UI', 'Kohinoor Devanagari',
     'Devanagari MT', 'Lohit Devanagari', sans-serif;
@@ -38,11 +55,17 @@
     --text: var(--dark-text);
     --text-h: var(--dark-text-h);
     --bg: var(--dark-bg);
+    --surface: var(--dark-surface);
+    --muted: var(--dark-muted);
     --border: var(--dark-border);
+    --border-strong: var(--dark-border-strong);
     --code-bg: var(--dark-code-bg);
     --accent: var(--dark-accent);
     --accent-bg: var(--dark-accent-bg);
     --accent-border: var(--dark-accent-border);
+    --grain-dot: var(--dark-grain-dot);
+    --shadow-card: var(--dark-shadow-card);
+    --shadow-accent: var(--dark-shadow-accent);
   }
 }
 
@@ -52,11 +75,17 @@
   --text: var(--dark-text);
   --text-h: var(--dark-text-h);
   --bg: var(--dark-bg);
+  --surface: var(--dark-surface);
+  --muted: var(--dark-muted);
   --border: var(--dark-border);
+  --border-strong: var(--dark-border-strong);
   --code-bg: var(--dark-code-bg);
   --accent: var(--dark-accent);
   --accent-bg: var(--dark-accent-bg);
   --accent-border: var(--dark-accent-border);
+  --grain-dot: var(--dark-grain-dot);
+  --shadow-card: var(--dark-shadow-card);
+  --shadow-accent: var(--dark-shadow-accent);
 }
 
 * {
@@ -72,6 +101,8 @@ body {
 
 body {
   background: var(--bg);
+  background-image: radial-gradient(var(--grain-dot) 1px, transparent 1px);
+  background-size: 22px 22px;
   color: var(--text);
   font: 16px/1.55 var(--sans);
   letter-spacing: 0.18px;
@@ -87,9 +118,17 @@ textarea {
   font-family: var(--devanagari);
 }
 
+/* Devanagari display type — pairs with --serif (Fraunces) headings, which
+   has no Devanagari glyphs of its own. Devanagari has no italic form, so
+   this always resets to normal even inside italic contexts. */
+.dev-serif {
+  font-family: var(--serif-dev);
+  font-style: normal;
+}
+
 h1,
 h2 {
-  font-family: var(--mono);
+  font-family: var(--serif);
   color: var(--text-h);
   margin: 0;
 }
@@ -100,6 +139,15 @@ p {
 
 code {
   font-family: var(--mono);
+}
+
+::selection {
+  background: var(--accent-bg);
+  color: var(--text-h);
+}
+
+textarea {
+  caret-color: var(--accent);
 }
 
 /* Custom scrollbar — floating pill. The track margin shortens the bar so it
@@ -139,5 +187,11 @@ code {
   * {
     scrollbar-width: thin;
     scrollbar-color: color-mix(in srgb, var(--text) 45%, transparent) transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
   }
 }

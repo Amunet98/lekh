@@ -10,10 +10,12 @@ export function TypePage() {
 
   return (
     <>
-      <p className="type-page-intro">
-        Type Nepali the way you already text it — <span className="dev">kasto chha</span> becomes{' '}
-        <span className="dev">कस्तो छ</span> as you type.
-      </p>
+      <div className="hero">
+        <h1 className="hero__line dev-serif">
+          सोच्नुहोस् अंग्रेजीमा, <span className="hero__accent">लेख्नुहोस् नेपालीमा।</span>
+        </h1>
+        <p className="hero__sub">Think in English, write in Nepali — right in your browser.</p>
+      </div>
       <div className="type-page">
         <div className="type-page__left">
           <Editor editor={editor} textareaRef={textareaRef} />

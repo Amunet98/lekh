@@ -8,19 +8,21 @@
   align-items: center;
   gap: 0.35rem;
   padding: 1.8rem 1rem;
-  border: 1px dashed var(--border);
-  border-radius: 8px;
-  background: transparent;
+  border: 1.5px dashed var(--border-strong);
+  border-radius: var(--radius-card);
+  background: var(--surface);
   color: var(--text-h);
   cursor: pointer;
   min-height: 44px;
   text-align: center;
+  transition: border-color 0.2s ease-out, background-color 0.2s ease-out, transform 0.2s ease-out;
 }
 .file-upload__card:hover,
 .file-upload__card:focus-visible {
-  border-color: var(--accent-border);
+  border-color: var(--accent);
   border-style: solid;
   background: var(--accent-bg);
+  transform: translateY(-2px);
 }
 .file-upload__card:focus-visible {
   outline: 2px solid var(--accent);
@@ -32,14 +34,15 @@
 .file-upload__icon {
   display: flex;
   line-height: 1;
+  color: var(--muted);
 }
 .file-upload__label {
-  font-family: var(--mono);
+  font-family: var(--sans);
   font-size: 0.9rem;
   font-weight: 600;
 }
 .file-upload__caption {
   font-family: var(--sans);
   font-size: 0.78rem;
-  opacity: 0.75;
+  color: var(--muted);
 }

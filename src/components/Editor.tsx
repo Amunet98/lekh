@@ -39,12 +39,9 @@ export function Editor({ editor, textareaRef }: EditorProps) {
 
       <div className={`editor${editor.flashing ? ' editor--flash' : ''}`}>
         <div className="editor-bar">
-          <span className="dots" aria-hidden="true">
-            <i />
-            <i />
-            <i />
+          <span className="editor-bar__title">
+            <span className="dev-serif">नयाँ लेख</span> — untitled.txt
           </span>
-          <span>lekh — editor</span>
         </div>
 
         <div className="sugg" aria-live="polite">

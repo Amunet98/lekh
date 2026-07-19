@@ -6,15 +6,17 @@
 }
 
 .download-actions__select {
-  font-family: var(--mono);
-  font-size: 0.78rem;
-  border: 1px solid var(--border);
-  background: transparent;
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 0.8rem;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
   color: var(--text-h);
-  border-radius: 6px;
-  padding: 0.34rem 0.85rem;
+  border-radius: var(--radius-pill);
+  padding: 0.34rem 0.9rem;
   cursor: pointer;
   min-height: 44px;
+  transition: background-color 0.15s ease-out, border-color 0.15s ease-out;
 }
 .download-actions__select:hover,
 .download-actions__select:focus-visible {
@@ -34,7 +36,7 @@
   display: none;
 }
 
-/* Save-as-PDF: hide the app shell (dot-matrix background, header, tabs,
+/* Save-as-PDF: hide the app shell (paper-grain background, header, tabs,
    controls) and show only the populated sheet, full-page, black-on-white.
    visibility (not display) keeps layout stable regardless of where
    #print-sheet sits in the tree. */

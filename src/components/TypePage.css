@@ -1,10 +1,25 @@
-.type-page-intro {
-  margin: 0 0 1.25rem;
-  max-width: 42rem;
-  color: var(--text);
+.hero {
+  text-align: center;
+  padding: clamp(1rem, 4vw, 2rem) 1rem clamp(1.5rem, 3vw, 2rem);
 }
-.type-page-intro .dev {
+.hero__line {
+  margin: 0;
+  font-size: clamp(1.6rem, 4vw, 2.6rem);
+  font-weight: 600;
+  line-height: 1.5;
   color: var(--text-h);
+}
+.hero__accent {
+  color: var(--accent);
+  background-image: linear-gradient(transparent 78%, var(--accent-bg) 78%);
+}
+.hero__sub {
+  margin: 0.6rem auto 0;
+  max-width: 34rem;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 0.95rem;
+  color: var(--muted);
 }
 
 .type-page {

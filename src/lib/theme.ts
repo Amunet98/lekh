@@ -33,7 +33,7 @@ export function applyTheme(theme: Theme): void {
   // reinstall needed. Must match --bg for each theme in index.css.
   document.querySelector('meta[name="theme-color"]')?.setAttribute(
     'content',
-    resolved === 'dark' ? '#16171d' : '#ffffff',
+    resolved === 'dark' ? '#191512' : '#FAF5EC',
   )
   try {
     localStorage.setItem(THEME_KEY, theme)

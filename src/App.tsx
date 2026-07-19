@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { DotMatrixBackground } from './components/DotMatrixBackground'
 import { TabSwitcher, type Tab } from './components/TabSwitcher'
 import { TypePage } from './components/TypePage'
 import { UploadPage } from './components/UploadPage'
@@ -22,7 +21,6 @@ function App() {
 
   return (
     <>
-      <DotMatrixBackground />
       <header className="app-bar">
         <div className="app-bar__inner">
           <span className="app-bar__brand">
