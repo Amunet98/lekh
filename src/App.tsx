@@ -8,6 +8,7 @@ import { InstallButton } from './components/InstallButton'
 import { Footer } from './components/Footer'
 import { BootScreen } from './components/BootScreen'
 import { AboutSheet } from './components/AboutSheet'
+import { UpdatePrompt } from './components/UpdatePrompt'
 import './App.css'
 
 const TABS: Tab[] = ['type', 'upload', 'translate']
@@ -123,6 +124,13 @@ function App() {
       </div>
 
       <AboutSheet open={aboutOpen} onClose={() => setAboutOpen(false)} onGoTo={goToSection} />
+
+      {/* Always mounted — the hook inside it is what registers the service
+          worker. It renders nothing until an update is waiting, and nothing at
+          all while the boot screen is up. Kept outside .page so the boot fade
+          doesn't touch it, and last in the tree so it lands late in the reading
+          order: it is an aside, not content. */}
+      <UpdatePrompt suppressed={booting} />
     </>
   )
 }

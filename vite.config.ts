@@ -15,8 +15,24 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
-      registerType: 'autoUpdate',
-      injectRegister: 'auto',
+      /* 'prompt', not 'autoUpdate'.
+       *
+       * autoUpdate is misleadingly named: it skips waiting, but an installed
+       * PWA still serves the shell it already precached until every window of
+       * the app has been closed. In practice that means a phone can sit on an
+       * old build indefinitely with nothing on screen to say so — which is
+       * exactly how a shipped redesign got reported as a rendering bug.
+       *
+       * 'prompt' makes the new worker wait and hands control to the app, which
+       * surfaces it through src/components/UpdatePrompt.tsx. Reloading is then
+       * the user's decision, and it needs to be: the editor's text is
+       * component state, so a reload discards whatever they have written.
+       *
+       * injectRegister must be null — UpdatePrompt registers the worker itself
+       * via useRegisterSW, and letting the plugin also inject a registration
+       * script would register it twice. */
+      registerType: 'prompt',
+      injectRegister: null,
       manifest: {
         name: 'Lekh — नेपाली Typing',
         short_name: 'Lekh',

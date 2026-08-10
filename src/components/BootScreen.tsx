@@ -85,7 +85,29 @@ export function BootScreen({ onDone }: BootScreenProps) {
       new Promise<void>((resolve) => setTimeout(resolve, 2500)),
     ]).then(() => {
       ready = true
+      maybeExit()
     })
+
+    /* Two independent gates — the minimum hold and the fonts — and the exit
+       fires when both are met, driven by timers.
+     *
+     * The first version drove the dismissal from the rAF loop below, which
+     * does not tick in a background tab. Load the app hidden (a restored tab,
+     * or Android bringing a PWA up behind something) and the splash froze at
+     * 0% and stayed there until the tab was focused — the whole app parked
+     * behind an overlay because a *progress bar* had stopped animating.
+     *
+     * Timers still fire when hidden, throttled to about a second, which is
+     * fine for a single 1100ms deadline. rAF is now only what paints the bar;
+     * nothing depends on it to make progress. */
+    let holdDone = false
+    const maybeExit = () => {
+      if (holdDone && ready) beginExit()
+    }
+    const holdTimer = setTimeout(() => {
+      holdDone = true
+      maybeExit()
+    }, hold)
 
     const tick = () => {
       if (!liveRef.current) return
@@ -102,10 +124,7 @@ export function BootScreen({ onDone }: BootScreenProps) {
       const nextStep = STATUS_STEPS.reduce((acc, s, i) => (progress >= s.at ? i : acc), 0)
       setStep((prev) => (prev === nextStep ? prev : nextStep))
 
-      if (progress >= 1 && ready) {
-        beginExit()
-        return
-      }
+      if (progress >= 1 && ready) return
       raf = requestAnimationFrame(tick)
     }
     raf = requestAnimationFrame(tick)
@@ -119,6 +138,7 @@ export function BootScreen({ onDone }: BootScreenProps) {
     return () => {
       liveRef.current = false
       cancelAnimationFrame(raf)
+      clearTimeout(holdTimer)
       if (exitTimer) clearTimeout(exitTimer)
       window.removeEventListener('pointerdown', skip)
       window.removeEventListener('keydown', skip)
