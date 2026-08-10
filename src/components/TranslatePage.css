@@ -25,8 +25,8 @@
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-pill);
   background: var(--glass-strong);
-  backdrop-filter: blur(var(--blur-chrome)) saturate(1.5);
   -webkit-backdrop-filter: blur(var(--blur-chrome)) saturate(1.5);
+  backdrop-filter: blur(var(--blur-chrome)) saturate(1.5);
   box-shadow: var(--shadow-card);
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {

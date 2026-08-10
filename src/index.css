@@ -376,8 +376,8 @@ body {
 .glass {
   background: var(--glass);
   border: 1px solid var(--glass-border);
-  backdrop-filter: blur(var(--blur-chrome)) saturate(1.4);
   -webkit-backdrop-filter: blur(var(--blur-chrome)) saturate(1.4);
+  backdrop-filter: blur(var(--blur-chrome)) saturate(1.4);
 }
 .glass--strong {
   background: var(--glass-strong);

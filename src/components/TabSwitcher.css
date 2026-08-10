@@ -10,15 +10,10 @@
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-pill);
   background: var(--glass);
-  backdrop-filter: blur(var(--blur-chrome)) saturate(1.8);
   -webkit-backdrop-filter: blur(var(--blur-chrome)) saturate(1.8);
+  backdrop-filter: blur(var(--blur-chrome)) saturate(1.8);
   box-shadow: var(--shadow-card);
   transition: background-color 0.2s ease-out, border-color 0.2s ease-out;
-}
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .tab-switcher {
-    background: var(--surface);
-  }
 }
 .tab-switcher__btn {
   display: flex;
@@ -120,5 +115,28 @@
   }
   .tab-switcher__label {
     font-size: 0.72rem;
+  }
+}
+
+/* No-backdrop-filter fallback.
+ *
+ * This block MUST stay at the end of the file. @supports carries no extra
+ * specificity — it is a plain conditional group — so it only wins by source
+ * order. The first version of this sat directly under the base .tab-switcher
+ * rule, which meant the mobile media query below re-declared
+ * `background: var(--glass)` *after* it and quietly won: on any engine without
+ * backdrop-filter the dock rendered as a translucent bar with no blur at all,
+ * which looks like a bug rather than like a fallback.
+ *
+ * Both layouts are restated here for that reason. If you add another
+ * background declaration for this component, add it above this block. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .tab-switcher {
+    background: var(--surface);
+  }
+  @media (max-width: 860px) {
+    .tab-switcher {
+      background: var(--surface);
+    }
   }
 }

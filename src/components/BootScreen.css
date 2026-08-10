@@ -18,8 +18,8 @@
   gap: 1rem;
   padding: 2rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom));
   background: color-mix(in srgb, var(--bg) 82%, transparent);
-  backdrop-filter: blur(var(--blur-sheet)) saturate(1.5);
   -webkit-backdrop-filter: blur(var(--blur-sheet)) saturate(1.5);
+  backdrop-filter: blur(var(--blur-sheet)) saturate(1.5);
   transition: opacity var(--dur-slow) var(--ease-expo),
     transform var(--dur-slow) var(--ease-expo);
 }
@@ -173,11 +173,18 @@
   color: var(--text);
   background: var(--glass);
   border: 1px solid var(--glass-border);
-  backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   border-radius: var(--radius-pill);
   padding: 0.3rem 0.75rem;
   animation: boot-rise 460ms var(--ease-expo) backwards;
+}
+/* These had glass and a blur but no fallback — the one glass surface in the
+   app that was missing one. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .boot__keyword {
+    background: var(--surface);
+  }
 }
 .boot__keyword-dev {
   font-family: var(--devanagari);

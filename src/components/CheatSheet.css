@@ -46,8 +46,8 @@ h2 + .sub {
 }
 .cell {
   background: var(--glass);
-  backdrop-filter: blur(var(--blur-chrome));
   -webkit-backdrop-filter: blur(var(--blur-chrome));
+  backdrop-filter: blur(var(--blur-chrome));
   padding: 0.38rem 0.15rem;
   text-align: center;
   border: 0;
@@ -84,6 +84,13 @@ h2 + .sub {
 }
 .cell--filler:hover {
   background: var(--glass);
+}
+/* Restated after the rule above for the same source-order reason as the dock —
+   see the note at the end of TabSwitcher.css. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .cell--filler:hover {
+    background: var(--surface);
+  }
 }
 .cell--filler:active {
   transform: none;
