@@ -1,5 +1,61 @@
+/* The page used to run the full 1440px width, left-aligned, under a centred
+   tab pill — so the heading sat hard against the left edge with a third of the
+   viewport empty to its right, and the two panes stretched to a line length
+   nobody wants to read a translation at. */
+.translate-page {
+  max-width: 68rem;
+  margin: 0 auto;
+}
+
 .translate-page h2 {
   margin: 0.9rem 0 1.2rem;
   font-size: 1.5rem;
   font-weight: 600;
+}
+
+/* Language pickers, swap, and the engine choice on one line. They wrap to two
+   on a phone, which is the point of the flex rather than a grid. */
+.translate-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem 1.25rem;
+  flex-wrap: wrap;
+  padding: 0.5rem 0.65rem;
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
+
+/* Both child groups already carry their own bottom margin for the stacked
+   layout they used to live in; inside the toolbar that would misalign them. */
+.translate-toolbar > .direction-toggle,
+.translate-toolbar > .translate-mode {
+  margin-bottom: 0;
+}
+
+/* Language on the left, engine on the right, so the bar reads as a bar rather
+   than as everything shoved against one end of a very wide pill. Only once
+   there is room for both — below this they wrap and sit together. */
+@media (min-width: 620px) {
+  .translate-toolbar > .translate-mode {
+    margin-left: auto;
+  }
+}
+
+.translate-pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.translate-pane__label {
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0 0.15rem 0.4rem;
 }

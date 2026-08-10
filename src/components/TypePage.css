@@ -1,25 +1,19 @@
+/* ~52px on a phone, against the ~260px the old hero cost. */
 .hero {
   text-align: center;
-  padding: clamp(1rem, 4vw, 2rem) 1rem clamp(1.5rem, 3vw, 2rem);
+  padding: clamp(0.75rem, 2vw, 1.25rem) 1rem clamp(0.75rem, 2vw, 1.25rem);
 }
 .hero__line {
   margin: 0;
-  font-size: clamp(1.6rem, 4vw, 2.6rem);
-  font-weight: 600;
-  line-height: 1.5;
-  color: var(--text-h);
+  font-family: var(--display);
+  font-size: clamp(1.05rem, 2.2vw, 1.3rem);
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--muted);
 }
 .hero__accent {
-  color: var(--accent);
-  background-image: linear-gradient(transparent 78%, var(--accent-bg) 78%);
-}
-.hero__sub {
-  margin: 0.6rem auto 0;
-  max-width: 34rem;
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: 0.95rem;
-  color: var(--muted);
+  color: var(--accent-text);
+  font-weight: 600;
 }
 
 .type-page {
@@ -39,6 +33,47 @@
   min-width: 0;
 }
 
+/* Desktop hides the disclosure row only while the panel is *open*, which is
+   its default. Hiding it unconditionally would strand anyone who collapsed the
+   sheet on a phone and then rotated a tablet into the desktop layout: the
+   panel would stay closed with nothing left to reopen it. */
+.cheat-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 48px;
+  padding: 0.5rem 0.25rem;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-h);
+  cursor: pointer;
+  list-style: none;
+}
+.cheat-toggle::-webkit-details-marker {
+  display: none;
+}
+.cheat-toggle svg {
+  color: var(--muted);
+  transition: transform var(--dur) var(--ease);
+  flex: 0 0 auto;
+}
+.type-page__right[open] .cheat-toggle svg {
+  transform: rotate(180deg);
+}
+.cheat-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+@media (min-width: 861px) {
+  .type-page__right[open] > .cheat-toggle {
+    display: none;
+  }
+}
+
 @media (max-width: 860px) {
   .type-page {
     grid-template-columns: 1fr;
@@ -53,6 +88,7 @@
     border-left: 0;
     border-top: 1px solid var(--border);
     padding-left: 0;
-    padding-top: 2rem;
+    padding-top: 0.5rem;
   }
+
 }

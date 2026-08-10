@@ -29,18 +29,32 @@ export function TranslatePage({ handoffText, onHandoffConsumed }: TranslatePageP
       <span className="tag">Translate</span>
       <h2>Translate — English ⇄ Nepali</h2>
 
-      <DirectionToggle t={t} />
-      <TranslateControls t={t} />
+      {/* One toolbar. These were three stacked rows — language pickers, then
+          engine, then the panes — which pushed the actual text fields a third
+          of the way down the page for two controls most people set once. */}
+      <div className="translate-toolbar">
+        <DirectionToggle t={t} />
+        <TranslateControls t={t} />
+      </div>
 
       <div className="translate-panes">
-        <textarea
-          className="translate-input dev"
-          rows={6}
-          placeholder="Type English or Nepali (or romanized Nepali like 'mero naam')…"
-          value={t.sourceText}
-          onChange={(e) => t.setSourceText(e.target.value)}
-        />
-        <TranslationOutput t={t} />
+        <div className="translate-pane">
+          <label className="translate-pane__label" htmlFor="translate-source">
+            {t.sourceLang.label}
+          </label>
+          <textarea
+            id="translate-source"
+            className="translate-input dev"
+            rows={6}
+            placeholder="Type English or Nepali (or romanized Nepali like 'mero naam')…"
+            value={t.sourceText}
+            onChange={(e) => t.setSourceText(e.target.value)}
+          />
+        </div>
+        <div className="translate-pane">
+          <span className="translate-pane__label">{t.targetLang.label}</span>
+          <TranslationOutput t={t} />
+        </div>
       </div>
 
       <TranslateActions t={t} context="translate" />

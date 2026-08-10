@@ -94,18 +94,39 @@ export function Editor({ editor, textareaRef }: EditorProps) {
         />
 
         <div className="actions">
-          <button
-            type="button"
-            className="btn btn--toggle"
-            aria-pressed={editor.nepali}
-            title="Toggle Nepali conversion"
-            onClick={() => {
-              editor.toggleMode()
-              textareaRef.current?.focus()
-            }}
-          >
-            {editor.nepali ? 'नेपाली' : 'EN'}
-          </button>
+          {/*
+            Two buttons rather than one toggle. The single button showed only
+            the mode you were *in*, so "EN" was ambiguous — it read equally as
+            "you are in English" and "press for English". A segmented control
+            shows both states at once and marks which one is live. Clicking the
+            active option is a deliberate no-op.
+          */}
+          <div className="lang-seg" role="group" aria-label="Conversion mode">
+            <button
+              type="button"
+              className="lang-seg__opt"
+              aria-pressed={!editor.nepali}
+              title="Type plain English — no conversion"
+              onClick={() => {
+                if (editor.nepali) editor.toggleMode()
+                textareaRef.current?.focus()
+              }}
+            >
+              EN
+            </button>
+            <button
+              type="button"
+              className="lang-seg__opt dev"
+              aria-pressed={editor.nepali}
+              title="Convert romanized Nepali to Devanagari"
+              onClick={() => {
+                if (!editor.nepali) editor.toggleMode()
+                textareaRef.current?.focus()
+              }}
+            >
+              नेपाली
+            </button>
+          </div>
           <button type="button" className="btn" onClick={editor.copy}>
             {editor.copied ? 'copied' : 'copy'}
           </button>

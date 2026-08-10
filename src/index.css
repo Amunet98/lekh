@@ -1,43 +1,76 @@
 @import 'tailwindcss';
 
+/* Ink & Slate — a writing tool, not a piece of stationery.
+ *
+ * Every foreground/background pair below clears WCAG AA in both themes. That
+ * was measured, not eyeballed: the first draft failed on seven pairs, two of
+ * which looked completely fine — white on #6366F1 came out at 4.47, a rounding
+ * error under the 4.5 floor, and the "muted" grey was at 3.90.
+ *
+ * The accent is deliberately split in two. --accent is a *fill*: buttons,
+ * carets, rules, the active tab. --accent-text is for anything that is words,
+ * because an indigo bright enough to look good as a button is too light to
+ * read as a link. Do not collapse them back into one.
+ */
 :root {
-  --text: #57534e;
-  --text-h: #1c1917;
-  --bg: #faf5ec;
-  --surface: #fffdf8;
-  --muted: #a8a29e;
-  --border: #eae0ce;
-  --border-strong: #e5dac4;
-  --code-bg: #f3ebdc;
-  --accent: #b8202f;
-  --accent-bg: rgba(184, 32, 47, 0.12);
-  --accent-border: rgba(184, 32, 47, 0.4);
-  --grain-dot: rgba(120, 90, 60, 0.055);
-  --shadow-card: 0 2px 6px rgba(120, 80, 30, 0.06), 0 18px 40px -18px rgba(120, 80, 30, 0.18);
-  --shadow-accent: 0 4px 14px -4px rgba(184, 32, 47, 0.45);
+  --text: #4b5058;
+  --text-h: #16181d;
+  --bg: #fbfbfa;
+  --surface: #ffffff;
+  --surface-2: #f4f4f5;
+  --muted: #6b7280;
+  --border: #d2d5dc;
+  --border-strong: #c4c7ce;
+  --code-bg: #f4f4f5;
+  --accent: #4f46e5;
+  --accent-text: #4338ca;
+  --on-accent: #ffffff;
+  --accent-bg: #eef0fe;
+  --accent-border: rgba(79, 70, 229, 0.45);
+  --ok: #15803d;
+  --warn: #b45309;
+  --danger: #b91c1c;
+  --shadow-card: 0 1px 2px rgba(16, 17, 20, 0.04), 0 8px 24px -12px rgba(16, 17, 20, 0.12);
+  --shadow-pop: 0 4px 12px rgba(16, 17, 20, 0.08), 0 20px 48px -20px rgba(16, 17, 20, 0.2);
+  --shadow-accent: 0 4px 14px -4px rgba(79, 70, 229, 0.45);
 
-  --dark-text: #b3a897;
-  --dark-text-h: #ede5d8;
-  --dark-bg: #191512;
-  --dark-surface: #241e19;
-  --dark-muted: #7a7062;
-  --dark-border: #38302a;
-  --dark-border-strong: #453b33;
-  --dark-code-bg: #241e19;
-  --dark-accent: #e4576b;
-  --dark-accent-bg: rgba(228, 87, 107, 0.14);
-  --dark-accent-border: rgba(228, 87, 107, 0.45);
-  --dark-grain-dot: rgba(255, 232, 200, 0.028);
-  --dark-shadow-card: 0 2px 6px rgba(0, 0, 0, 0.3), 0 18px 40px -18px rgba(0, 0, 0, 0.55);
-  --dark-shadow-accent: 0 4px 14px -4px rgba(228, 87, 107, 0.5);
+  --dark-text: #a8aeb9;
+  --dark-text-h: #f3f4f6;
+  --dark-bg: #101114;
+  --dark-surface: #17191f;
+  --dark-surface-2: #1e2128;
+  --dark-muted: #828997;
+  --dark-border: #31353f;
+  --dark-border-strong: #3d424e;
+  --dark-code-bg: #1e2128;
+  --dark-accent: #a5b4fc;
+  --dark-accent-text: #a5b4fc;
+  --dark-on-accent: #14152b;
+  --dark-accent-bg: #1d2033;
+  --dark-accent-border: rgba(165, 180, 252, 0.45);
+  --dark-ok: #4ade80;
+  --dark-warn: #fbbf24;
+  --dark-danger: #f87171;
+  --dark-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+  --dark-shadow-pop: 0 4px 12px rgba(0, 0, 0, 0.5), 0 20px 48px -20px rgba(0, 0, 0, 0.7);
+  --dark-shadow-accent: 0 4px 14px -4px rgba(165, 180, 252, 0.35);
 
-  --radius-card: 16px;
+  --radius-card: 14px;
+  --radius-field: 10px;
   --radius-pill: 999px;
 
-  --serif: 'Fraunces', Georgia, 'Times New Roman', serif;
-  --serif-dev: 'Noto Serif Devanagari', 'Fraunces', Georgia, serif;
+  --dur: 200ms;
+  --ease: cubic-bezier(0.22, 0.68, 0.35, 1);
+
+  /* Anek Devanagari covers Devanagari *and* Latin, so display type no longer
+     needs the two-font dance Fraunces required — Fraunces has no Devanagari
+     glyphs at all, which is why .dev-serif had to exist. */
+  --display: 'Anek Devanagari', 'Inter', system-ui, sans-serif;
+  --display-dev: 'Anek Devanagari', 'Noto Sans Devanagari', sans-serif;
   --sans: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  --mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  /* Body Devanagari stays Noto Sans: it is what the user's own writing is set
+     in, and a display face at 16px is a worse read however good it looks. */
   --devanagari: 'Noto Sans Devanagari', 'Nirmala UI', 'Kohinoor Devanagari',
     'Devanagari MT', 'Lohit Devanagari', sans-serif;
 
@@ -50,21 +83,33 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* The dark palette is applied by two selectors that cannot be merged: one
+   lives inside a media query (follow the OS) and one does not (explicit
+   toggle). Their bodies MUST stay identical — a token added to one and not
+   the other produces a bug that only appears for users whose OS preference
+   disagrees with their saved choice, which is nobody during development.
+   Keep them adjacent and diff them whenever either changes. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     --text: var(--dark-text);
     --text-h: var(--dark-text-h);
     --bg: var(--dark-bg);
     --surface: var(--dark-surface);
+    --surface-2: var(--dark-surface-2);
     --muted: var(--dark-muted);
     --border: var(--dark-border);
     --border-strong: var(--dark-border-strong);
     --code-bg: var(--dark-code-bg);
     --accent: var(--dark-accent);
+    --accent-text: var(--dark-accent-text);
+    --on-accent: var(--dark-on-accent);
     --accent-bg: var(--dark-accent-bg);
     --accent-border: var(--dark-accent-border);
-    --grain-dot: var(--dark-grain-dot);
+    --ok: var(--dark-ok);
+    --warn: var(--dark-warn);
+    --danger: var(--dark-danger);
     --shadow-card: var(--dark-shadow-card);
+    --shadow-pop: var(--dark-shadow-pop);
     --shadow-accent: var(--dark-shadow-accent);
   }
 }
@@ -76,15 +121,21 @@
   --text-h: var(--dark-text-h);
   --bg: var(--dark-bg);
   --surface: var(--dark-surface);
+  --surface-2: var(--dark-surface-2);
   --muted: var(--dark-muted);
   --border: var(--dark-border);
   --border-strong: var(--dark-border-strong);
   --code-bg: var(--dark-code-bg);
   --accent: var(--dark-accent);
+  --accent-text: var(--dark-accent-text);
+  --on-accent: var(--dark-on-accent);
   --accent-bg: var(--dark-accent-bg);
   --accent-border: var(--dark-accent-border);
-  --grain-dot: var(--dark-grain-dot);
+  --ok: var(--dark-ok);
+  --warn: var(--dark-warn);
+  --danger: var(--dark-danger);
   --shadow-card: var(--dark-shadow-card);
+  --shadow-pop: var(--dark-shadow-pop);
   --shadow-accent: var(--dark-shadow-accent);
 }
 
@@ -99,13 +150,13 @@ body {
   overflow-x: clip;
 }
 
+/* The paper grain that used to live here went with Paper & Ink. Depth now
+   comes from the elevation scale, not from a texture. */
 body {
   background: var(--bg);
-  background-image: radial-gradient(var(--grain-dot) 1px, transparent 1px);
-  background-size: 22px 22px;
   color: var(--text);
-  font: 16px/1.55 var(--sans);
-  letter-spacing: 0.18px;
+  font: 16px/1.6 var(--sans);
+  letter-spacing: 0.01em;
 }
 
 #root {
@@ -118,19 +169,23 @@ textarea {
   font-family: var(--devanagari);
 }
 
-/* Devanagari display type — pairs with --serif (Fraunces) headings, which
-   has no Devanagari glyphs of its own. Devanagari has no italic form, so
-   this always resets to normal even inside italic contexts. */
-.dev-serif {
-  font-family: var(--serif-dev);
+/* Devanagari display type. Kept under its old name as an alias: it is applied
+   in eight files, and Anek Devanagari covering both scripts means the class no
+   longer has to exist — but renaming it across every call site belongs in its
+   own change, not buried in a redesign. Devanagari has no italic form, so this
+   always resets to normal even inside italic contexts. */
+.dev-serif,
+.dev-display {
+  font-family: var(--display-dev);
   font-style: normal;
 }
 
 h1,
 h2 {
-  font-family: var(--serif);
+  font-family: var(--display);
   color: var(--text-h);
   margin: 0;
+  letter-spacing: -0.015em;
 }
 
 p {
@@ -190,8 +245,24 @@ textarea {
   }
 }
 
+/* One focus treatment for the whole app, rather than each component inventing
+   its own. :focus-visible only matches keyboard focus, so this never fires on
+   a mouse click. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  * {
+  /* Shortening the duration is not enough on its own: a transform still runs,
+     it just runs instantly, and any looping animation keeps looping. */
+  *,
+  *::before,
+  *::after {
     transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
   }
 }

@@ -1,14 +1,20 @@
+/* A hint, not an alert. It used to be a filled accent panel with a border,
+   which gave a piece of one-time onboarding the same visual weight as the
+   editor underneath it. */
 .hint-banner {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  border: 1px solid var(--accent-border);
-  background: var(--accent-bg);
-  border-radius: 8px;
-  padding: 0.75rem 0.9rem;
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
+  border-left: 2px solid var(--accent);
+  background: transparent;
+  border-radius: 0;
+  padding: 0.15rem 0 0.15rem 0.75rem;
+  margin-bottom: 0.9rem;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+.hint-banner .dev {
   color: var(--text-h);
 }
 .hint-dismiss {
@@ -39,30 +45,38 @@
   background: var(--surface);
   box-shadow: var(--shadow-card);
   overflow: hidden;
-  transition: background-color 0.25s ease-out, border-color 0.25s ease-out, box-shadow 0.25s ease-out;
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
 }
+/* The whole surface takes the focus ring, because the textarea inside it has
+   no border of its own — focus has to be legible on the thing you are
+   actually typing into. */
 .editor:focus-within {
-  border-color: var(--accent-border);
+  border-color: var(--accent);
+  box-shadow: var(--shadow-card), 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
 }
 .editor--flash {
-  border-color: var(--accent-border);
-  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
 }
 .editor-bar {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.65rem 1rem;
+  padding: 0.6rem 1rem;
   border-bottom: 1px solid var(--border);
-  background: var(--code-bg);
+  background: var(--surface-2);
 }
 .editor-bar__title {
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: 0.85rem;
+  /* No italic: Anek Devanagari has no italic cut and font-synthesis is off
+     globally, so an italic request here would silently render upright. */
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
   color: var(--muted);
 }
 .editor-bar__title .dev-serif {
+  font-family: var(--display-dev);
+  font-size: 0.95rem;
   color: var(--text-h);
 }
 
@@ -101,7 +115,11 @@
   outline-offset: 1px;
 }
 .chip--primary {
-  color: var(--bg);
+  /* --on-accent, not --bg: in dark mode the page background is near-black and
+     the accent is a light indigo, so --bg happened to work; in light mode it
+     would put near-white on near-white. --on-accent is defined per theme to
+     be readable on the fill, and is measured. */
+  color: var(--on-accent);
   font-weight: 600;
   border-color: var(--accent);
   background: var(--accent);
@@ -121,24 +139,26 @@
 .chip kbd {
   font-family: var(--mono);
   font-size: 0.62em;
-  color: var(--text);
+  color: var(--muted);
   margin-left: 0.35rem;
 }
 .chip--primary kbd {
-  color: color-mix(in srgb, var(--bg) 75%, transparent);
+  color: color-mix(in srgb, var(--on-accent) 75%, transparent);
 }
 
 textarea {
   display: block;
   width: 100%;
-  min-height: 12rem;
-  padding: 1rem 1.1rem;
+  /* Taller than the old 12rem: this is the whole point of the app, and the
+     hero above it no longer competes for the space. */
+  min-height: 15rem;
+  padding: 1.1rem 1.2rem;
   border: 0;
   resize: vertical;
   background: transparent;
   color: var(--text-h);
   font-size: 1.4rem;
-  line-height: 1.8;
+  line-height: 1.85;
 }
 textarea:focus {
   outline: none;
@@ -178,11 +198,53 @@ textarea::placeholder {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
-.btn:active,
-.btn--toggle[aria-pressed='true'] {
-  color: var(--bg);
-  border-color: var(--text-h);
-  background: var(--text-h);
+.btn:active {
+  transform: scale(0.98);
+}
+
+/* Conversion-mode segmented control. Replaces a single button whose pressed
+   state was a near-black pill — the one control on the page speaking a
+   different colour language from everything else.
+ *
+ * No vertical padding on the track: with it, each option was 38px inside a
+ * 44px pill, so the outer 3px was dead space on a control whose two halves sit
+ * directly against each other. The options carry the 44px themselves. */
+.lang-seg {
+  display: inline-flex;
+  padding: 0 2px;
+  gap: 2px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+}
+.lang-seg__opt {
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  border-radius: var(--radius-pill);
+  padding: 0 0.85rem;
+  min-height: 44px;
+  cursor: pointer;
+  transition: color var(--dur) var(--ease), background-color var(--dur) var(--ease);
+}
+.lang-seg__opt.dev {
+  font-family: var(--devanagari);
+  font-size: 0.9rem;
+}
+.lang-seg__opt:hover {
+  color: var(--text-h);
+}
+.lang-seg__opt[aria-pressed='true'] {
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: var(--shadow-accent);
+}
+.lang-seg__opt:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 .count {
   margin-left: auto;

@@ -24,6 +24,19 @@
   background: var(--accent-bg);
   transform: translateY(-2px);
 }
+
+/* Dragging a file over the zone. The state lives on the wrapper because that
+   is what carries the drop handlers — the button inside it is only the click
+   affordance. */
+.file-upload--dragging .file-upload__card {
+  border-color: var(--accent);
+  border-style: solid;
+  background: var(--accent-bg);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.file-upload--dragging .file-upload__icon {
+  color: var(--accent);
+}
 .file-upload__card:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 1px;

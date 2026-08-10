@@ -14,6 +14,13 @@ interface CheatSheetProps {
 }
 
 function Cells({ group, onInsert }: { group: CheatGroup; onInsert: (ch: string) => void }) {
+  // The grid draws its lines as a 1px gap over a border-coloured background,
+  // so any slot left over in the final row showed up as a solid grey block —
+  // eleven vowels in a four-column grid left one, and it read as a rendering
+  // bug. Pad the row with inert cells that paint the surface colour.
+  const remainder = group.cells.length % group.columns
+  const fillers = remainder === 0 ? 0 : group.columns - remainder
+
   return (
     <div className={`cells cells--${group.columns}`}>
       {group.cells.map((cell) => (
@@ -27,6 +34,9 @@ function Cells({ group, onInsert }: { group: CheatGroup; onInsert: (ch: string) 
           <span className="g dev">{cell.glyph}</span>
           <span className="r">{cell.romanized}</span>
         </button>
+      ))}
+      {Array.from({ length: fillers }, (_, i) => (
+        <div key={`filler-${i}`} className="cell cell--filler" aria-hidden="true" />
       ))}
     </div>
   )

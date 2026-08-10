@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import './FileUpload.css'
 
 export type UploadInput = { kind: 'image'; canvas: HTMLCanvasElement } | { kind: 'file'; file: File }
@@ -11,10 +11,13 @@ const FILE_ACCEPT = 'image/*,.pdf,.docx,.txt'
 
 export function FileUpload({ onInput }: FileUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [dragging, setDragging] = useState(false)
+  // dragenter/dragleave fire for every child element the pointer crosses, so a
+  // single boolean flickers as the cursor moves over the icon and the labels.
+  // Counting enters minus leaves is the standard fix.
+  const dragDepth = useRef(0)
 
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    e.target.value = ''
+  const accept = (file: File | undefined) => {
     if (!file) return
     if (!file.type.startsWith('image/')) {
       onInput({ kind: 'file', file })
@@ -35,8 +38,33 @@ export function FileUpload({ onInput }: FileUploadProps) {
     img.src = URL.createObjectURL(file)
   }
 
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    accept(file)
+  }
+
   return (
-    <div className="file-upload">
+    <div
+      className={`file-upload${dragging ? ' file-upload--dragging' : ''}`}
+      onDragEnter={(e) => {
+        e.preventDefault()
+        dragDepth.current += 1
+        setDragging(true)
+      }}
+      onDragOver={(e) => e.preventDefault()}
+      onDragLeave={(e) => {
+        e.preventDefault()
+        dragDepth.current -= 1
+        if (dragDepth.current <= 0) setDragging(false)
+      }}
+      onDrop={(e) => {
+        e.preventDefault()
+        dragDepth.current = 0
+        setDragging(false)
+        accept(e.dataTransfer.files?.[0])
+      }}
+    >
       <button type="button" className="file-upload__card" onClick={() => fileInputRef.current?.click()}>
         <span className="file-upload__icon">
           <svg
@@ -70,7 +98,7 @@ export function FileUpload({ onInput }: FileUploadProps) {
           </svg>
         </span>
         <span className="file-upload__label">Upload a photo or document</span>
-        <span className="file-upload__caption">Image, PDF, DOCX or TXT</span>
+        <span className="file-upload__caption">Drag one in, or click to browse · Image, PDF, DOCX or TXT</span>
       </button>
       <input ref={fileInputRef} type="file" accept={FILE_ACCEPT} hidden onChange={handleFile} />
     </div>

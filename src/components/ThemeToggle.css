@@ -7,12 +7,15 @@
   background: var(--surface);
   border-radius: var(--radius-pill);
 }
+/* 44px, not the 34px this was. The glyph inside stays small — the padding is
+   what makes the target, and these three sit side by side, so a miss lands on
+   a neighbouring theme rather than doing nothing. */
 .theme-toggle__btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   border: 1px solid transparent;
   background: transparent;
   color: var(--muted);

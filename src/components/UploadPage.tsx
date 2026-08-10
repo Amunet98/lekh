@@ -64,22 +64,36 @@ export function UploadPage({ onEditInTranslate }: UploadPageProps) {
       <span className="tag">Upload</span>
       <h2>Upload a document — English ⇄ Nepali</h2>
 
-      <DirectionToggle t={t} />
+      <div className="translate-toolbar">
+        <DirectionToggle t={t} />
+        <TranslateControls t={t} />
+      </div>
 
       <FileUpload onInput={(input) => void handleInput(input)} />
 
+      {/* A real progress bar rather than a line of text with a percentage in
+          it. OCR on a phone can take twenty seconds, and "Reading page 3/9…"
+          on its own gives no sense of how much is left. aria-live announces
+          the label without the bar itself chattering on every repaint. */}
       {readStatus === 'reading' && (
-        <p className="sugg-hint">
-          {readLabel} {readProgress !== null ? `${Math.round(readProgress * 100)}%` : ''}
-        </p>
+        <div className="upload-progress" role="status" aria-live="polite">
+          <div className="upload-progress__row">
+            <span>{readLabel}</span>
+            {readProgress !== null && <span>{Math.round(readProgress * 100)}%</span>}
+          </div>
+          <div className="model-progress-track">
+            <div
+              className={`model-progress-fill${readProgress === null ? ' model-progress-fill--indeterminate' : ''}`}
+              style={readProgress !== null ? { width: `${Math.round(readProgress * 100)}%` } : undefined}
+            />
+          </div>
+        </div>
       )}
       {readStatus === 'error' && (
         <div className="error-banner" role="alert">
           Couldn&rsquo;t read that document — try a clearer photo or a different file.
         </div>
       )}
-
-      <TranslateControls t={t} />
 
       <div className="translate-panes translate-panes--single">
         <TranslationOutput t={t} />

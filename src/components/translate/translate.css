@@ -94,7 +94,7 @@
   color: var(--text-h);
 }
 .mode-btn--active {
-  color: var(--bg);
+  color: var(--on-accent);
   border-color: var(--accent);
   background: var(--accent);
   font-weight: 600;
@@ -114,16 +114,14 @@
   margin-top: 0.7rem;
 }
 
+/* Two separate cards with a real gap, rather than one box split by a 1px
+   background seam. The seam version could not carry the per-pane labels: the
+   label sat in the grid cell, so the border colour showed through behind it. */
 .translate-panes {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1px;
-  background: var(--border);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
-  overflow: hidden;
+  gap: 1rem;
   margin-top: 1rem;
-  box-shadow: var(--shadow-card);
 }
 @media (max-width: 640px) {
   .translate-panes {
@@ -135,19 +133,26 @@
 }
 .translate-input,
 .translate-output {
+  flex: 1 1 auto;
   background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
   padding: 1rem;
   font-size: 1.15rem;
   line-height: 1.7;
-  min-height: 9rem;
+  min-height: 10rem;
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
 }
 .translate-input {
-  border: 0;
   resize: vertical;
   color: var(--text-h);
+  font-family: var(--devanagari);
 }
 .translate-input:focus {
   outline: none;
+  border-color: var(--accent);
+  box-shadow: var(--shadow-card), 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
 }
 .translate-output {
   color: var(--text-h);
@@ -222,17 +227,21 @@
   gap: 0.6rem;
   margin-top: 1rem;
 }
+/* The primary action is the accent fill now, not a near-black slab. It was
+   the same odd choice the नेपाली toggle made: the one control on the page
+   speaking a different colour language from everything around it. */
 .btn--primary {
-  color: var(--bg);
+  color: var(--on-accent);
   font-weight: 600;
-  border-color: var(--text-h);
-  background: var(--text-h);
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: var(--shadow-accent);
 }
 .btn--primary:hover,
 .btn--primary:focus-visible {
-  color: var(--bg);
-  border-color: var(--text-h);
-  background: var(--text-h);
+  color: var(--on-accent);
+  border-color: var(--accent);
+  background: var(--accent);
   opacity: 0.9;
 }
 .btn--primary:disabled {
@@ -240,6 +249,9 @@
   cursor: not-allowed;
 }
 
+/* An error, in the error colour. This was drawn in the accent — the same
+   treatment as the "on-device model ready" banner, so a failed translation and
+   a successful download looked identical at a glance. */
 .error-banner {
   display: flex;
   align-items: center;
@@ -247,9 +259,9 @@
   gap: 0.7rem;
   margin-top: 1rem;
   padding: 0.7rem 0.9rem;
-  border: 1px solid var(--accent-border);
-  background: var(--accent-bg);
-  border-radius: 8px;
+  border: 1px solid var(--danger);
+  background: color-mix(in srgb, var(--danger) 10%, var(--surface));
+  border-radius: 10px;
   font-size: 0.88rem;
   color: var(--text-h);
 }

@@ -26,8 +26,8 @@ export default defineConfig({
         description:
           'Type Nepali the way you already text it. Romanized-to-Devanagari transliteration, a full script cheat sheet, and a document/photo upload that reads Nepali or English text and translates it — runs entirely in your browser.',
         display: 'standalone',
-        theme_color: '#FAF5EC',
-        background_color: '#FAF5EC',
+        theme_color: '#FBFBFA',
+        background_color: '#FBFBFA',
         icons: [
           { src: '/android-chrome-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
           { src: '/android-chrome-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },

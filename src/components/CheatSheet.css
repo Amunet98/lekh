@@ -21,7 +21,7 @@ h2 + .sub {
 }
 .cons-group__label {
   font-family: var(--mono);
-  font-size: 0.66rem;
+  font-size: 0.72rem;
   color: var(--muted);
   margin: 0.5rem 0 0.3rem;
 }
@@ -65,11 +65,19 @@ h2 + .sub {
   line-height: 1.4;
   color: var(--text-h);
 }
+.cell--filler {
+  cursor: default;
+}
+.cell--filler:hover {
+  background: var(--surface);
+}
 .cell .r {
   display: block;
   font-family: var(--mono);
-  font-size: 0.64rem;
-  color: var(--accent);
+  font-size: 0.72rem;
+  /* --accent-text, not --accent: this is the smallest type on the page and
+     the fill indigo does not clear AA against the cell surface. */
+  color: var(--accent-text);
   margin-top: 0.1rem;
 }
 .map-caption {
