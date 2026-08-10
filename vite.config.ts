@@ -51,24 +51,34 @@ export default defineConfig({
         // targets, which is what the ?tab= handling in App.tsx exists for —
         // before it, every section lived at '/' and a shortcut could only ever
         // open the Type tab.
+        //
+        // Each entry NEEDS its own `icons`. Without it Android draws a blank
+        // grey placeholder in the long-press sheet — it does not fall back to
+        // the app icon, so the shortcuts shipped as three unlabelled squares.
+        // The PNGs come from design/shortcut-icons.html via `npm run icons`;
+        // the filenames and the ICONS list in that script have to stay in step
+        // with these.
         shortcuts: [
           {
             name: 'Type Nepali',
             short_name: 'Type',
             description: 'Type romanized Nepali and get Devanagari as you go',
             url: '/?tab=type',
+            icons: [{ src: '/shortcut-type.png', sizes: '192x192', type: 'image/png' }],
           },
           {
             name: 'Read a photo or PDF',
             short_name: 'Upload',
             description: 'Pull Nepali or English text out of an image or document',
             url: '/?tab=upload',
+            icons: [{ src: '/shortcut-upload.png', sizes: '192x192', type: 'image/png' }],
           },
           {
             name: 'Translate',
             short_name: 'Translate',
             description: 'Translate between English and Nepali',
             url: '/?tab=translate',
+            icons: [{ src: '/shortcut-translate.png', sizes: '192x192', type: 'image/png' }],
           },
         ],
         icons: [
