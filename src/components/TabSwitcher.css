@@ -9,9 +9,9 @@
   margin: 1.25rem auto 1.5rem;
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-pill);
-  background: var(--glass-strong);
-  backdrop-filter: blur(var(--blur-chrome)) saturate(1.5);
-  -webkit-backdrop-filter: blur(var(--blur-chrome)) saturate(1.5);
+  background: var(--glass);
+  backdrop-filter: blur(var(--blur-chrome)) saturate(1.8);
+  -webkit-backdrop-filter: blur(var(--blur-chrome)) saturate(1.8);
   box-shadow: var(--shadow-card);
   transition: background-color 0.2s ease-out, border-color 0.2s ease-out;
 }
@@ -79,9 +79,26 @@
     border: 0;
     border-top: 1px solid var(--glass-border);
     border-radius: 0;
-    /* Full-bleed chrome the whole page scrolls under, so it takes the same
-       heavier frosting as the app bar rather than the panel-weight glass. */
-    background: var(--glass-strong);
+    /* Full-bleed dock the page scrolls under — same frosting as the app bar,
+       so the two ends of the shell match. */
+    background: var(--glass);
+  }
+  /* A 1px highlight along the top edge. On a bar that sits flush against the
+     bottom of the screen this is what reads as thickness — without it the dock
+     is a rectangle of slightly different colour, not a pane above the page. */
+  .tab-switcher::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--glass-hi) 20%,
+      var(--glass-hi) 80%,
+      transparent
+    );
+    pointer-events: none;
   }
   .tab-switcher__btn {
     flex: 1;

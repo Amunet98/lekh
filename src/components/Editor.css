@@ -329,6 +329,25 @@ textarea::placeholder {
   font-size: 0.84rem;
   color: var(--text);
 }
+/* pointer: coarse is the honest signal here — not a width breakpoint. What
+   matters is whether the device's keyboard has an esc key, and a 700px-wide
+   browser window on a laptop still does. */
+.keys-hint__coarse {
+  display: none;
+}
+.keys-hint__coarse b {
+  font-family: var(--mono);
+  font-weight: 500;
+  color: var(--text-h);
+}
+@media (pointer: coarse) {
+  .keys-hint__fine {
+    display: none;
+  }
+  .keys-hint__coarse {
+    display: inline;
+  }
+}
 .keys-hint kbd {
   font-family: var(--mono);
   font-size: 0.78em;

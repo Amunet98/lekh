@@ -1,12 +1,13 @@
 import './Footer.css'
 
 export function Footer() {
-  const year = new Date().getFullYear()
-
   return (
     <footer className="app-footer">
+      {/* The app, not the author. A byline is the wrong thing to end a tool
+          with — the name now sits in the About sheet, where someone who wants
+          to know who made this is actually looking. */}
       <p className="app-footer__text">
-        © {year} Bimesh Poudel · v{__APP_VERSION__}
+        <span className="app-footer__mark dev">लेख</span> Lekh · v{__APP_VERSION__}
       </p>
     </footer>
   )

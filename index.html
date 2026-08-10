@@ -58,9 +58,9 @@
     />
     <link rel="canonical" href="https://lekh-gamma.vercel.app/" />
 
-    <!-- Share cards. No og:image: there is no social card asset in public/,
-         and pointing at one that does not exist gives a broken preview rather
-         than the plain text card you get from omitting it. -->
+    <!-- Share cards. og-image.png is generated from design/og-image.html —
+         see design/README.md for the render command. Absolute URLs, because
+         most crawlers will not resolve a relative og:image. -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Lekh" />
     <meta property="og:url" content="https://lekh-gamma.vercel.app/" />
@@ -71,7 +71,16 @@
     />
     <meta property="og:locale" content="en_US" />
     <meta property="og:locale:alternate" content="ne_NP" />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content="https://lekh-gamma.vercel.app/og-image.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Lekh — the लेख wordmark beside the line 'Type Nepali the way you already text it', showing kasto chha converting to कस्तो छ."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://lekh-gamma.vercel.app/og-image.png" />
     <meta name="twitter:title" content="लेख · Lekh — Nepali typing in your browser" />
     <meta
       name="twitter:description"

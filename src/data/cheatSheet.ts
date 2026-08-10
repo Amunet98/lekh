@@ -25,6 +25,13 @@ export const VOWELS: CheatGroup = {
     { glyph: 'ऐ ै', insert: 'ऐ', romanized: 'ai' },
     { glyph: 'ओ ो', insert: 'ओ', romanized: 'o' },
     { glyph: 'औ ौ', insert: 'औ', romanized: 'au' },
+    /* अं and अः complete the 13 स्वर of the Nepali वर्णमाला. They were missing
+       because their marks (ं ः) already appear in the signs table below — but
+       a sign is not a letter: someone reciting the alphabet is looking for
+       अं here, at the end of the vowels, not for a bare anusvara three tables
+       down. Typing them is `aM` / `aH`; both verified against the engine. */
+    { glyph: 'अं', insert: 'अं', romanized: 'aM' },
+    { glyph: 'अः', insert: 'अः', romanized: 'aH' },
   ],
 }
 

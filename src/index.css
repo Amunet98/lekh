@@ -92,8 +92,8 @@
    * --bg, then the glass fill over that, then contrast against --muted. */
   --glass: color-mix(in srgb, var(--surface) var(--glass-mix), transparent);
   --glass-strong: color-mix(in srgb, var(--surface) var(--glass-strong-mix), transparent);
-  --blur-chrome: 16px;
-  --blur-sheet: 28px;
+  --blur-chrome: 22px;
+  --blur-sheet: 32px;
   --aurora-1: var(--accent);
 
   --radius-card: 16px;

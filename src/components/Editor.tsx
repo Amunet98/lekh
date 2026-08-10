@@ -161,9 +161,28 @@ export function Editor({ editor, textareaRef }: EditorProps) {
             </button>
           ))}
         </div>
+        {/*
+          Two variants of the middle clause, swapped by pointer type in CSS.
+          A phone keyboard has no esc key, so on a touch device that line was
+          describing an escape hatch the user physically cannot reach — in the
+          installed PWA, which is where most people type Nepali, it was the
+          only instruction on screen that could not be followed. The touch
+          equivalent already exists: the "(keep)" chip in the suggestion row
+          does exactly what esc does.
+
+          Rendered both ways rather than branched in JS: this is presentation,
+          and a device that changes pointer type (a tablet gaining a keyboard)
+          updates live instead of needing a re-render.
+        */}
         <p className="keys-hint">
-          <kbd>space</kbd> converts the word · <kbd>esc</kbd> keeps it in English · <kbd>.</kbd>{' '}
-          becomes ।
+          <kbd>space</kbd> converts the word ·{' '}
+          <span className="keys-hint__fine">
+            <kbd>esc</kbd> keeps it in English
+          </span>
+          <span className="keys-hint__coarse">
+            tap <b>(keep)</b> above to keep it in English
+          </span>{' '}
+          · <kbd>.</kbd> becomes ।
         </p>
       </div>
 

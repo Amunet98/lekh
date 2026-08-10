@@ -160,8 +160,18 @@ export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
         <p className="about__privacy">
           everything runs in your browser — nothing you type is ever sent anywhere
         </p>
+
+        {/* The byline the footer used to carry. It belongs here: a footer line
+            under a typing app is read by nobody, whereas someone who opened
+            "About" is asking exactly this question. */}
+        <p className="about__by">
+          Built by{' '}
+          <a href="https://bimeshpoudel.com.np" target="_blank" rel="noopener noreferrer">
+            Bimesh Poudel
+          </a>
+        </p>
         <p className="about__meta">
-          © {new Date().getFullYear()} Bimesh Poudel · v{__APP_VERSION__}
+          <span className="dev">लेख</span> Lekh · v{__APP_VERSION__} · © {new Date().getFullYear()}
         </p>
       </div>
     </dialog>

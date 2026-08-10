@@ -9,17 +9,20 @@
 /* App bar — compact, full-bleed, sticky app-shell chrome (replaces the old
    scrolling hero) so content starts immediately, like an installed app.
  *
- * The strongest glass in the app: this is the layer the whole page scrolls
- * under, so it is where the frosting is most visible and where legibility
- * matters most. Hence --glass-strong (86%) rather than the 72% panes use. */
+ * --glass, not --glass-strong. At 88% the fill is so nearly opaque that the
+ * blur behind it has almost nothing left to show, and the bar reads as a plain
+ * solid strip — which is what it looked like on first pass. --glass is the
+ * measured floor (76% light / 82% dark, see index.css) and it is the most
+ * transparent this can be while --muted still clears AA over an aurora blob.
+ * The bar's own text is --text-h, which has far more headroom than that. */
 .app-bar {
   position: sticky;
   top: 0;
   z-index: 3;
   border-bottom: 1px solid var(--glass-border);
-  background: var(--glass-strong);
-  backdrop-filter: blur(var(--blur-chrome)) saturate(1.6);
-  -webkit-backdrop-filter: blur(var(--blur-chrome)) saturate(1.6);
+  background: var(--glass);
+  backdrop-filter: blur(var(--blur-chrome)) saturate(1.8);
+  -webkit-backdrop-filter: blur(var(--blur-chrome)) saturate(1.8);
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .app-bar {
