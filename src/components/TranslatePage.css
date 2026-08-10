@@ -44,6 +44,25 @@
   }
 }
 
+/* Below that, the toolbar stops being a container at all.
+ *
+ * Once the controls wrap onto two rows, a 999px radius stops reading as a pill
+ * and becomes a large lozenge with a dead corner beside the shorter row — and
+ * it was wrapping a set of controls that are already pills in their own right,
+ * so the box was drawing a border around borders. The controls sit directly on
+ * the page instead. */
+@media (max-width: 619.98px) {
+  .translate-toolbar {
+    display: contents;
+  }
+  .translate-toolbar > .direction-toggle {
+    margin-bottom: 0.6rem;
+  }
+  .translate-toolbar > .translate-mode {
+    margin-bottom: 1.25rem;
+  }
+}
+
 .translate-pane {
   display: flex;
   flex-direction: column;

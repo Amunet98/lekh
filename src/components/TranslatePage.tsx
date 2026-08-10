@@ -27,7 +27,7 @@ export function TranslatePage({ handoffText, onHandoffConsumed }: TranslatePageP
   return (
     <section className="translate-page">
       <span className="tag">Translate</span>
-      <h2>Translate — English ⇄ Nepali</h2>
+      <h2>Translate text</h2>
 
       {/* One toolbar. These were three stacked rows — language pickers, then
           engine, then the panes — which pushed the actual text fields a third

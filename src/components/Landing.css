@@ -17,6 +17,17 @@
   padding: clamp(3rem, 8vw, 5rem) 1.25rem 2rem;
 }
 
+/* The theme/install controls float over this stage (.landing-bar in App.css is
+   absolutely positioned), and the wordmark is centred at its minimum 88px on a
+   phone — wide enough to run straight underneath them. The stage top padding
+   clamps to 48px there, which is not enough to clear a 44px control row sitting
+   at a 12px offset, so the toggle landed on top of the ख. */
+@media (max-width: 640px) {
+  .landing__stage {
+    padding-top: 6.5rem;
+  }
+}
+
 .landing__wordmark {
   font-family: var(--display-dev);
   font-weight: 700;
@@ -182,6 +193,22 @@
 .landing__feat b {
   color: var(--text-h);
   font-weight: 600;
+}
+
+/* One chip per row on a phone, left-aligned and full width. Centred pills that
+   wrap put the label on line one and half the description on line two, ragged
+   around a centred axis — three chips, three different shapes. */
+@media (max-width: 640px) {
+  .landing__feats {
+    margin-top: 40px;
+    flex-direction: column;
+    align-self: stretch;
+  }
+  .landing__feat {
+    width: 100%;
+    justify-content: flex-start;
+    text-align: left;
+  }
 }
 .landing__feat-glyph {
   color: var(--accent);
