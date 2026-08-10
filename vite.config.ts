@@ -28,6 +28,33 @@ export default defineConfig({
         display: 'standalone',
         theme_color: '#FBFBFA',
         background_color: '#FBFBFA',
+        lang: 'ne',
+        dir: 'ltr',
+        categories: ['productivity', 'utilities', 'education'],
+        // Long-press / jump-list entries on an installed Lekh. These need real
+        // targets, which is what the ?tab= handling in App.tsx exists for —
+        // before it, every section lived at '/' and a shortcut could only ever
+        // open the Type tab.
+        shortcuts: [
+          {
+            name: 'Type Nepali',
+            short_name: 'Type',
+            description: 'Type romanized Nepali and get Devanagari as you go',
+            url: '/?tab=type',
+          },
+          {
+            name: 'Read a photo or PDF',
+            short_name: 'Upload',
+            description: 'Pull Nepali or English text out of an image or document',
+            url: '/?tab=upload',
+          },
+          {
+            name: 'Translate',
+            short_name: 'Translate',
+            description: 'Translate between English and Nepali',
+            url: '/?tab=translate',
+          },
+        ],
         icons: [
           { src: '/android-chrome-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
           { src: '/android-chrome-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },

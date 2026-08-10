@@ -3,9 +3,16 @@
   display: inline-flex;
   gap: 0.15rem;
   padding: 3px;
-  border: 1px solid var(--border);
-  background: var(--surface);
+  border: 1px solid var(--glass-border);
+  background: var(--glass);
+  backdrop-filter: blur(10px) saturate(1.4);
+  -webkit-backdrop-filter: blur(10px) saturate(1.4);
   border-radius: var(--radius-pill);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .theme-toggle {
+    background: var(--surface);
+  }
 }
 /* 44px, not the 34px this was. The glyph inside stays small — the padding is
    what makes the target, and these three sit side by side, so a miss lands on
@@ -21,7 +28,11 @@
   color: var(--muted);
   border-radius: var(--radius-pill);
   cursor: pointer;
-  transition: color 0.15s ease-out, background-color 0.15s ease-out, border-color 0.15s ease-out;
+  transition: color 0.15s ease-out, background-color 0.15s ease-out, border-color 0.15s ease-out,
+    transform var(--dur-fast) var(--ease-expo);
+}
+.theme-toggle__btn:active {
+  transform: scale(0.92);
 }
 .theme-toggle__btn:hover,
 .theme-toggle__btn:focus-visible {
@@ -32,7 +43,7 @@
   outline-offset: 1px;
 }
 .theme-toggle__btn--active {
-  color: var(--accent);
+  color: var(--accent-text);
   background: var(--accent-bg);
   border-color: var(--accent-border);
 }

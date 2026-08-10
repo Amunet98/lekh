@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 
-/* Ink & Slate — a writing tool, not a piece of stationery.
+/* Ink & Glass — a writing tool, not a piece of stationery.
  *
  * Every foreground/background pair below clears WCAG AA in both themes. That
  * was measured, not eyeballed: the first draft failed on seven pairs, two of
@@ -11,6 +11,10 @@
  * carets, rules, the active tab. --accent-text is for anything that is words,
  * because an indigo bright enough to look good as a button is too light to
  * read as a link. Do not collapse them back into one.
+ *
+ * The palette is unchanged from Ink & Slate — what this revision adds is a
+ * depth layer: an ambient aurora behind everything, and translucent frosted
+ * chrome on top of it. See the --glass-* block below.
  */
 :root {
   --text: #4b5058;
@@ -33,6 +37,18 @@
   --shadow-card: 0 1px 2px rgba(16, 17, 20, 0.04), 0 8px 24px -12px rgba(16, 17, 20, 0.12);
   --shadow-pop: 0 4px 12px rgba(16, 17, 20, 0.08), 0 20px 48px -20px rgba(16, 17, 20, 0.2);
   --shadow-accent: 0 4px 14px -4px rgba(79, 70, 229, 0.45);
+  /* Hairline that reads as an edge of glass rather than a drawn border. It is
+     a plain rgba and not a color-mix of --border, because on a translucent
+     surface the border has to be *lighter* than the fill in dark mode and
+     *darker* than it in light mode — an inversion, not a tint. */
+  --glass-border: rgba(16, 17, 20, 0.09);
+  /* Top-edge sheen: the 1px highlight that makes a pane look like it has
+     thickness. Strong in light mode, nearly absent in dark. */
+  --glass-hi: rgba(255, 255, 255, 0.6);
+  --aurora-2: #7c3aed;
+  --aurora-alpha: 0.14;
+  --glass-mix: 76%;
+  --glass-strong-mix: 88%;
 
   --dark-text: #a8aeb9;
   --dark-text-h: #f3f4f6;
@@ -54,13 +70,44 @@
   --dark-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
   --dark-shadow-pop: 0 4px 12px rgba(0, 0, 0, 0.5), 0 20px 48px -20px rgba(0, 0, 0, 0.7);
   --dark-shadow-accent: 0 4px 14px -4px rgba(165, 180, 252, 0.35);
+  --dark-glass-border: rgba(255, 255, 255, 0.1);
+  --dark-glass-hi: rgba(255, 255, 255, 0.07);
+  --dark-aurora-2: #8b5cf6;
+  --dark-aurora-alpha: 0.3;
+  --dark-glass-mix: 82%;
+  --dark-glass-strong-mix: 92%;
 
-  --radius-card: 14px;
-  --radius-field: 10px;
+  /* Glass fills. The colour derives from --surface, which is already themed;
+     the *opacity* had to become themed too, and that was measured rather than
+     chosen.
+   *
+   * Worst case is --muted text on a --glass pane sitting directly over the
+   * brightest point of an aurora blob. The first draft used 72% in both
+   * themes: light came out at 4.52 and dark at 4.37 — a real AA failure, and
+   * one that only shows up where a blob happens to drift under a panel, so it
+   * would never have been caught by looking. Dark needs 78% just to reach the
+   * floor, so it sits at 82% for margin (4.60); light at 76% (4.57).
+   *
+   * If you lower either number, re-run the composite check. Peak aurora over
+   * --bg, then the glass fill over that, then contrast against --muted. */
+  --glass: color-mix(in srgb, var(--surface) var(--glass-mix), transparent);
+  --glass-strong: color-mix(in srgb, var(--surface) var(--glass-strong-mix), transparent);
+  --blur-chrome: 16px;
+  --blur-sheet: 28px;
+  --aurora-1: var(--accent);
+
+  --radius-card: 16px;
+  --radius-field: 12px;
   --radius-pill: 999px;
 
   --dur: 200ms;
+  --dur-fast: 140ms;
+  --dur-slow: 420ms;
   --ease: cubic-bezier(0.22, 0.68, 0.35, 1);
+  /* Expo-out. Leaves the start almost instantly and coasts into the end — the
+     curve that makes a panel feel like it was thrown rather than dragged. Used
+     for anything that enters or presses; --ease stays for colour crossfades. */
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
 
   /* Anek Devanagari covers Devanagari *and* Latin, so display type no longer
      needs the two-font dance Fraunces required — Fraunces has no Devanagari
@@ -111,6 +158,12 @@
     --shadow-card: var(--dark-shadow-card);
     --shadow-pop: var(--dark-shadow-pop);
     --shadow-accent: var(--dark-shadow-accent);
+    --glass-border: var(--dark-glass-border);
+    --glass-hi: var(--dark-glass-hi);
+    --aurora-2: var(--dark-aurora-2);
+    --aurora-alpha: var(--dark-aurora-alpha);
+    --glass-mix: var(--dark-glass-mix);
+    --glass-strong-mix: var(--dark-glass-strong-mix);
   }
 }
 
@@ -137,6 +190,12 @@
   --shadow-card: var(--dark-shadow-card);
   --shadow-pop: var(--dark-shadow-pop);
   --shadow-accent: var(--dark-shadow-accent);
+  --glass-border: var(--dark-glass-border);
+  --glass-hi: var(--dark-glass-hi);
+  --aurora-2: var(--dark-aurora-2);
+  --aurora-alpha: var(--dark-aurora-alpha);
+  --glass-mix: var(--dark-glass-mix);
+  --glass-strong-mix: var(--dark-glass-strong-mix);
 }
 
 * {
@@ -150,8 +209,17 @@ body {
   overflow-x: clip;
 }
 
+/* html carries the background too, not just body. The boot screen paints on
+   first frame, but there is still a gap between the pre-paint theme script
+   (see index.html) and React mounting — without this, that gap is white, and
+   a white flash before a dark boot screen is the one thing that would give
+   the whole splash away as a web page. */
+html {
+  background: var(--bg);
+}
+
 /* The paper grain that used to live here went with Paper & Ink. Depth now
-   comes from the elevation scale, not from a texture. */
+   comes from the elevation scale and the ambient aurora, not from a texture. */
 body {
   background: var(--bg);
   color: var(--text);
@@ -162,6 +230,178 @@ body {
 #root {
   min-height: 100svh;
   position: relative;
+}
+
+/* Ambient light. Three very soft, very slow radial blobs behind everything —
+   this is what the frosted surfaces are frosting. Without it, backdrop-filter
+   has nothing interesting to blur and every glass pane looks like flat grey.
+ *
+ * fixed + pointer-events:none + aria-hidden: it must never intercept a tap and
+ * must never scroll, or the parallax reads as a rendering fault.
+ *
+ * z-index 0 sits under .page (z-index 1) and .app-bar (3). #root is
+ * position: relative with no z-index, so it is not a stacking context and
+ * these all share the root one. */
+.aurora {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  contain: strict;
+}
+
+/* Grain, and it is load-bearing rather than a texture revival.
+ *
+ * A wide, very low-contrast gradient across a near-black background cannot be
+ * drawn in 8 bits per channel: consecutive steps of the ramp round to the same
+ * value for a long stretch and then jump, so the blobs render as a set of
+ * concentric rings. That is exactly what the first version did — visible as
+ * tree-ring banding across the top-left corner.
+ *
+ * A pixel of noise per step dithers the boundary and the rings dissolve. The
+ * opacity has to stay this low: high enough to break up a 1/255 step, low
+ * enough not to read as texture on a white light-mode background.
+ *
+ * feTurbulence is rasterised once by the browser and then just composited. */
+.aurora::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .aurora::after {
+    opacity: 0.05;
+  }
+}
+:root[data-theme='dark'] .aurora::after {
+  opacity: 0.05;
+}
+.aurora__blob {
+  position: absolute;
+  border-radius: 50%;
+  opacity: var(--aurora-alpha);
+  /* A blur this wide is expensive to recompute, so the blobs animate on
+     transform only — the filter result is cached and just moved. Animating
+     width/height or background-position here would repaint a 110px blur every
+     frame and drop the whole app to single-digit fps on a phone.
+   *
+   * The blur is doing real work beyond softness: a radial-gradient alone ends
+   * at a mathematically exact circle, and at these opacities that boundary
+   * reads as a faint drawn ring rather than as light. The blur is what
+   * dissolves the edge. Don't reduce it without checking for the ring. */
+  filter: blur(110px);
+  will-change: transform;
+}
+.aurora__blob--1 {
+  width: 46vmax;
+  height: 46vmax;
+  top: -14vmax;
+  left: -10vmax;
+  /* Five stops approximating a gaussian falloff rather than the linear ramp a
+     two-stop gradient gives. A linear ramp spends most of its length in the
+     dimmest few values, which is where 8-bit banding is worst; front-loading
+     the falloff keeps the steps in the range the grain above can dither. */
+  background: radial-gradient(
+    circle,
+    var(--aurora-1) 0%,
+    color-mix(in srgb, var(--aurora-1) 62%, transparent) 28%,
+    color-mix(in srgb, var(--aurora-1) 26%, transparent) 50%,
+    color-mix(in srgb, var(--aurora-1) 7%, transparent) 72%,
+    transparent 88%
+  );
+  animation: aurora-drift-1 54s var(--ease) infinite alternate;
+}
+.aurora__blob--2 {
+  width: 38vmax;
+  height: 38vmax;
+  top: 24vmax;
+  right: -12vmax;
+  background: radial-gradient(
+    circle,
+    var(--aurora-2) 0%,
+    color-mix(in srgb, var(--aurora-2) 62%, transparent) 28%,
+    color-mix(in srgb, var(--aurora-2) 26%, transparent) 50%,
+    color-mix(in srgb, var(--aurora-2) 7%, transparent) 72%,
+    transparent 88%
+  );
+  animation: aurora-drift-2 47s var(--ease) infinite alternate;
+}
+.aurora__blob--3 {
+  width: 30vmax;
+  height: 30vmax;
+  bottom: -12vmax;
+  left: 28vw;
+  background: radial-gradient(
+    circle,
+    var(--aurora-2) 0%,
+    color-mix(in srgb, var(--aurora-2) 62%, transparent) 28%,
+    color-mix(in srgb, var(--aurora-2) 26%, transparent) 50%,
+    color-mix(in srgb, var(--aurora-2) 7%, transparent) 72%,
+    transparent 88%
+  );
+  animation: aurora-drift-3 61s var(--ease) infinite alternate;
+}
+
+@keyframes aurora-drift-1 {
+  to {
+    transform: translate3d(9vw, 7vh, 0) scale(1.12);
+  }
+}
+@keyframes aurora-drift-2 {
+  to {
+    transform: translate3d(-8vw, -6vh, 0) scale(0.9);
+  }
+}
+@keyframes aurora-drift-3 {
+  to {
+    transform: translate3d(6vw, -8vh, 0) scale(1.15);
+  }
+}
+
+/* The blobs stay under reduced-motion — the depth is the point, the drift is
+   decoration. The global reduced-motion rule at the bottom of this file
+   already clamps every animation to one 0.01ms iteration, which parks each
+   blob on its *end* keyframe; that is a valid composition, not a broken one. */
+
+/* Frosted surface. One definition, applied by every pane that used to be a
+   flat --surface rectangle.
+ *
+ * The @supports fallback is mandatory, not defensive: without backdrop-filter
+ * a 72%-opaque fill over the aurora is a smear of indigo behind body text.
+ * Same pattern the app bar has used since the app-shell change. */
+.glass {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--blur-chrome)) saturate(1.4);
+  -webkit-backdrop-filter: blur(var(--blur-chrome)) saturate(1.4);
+}
+.glass--strong {
+  background: var(--glass-strong);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass,
+  .glass--strong {
+    background: var(--surface);
+  }
+}
+
+/* The 1px top highlight that gives a pane thickness. Kept separate from
+   .glass because it needs a positioned parent and not every glass surface has
+   one (or wants the extra pseudo-element). */
+.sheen {
+  position: relative;
+}
+.sheen::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--glass-hi) 22%, var(--glass-hi) 78%, transparent);
+  pointer-events: none;
 }
 
 .dev,

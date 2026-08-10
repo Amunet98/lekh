@@ -5,6 +5,7 @@ import {
   CONJUNCTS,
   SIGNS_DIGITS,
   DIGIT_CELLS,
+  COMMON_WORDS,
   type CheatGroup,
 } from '../data/cheatSheet'
 import './CheatSheet.css'
@@ -73,6 +74,20 @@ export function CheatSheet({ onInsert }: CheatSheetProps) {
       <Cells group={SIGNS_DIGITS} onInsert={onInsert} />
       <Cells group={DIGIT_CELLS} onInsert={onInsert} />
       <p className="map-caption">Digits convert too: type 0–9, get ०–९. Tap a cell to insert it directly.</p>
+
+      {/* Last, not first. The tables above are the reference someone came here
+          for; this is the shortcut they'll actually reach for on the second
+          visit, and it reads better as a payoff than as a preamble. */}
+      <p className="sub">{COMMON_WORDS.label}</p>
+      {/* Wrapped so the cells can be tuned down a size: these hold whole words
+          (धन्यवाद is seven glyphs), not the single letters every other table
+          holds, and at the shared size they wrap inside an ~85px column. */}
+      <div className="cells-words">
+        <Cells group={COMMON_WORDS} onInsert={onInsert} />
+      </div>
+      <p className="map-caption">
+        The label under each word is what you would type to get it.
+      </p>
     </section>
   )
 }

@@ -26,12 +26,16 @@ h2 + .sub {
   margin: 0.5rem 0 0.3rem;
 }
 
+/* The grid draws its own rules as a 1px gap showing the container colour
+   through, so the container has to stay opaque enough to *be* a line — a
+   translucent one disappears against the aurora. The cells are what carry the
+   frosting. */
 .cells {
   display: grid;
   gap: 1px;
   background: var(--border);
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-field);
   overflow: hidden;
 }
 .cells--4 {
@@ -41,14 +45,24 @@ h2 + .sub {
   grid-template-columns: repeat(5, 1fr);
 }
 .cell {
-  background: var(--surface);
+  background: var(--glass);
+  backdrop-filter: blur(var(--blur-chrome));
+  -webkit-backdrop-filter: blur(var(--blur-chrome));
   padding: 0.38rem 0.15rem;
   text-align: center;
   border: 0;
   cursor: pointer;
   min-height: 44px;
   font: inherit;
-  transition: background-color 0.15s ease-out;
+  transition: background-color 0.15s ease-out, transform var(--dur-fast) var(--ease-expo);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .cell {
+    background: var(--surface);
+  }
+}
+.cell:active {
+  transform: scale(0.94);
 }
 .cell:hover,
 .cell:focus-visible {
@@ -69,7 +83,10 @@ h2 + .sub {
   cursor: default;
 }
 .cell--filler:hover {
-  background: var(--surface);
+  background: var(--glass);
+}
+.cell--filler:active {
+  transform: none;
 }
 .cell .r {
   display: block;
@@ -84,4 +101,18 @@ h2 + .sub {
   margin: 0.6rem 0 0;
   font-size: 0.78rem;
   color: var(--text);
+}
+
+/* Word cells. Same grid, smaller type — see the note at the call site in
+   CheatSheet.tsx. keep-all stops a Devanagari word breaking mid-cluster, which
+   splits a matra off its consonant and renders as a dotted circle. */
+.cells-words .cell {
+  padding: 0.42rem 0.2rem;
+}
+.cells-words .cell .g {
+  font-size: 0.94rem;
+  word-break: keep-all;
+}
+.cells-words .cell .r {
+  font-size: 0.66rem;
 }

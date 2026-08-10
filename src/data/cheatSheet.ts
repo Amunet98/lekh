@@ -125,6 +125,29 @@ export const SIGNS_DIGITS: CheatGroup = {
   ],
 }
 
+/* Whole words rather than glyphs. The letter tables above answer "what does
+ * this key give me"; this one answers "what do I actually type to get a word I
+ * need", which is the question people have first.
+ *
+ * `insert` puts the Devanagari straight into the editor and `romanized` shows
+ * the keystrokes that would have produced it, so the cell doubles as a lookup
+ * and as a lesson. Every pair here was verified against src/lib/engine — see
+ * the note in data/samples.ts for why that matters. */
+export const COMMON_WORDS: CheatGroup = {
+  label: 'काम लाग्ने शब्द · everyday words',
+  columns: 4,
+  cells: [
+    { glyph: 'नमस्ते', insert: 'नमस्ते', romanized: 'namaste' },
+    { glyph: 'धन्यवाद', insert: 'धन्यवाद', romanized: 'dhanyabad' },
+    { glyph: 'घर', insert: 'घर', romanized: 'ghar' },
+    { glyph: 'पानी', insert: 'पानी', romanized: 'paani' },
+    { glyph: 'खाना', insert: 'खाना', romanized: 'khana' },
+    { glyph: 'साथी', insert: 'साथी', romanized: 'sathi' },
+    { glyph: 'राम्रो', insert: 'राम्रो', romanized: 'ramro' },
+    { glyph: 'छ', insert: 'छ', romanized: 'chha' },
+  ],
+}
+
 export const DIGIT_CELLS: CheatGroup = {
   label: '',
   columns: 5,

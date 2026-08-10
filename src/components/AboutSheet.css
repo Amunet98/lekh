@@ -1,0 +1,324 @@
+/* The About sheet. Everything the first-visit Landing page used to say, moved
+   behind the app-bar wordmark — so the pitch is still one tap away, but it is
+   no longer standing between a returning user and the editor.
+ *
+ * The <dialog> element is the sheet's *frame* only: it is transparent and
+ * unpadded, and .about__panel is the visible card. Styling the dialog itself
+ * would fight the UA's centring and max-width defaults. */
+.about {
+  border: 0;
+  padding: 0;
+  /* margin: auto is what centres a modal <dialog> in the top layer, and it
+     comes from the UA stylesheet — where Tailwind's preflight promptly
+     zeroes it. Without this the sheet pins itself to the top-left corner. */
+  margin: auto;
+  background: transparent;
+  max-width: min(34rem, calc(100vw - 2rem));
+  width: 100%;
+  max-height: calc(100dvh - 2rem);
+  overflow: visible;
+  color: var(--text);
+}
+.about::-webkit-scrollbar {
+  display: none;
+}
+
+/* Blur on the backdrop is the point, not decoration: it is what says the
+   thing behind is suspended and a tap out there dismisses. */
+.about::backdrop {
+  background: color-mix(in srgb, #0b0c0f 55%, transparent);
+  backdrop-filter: blur(var(--blur-sheet)) saturate(1.2);
+  -webkit-backdrop-filter: blur(var(--blur-sheet)) saturate(1.2);
+  animation: about-backdrop-in var(--dur) var(--ease) backwards;
+}
+@keyframes about-backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.about[open] .about__panel {
+  animation: about-panel-in var(--dur-slow) var(--ease-expo) backwards;
+}
+@keyframes about-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+}
+
+.about__panel {
+  position: relative;
+  /* .glass supplies the fill, hairline border and backdrop-filter; .sheen
+     supplies the top highlight. Both are defined in index.css. */
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-pop);
+  padding: clamp(1.5rem, 5vw, 2.25rem);
+  /* The panel scrolls, not the dialog — so the rounded corners and the sheen
+     stay put while long content moves inside them. */
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  text-align: center;
+}
+
+.about__close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease);
+}
+.about__close:hover,
+.about__close:focus-visible {
+  color: var(--text-h);
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+}
+
+.about__wordmark {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.6rem;
+  margin: 0;
+}
+.about__mark {
+  font-family: var(--display-dev);
+  font-weight: 700;
+  font-size: 2.4rem;
+  line-height: 1.1;
+  color: var(--text-h);
+}
+.about__ink {
+  color: var(--accent);
+}
+.about__latin {
+  font-family: var(--display);
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.34em;
+  text-indent: 0.34em;
+  color: var(--muted);
+}
+
+.about__headline {
+  font-family: var(--display-dev);
+  font-weight: 600;
+  font-size: clamp(1.15rem, 4vw, 1.5rem);
+  color: var(--text-h);
+  margin-top: 1.4rem;
+  line-height: 1.5;
+}
+.about__headline-accent {
+  /* --accent-text, not --accent: this is a run of words. The fill indigo is
+     tuned to sit under white, not to be read as type. */
+  color: var(--accent-text);
+}
+.about__sub {
+  font-size: 0.95rem;
+  color: var(--text);
+  margin-top: 0.6rem;
+}
+
+.about__demo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  max-width: 100%;
+  margin-top: 1.5rem;
+  padding: 0.85rem 1.4rem;
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-field);
+  font-size: 1.05rem;
+}
+.about__typed {
+  font-family: var(--mono);
+  color: var(--muted);
+}
+.about__caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.15em;
+  background: var(--accent);
+  vertical-align: text-bottom;
+  margin-left: 1px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .about__caret {
+    animation: about-blink 1s steps(1) infinite;
+  }
+}
+@keyframes about-blink {
+  50% {
+    opacity: 0;
+  }
+}
+.about__arrow {
+  color: var(--border-strong);
+  font-size: 1.15rem;
+}
+.about__out {
+  font-family: var(--devanagari);
+  font-size: 1.25rem;
+  color: var(--text-h);
+}
+.about__out b {
+  color: var(--accent-text);
+  font-weight: 500;
+}
+
+/* One per row, left-aligned. The old landing centred these as pills, which
+   put the label on line one and half the description on line two — three
+   chips, three different silhouettes, ragged around a centred axis. */
+.about__sections {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1.75rem;
+  text-align: left;
+}
+.about__section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 52px;
+  padding: 0.6rem 0.9rem;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  /* Explicit, and it has to be. The panel is text-align: center and the row
+     sets left on the container — but a <button> gets text-align: center from
+     the UA stylesheet, which beats inheritance. Without this the label sits
+     centred over its own description instead of ranging left off the icon. */
+  text-align: left;
+  color: var(--text);
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-field);
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease),
+    background-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease-expo);
+}
+.about__section:hover,
+.about__section:focus-visible {
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+}
+.about__section:active {
+  transform: scale(0.985);
+}
+.about__section-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  color: var(--accent-text);
+}
+.about__section-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+.about__section-text b {
+  color: var(--text-h);
+  font-weight: 600;
+}
+.about__section-rest {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.about__section-go {
+  margin-left: auto;
+  color: var(--muted);
+  transition: transform var(--dur-fast) var(--ease-expo), color var(--dur-fast) var(--ease);
+}
+.about__section:hover .about__section-go {
+  color: var(--accent-text);
+  transform: translateX(3px);
+}
+
+.about__keywords {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+  list-style: none;
+  margin: 1.75rem 0 0;
+  padding: 0;
+}
+.about__keyword {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text);
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-pill);
+  padding: 0.26rem 0.68rem;
+}
+.about__keyword-dev {
+  font-family: var(--devanagari);
+  font-weight: 500;
+  color: var(--accent-text);
+}
+
+.about__privacy {
+  margin-top: 1.75rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+.about__privacy::before {
+  content: '¶ ';
+  color: var(--accent);
+}
+.about__meta {
+  margin-top: 0.5rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+/* On a phone the sheet stops pretending to be a centred card and becomes a
+   bottom sheet — anchored to the thumb, dismissed downward, which is the
+   gesture people already expect from one. */
+@media (max-width: 560px) {
+  .about {
+    max-width: 100vw;
+    max-height: 100dvh;
+    margin: auto 0 0;
+    /* The UA default centres a dialog in both axes; this pins it to the
+       bottom edge so the sheet rises from where the thumb is. */
+    top: auto;
+    bottom: 0;
+  }
+  .about__panel {
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
+    max-height: 88dvh;
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
+  }
+  .about[open] .about__panel {
+    animation-name: about-sheet-in;
+  }
+}
+@keyframes about-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}

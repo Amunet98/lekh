@@ -7,11 +7,18 @@
   padding: 0.4rem;
   width: fit-content;
   margin: 1.25rem auto 1.5rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-pill);
-  background: var(--surface);
+  background: var(--glass-strong);
+  backdrop-filter: blur(var(--blur-chrome)) saturate(1.5);
+  -webkit-backdrop-filter: blur(var(--blur-chrome)) saturate(1.5);
   box-shadow: var(--shadow-card);
   transition: background-color 0.2s ease-out, border-color 0.2s ease-out;
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .tab-switcher {
+    background: var(--surface);
+  }
 }
 .tab-switcher__btn {
   display: flex;
@@ -28,12 +35,22 @@
   padding: 0.5rem 1.6rem;
   cursor: pointer;
   min-height: 44px;
-  transition: background-color 0.2s ease-out, color 0.2s ease-out;
+  transition: background-color 0.2s ease-out, color 0.2s ease-out,
+    transform var(--dur-fast) var(--ease-expo);
+}
+.tab-switcher__btn:active {
+  transform: scale(0.96);
 }
 .tab-switcher__btn--active {
-  color: var(--bg);
+  /* --on-accent, not --bg. --bg lands close enough to the right colour in
+     both themes to have worked, but it works by coincidence — it is the page
+     background, and nothing stops it from being retuned independently of the
+     accent. --on-accent is the token that is *defined* as "legible on the
+     accent fill", and it is what every other accent-filled control here uses. */
+  color: var(--on-accent);
   background: var(--accent);
   font-weight: 600;
+  box-shadow: var(--shadow-accent);
 }
 .tab-switcher__icon {
   display: none;
@@ -60,8 +77,11 @@
     margin: 0;
     padding: 0.4rem 0.5rem calc(0.4rem + env(safe-area-inset-bottom));
     border: 0;
-    border-top: 1px solid var(--border);
+    border-top: 1px solid var(--glass-border);
     border-radius: 0;
+    /* Full-bleed chrome the whole page scrolls under, so it takes the same
+       heavier frosting as the app bar rather than the panel-weight glass. */
+    background: var(--glass-strong);
   }
   .tab-switcher__btn {
     flex: 1;
@@ -71,10 +91,12 @@
     border-radius: 12px;
   }
   /* Calmer than the desktop solid chip — a full-bleed bar reads better with
-     a tint than a block of crimson at thumb height. */
+     a tint than a block of indigo at thumb height. --accent-text because on a
+     tint the label is words, not a fill. */
   .tab-switcher__btn--active {
-    color: var(--accent);
+    color: var(--accent-text);
     background: var(--accent-bg);
+    box-shadow: none;
   }
   .tab-switcher__icon {
     display: inline-flex;

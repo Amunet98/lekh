@@ -10,12 +10,20 @@
   padding: 1.8rem 1rem;
   border: 1.5px dashed var(--border-strong);
   border-radius: var(--radius-card);
-  background: var(--surface);
+  background: var(--glass);
+  backdrop-filter: blur(var(--blur-chrome)) saturate(1.4);
+  -webkit-backdrop-filter: blur(var(--blur-chrome)) saturate(1.4);
   color: var(--text-h);
   cursor: pointer;
   min-height: 44px;
   text-align: center;
-  transition: border-color 0.2s ease-out, background-color 0.2s ease-out, transform 0.2s ease-out;
+  transition: border-color 0.2s ease-out, background-color 0.2s ease-out,
+    transform var(--dur) var(--ease-expo), box-shadow var(--dur) var(--ease);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .file-upload__card {
+    background: var(--surface);
+  }
 }
 .file-upload__card:hover,
 .file-upload__card:focus-visible {
@@ -23,6 +31,10 @@
   border-style: solid;
   background: var(--accent-bg);
   transform: translateY(-2px);
+  box-shadow: var(--shadow-accent);
+}
+.file-upload__card:active {
+  transform: translateY(0) scale(0.99);
 }
 
 /* Dragging a file over the zone. The state lives on the wrapper because that

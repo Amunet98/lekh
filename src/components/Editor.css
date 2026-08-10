@@ -39,20 +39,40 @@
   outline-offset: 1px;
 }
 
+/* The editor is the app. It gets the deepest pane treatment: frosted fill,
+   hairline edge, a top sheen for thickness, and the pop shadow rather than the
+   card one so it reads as the surface everything else is arranged around. */
 .editor {
-  border: 1px solid var(--border);
+  position: relative;
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-card);
-  background: var(--surface);
-  box-shadow: var(--shadow-card);
+  background: var(--glass);
+  backdrop-filter: blur(var(--blur-chrome)) saturate(1.4);
+  -webkit-backdrop-filter: blur(var(--blur-chrome)) saturate(1.4);
+  box-shadow: var(--shadow-pop);
   overflow: hidden;
   transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .editor {
+    background: var(--surface);
+  }
+}
+.editor::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--glass-hi) 25%, var(--glass-hi) 75%, transparent);
+  pointer-events: none;
+  z-index: 1;
 }
 /* The whole surface takes the focus ring, because the textarea inside it has
    no border of its own — focus has to be legible on the thing you are
    actually typing into. */
 .editor:focus-within {
   border-color: var(--accent);
-  box-shadow: var(--shadow-card), 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+  box-shadow: var(--shadow-pop), 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
 }
 .editor--flash {
   border-color: var(--accent);
@@ -63,8 +83,11 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.6rem 1rem;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface-2);
+  border-bottom: 1px solid var(--glass-border);
+  /* A tint of the elevated surface rather than the solid one — the frosted
+     pane below has to keep showing through, or the title bar looks like a
+     separate opaque strip pasted onto the top of the card. */
+  background: color-mix(in srgb, var(--surface-2) 55%, transparent);
 }
 .editor-bar__title {
   /* No italic: Anek Devanagari has no italic cut and font-synthesis is off
@@ -87,7 +110,7 @@
   flex-wrap: wrap;
   min-height: 3rem;
   padding: 0.55rem 0.85rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--glass-border);
 }
 .sugg-hint {
   font-size: 0.82rem;
@@ -102,7 +125,8 @@
   font-size: 1rem;
   cursor: pointer;
   min-height: 44px;
-  transition: transform 0.15s ease-out, border-color 0.15s ease-out, background-color 0.15s ease-out;
+  transition: transform var(--dur-fast) var(--ease-expo), border-color 0.15s ease-out,
+    background-color 0.15s ease-out;
 }
 .chip:hover,
 .chip:focus-visible {
@@ -113,6 +137,12 @@
 .chip:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
+}
+/* After the :hover rule, not before — a pointer press matches both, and the
+   later declaration is the one that wins. Written the other way round the
+   chip stays lifted and never acknowledges the tap. */
+.chip:active {
+  transform: scale(0.96);
 }
 .chip--primary {
   /* --on-accent, not --bg: in dark mode the page background is near-black and
@@ -174,7 +204,7 @@ textarea::placeholder {
   flex-wrap: wrap;
   gap: 0.55rem;
   padding: 0.6rem 0.85rem;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--glass-border);
 }
 .btn {
   font-family: var(--sans);
@@ -187,7 +217,8 @@ textarea::placeholder {
   padding: 0.34rem 0.9rem;
   cursor: pointer;
   min-height: 44px;
-  transition: background-color 0.15s ease-out, border-color 0.15s ease-out, color 0.15s ease-out;
+  transition: background-color 0.15s ease-out, border-color 0.15s ease-out, color 0.15s ease-out,
+    transform var(--dur-fast) var(--ease-expo);
 }
 .btn:hover,
 .btn:focus-visible {
@@ -199,7 +230,7 @@ textarea::placeholder {
   outline-offset: 1px;
 }
 .btn:active {
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 
 /* Conversion-mode segmented control. Replaces a single button whose pressed
@@ -213,9 +244,9 @@ textarea::placeholder {
   display: inline-flex;
   padding: 0 2px;
   gap: 2px;
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-pill);
-  background: var(--surface-2);
+  background: color-mix(in srgb, var(--surface-2) 70%, transparent);
 }
 .lang-seg__opt {
   font-family: var(--sans);
@@ -228,7 +259,11 @@ textarea::placeholder {
   padding: 0 0.85rem;
   min-height: 44px;
   cursor: pointer;
-  transition: color var(--dur) var(--ease), background-color var(--dur) var(--ease);
+  transition: color var(--dur) var(--ease), background-color var(--dur) var(--ease),
+    transform var(--dur-fast) var(--ease-expo);
+}
+.lang-seg__opt:active {
+  transform: scale(0.96);
 }
 .lang-seg__opt.dev {
   font-family: var(--devanagari);
@@ -273,7 +308,11 @@ textarea::placeholder {
   padding: 0.28rem 0.8rem;
   cursor: pointer;
   min-height: 44px;
-  transition: border-color 0.15s ease-out, color 0.15s ease-out;
+  transition: border-color 0.15s ease-out, color 0.15s ease-out,
+    transform var(--dur-fast) var(--ease-expo);
+}
+.sample:active {
+  transform: scale(0.97);
 }
 .sample:hover,
 .sample:focus-visible {

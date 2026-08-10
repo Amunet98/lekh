@@ -1,0 +1,246 @@
+/* The splash. Runs on every launch for ~1.1s (see BootScreen.tsx) and is the
+   app's whole first impression, so it is the one surface allowed a bit of
+   theatre.
+ *
+ * It is a frosted sheet over the live aurora rather than an opaque colour
+ * block: the blobs drift visibly behind the blur while the wordmark settles,
+ * which is what sells it as a running application rather than a static image.
+ * z-index 10 clears every other layer — the app bar is 3 and the mobile tab
+ * bar is 4. */
+.boot {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom));
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: blur(var(--blur-sheet)) saturate(1.5);
+  -webkit-backdrop-filter: blur(var(--blur-sheet)) saturate(1.5);
+  transition: opacity var(--dur-slow) var(--ease-expo),
+    transform var(--dur-slow) var(--ease-expo);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .boot {
+    background: var(--bg);
+  }
+}
+
+/* Exit: the sheet lifts *towards* the viewer and fades, so the app is revealed
+   from underneath rather than slid in from the side. Pointer events go first —
+   the overlay must stop swallowing taps the instant the fade starts, not
+   420ms later. */
+.boot--exiting {
+  opacity: 0;
+  transform: scale(1.04);
+  pointer-events: none;
+}
+
+.boot__stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 30rem;
+  width: 100%;
+}
+
+.boot__mark {
+  font-family: var(--display-dev);
+  font-weight: 700;
+  font-size: clamp(76px, 17vw, 132px);
+  /* 1.0, not 1.05: Anek Devanagari reserves descender room this word does not
+     use, and the slack pushed the swash a visible gap away from the mark. */
+  line-height: 1;
+  color: var(--text-h);
+  letter-spacing: -0.01em;
+  margin: 0;
+  /* backwards: the mark is styled by the *end* keyframe from frame zero, so
+     there is no flash of a finished wordmark before the animation begins. */
+  animation: boot-mark 720ms var(--ease-expo) 80ms backwards;
+}
+.boot__ink {
+  color: var(--accent);
+}
+/* Ink settling: the word arrives slightly low and out of focus and resolves.
+   Applied to the whole mark — see the note at the call site for why the two
+   halves cannot be animated separately. */
+@keyframes boot-mark {
+  from {
+    opacity: 0;
+    transform: translateY(0.18em) scale(0.95);
+    filter: blur(12px);
+  }
+}
+
+.boot__swash {
+  display: block;
+  width: min(280px, 62vw);
+  margin: 2px auto 0;
+  animation: boot-swash 700ms var(--ease-expo) 320ms backwards;
+}
+/* Drawn, not faded — the swash is a pen stroke, so it should behave like one.
+   A 300-unit-wide path needs a dash long enough to cover its true arc length,
+   which is a little more than the box width. */
+@keyframes boot-swash {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.boot__latin {
+  font-family: var(--display);
+  font-size: 18px;
+  color: var(--muted);
+  margin-top: 12px;
+  letter-spacing: 0.42em;
+  /* The tracking above adds a trailing gap after the last letter, which pushes
+     the word off the optical centre of the wordmark above it. */
+  text-indent: 0.42em;
+  animation: boot-rise 520ms var(--ease-expo) 400ms backwards;
+}
+
+.boot__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: min(19rem, 78%);
+  margin-top: 2.25rem;
+  animation: boot-rise 520ms var(--ease-expo) 480ms backwards;
+}
+.boot__track {
+  flex: 1;
+  height: 3px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--text) 16%, transparent);
+  overflow: hidden;
+}
+.boot__fill {
+  height: 100%;
+  width: 0;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 70%, transparent);
+}
+.boot__pct {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--muted);
+  /* Tabular figures: without them the bar's right edge jitters horizontally
+     as the number goes 8% → 88% → 100%. */
+  font-variant-numeric: tabular-nums;
+  min-width: 3ch;
+  text-align: right;
+}
+
+.boot__status {
+  margin-top: 0.9rem;
+  min-height: 1.6em;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--muted);
+  animation: boot-rise 520ms var(--ease-expo) 520ms backwards;
+}
+.boot__status.dev {
+  font-family: var(--display-dev);
+  font-size: 1.05rem;
+  color: var(--text-h);
+}
+
+.boot__keywords {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.45rem;
+  list-style: none;
+  margin: 2rem 0 0;
+  padding: 0;
+}
+.boot__keyword {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-family: var(--sans);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text);
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: var(--radius-pill);
+  padding: 0.3rem 0.75rem;
+  animation: boot-rise 460ms var(--ease-expo) backwards;
+}
+.boot__keyword-dev {
+  font-family: var(--devanagari);
+  font-weight: 500;
+  /* --accent-text, not --accent: this is the smallest type on the splash and
+     the fill indigo does not clear AA at this size. Same rule as the cheat
+     sheet's romanization labels. */
+  color: var(--accent-text);
+}
+
+.boot__skip {
+  position: absolute;
+  bottom: calc(1.5rem + env(safe-area-inset-bottom));
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  opacity: 0;
+  /* Held back until after the whole entrance has played. Offering the exit
+     before the thing has finished arriving reads as an apology for it. */
+  animation: boot-fade-in 400ms var(--ease) 900ms forwards;
+}
+
+@keyframes boot-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+@keyframes boot-fade-in {
+  to {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 380px) {
+  .boot__keywords {
+    margin-top: 1.4rem;
+  }
+  .boot__bar {
+    margin-top: 1.75rem;
+  }
+}
+
+/* Reduced motion: the splash still happens — it is a load state, not an
+   effect — but nothing moves or blurs into place. Everything is present from
+   frame one and the sheet cross-fades out. The global rule in index.css
+   already clamps the animation durations; this removes the transforms that
+   would otherwise snap rather than play. */
+@media (prefers-reduced-motion: reduce) {
+  .boot__mark,
+  .boot__swash,
+  .boot__latin,
+  .boot__bar,
+  .boot__status,
+  .boot__keyword {
+    animation: none;
+  }
+  .boot__skip {
+    animation: none;
+    opacity: 1;
+  }
+  .boot--exiting {
+    transform: none;
+  }
+}

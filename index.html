@@ -13,14 +13,21 @@
                 ? 'dark'
                 : 'light'
           document.documentElement.dataset.theme = resolved
-          var meta = document.querySelector('meta[name="theme-color"]')
+          /* Targets the un-media'd tag below by id, not by name. There are
+             three theme-color tags now — the two media-scoped ones let the
+             browser pick correctly before this script runs, and this one is
+             the override the in-app toggle drives. Selecting on
+             meta[name=theme-color] would match whichever came first. */
+          var meta = document.getElementById('theme-color')
           if (meta) meta.setAttribute('content', resolved === 'dark' ? '#101114' : '#FBFBFA')
         } catch (e) {
           /* localStorage unavailable — falls back to OS preference */
         }
       })()
     </script>
-    <meta name="theme-color" content="#FBFBFA" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#FBFBFA" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#101114" />
+    <meta id="theme-color" name="theme-color" content="#FBFBFA" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -31,10 +38,44 @@
       rel="stylesheet"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>लेख · Lekh — Nepali typing</title>
+    <title>लेख · Lekh — Nepali typing, transliteration, OCR & translation</title>
     <meta
       name="description"
       content="Type Nepali the way you already text it. Romanized-to-Devanagari transliteration, a full script cheat sheet, and a document/photo upload that reads Nepali or English text and translates it — runs entirely in your browser."
+    />
+    <!--
+      The terms people actually search when they are looking for this and don't
+      know it exists: they search for the *problem* ("how to type nepali in
+      english"), for the tool they were taught ("preeti", "romanized nepali"),
+      or for the script. Search engines weight this tag at roughly nothing on
+      its own — it is here for the site-search and share surfaces that still
+      read it, and the same vocabulary is carried by the title, description and
+      OG tags, which are what actually rank.
+    -->
+    <meta
+      name="keywords"
+      content="nepali typing, type nepali online, romanized nepali, nepali unicode, devanagari keyboard, english to nepali typing, preeti alternative, nepali transliteration, nepali OCR, nepali translation, नेपाली टाइपिङ, देवनागरी, offline nepali keyboard"
+    />
+    <link rel="canonical" href="https://lekh-gamma.vercel.app/" />
+
+    <!-- Share cards. No og:image: there is no social card asset in public/,
+         and pointing at one that does not exist gives a broken preview rather
+         than the plain text card you get from omitting it. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Lekh" />
+    <meta property="og:url" content="https://lekh-gamma.vercel.app/" />
+    <meta property="og:title" content="लेख · Lekh — type Nepali the way you already text it" />
+    <meta
+      property="og:description"
+      content="Romanized-to-Devanagari transliteration, a script cheat sheet, photo/PDF OCR and EN ↔ NE translation. No account, no upload — everything runs in your browser."
+    />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="ne_NP" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="लेख · Lekh — Nepali typing in your browser" />
+    <meta
+      name="twitter:description"
+      content="Type romanized Nepali, get Devanagari. Plus photo/PDF OCR and EN ↔ NE translation — all offline-capable, nothing leaves your device."
     />
   </head>
   <body>
