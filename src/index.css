@@ -367,6 +367,29 @@ body {
    already clamps every animation to one 0.01ms iteration, which parks each
    blob on its *end* keyframe; that is a valid composition, not a broken one. */
 
+/* Same reasoning, different trigger: on a phone the blobs stay and the drift
+   goes.
+ *
+ * The drift is cheap to run and expensive to be near. Every frosted surface on
+ * the page samples this layer through backdrop-filter, and a backdrop that is
+ * still moving can never let a single one of those blurs cache — so three
+ * blobs on 47/54/61s loops keep the whole page's glass re-blurring forever,
+ * scrolling or idle. That is most of the cost on the type page, which carries
+ * far more glass than the other two, and it lands on the device with the least
+ * GPU headroom.
+ *
+ * At a 54-second cycle nobody perceives the motion on a phone screen anyway.
+ * animation: none parks each blob on its *start* keyframe — valid for the same
+ * reason the reduced-motion end-keyframe park is. will-change goes with it:
+ * reserving compositor memory for a 46vmax layer under a 110px blur buys
+ * nothing once the layer is static. */
+@media (max-width: 860px) {
+  .aurora__blob {
+    animation: none;
+    will-change: auto;
+  }
+}
+
 /* Frosted surface. One definition, applied by every pane that used to be a
    flat --surface rectangle.
  *

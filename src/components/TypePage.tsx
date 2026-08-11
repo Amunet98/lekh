@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useCallback, useRef } from 'react'
 import { useEditorState } from '../hooks/useEditorState'
 import { Editor } from './Editor'
 import { CheatSheet } from './CheatSheet'
@@ -7,6 +7,26 @@ import './TypePage.css'
 export function TypePage() {
   const editor = useEditorState()
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  /* Stable identity, and CheatSheet is memo'd — the two go together and neither
+     works alone. Every keystroke updates editor state and re-renders this
+     component; with a fresh arrow here, React would reconcile all 76 cheat-sheet
+     buttons on every key, for a subtree whose content is a static import. There
+     is no React Compiler in this project's Vite config to do it for us.
+
+     Destructured rather than read as editor.insertAtCursor: the editor object
+     is rebuilt on every render, so exhaustive-deps cannot tell that the method
+     off it is stable and demands the whole object as a dependency — which would
+     invalidate this callback on every keystroke and undo the memo. The function
+     itself is a useCallback([]) in useEditorState, so the binding is stable. */
+  const { insertAtCursor } = editor
+  const handleInsert = useCallback(
+    (ch: string) => {
+      insertAtCursor(ch)
+      textareaRef.current?.focus()
+    },
+    [insertAtCursor],
+  )
 
   return (
     <>
@@ -43,12 +63,7 @@ export function TypePage() {
               <path d="m6 9 6 6 6-6" />
             </svg>
           </summary>
-          <CheatSheet
-            onInsert={(ch) => {
-              editor.insertAtCursor(ch)
-              textareaRef.current?.focus()
-            }}
-          />
+          <CheatSheet onInsert={handleInsert} />
         </details>
       </div>
     </>

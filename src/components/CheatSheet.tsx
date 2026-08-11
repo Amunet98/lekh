@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import {
   VOWELS,
   CONSONANT_GROUPS,
@@ -43,7 +44,10 @@ function Cells({ group, onInsert }: { group: CheatGroup; onInsert: (ch: string) 
   )
 }
 
-export function CheatSheet({ onInsert }: CheatSheetProps) {
+/* memo'd, because this is 76 buttons of static imported data hanging off a
+   component that re-renders on every keystroke. Its only prop is the insert
+   handler, which TypePage keeps stable with useCallback — see the note there. */
+export const CheatSheet = memo(function CheatSheet({ onInsert }: CheatSheetProps) {
   return (
     <section className="cheat-sheet">
       <span className="tag">Cheat sheet</span>
@@ -90,4 +94,4 @@ export function CheatSheet({ onInsert }: CheatSheetProps) {
       </p>
     </section>
   )
-}
+})

@@ -27,13 +27,31 @@ h2 + .sub {
 }
 
 /* The grid draws its own rules as a 1px gap showing the container colour
-   through, so the container has to stay opaque enough to *be* a line — a
-   translucent one disappears against the aurora. The cells are what carry the
-   frosting. */
+   through, and the container is also what carries the frosting.
+ *
+ * The frosting used to live on each .cell, and that was the single worst
+ * performance decision in the app: the sheet holds 76 cells, so the type page
+ * asked the compositor for 76 separate backdrop snapshots and 76 blur passes —
+ * and because the aurora behind them never stops drifting, every one of them
+ * was invalidated on every frame, scrolling or idle. The page visibly stuttered
+ * on a phone and in the installed PWA.
+ *
+ * One blur per grid is eleven blurs instead of seventy-six, and it looks the
+ * same: the cells still paint a translucent --glass fill, it just sits over an
+ * already-frosted base rather than frosting its own patch of aurora.
+ *
+ * The container fill is a *translucent* --border. It has to keep enough of the
+ * line colour to read as a rule in the 1px gaps, but stay transparent enough
+ * that the blur underneath it is not painted over and wasted. The note that
+ * used to sit here — "a translucent line disappears against the aurora" — no
+ * longer applies, because the line is now sitting on frosted glass rather than
+ * on raw aurora. */
 .cells {
   display: grid;
   gap: 1px;
-  background: var(--border);
+  background: color-mix(in srgb, var(--border) 88%, transparent);
+  -webkit-backdrop-filter: blur(var(--blur-chrome));
+  backdrop-filter: blur(var(--blur-chrome));
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-field);
   overflow: hidden;
@@ -44,10 +62,9 @@ h2 + .sub {
 .cells--5 {
   grid-template-columns: repeat(5, 1fr);
 }
+/* No backdrop-filter here — see the note on .cells. A fill only. */
 .cell {
   background: var(--glass);
-  -webkit-backdrop-filter: blur(var(--blur-chrome));
-  backdrop-filter: blur(var(--blur-chrome));
   padding: 0.38rem 0.15rem;
   text-align: center;
   border: 0;
@@ -55,11 +72,6 @@ h2 + .sub {
   min-height: 44px;
   font: inherit;
   transition: background-color 0.15s ease-out, transform var(--dur-fast) var(--ease-expo);
-}
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .cell {
-    background: var(--surface);
-  }
 }
 .cell:active {
   transform: scale(0.94);
@@ -84,13 +96,6 @@ h2 + .sub {
 }
 .cell--filler:hover {
   background: var(--glass);
-}
-/* Restated after the rule above for the same source-order reason as the dock —
-   see the note at the end of TabSwitcher.css. */
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .cell--filler:hover {
-    background: var(--surface);
-  }
 }
 .cell--filler:active {
   transform: none;
@@ -122,4 +127,25 @@ h2 + .sub {
 }
 .cells-words .cell .r {
   font-size: 0.66rem;
+}
+
+/* No-backdrop-filter fallback.
+ *
+ * This block MUST stay at the end of the file — @supports carries no extra
+ * specificity and wins only on source order, the same trap documented at the
+ * bottom of TabSwitcher.css. It replaces two separate blocks that used to sit
+ * inline next to the rules they overrode.
+ *
+ * Without a blur, a translucent grid over the aurora is a smear rather than a
+ * table, so both layers go opaque: the container back to a solid line colour
+ * and the cells to a solid surface. If you add another background declaration
+ * for this component, add it above this block. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .cells {
+    background: var(--border);
+  }
+  .cell,
+  .cell--filler:hover {
+    background: var(--surface);
+  }
 }
