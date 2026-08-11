@@ -28,10 +28,27 @@ right in the browser.
   — private and offline-capable once cached (large download, fetched in
   phases with progress).
 
+## Design
+
+**Ink & Glass** — a writing tool rather than stationery: frosted glass over
+an ink-dark ground, with light and dark themes whose glass opacity is
+measured per theme rather than shared. First visit opens on a **boot
+screen** instead of a landing page, so the app announces itself once and
+then gets out of the way.
+
+## Installing and updating
+
 Lekh is an installable PWA with a real service worker — the typing engine,
-dictionary, and cheat sheet work offline. There's an explicit Install
-button in the header (captures `beforeinstallprompt`), plus light/dark
-themes.
+dictionary, and cheat sheet work offline. Details worth knowing:
+
+- **Install button** in the header, captured from `beforeinstallprompt`.
+- **Update prompt** — when a new build is waiting, the app says so and
+  offers to reload, rather than serving a stale shell until the OS decides
+  otherwise. *(If a change seems missing on a phone, check the footer
+  version first: an installed PWA can be running an older shell.)*
+- **App shortcuts** — long-press the installed icon to jump straight to
+  Type, Upload, or Translate. These need their own icons; Android draws
+  blank placeholders without them.
 
 ## Stack
 
@@ -44,6 +61,20 @@ React 19 · TypeScript · Vite · Tailwind CSS v4 · Tesseract.js ·
 npm install
 npm run dev
 ```
+
+### Scripts
+
+- `npm run dev` / `npm run build` / `npm run preview` — Vite
+- `npm run lint` — ESLint
+- `npm run og` — regenerate the Open Graph social card
+- `npm run icons` — regenerate the PWA shortcut icons
+
+Both generators render to `public/`; don't edit their output by hand.
+
+**Every change bumps the patch version** in `package.json` (followed by
+`npm install`, so the lockfile follows). The footer renders that version,
+which is the first thing to check when debugging "it isn't updating on my
+phone" — see the update prompt above.
 
 Deployment is automatic: pushes to `main` build and deploy production on
 Vercel.
