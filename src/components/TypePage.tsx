@@ -32,11 +32,11 @@ export function TypePage() {
     <>
       {/*
         One quiet line, not the two-line Devanagari headline plus subtitle this
-        used to carry. That block was a copy of the landing page's, and between
-        it, the app bar, the tab pill and the hint banner the editor started
-        ~430px down — on an iPhone SE you had to scroll before you could type,
-        in a typing app. The full statement still opens the landing page, which
-        is where a value proposition belongs.
+        used to carry. That block was a copy of the old landing page's, and
+        between it, the app bar, the tab pill and the hint banner the editor
+        started ~430px down — on an iPhone SE you had to scroll before you
+        could type, in a typing app. The full statement now lives in the About
+        sheet, behind the wordmark, which is where a value proposition belongs.
       */}
       <div className="hero">
         <h1 className="hero__line">

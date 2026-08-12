@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import type { Tab } from './TabSwitcher'
+import { SectionIcon } from './SectionIcons'
 import { KEYWORDS } from '../data/keywords'
 import './AboutSheet.css'
 
@@ -21,42 +22,6 @@ const SECTIONS: { id: Tab; label: string; rest: string; icon: 'type' | 'upload' 
   { id: 'translate', icon: 'translate', label: 'Translate', rest: 'EN ↔ NE, even offline' },
 ]
 
-function SectionIcon({ name }: { name: 'type' | 'upload' | 'translate' }) {
-  const props = {
-    viewBox: '0 0 24 24',
-    width: 18,
-    height: 18,
-    fill: 'none' as const,
-    stroke: 'currentColor',
-    strokeWidth: 2,
-    strokeLinecap: 'round' as const,
-    strokeLinejoin: 'round' as const,
-    'aria-hidden': true as const,
-  }
-  if (name === 'type') {
-    return (
-      <svg {...props}>
-        <path d="M12 20h9" />
-        <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
-      </svg>
-    )
-  }
-  if (name === 'upload') {
-    return (
-      <svg {...props}>
-        <rect x="3" y="4" width="18" height="16" rx="2" />
-        <circle cx="8.5" cy="9.5" r="1.5" />
-        <path d="m4 17 4.5-4.5 3 3L15 12l5 5" />
-      </svg>
-    )
-  }
-  return (
-    <svg {...props}>
-      <path d="M4 7h9M4 7l3-3M4 7l3 3" />
-      <path d="M20 17h-9M20 17l-3-3M20 17l-3 3" />
-    </svg>
-  )
-}
 
 export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
   const ref = useRef<HTMLDialogElement>(null)
@@ -142,7 +107,7 @@ export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
           {SECTIONS.map(({ id, icon, label, rest }) => (
             <button key={id} type="button" className="about__section" onClick={() => onGoTo(id)}>
               <span className="about__section-icon">
-                <SectionIcon name={icon} />
+                <SectionIcon name={icon} size={18} />
               </span>
               <span className="about__section-text">
                 <b>{label}</b>

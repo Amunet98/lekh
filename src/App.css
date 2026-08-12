@@ -42,7 +42,7 @@
 .app-bar__brand {
   display: inline-flex;
   align-items: center;
-  /* It is a button — it reopens the landing page — so it needs a real target,
+  /* It is a button — it opens the About sheet — so it needs a real target,
      which the bare text did not give it. */
   min-height: 44px;
   font-family: var(--display);

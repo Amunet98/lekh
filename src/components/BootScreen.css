@@ -177,14 +177,20 @@
   color: var(--text);
   background: var(--glass);
   border: 1px solid var(--glass-border);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
+  /* No backdrop-filter of its own. These three pills sit inside .boot, which
+     is already blurring the entire viewport at --blur-sheet, so a nested blur
+     samples an already-blurred backdrop: it costs three more blur passes and
+     changes essentially nothing on screen. Exactly what 395df9f fixed for the
+     cheat sheet's 76 cells — blur the container, not the repeated child. The
+     translucent fill is what makes it read as glass, and that stays. */
   border-radius: var(--radius-pill);
   padding: 0.3rem 0.75rem;
   animation: boot-rise 460ms var(--ease-expo) backwards;
 }
-/* These had glass and a blur but no fallback — the one glass surface in the
-   app that was missing one. */
+/* Kept even though the pill no longer blurs on its own: when backdrop-filter
+   is unsupported, .boot above falls back to a solid --bg, and a translucent
+   --glass fill on top of that reads as a washed-out smudge rather than a chip.
+   An opaque surface is the right thing in that branch either way. */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .boot__keyword {
     background: var(--surface);
