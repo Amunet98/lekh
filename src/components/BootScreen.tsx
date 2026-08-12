@@ -60,6 +60,12 @@ export function BootScreen({ onDone }: BootScreenProps) {
 
     const beginExit = () => {
       if (!liveRef.current || exitTimer) return
+      /* First, before anything writes 100%. The tick loop recomputes the bar
+         from elapsed time, so leaving it running meant the very next frame
+         overwrote the 100% below with whatever the clock said and dragged the
+         bar visibly backwards for the whole 420ms fade — most obvious on a
+         skip, which is exactly when the bar is furthest from full. */
+      cancelAnimationFrame(raf)
       setExiting(true)
       setStep(STATUS_STEPS.length - 1)
       if (fillRef.current) fillRef.current.style.width = '100%'

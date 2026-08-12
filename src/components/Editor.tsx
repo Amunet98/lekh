@@ -5,6 +5,12 @@ import { SAMPLES } from '../data/samples'
 import { hasHintBeenDismissed, markHintDismissed } from '../lib/onboarding'
 import './Editor.css'
 
+/* Exported so App can hand the caret over when the boot screen leaves without
+   threading a ref up through TypePage. The ref below is the in-component
+   route and stays the one this file uses; this id is purely the outside
+   world's handle on the same element. */
+export const EDITOR_ID = 'lekh-editor'
+
 interface EditorProps {
   editor: EditorState
   textareaRef: RefObject<HTMLTextAreaElement | null>
@@ -81,6 +87,7 @@ export function Editor({ editor, textareaRef }: EditorProps) {
 
         <textarea
           ref={textareaRef}
+          id={EDITOR_ID}
           rows={5}
           spellCheck={false}
           autoComplete="off"

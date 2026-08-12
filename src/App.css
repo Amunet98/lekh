@@ -124,11 +124,21 @@
   transition: opacity var(--dur-slow) var(--ease-expo),
     transform var(--dur-slow) var(--ease-expo);
 }
+/* pointer-events with the opacity, always the pair. The shell is fully drawn
+   under the splash and was still hit-testable at opacity 0, so once .boot
+   stopped swallowing taps (see BootScreen.css) a tap meant only to skip the
+   splash would land on a control nobody can see — on a phone the tab bar is
+   fixed to the bottom of the viewport, right where a thumb rests, so the app
+   could change tabs behind the frosted sheet. Invisible UI must not be
+   operable. Skipping still works either way: the handler is on window, and
+   an untargetable element still lets the event through to the document. */
 .app-bar--is-booting {
   opacity: 0;
   transform: translateY(-8px);
+  pointer-events: none;
 }
 .page--is-booting {
   opacity: 0;
+  pointer-events: none;
 }
 
