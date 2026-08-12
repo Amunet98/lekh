@@ -92,6 +92,13 @@
    * --bg, then the glass fill over that, then contrast against --muted. */
   --glass: color-mix(in srgb, var(--surface) var(--glass-mix), transparent);
   --glass-strong: color-mix(in srgb, var(--surface) var(--glass-strong-mix), transparent);
+  /* Three depths, not one, and the difference is deliberate: how much blur a
+     surface wants scales with how much of the page it covers. A full-viewport
+     sheet can take 32px; a bar or a card takes 22px; a small pill takes 10px,
+     because at that size a heavy blur has almost no backdrop to sample and
+     just reads as a grey smear. --blur-control existed as a bare 10px in
+     ThemeToggle.css before it had a name. */
+  --blur-control: 10px;
   --blur-chrome: 22px;
   --blur-sheet: 32px;
   --aurora-1: var(--accent);
