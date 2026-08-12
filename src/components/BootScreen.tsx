@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { BOOT_KEYWORDS } from '../data/keywords'
+import { LekhMark } from './LekhMark'
 import './BootScreen.css'
 
 interface BootScreenProps {
@@ -68,7 +69,7 @@ export function BootScreen({ onDone }: BootScreenProps) {
       cancelAnimationFrame(raf)
       setExiting(true)
       setStep(STATUS_STEPS.length - 1)
-      if (fillRef.current) fillRef.current.style.width = '100%'
+      if (fillRef.current) fillRef.current.style.transform = 'scaleX(1)'
       if (pctRef.current) pctRef.current.textContent = '100%'
       exitTimer = setTimeout(() => {
         if (liveRef.current) onDone()
@@ -124,7 +125,7 @@ export function BootScreen({ onDone }: BootScreenProps) {
       const raw = elapsed / hold
       const progress = ready ? Math.min(raw, 1) : Math.min(raw, 0.92)
 
-      if (fillRef.current) fillRef.current.style.width = `${(progress * 100).toFixed(1)}%`
+      if (fillRef.current) fillRef.current.style.transform = `scaleX(${progress.toFixed(3)})`
       if (pctRef.current) pctRef.current.textContent = `${Math.round(progress * 100)}%`
 
       const nextStep = STATUS_STEPS.reduce((acc, s, i) => (progress >= s.at ? i : acc), 0)
@@ -161,17 +162,10 @@ export function BootScreen({ onDone }: BootScreenProps) {
       aria-label="Lekh is starting"
     >
       <div className="boot__stage">
-        {/*
-          One animated unit, and the ख is a plain inline span inside it.
-          The first cut staggered ले and ख as two inline-blocks — which broke
-          the शिरोरेखा, the horizontal bar that runs unbroken across the top of
-          a Devanagari word. Each inline-block ends its own bar, so the mark
-          rendered as two half-words butted together with a seam through the
-          headline. Devanagari letters are joined, not stacked: they cannot be
-          animated individually without taking the word apart.
-        */}
+        {/* One animated unit — see LekhMark for why the two halves cannot be
+            animated separately. */}
         <h1 className="boot__mark" aria-hidden="true">
-          ले<span className="boot__ink">ख</span>
+          <LekhMark inkClassName="boot__ink" />
         </h1>
 
         <svg className="boot__swash" viewBox="0 0 300 14" fill="none" aria-hidden="true">

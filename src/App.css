@@ -118,8 +118,23 @@
  * which is position: fixed, and any transform on an ancestor (including a
  * settled translateY(0)) would re-anchor that bar to .page instead of the
  * viewport and drop it back into the scroll flow. */
-.app-bar,
-.page {
+/* .page is deliberately NOT in this transition, and that is the fix for two
+   things at once.
+ *
+ * An element with opacity < 1 becomes a *backdrop root*: a descendant's
+ * backdrop-filter then samples only what is painted inside that element, not
+ * the aurora behind it. Fading .page in therefore made every glass surface it
+ * contains — the editor, the tab pill, the cheat-sheet grid — render flat and
+ * unfrosted for the whole 420ms, then snap to frosted the instant the
+ * transition finished. The reveal was showing a version of the app that never
+ * exists otherwise.
+ *
+ * It also made the handoff sequential: the splash dissolved to an empty
+ * background and only then did content fade up, about 1.94s before the app was
+ * fully visible. The page is simply already there now, at full opacity, behind
+ * the frosted sheet — so the splash fading out *is* the reveal, and the two
+ * overlap by definition. */
+.app-bar {
   opacity: 1;
   transition: opacity var(--dur-slow) var(--ease-expo),
     transform var(--dur-slow) var(--ease-expo);
@@ -137,8 +152,20 @@
   transform: translateY(-8px);
   pointer-events: none;
 }
+/* visibility, not opacity, and the distinction is the whole point.
+ *
+ * opacity: 0 hides the page but makes it a backdrop root, which is what left
+ * every glass surface inside it flat until the fade finished. visibility:
+ * hidden hides it without creating one — and unlike opacity it also takes the
+ * subtree out of the accessibility tree and out of the tab order, which is the
+ * other thing that was wrong here: a screen-reader user could walk into the
+ * app behind the splash, and a Tab press put a focus ring under the frosted
+ * sheet.
+ *
+ * There is nothing to animate: the splash is opaque enough to cover the page,
+ * so the page becoming visible the moment the exit begins is revealed *by* the
+ * sheet fading over it. That is the overlap the sequential fades never had. */
 .page--is-booting {
-  opacity: 0;
-  pointer-events: none;
+  visibility: hidden;
 }
 

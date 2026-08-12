@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { TabSwitcher, type Tab } from './components/TabSwitcher'
 import { TypePage } from './components/TypePage'
 import { EDITOR_ID } from './components/Editor'
@@ -96,14 +96,7 @@ function App() {
   }
 
   /* Stable identity — BootScreen takes it as an effect dependency, and a fresh
-     closure every render would restart the boot timer on every render. Hence
-     the ref for the tab: reading `tab` directly would put it in the dependency
-     list and cost us that. */
-  const tabRef = useRef(tab)
-  useEffect(() => {
-    tabRef.current = tab
-  }, [tab])
-
+     closure every render would restart the boot timer on every render. */
   const finishBoot = useCallback(() => {
     setBooting(false)
     try {
@@ -111,23 +104,33 @@ function App() {
     } catch {
       // Blocked storage — the splash simply shows again next launch.
     }
+  }, [])
 
-    /* Hand over the caret. Nothing was focused when the splash left, so the
-       first keystroke after launch went to <body> and disappeared — and the
-       tap or key that dismissed the splash was itself swallowed by the
-       overlay, so the gesture the user meant for the editor bought them
-       nothing at all.
-       (pointer: fine) keeps this to mice and trackpads. Autofocusing a phone
-       throws the on-screen keyboard over the app the instant it appears,
-       which is a worse first impression than the missing caret. */
-    if (tabRef.current !== 'type') return
+  /* Hand over the caret, in an effect rather than inside finishBoot. Nothing
+     was focused when the splash left, so the first keystroke after launch went
+     to <body> and disappeared — and the tap or key that dismissed the splash
+     was itself swallowed by the overlay, so the gesture the user meant for the
+     editor bought them nothing at all.
+   *
+   * It has to run *after* the render that removes .page--is-booting, because
+   * that class hides the page with visibility: hidden and a hidden element
+   * cannot take focus. Calling focus() straight after setBooting(false) ran
+   * against the previous DOM and silently did nothing.
+   *
+   * (pointer: fine) keeps this to mice and trackpads. Autofocusing a phone
+   * throws the on-screen keyboard over the app the instant it appears, which
+   * is a worse first impression than the missing caret. */
+  useEffect(() => {
+    if (booting || tab !== 'type') return
     try {
       if (!matchMedia('(pointer: fine)').matches) return
     } catch {
       return
     }
     document.getElementById(EDITOR_ID)?.focus()
-  }, [])
+    // Only when the splash leaves — not on every later tab switch back to Type.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [booting])
 
   return (
     <>

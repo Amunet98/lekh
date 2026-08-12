@@ -1,7 +1,7 @@
 {
   "name": "lekh",
   "private": true,
-  "version": "1.2.9",
+  "version": "1.2.10",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "og": "node scripts/render-og.mjs",
-    "icons": "node scripts/render-shortcut-icons.mjs"
+    "icons": "node scripts/render-shortcut-icons.mjs",
+    "check:cheatsheet": "vite build --ssr scripts/check-cheatsheet.ts --outDir .cheatcheck --logLevel error && node .cheatcheck/check-cheatsheet.js && rm -rf .cheatcheck"
   },
   "dependencies": {
     "@huggingface/transformers": "^3.7.6",

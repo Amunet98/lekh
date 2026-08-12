@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import type { Tab } from './TabSwitcher'
 import { SectionIcon } from './SectionIcons'
+import { LekhMark } from './LekhMark'
 import { KEYWORDS } from '../data/keywords'
 import './AboutSheet.css'
 
@@ -76,13 +77,12 @@ export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
           </svg>
         </button>
 
-        {/* The Devanagari is wrapped in its own span so it is a single flex
-            item. Left as a bare text node it became an anonymous flex item of
-            its own, which cut the शिरोरेखा — the unbroken bar across the top of
-            the word — and left a gap between ले and ख. */}
+        {/* The mark is wrapped in its own span so it is a single flex item.
+            Left as a bare text node it became an anonymous flex item of its
+            own, which cuts the शिरोरेखा — see LekhMark. */}
         <p className="about__wordmark" aria-hidden="true">
           <span className="about__mark">
-            ले<span className="about__ink">ख</span>
+            <LekhMark inkClassName="about__ink" />
           </span>
           <span className="about__latin">lekh</span>
         </p>

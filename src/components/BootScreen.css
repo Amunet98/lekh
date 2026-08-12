@@ -20,8 +20,8 @@
   background: color-mix(in srgb, var(--bg) 82%, transparent);
   -webkit-backdrop-filter: blur(var(--blur-sheet)) saturate(1.5);
   backdrop-filter: blur(var(--blur-sheet)) saturate(1.5);
-  transition: opacity var(--dur-slow) var(--ease-expo),
-    transform var(--dur-slow) var(--ease-expo);
+  /* Opacity only. The sheet itself no longer transforms — see .boot--exiting. */
+  transition: opacity var(--dur-slow) var(--ease-expo);
   /* Never a hit target, not even before the exit. It used to become
      untargetable only once .boot--exiting landed — one React commit after the
      tap that triggered it — so the splash ate that first tap and the user had
@@ -36,11 +36,21 @@
   }
 }
 
-/* Exit: the sheet lifts *towards* the viewer and fades, so the app is revealed
-   from underneath rather than slid in from the side. */
+/* Exit: the content lifts *towards* the viewer while the sheet fades, so the
+   app is revealed from underneath rather than slid in from the side.
+ *
+ * The scale is on .boot__stage, not on .boot. .boot is the element carrying a
+ * full-viewport backdrop-filter, and scaling it changes the geometry the blur
+ * is sampled through — so every one of the 420ms of exit re-blurred the entire
+ * viewport. .boot__stage has no backdrop-filter of its own, so the same
+ * movement there is a plain compositor transform. The frosted sheet still
+ * fades; only the thing that was expensive to move stopped moving. */
 .boot--exiting {
   opacity: 0;
+}
+.boot--exiting .boot__stage {
   transform: scale(1.04);
+  transition: transform var(--dur-slow) var(--ease-expo);
 }
 
 .boot__stage {
@@ -125,9 +135,17 @@
   background: color-mix(in srgb, var(--text) 16%, transparent);
   overflow: hidden;
 }
+/* Driven by transform: scaleX, not width. The rAF loop writes this ~66 times
+   during a boot, and width is a layout property — each write invalidated
+   layout for the bar and, with a box-shadow attached, forced a repaint of the
+   glow too. scaleX is a compositor transform: same visual, no layout, no
+   repaint. transform-origin pins it to the left so it grows rather than
+   expanding from its centre. */
 .boot__fill {
   height: 100%;
-  width: 0;
+  width: 100%;
+  transform: scaleX(0);
+  transform-origin: left center;
   border-radius: var(--radius-pill);
   background: var(--accent);
   box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 70%, transparent);
