@@ -69,6 +69,13 @@ export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
   useEffect(() => {
     const el = ref.current
     if (!el) return
+    /* Feature-checked because the build targets safari14 (see vite.config.ts)
+       and <dialog> did not land until Safari 15.4. On an older iPhone this
+       threw straight out of an effect with no error boundary above it, which
+       React answers by unmounting the tree — so tapping the wordmark blanked
+       the whole app. Nothing opens on those browsers now; the CSS keeps the
+       panel out of the page in the meantime. */
+    if (typeof el.showModal !== 'function' || typeof el.close !== 'function') return
     if (open && !el.open) el.showModal()
     if (!open && el.open) el.close()
   }, [open])

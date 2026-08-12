@@ -5,6 +5,15 @@
  * The <dialog> element is the sheet's *frame* only: it is transparent and
  * unpadded, and .about__panel is the visible card. Styling the dialog itself
  * would fight the UA's centring and max-width defaults. */
+/* Browsers that know <dialog> hide a closed one via their UA stylesheet.
+   Browsers that do not (Safari below 15.4, which the build still targets) have
+   no rule for the element at all, so the entire About panel rendered inline and
+   permanently at the bottom of every page. Stating it here costs nothing where
+   the UA already agrees, and is the whole fix where it does not. */
+.about:not([open]) {
+  display: none;
+}
+
 .about {
   border: 0;
   padding: 0;
