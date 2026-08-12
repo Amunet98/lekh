@@ -32,9 +32,10 @@ right in the browser.
 
 **Ink & Glass** — a writing tool rather than stationery: frosted glass over
 an ink-dark ground, with light and dark themes whose glass opacity is
-measured per theme rather than shared. First visit opens on a **boot
-screen** instead of a landing page, so the app announces itself once and
-then gets out of the way.
+measured per theme rather than shared. The first launch of a session opens
+on a **boot screen** instead of a landing page, so the app announces itself
+once and then gets out of the way — later launches in the same session go
+straight to the editor.
 
 ## Installing and updating
 
@@ -42,10 +43,12 @@ Lekh is an installable PWA with a real service worker — the typing engine,
 dictionary, and cheat sheet work offline. Details worth knowing:
 
 - **Install button** in the header, captured from `beforeinstallprompt`.
-- **Update prompt** — when a new build is waiting, the app says so and
-  offers to reload, rather than serving a stale shell until the OS decides
-  otherwise. *(If a change seems missing on a phone, check the footer
-  version first: an installed PWA can be running an older shell.)*
+- **Update prompt** — the app checks hourly for a new build, and when one is
+  waiting it says so and offers to reload, rather than serving a stale shell
+  until the OS decides otherwise. Reloading is per window: choosing "Later"
+  in one window is not overridden by another window reloading, so unsaved
+  editor text survives. *(If a change seems missing on a phone, check the
+  footer version first: an installed PWA can be running an older shell.)*
 - **App shortcuts** — long-press the installed icon to jump straight to
   Type, Upload, or Translate. These need their own icons; Android draws
   blank placeholders without them.
