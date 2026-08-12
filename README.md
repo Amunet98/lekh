@@ -52,6 +52,26 @@ dictionary, and cheat sheet work offline. Details worth knowing:
 - **App shortcuts** — long-press the installed icon to jump straight to
   Type, Upload, or Translate. These need their own icons; Android draws
   blank placeholders without them.
+- **Offline from the first visit.** The worker takes control of the page that
+  installed it, so the shell and the OCR payload are cached on the visit that
+  fetched them rather than the one after. This is `clientsClaim` in the workbox
+  config, and `grep -c clientsClaim dist/sw.js` is the check that it survived —
+  switching the plugin to prompt-style updates silently drops it.
+
+## Performance notes
+
+Two things worth knowing before changing the look, both learned by measuring:
+
+- **The ambient aurora does not move, and should not be made to.** Every
+  frosted surface samples it through `backdrop-filter`, and a backdrop that is
+  still moving means none of those blurs can ever be cached. Drifting it cost
+  **8.8 fps against 30.9** on the Type page while scrolling — the same gap at
+  4x and 8x CPU throttling, so it is compositor work, not script.
+- **Blur the container, not the repeated child.** `backdrop-filter` is
+  per-element, so 76 cheat-sheet cells each carrying their own blur is 76 blur
+  passes; the grid carries one instead. The same applies to anything nested
+  inside an already-blurred sheet, where a second blur samples an
+  already-blurred backdrop and changes nothing on screen.
 
 ## Stack
 
