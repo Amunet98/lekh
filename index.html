@@ -2,10 +2,27 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!-- Exactly one theme-color tag, and it is above the script on purpose.
+         There were briefly three: this one plus a
+         media="(prefers-color-scheme: light)" / dark pair. That could not work.
+         The two media-scoped tags are exhaustive between them, so the UA always
+         had one of *those* active and this override could never be selected no
+         matter who wrote to it — and the script below ran before line 30 was
+         parsed, so its getElementById returned null and it silently did nothing
+         on every load. One tag that the script and the in-app toggle both own
+         is the only arrangement where the phone status bar follows the theme. -->
+    <meta id="theme-color" name="theme-color" content="#FBFBFA" />
     <script>
       (function () {
+        /* Narrow guard: only the storage read can throw (private mode, blocked
+           cookies), and a throw there must not cost us the OS-preference
+           fallback as well — that used to take the whole block down and leave
+           a dark-mode phone painting the light colour. */
+        var stored = null
         try {
-          var stored = localStorage.getItem('theme')
+          stored = localStorage.getItem('theme')
+        } catch (e) {}
+        try {
           var resolved =
             stored === 'light' || stored === 'dark'
               ? stored
@@ -13,21 +30,13 @@
                 ? 'dark'
                 : 'light'
           document.documentElement.dataset.theme = resolved
-          /* Targets the un-media'd tag below by id, not by name. There are
-             three theme-color tags now — the two media-scoped ones let the
-             browser pick correctly before this script runs, and this one is
-             the override the in-app toggle drives. Selecting on
-             meta[name=theme-color] would match whichever came first. */
+          /* Kept in sync with applyTheme() in src/lib/theme.ts — same id, same
+             two colours, which must match --bg per theme in index.css. */
           var meta = document.getElementById('theme-color')
           if (meta) meta.setAttribute('content', resolved === 'dark' ? '#101114' : '#FBFBFA')
-        } catch (e) {
-          /* localStorage unavailable — falls back to OS preference */
-        }
+        } catch (e) {}
       })()
     </script>
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#FBFBFA" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#101114" />
-    <meta id="theme-color" name="theme-color" content="#FBFBFA" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
