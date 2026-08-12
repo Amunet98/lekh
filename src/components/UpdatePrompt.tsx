@@ -1,5 +1,11 @@
+import { useRef } from 'react'
 import { useRegisterSW } from 'virtual:pwa-register/react'
 import './UpdatePrompt.css'
+
+/* Hourly. The check is a conditional GET for sw.js — a few hundred bytes
+ * against an ETag — so the interval can be generous and still beat the old
+ * behaviour of never checking at all. */
+const UPDATE_INTERVAL_MS = 60 * 60 * 1000
 
 /* Why this exists.
  *
@@ -29,10 +35,45 @@ export function UpdatePrompt({ suppressed = false }: UpdatePromptProps) {
      site would tie *whether the app has a service worker at all* to whether a
      toast happens to be on screen. Hence a prop that suppresses the render
      while the hook keeps running. */
+  /* True only if *this* window is the one whose Reload button was pressed.
+     See onNeedReload below — the whole point is that the answer can be no. */
+  const reloadRequested = useRef(false)
+
   const {
     needRefresh: [needRefresh, setNeedRefresh],
     updateServiceWorker,
-  } = useRegisterSW()
+  } = useRegisterSW({
+    /* The missing half of the story above. The worker waits, and this told you
+       when one was waiting — but only if something asked. A page load asks; a
+       long-lived installed PWA never reloads, so it never re-fetched sw.js and
+       needRefresh never flipped. The stale-build-on-a-phone problem this
+       component was written to solve survived it, and only ever resolved on a
+       manual reload, which is the one case the old autoUpdate already handled.
+
+       navigator.onLine is a cheap negative: false is reliable, true is not, so
+       this skips the certain waste and lets the rest fail harmlessly. */
+    onRegisteredSW(_swUrl, registration) {
+      if (!registration) return
+      setInterval(() => {
+        if (navigator.onLine) void registration.update()
+      }, UPDATE_INTERVAL_MS)
+    },
+
+    /* Without this the library attaches its own 'controlling' listener that
+       calls window.location.reload() — in every client the new worker claims,
+       not just the one that asked. Two windows open, press Reload in one, and
+       the other reloads too and silently discards whatever was typed in its
+       editor, which is exactly what "Later" and the note below promise will
+       not happen. Providing onNeedReload replaces that default and lets each
+       window decide for itself.
+
+       A window that declines keeps running the build it loaded with; it picks
+       up the new one on its next navigation, which is the same deal "Later"
+       already offered. */
+    onNeedReload() {
+      if (reloadRequested.current) window.location.reload()
+    },
+  })
 
   /* Suppressed during boot, and that is the normal path rather than an edge
      case: the update check runs at page load, which is exactly when the splash
@@ -69,7 +110,10 @@ export function UpdatePrompt({ suppressed = false }: UpdatePromptProps) {
         <button
           type="button"
           className="update-prompt__btn update-prompt__btn--primary"
-          onClick={() => void updateServiceWorker(true)}
+          onClick={() => {
+            reloadRequested.current = true
+            void updateServiceWorker(true)
+          }}
         >
           Reload
         </button>

@@ -88,6 +88,21 @@ export default defineConfig({
         ],
       },
       workbox: {
+        /* These two are a pair, and they are separate knobs despite sounding
+         * like one. registerType: 'prompt' above stopped the plugin injecting
+         * clientsClaim, and the built sw.js had none — meaning a freshly
+         * installed worker never controlled the page that installed it. On a
+         * first visit nothing was intercepted at all: lose signal that session
+         * and you got a network error instead of the shell, and the
+         * lekh-ocr-assets CacheFirst route never ran, so the ~19MB tesseract
+         * payload was re-downloaded on the next launch.
+         *
+         * skipWaiting stays false and is stated rather than left to default,
+         * because it is the half the prompt flow genuinely wants: a new worker
+         * must wait for the user to press Reload, since the editor's text is
+         * component state and a surprise activation would discard it. */
+        clientsClaim: true,
+        skipWaiting: false,
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         // The ~19MB tesseract/tessdata payload (and the pdf.js worker) stay
         // out of the app-shell precache — fetched (and cached) on first use.
