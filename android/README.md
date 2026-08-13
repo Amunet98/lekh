@@ -31,6 +31,11 @@ there:
   accent.
 - **The provider registers** with AppWidgetService and binds
   `APPWIDGET_UPDATE`; no crash in logcat.
+- **The TWA verifies.** Installing the signed release on the emulator and
+  launching it opened Lekh full-screen with **no address bar**, which is the
+  only visible proof that assetlinks.json matched. The release build exposes
+  exactly one launcher activity (the TWA); the debug preview is correctly
+  absent from it.
 
 Still unverified: the midnight alarm actually firing (it was exercised by
 moving the clock, not by waiting), and how it looks on a real launcher's home
@@ -71,6 +76,22 @@ What *was* verified, beyond the build:
 What was **not** verified: that RemoteViews renders the Devanagari on a real
 device, that the midnight alarm fires, or how it looks on a home screen.
 
+## What the APK is
+
+**One install, two things.** It is a Trusted Web Activity — it opens
+lekh-gamma.vercel.app full-screen in the user's own Chrome, with no address bar
+— *and* it registers the home-screen widget. Shipping the widget separately
+from the web app would have meant asking people to install the PWA and then
+sideload an APK, which nobody does.
+
+The address bar disappears only if the Digital Asset Links handshake succeeds:
+`res/values/twa.xml` declares the site this app claims, and
+`public/.well-known/assetlinks.json` on that site lists this APK's signing
+certificate. **If they disagree the app still runs — it just shows Chrome's
+address bar**, so this fails quietly and has to be checked by looking.
+Regenerate the site half with `npm run assetlinks` after any signing change;
+it reads the fingerprint out of the built APK rather than trusting a keystore.
+
 ## Build
 
 ```sh
@@ -79,6 +100,15 @@ cd android
 ./gradlew assembleDebug        # or open this folder in Android Studio
 adb install app/build/outputs/apk/debug/app-debug.apk
 ```
+
+For a signed release build, copy `keystore.properties.example` to
+`keystore.properties` (gitignored) and point it at a keystore kept **outside**
+the repo, then `npm run android:release`. Without that file, release builds
+are simply unsigned rather than failing, so a fresh clone still works.
+
+**Back the keystore up.** It is the identity of the app: lose it and no future
+build can update an installed copy, and a Play listing signed with it can never
+be updated again.
 
 Then long-press the home screen → Widgets → **Lekh Patro**.
 
