@@ -1,5 +1,6 @@
 import { useInstallPrompt } from '../hooks/useInstallPrompt'
-import { APK_URL, isAndroid, isStandalone } from '../lib/androidApp'
+import { useHasAndroidApp } from '../hooks/useHasAndroidApp'
+import { APK_URL, isAndroid } from '../lib/androidApp'
 import './InstallButton.css'
 
 function DownloadIcon() {
@@ -43,9 +44,12 @@ function DownloadIcon() {
  */
 export function InstallButton() {
   const { canInstall, promptInstall } = useInstallPrompt()
+  const hasApp = useHasAndroidApp()
 
-  // Inside the installed app already — PWA or the TWA, both report standalone.
-  if (isStandalone()) return null
+  /* Nothing left to offer: either we are inside the installed app, or we are in
+     a browser tab on a device that already has the APK. The second case is the
+     one that used to slip through — display-mode is not standalone there. */
+  if (hasApp) return null
 
   if (isAndroid()) {
     return (

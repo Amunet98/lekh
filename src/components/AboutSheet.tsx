@@ -3,6 +3,7 @@ import type { Tab } from './TabSwitcher'
 import { SectionIcon } from './SectionIcons'
 import { LekhMark } from './LekhMark'
 import { KEYWORDS } from '../data/keywords'
+import { useHasAndroidApp } from '../hooks/useHasAndroidApp'
 import { APK_URL, isAndroid } from '../lib/androidApp'
 
 import './AboutSheet.css'
@@ -30,6 +31,7 @@ const SECTIONS: { id: Tab; label: string; rest: string; icon: Tab }[] = [
 export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
   const ref = useRef<HTMLDialogElement>(null)
   const android = isAndroid()
+  const hasApp = useHasAndroidApp()
 
   /* showModal() rather than the open attribute. It is what buys the focus
      trap, the inert background, the top-layer stacking (so the sheet clears
@@ -137,8 +139,13 @@ export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
             widget, which the web app cannot provide at all — so on any other
             platform this row would advertise something the visitor cannot use.
             A userAgent test is the right tool here: what decides this is the
-            OS, not the screen. */}
-        {android && (
+            OS, not the screen.
+
+            hasApp is the other half: this row kept offering the download from
+            inside the installed app, and from a browser tab on a phone that
+            already had it. Both are the same mistake — advertising something
+            the visitor already owns. */}
+        {android && !hasApp && (
           <a className="about__apk" href={APK_URL} target="_blank" rel="noopener noreferrer">
             <span className="about__apk-main">Get the Android app</span>
             <span className="about__apk-sub">
@@ -149,8 +156,15 @@ export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
           </a>
         )}
 
+        {/* This used to read "nothing you type is ever sent anywhere", which is
+            not true and was about to be printed on a Play Store listing:
+            online translation posts your text to a third-party service. Typing,
+            OCR and the calendar really are local, so the claim is now scoped to
+            them, and the one exception has a link rather than a footnote. */}
         <p className="about__privacy">
-          everything runs in your browser — nothing you type is ever sent anywhere
+          typing, OCR and the calendar run entirely in your browser · <a href="/privacy.html">
+            privacy
+          </a>
         </p>
 
         {/* The byline the footer used to carry. It belongs here: a footer line

@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Privacy — Lekh</title>
+    <meta
+      name="description"
+      content="What Lekh does and does not send off your device, and what it stores locally."
+    />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="canonical" href="https://lekh-gamma.vercel.app/privacy.html" />
+    <!--
+      A plain static page, deliberately.
+
+      It is the URL a Play Store listing points at, so it has to resolve on its
+      own without the app booting, without the service worker, and without
+      JavaScript — a privacy policy that 404s because a route did not register
+      is worse than not having one.
+
+      It also uses system fonts rather than the app's webfonts. The page below
+      discloses that loading the app sends a request to Google Fonts; loading
+      four more from Google to say so would be absurd.
+    -->
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #fafafb;
+        --surface: #fff;
+        --text: #4a5162;
+        --text-h: #141824;
+        --muted: #646c7e;
+        --accent: #a80d26;
+        --border: #dde1e9;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0e1220;
+          --surface: #151a2b;
+          --text: #a6aec2;
+          --text-h: #f2f4f8;
+          --muted: #828ca4;
+          --accent: #f87171;
+          --border: #2c3450;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 2.5rem 1.25rem 4rem;
+        background: var(--bg);
+        color: var(--text);
+        font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        -webkit-text-size-adjust: 100%;
+      }
+      main {
+        max-width: 44rem;
+        margin: 0 auto;
+      }
+      a {
+        color: var(--accent);
+      }
+      h1 {
+        color: var(--text-h);
+        font-size: clamp(1.6rem, 1.3rem + 1.5vw, 2.1rem);
+        line-height: 1.2;
+        margin: 0 0 0.35rem;
+      }
+      h2 {
+        color: var(--text-h);
+        font-size: 1.15rem;
+        margin: 2.5rem 0 0.6rem;
+      }
+      .updated {
+        color: var(--muted);
+        font-size: 0.9rem;
+        margin: 0 0 2rem;
+      }
+      .lede {
+        color: var(--text-h);
+        font-size: 1.05rem;
+      }
+      ul {
+        padding-left: 1.15rem;
+      }
+      li {
+        margin: 0.4rem 0;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 1rem 1.15rem;
+        margin: 0.75rem 0;
+      }
+      .card h3 {
+        color: var(--text-h);
+        font-size: 1rem;
+        margin: 0 0 0.3rem;
+      }
+      .card p {
+        margin: 0.3rem 0 0;
+        font-size: 0.95rem;
+      }
+      .host {
+        color: var(--muted);
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 0.85rem;
+        overflow-wrap: anywhere;
+      }
+      footer {
+        margin-top: 3rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid var(--border);
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Privacy</h1>
+      <p class="updated">Lekh · last updated 14 August 2026</p>
+
+      <p class="lede">
+        Lekh has no accounts, no analytics, no advertising and no tracking of any kind. It sets no
+        cookies. Nothing you write is stored on a server, because there is no server that belongs
+        to Lekh — the site is static files and everything else happens in your browser.
+      </p>
+
+      <p>
+        That said, four things do cause a request to leave your device, and this page names all
+        four rather than rounding down to &ldquo;nothing is sent anywhere&rdquo;.
+      </p>
+
+      <h2>What stays on your device</h2>
+      <p>None of the following ever leaves the device, in the browser or in the Android app:</p>
+      <ul>
+        <li>Everything you type, and the Roman&nbsp;→&nbsp;Devanagari transliteration of it.</li>
+        <li>The cheat sheet and the transliteration dictionary — both ship with the app.</li>
+        <li>
+          Reading text out of images and PDFs. The OCR engine runs inside your browser; the file
+          is never uploaded.
+        </li>
+        <li>
+          The Nepali calendar itself. The Bikram Sambat grid is computed locally and the bundled
+          festival table is part of the download.
+        </li>
+        <li>
+          On-device translation, once you have chosen to download the model. It then runs offline.
+        </li>
+      </ul>
+
+      <h2>What leaves your device</h2>
+
+      <div class="card">
+        <h3>1. Online translation — this one includes your text</h3>
+        <p>
+          If you use the Translate tab with the online engine, the text you are translating is sent
+          to a third-party translation service to be translated. Their handling of it is governed by
+          their policies, not this one.
+        </p>
+        <p class="host">translate.googleapis.com · api.mymemory.translated.net</p>
+        <p>
+          This is the only feature that transmits anything you have written. Choosing the on-device
+          engine avoids it entirely.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>2. Fonts</h3>
+        <p>
+          The site loads its typefaces from Google Fonts, so opening Lekh makes a request that
+          reveals your IP address and browser to Google, as almost any website does. No content of
+          yours is involved.
+        </p>
+        <p class="host">fonts.googleapis.com · fonts.gstatic.com</p>
+      </div>
+
+      <div class="card">
+        <h3>3. Calendar updates</h3>
+        <p>
+          The Patro tab refreshes its festival and holiday list from a public open-source calendar
+          dataset hosted on GitHub. It is a plain file download — the request says which month is
+          being viewed and nothing about you beyond your IP address.
+        </p>
+        <p class="host">raw.githubusercontent.com</p>
+      </div>
+
+      <div class="card">
+        <h3>4. The offline translation model, if you ask for it</h3>
+        <p>
+          Downloading the on-device translation model fetches it from Hugging Face. This only ever
+          happens after you explicitly confirm the download, and never on its own.
+        </p>
+        <p class="host">huggingface.co</p>
+      </div>
+
+      <h2>What is stored on your device</h2>
+      <p>
+        All of this is ordinary browser storage on your own machine. Clearing site data removes it,
+        and none of it is readable by anyone else.
+      </p>
+      <ul>
+        <li>Your theme choice and which tab you were on.</li>
+        <li>Whether you have confirmed and downloaded the offline translation model.</li>
+        <li>
+          A cache of the app itself, so it works offline, and — if you downloaded it — the
+          translation model.
+        </li>
+      </ul>
+
+      <h2>The Android app and widget</h2>
+      <p>
+        The Android app is the same web app in a wrapper, so everything above applies to it
+        unchanged. The home-screen widget is separate and simpler: it reads only the calendar data
+        bundled inside the app and makes no network requests at all.
+      </p>
+
+      <h2>Children</h2>
+      <p>
+        Lekh is a general-purpose typing and calendar tool. It does not knowingly collect personal
+        information from anyone, of any age, because it does not collect personal information.
+      </p>
+
+      <h2>Changes</h2>
+      <p>
+        If what the app sends ever changes, this page changes with it and the date at the top moves.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Questions about any of this:
+        <a href="mailto:social@bimeshpoudel.com.np">social@bimeshpoudel.com.np</a>
+      </p>
+
+      <footer>
+        <a href="/">← Back to Lekh</a>
+      </footer>
+    </main>
+  </body>
+</html>

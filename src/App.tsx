@@ -9,6 +9,7 @@ import { ThemeToggle } from './components/ThemeToggle'
 import { InstallButton } from './components/InstallButton'
 import { BootScreen } from './components/BootScreen'
 import { AboutSheet } from './components/AboutSheet'
+import { AboutButton } from './components/AboutButton'
 import { UpdatePrompt } from './components/UpdatePrompt'
 import './App.css'
 
@@ -160,6 +161,7 @@ function App() {
           <TabSwitcher active={tab} onChange={setTab} />
           <div className="app-bar__actions">
             <InstallButton />
+            <AboutButton onClick={() => setAboutOpen(true)} />
             <ThemeToggle />
           </div>
         </div>

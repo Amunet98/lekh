@@ -1,0 +1,25 @@
+/* Same 44px icon-button shape as .theme-toggle, and deliberately the same
+   quiet weight: this sits next to the theme control, and two adjacent icon
+   buttons that disagree about their resting state look like a mistake. */
+.about-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease),
+    transform var(--dur-fast) var(--ease-expo);
+}
+.about-btn:hover {
+  color: var(--text-h);
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+}
+.about-btn:active {
+  transform: scale(0.92);
+}

@@ -37,6 +37,25 @@ export default defineConfig({
         name: 'Lekh — नेपाली Typing',
         short_name: 'Lekh',
         id: '/',
+        /* Declares the Android APK as a related app, which is what lets
+           navigator.getInstalledRelatedApps() answer "they already have it" and
+           the install button hide itself. The other half of the association is
+           assetlinks.json, which the app already verifies against.
+
+           prefer_related_applications is deliberately NOT set: it would
+           suppress the browser's own PWA install path everywhere, including
+           desktop, to solve an Android-only problem. */
+        related_applications: [
+          {
+            platform: 'play',
+            id: 'np.com.bimeshpoudel.lekh',
+            // Where the build actually comes from today. The schema requires a
+            // url; Chrome matches on the package id, so this is documentation
+            // rather than a lookup, and it should become the Play listing if
+            // the app is ever published there.
+            url: 'https://github.com/Amunet98/lekh/releases/latest',
+          },
+        ],
         start_url: '/',
         scope: '/',
         description:

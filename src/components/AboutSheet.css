@@ -306,6 +306,15 @@
   content: '¶ ';
   color: var(--accent);
 }
+/* The one link in this line, and at 0.72rem in a mono face it needs the colour
+   and the underline to read as one — nobody hunts for a link they cannot see. */
+.about__privacy a {
+  color: var(--accent-text);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+}
 .about__by {
   margin-top: 1.25rem;
   font-family: var(--sans);

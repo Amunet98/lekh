@@ -35,3 +35,37 @@ export function isStandalone(): boolean {
     return false
   }
 }
+
+/**
+ * Whether the Android APK is installed on this device — asked of the browser,
+ * not inferred.
+ *
+ * `isStandalone()` only answers "am I running inside an installed app right
+ * now". It is false when you open lekh in an ordinary Chrome tab on a phone
+ * that already has the APK, which is exactly the case where offering to
+ * install it again is wrong, and exactly the case the owner hit.
+ *
+ * getInstalledRelatedApps is the browser's answer to that. It needs both ends
+ * of the association: `related_applications` in the web manifest naming the
+ * package (vite.config.ts), and the app claiming the site through
+ * assetlinks.json — which it already does, because the same file is what
+ * removes Chrome's address bar inside the TWA.
+ *
+ * Chrome-only and Android-only; everywhere else it is simply absent, and the
+ * answer is "no" rather than an error.
+ */
+export async function isAndroidAppInstalled(): Promise<boolean> {
+  try {
+    const nav = navigator as Navigator & {
+      getInstalledRelatedApps?: () => Promise<{ id?: string; platform?: string }[]>
+    }
+    if (typeof nav.getInstalledRelatedApps !== 'function') return false
+    const apps = await nav.getInstalledRelatedApps()
+    return apps.some((app) => app.id === ANDROID_PACKAGE)
+  } catch {
+    return false
+  }
+}
+
+/** Must match applicationId in android/app/build.gradle.kts. */
+export const ANDROID_PACKAGE = 'np.com.bimeshpoudel.lekh'
