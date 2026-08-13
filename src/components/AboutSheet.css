@@ -296,24 +296,21 @@
   color: var(--accent-text);
 }
 
-.about__privacy {
-  margin-top: 1.75rem;
-  font-family: var(--mono);
-  font-size: 0.72rem;
+/* Same row as the four above it, deliberately set apart.
+   
+   Those four are navigation — they change which tab you are on. This one
+   leaves the app for a document, so it gets air above it and a muted icon
+   instead of the accent, which is enough to stop it reading as a fifth tab
+   without inventing a second row style to maintain. */
+.about__section--aside {
+  margin-top: 1.5rem;
+  text-decoration: none;
+}
+.about__section--aside .about__section-icon {
   color: var(--muted);
 }
-.about__privacy::before {
-  content: '¶ ';
-  color: var(--accent);
-}
-/* The one link in this line, and at 0.72rem in a mono face it needs the colour
-   and the underline to read as one — nobody hunts for a link they cannot see. */
-.about__privacy a {
+.about__section--aside:hover .about__section-icon {
   color: var(--accent-text);
-  font-weight: 600;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  white-space: nowrap;
 }
 .about__by {
   margin-top: 1.25rem;

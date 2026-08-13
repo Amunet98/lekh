@@ -10,7 +10,6 @@ import { InstallButton } from './components/InstallButton'
 import { BootScreen } from './components/BootScreen'
 import { AboutSheet } from './components/AboutSheet'
 import { AboutButton } from './components/AboutButton'
-import { Footer } from './components/Footer'
 import { UpdatePrompt } from './components/UpdatePrompt'
 import './App.css'
 
@@ -178,9 +177,6 @@ function App() {
         ) : (
           <CalendarPage />
         )}
-        {/* Inside .page so it inherits the bottom padding that clears the fixed
-            mobile dock, and so it fades with the rest on boot. */}
-        <Footer />
       </div>
 
       <AboutSheet open={aboutOpen} onClose={() => setAboutOpen(false)} onGoTo={goToSection} />

@@ -156,15 +156,44 @@ export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
           </a>
         )}
 
-        {/* This used to read "nothing you type is ever sent anywhere", which is
-            not true: online translation posts your text to a third-party
-            service, and the claim was about to be printed on a Play Store
-            listing. Typing, OCR and the calendar really are local, so it is
-            scoped to them and stands on its own. The policy itself is linked
-            from the footer, where it can be found without opening anything. */}
-        <p className="about__privacy">
-          typing, OCR and the calendar run entirely in your browser
-        </p>
+        {/* A row, not a footer link.
+            
+            This lived in a footer for exactly one version. A footer is a
+            website convention — apps put this behind an info or settings icon,
+            as a row — and no amount of restyling hides that a rule with a
+            centred link under the content is a web page.
+            
+            The subtitle is the honest short version. It used to read "nothing
+            you type is ever sent anywhere", which online translation makes
+            false; typing, OCR and the calendar genuinely are local, and the
+            page one tap away lists the four things that are not. */}
+        <a className="about__section about__section--aside" href="/privacy.html">
+          <span className="about__section-icon">
+            <svg
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M12 3.5 5 6.2v5c0 4.2 2.8 7.5 7 9.3 4.2-1.8 7-5.1 7-9.3v-5Z" />
+            </svg>
+          </span>
+          <span className="about__section-text">
+            <b>Privacy</b>
+            {/* Kept to the length of the four rows above ("Bikram Sambat,
+                festivals & holidays") so it sits on one line at 390px and the
+                block keeps one rhythm. */}
+            <span className="about__section-rest">typing, OCR and calendar stay local</span>
+          </span>
+          <span className="about__section-go" aria-hidden="true">
+            →
+          </span>
+        </a>
 
         {/* The byline the footer used to carry. It belongs here: a footer line
             under a typing app is read by nobody, whereas someone who opened
