@@ -18,7 +18,8 @@ import {
   toDevanagari,
   type BsDate,
 } from '../../lib/calendar/nepaliDate'
-import { COVERAGE, getMonthPanchang, hasPanchang } from '../../lib/calendar/panchang'
+import { COVERAGE } from '../../lib/calendar/panchang'
+import { useMonthPanchang } from '../../hooks/useMonthPanchang'
 import { DateConverter } from './DateConverter'
 import './CalendarPage.css'
 
@@ -46,8 +47,8 @@ export function CalendarPage() {
 
   const monthLength = daysInBsMonth(view.year, view.month)
   const leadingBlanks = bsWeekday(view.year, view.month, 1)
-  const panchang = getMonthPanchang(view.year, view.month)
-  const covered = hasPanchang(view.year)
+  const { month: panchang, source, loading } = useMonthPanchang(view.year, view.month)
+  const covered = panchang !== null
   const sundayOff = monthHasSundayOff(view.year, view.month)
 
   const goto = (delta: number) => {
@@ -67,7 +68,13 @@ export function CalendarPage() {
   )
 
   const selectedAd = bsToAd(selected.year, selected.month, selected.day)
-  const selectedInfo = getMonthPanchang(selected.year, selected.month)?.byDay.get(selected.day)
+  /* Read from the month currently on screen rather than re-deriving. Selecting
+     a day always happens inside the visible month, and going back to the data
+     layer for it would miss a live refresh that has landed here. */
+  const selectedInfo =
+    selected.year === view.year && selected.month === view.month
+      ? panchang?.byDay.get(selected.day)
+      : undefined
   const selectedWeekday = bsWeekday(selected.year, selected.month, selected.day)
 
   return (
@@ -205,7 +212,11 @@ export function CalendarPage() {
           </ul>
         ) : (
           <p className="cal__detail-none">
-            {covered ? 'No festival listed for this day.' : 'Festival data is not available for this year.'}
+            {loading
+              ? 'Checking for festival data…'
+              : covered
+                ? 'No festival listed for this day.'
+                : 'Festival data is not available for this month.'}
           </p>
         )}
       </div>
@@ -215,10 +226,16 @@ export function CalendarPage() {
           lie the user has no way to detect. */}
       {!covered ? (
         <p className="cal__coverage cal__coverage--warn" role="note">
-          Dates convert for any year, but festivals and holidays are only listed for{' '}
-          <b>BS {toDevanagari(COVERAGE.from)}–{toDevanagari(COVERAGE.to)}</b>. Most Nepali festivals
-          fall on a lunar tithi and cannot be derived from the date alone, so they are tabulated
-          rather than calculated.
+          {loading
+            ? 'Looking for festival data for this month…'
+            : <>
+                Dates convert for any year, but festivals could not be loaded for this month.
+                Built-in data covers{' '}
+                <b>BS {toDevanagari(COVERAGE.from)}–{toDevanagari(COVERAGE.to)}</b>; anything
+                outside that needs a connection the first time. Most Nepali festivals fall on a
+                lunar tithi and cannot be derived from the date alone, so they are tabulated
+                rather than calculated.
+              </>}
         </p>
       ) : (
         panchang && (
@@ -249,6 +266,26 @@ export function CalendarPage() {
           </div>
         )
       )}
+
+      {/* Disclosure, not decoration.
+          Lekh's whole pitch is that nothing leaves your browser, and this one
+          screen does reach the network — a plain GET for a public file, no
+          data about you attached, but a fetch nonetheless. It says which
+          source the month on screen came from so that is never a secret. */}
+      <p className="cal__source">
+        {source === 'live'
+          ? 'Festivals updated from the live almanac'
+          : source === 'bundled'
+            ? 'Festivals from the built-in table — checking for updates when online'
+            : 'Festivals unavailable for this month'}
+        {' · '}
+        <a href="https://github.com/S4NKALP/nepali-calendar-api" target="_blank" rel="noopener noreferrer">
+          source
+        </a>
+        {'. '}
+        Nepal publishes holidays in the Gazette, which has no machine-readable feed, so this is a
+        community almanac rather than an official notice.
+      </p>
 
       <DateConverter />
     </section>

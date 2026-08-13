@@ -69,6 +69,24 @@ Dashain at all. So they are tabulated by `npm run calendar:data`, and the
 table has a hard end. **The UI states the covered range rather than rendering
 an uncovered month as one that simply has no festivals in it.**
 
+**Holidays refresh over the network.** The bundled table is the offline
+baseline and renders instantly; the app then fetches the same month from
+upstream, which re-scrapes daily, so a holiday added or dropped by cabinet
+decision arrives within about a day and years past the bundled range work
+without a redeploy. The calendar says which source the month on screen came
+from — this is the one place in Lekh that touches the network, and it is not
+hidden. It is a plain GET for a public file with nothing about you attached,
+and the service worker caches it so a month fetched once keeps working
+offline.
+
+Two guards apply to live data, because nothing fetched at runtime has been
+reviewed. A month whose length disagrees with the conversion table is
+**rejected**, and so is a month with **no festival names at all** — that is
+what an unpublished year looks like (BS 2084 currently returns 31 days and
+zero festivals despite Baisakh 1 being नयाँ वर्ष), and rendering it would
+claim the month has no festivals. Across the 36 bundled months the count runs
+11–25 and is never 0, so zero is a safe signal rather than a guess.
+
 That generator cross-checks every month length against the conversion table
 and **drops any year where the two sources disagree**. This is not paranoia:
 BS 2084 currently disagrees on five of twelve months, and shipping it would

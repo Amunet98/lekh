@@ -144,6 +144,21 @@ export default defineConfig({
               cacheableResponse: { statuses: [0, 200] },
             },
           },
+          /* Live calendar data. StaleWhileRevalidate is exactly the right
+             handler here: the cached copy answers instantly (so paging months
+             never waits on the network) while a background revalidation picks
+             up holiday changes, and a month fetched once keeps working with
+             the network off. The bundled table in the app covers anything
+             never fetched, so a miss is never fatal. */
+          {
+            urlPattern: /^https:\/\/raw\.githubusercontent\.com\/S4NKALP\/nepali-calendar-api\//,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'lekh-calendar-data',
+              cacheableResponse: { statuses: [0, 200] },
+              expiration: { maxEntries: 60, maxAgeSeconds: 60 * 60 * 24 * 90 },
+            },
+          },
           // Deliberately no routes for huggingface.co (transformers.js
           // manages its own 'transformers-cache' independently) or the
           // translate APIs (translate.googleapis.com, api.mymemory.

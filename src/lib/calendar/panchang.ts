@@ -1,8 +1,9 @@
 import raw from '../../data/calendar/panchang.json'
+import { daysInBsMonth } from './nepaliDate'
 
 /* Festivals, public holidays and tithi.
  *
- * WHY THIS IS DATA AND NOT A CALCULATION, AND WHY IT RUNS OUT
+ * WHY THIS IS DATA AND NOT A CALCULATION
  *
  * The calendar grid works for any year in the conversion table (BS 2000–2090)
  * because BS dates come from a month-length table. Festivals do not work that
@@ -12,26 +13,35 @@ import raw from '../../data/calendar/panchang.json'
  * Computing that in the browser would be a large bundle and a good chance of
  * being quietly one day out, which is worse than not showing it at all.
  *
- * So it is tabulated, by scripts/fetch-calendar-data.mjs, and the table has a
- * hard end. `COVERAGE` is that end, and the UI is required to say so — an
- * uncovered month must announce itself, never render as a month that simply
- * has no festivals in it.
+ * TWO SOURCES, ONE SHAPE
  *
- * The generator cross-checks every month length against the conversion table
- * and drops any year where the two disagree, because a year that is one day
- * out from Jestha onward would put Dashain on the wrong square while looking
- * perfectly normal. BS 2084 is currently dropped for exactly that reason.
+ * The bundled table (scripts/fetch-calendar-data.mjs) is the offline baseline
+ * and always works. On top of it, `fetchLiveMonth` pulls the same month from
+ * upstream, which re-scrapes daily — so a holiday added or dropped by cabinet
+ * decision reaches the app within about a day, and years past the bundled
+ * range appear without a redeploy.
+ *
+ * THE CROSS-CHECK IS THE LOAD-BEARING PART, AND IT RUNS AT RUNTIME TOO
+ *
+ * The grid is drawn from the conversion table; the festivals come from the
+ * almanac. If the two disagree about how long a month is, every festival after
+ * the discrepancy lands on the wrong square — silently, and looking entirely
+ * normal. The build-time generator drops such years (BS 2084 is dropped for
+ * exactly this reason). `assertMonthLength` applies the identical rule to live
+ * data, because data fetched at runtime has had no chance to be reviewed.
  *
  * Source: https://github.com/S4NKALP/nepali-calendar-api (MIT, © 2026 Sankalp
  * Tharu), which scrapes nepalicalendar.rat32.com. That is a third-party
  * almanac, not an official Government of Nepal notice — public holidays are
- * set by cabinet decision and do move. Good, but not gospel.
+ * set by cabinet decision and do move. Nepal publishes them in the Gazette,
+ * which is not machine-readable, so there is no official feed to use instead.
  */
 
-interface MonthPanchang {
-  /** BS day (as a string key) → comma-separated festival names in Devanagari. */
+/** The compact per-month shape both sources produce. */
+export interface RawMonth {
+  /** BS day (string key) → comma-separated festival names in Devanagari. */
   f: Record<string, string>
-  /** BS days that are public holidays. */
+  /** BS days flagged as declared/festival holidays by the source. */
   h: number[]
   /** Tithi name per BS day, index 0 = day 1. */
   t: string[]
@@ -41,13 +51,16 @@ interface PanchangFile {
   coverage: { from: number; to: number }
   source: string
   generated: string
-  years: Record<string, Record<string, MonthPanchang>>
+  years: Record<string, Record<string, RawMonth>>
 }
 
 const data = raw as PanchangFile
 
 export const COVERAGE = data.coverage
 export const SOURCE = data.source
+export const GENERATED = data.generated
+
+const UPSTREAM = 'https://raw.githubusercontent.com/S4NKALP/nepali-calendar-api/main/data'
 
 export interface DayPanchang {
   festivals: string[]
@@ -55,38 +68,43 @@ export interface DayPanchang {
   tithi: string
 }
 
-export function hasPanchang(year: number): boolean {
+export interface MonthPanchang {
+  byDay: Map<number, DayPanchang>
+  holidays: { day: number; names: string[] }[]
+}
+
+export function hasBundled(year: number): boolean {
   return year >= COVERAGE.from && year <= COVERAGE.to
 }
 
 /**
- * Everything known about one BS month, or null when the year is outside the
- * tabulated range. Callers must handle null by saying so — see the note above.
- *
- * `month` is 0-indexed to match nepaliDate.ts and JS Date; the data file is
- * keyed 1–12, which is what the +1 is doing.
+ * The safety property, shared by the generator and the live fetcher: a month
+ * whose day count disagrees with the conversion table is rejected outright.
+ * Returning null loses that month's festivals; accepting it would put them on
+ * the wrong days, which is the failure nobody can see.
  */
-export function getMonthPanchang(
-  year: number,
-  month: number,
-): { byDay: Map<number, DayPanchang>; holidays: { day: number; names: string[] }[] } | null {
-  const y = data.years[String(year)]
-  if (!y) return null
-  const m = y[String(month + 1)]
-  if (!m) return null
+function assertMonthLength(year: number, month: number, m: RawMonth): RawMonth | null {
+  return m.t.length === daysInBsMonth(year, month) ? m : null
+}
 
+export function getBundledMonth(year: number, month: number): RawMonth | null {
+  const m = data.years[String(year)]?.[String(month + 1)]
+  return m ? assertMonthLength(year, month, m) : null
+}
+
+/** Turns either source's raw month into what the UI renders. */
+export function buildMonth(m: RawMonth): MonthPanchang {
   const holidaySet = new Set(m.h)
   const byDay = new Map<number, DayPanchang>()
-  const dayCount = m.t.length
 
-  for (let day = 1; day <= dayCount; day++) {
-    const festivalText = m.f[String(day)] ?? ''
+  for (let day = 1; day <= m.t.length; day++) {
+    const text = m.f[String(day)] ?? ''
     byDay.set(day, {
       /* The source packs several festivals into one comma-separated string.
-         Split for rendering, but keep the original order — it is roughly
+         Split for rendering but keep the original order — it is roughly
          significance order, so the first name is the one worth showing when
          there is only room for one. */
-      festivals: festivalText ? festivalText.split(',').map((s) => s.trim()).filter(Boolean) : [],
+      festivals: text ? text.split(',').map((s) => s.trim()).filter(Boolean) : [],
       isHoliday: holidaySet.has(day),
       tithi: m.t[day - 1] ?? '',
     })
@@ -98,4 +116,55 @@ export function getMonthPanchang(
     .map((day) => ({ day, names: byDay.get(day)?.festivals ?? [] }))
 
   return { byDay, holidays }
+}
+
+/**
+ * One month from upstream. Resolves to null on any failure — offline, a 404
+ * for a year not yet published, malformed JSON, or a month-length
+ * disagreement. Every one of those is a normal state, not an error worth
+ * surfacing: the bundled table is still there.
+ *
+ * No caching or retry here on purpose. The service worker gives this URL a
+ * StaleWhileRevalidate route (see vite.config.ts), so repeat views are served
+ * from cache instantly and refreshed in the background, and a month fetched
+ * once keeps working with the network off.
+ */
+export async function fetchLiveMonth(year: number, month: number): Promise<RawMonth | null> {
+  try {
+    const res = await fetch(`${UPSTREAM}/${year}/${month + 1}.json`)
+    if (!res.ok) return null
+    const json = (await res.json()) as { days?: { n?: string; f?: string; t?: string; h?: boolean }[] }
+    if (!Array.isArray(json.days)) return null
+
+    /* `days` is a 35- or 42-cell grid including the blank leading cells before
+       the 1st, so the real days are the ones carrying a Devanagari numeral. */
+    const days = json.days.filter((c) => c.n && String(c.n).trim() !== '')
+    if (days.length === 0) return null
+
+    const f: Record<string, string> = {}
+    const h: number[] = []
+    const t: string[] = []
+    days.forEach((cell, i) => {
+      const day = i + 1
+      const festival = (cell.f || '').trim()
+      if (festival) f[String(day)] = festival
+      if (cell.h === true) h.push(day)
+      t.push((cell.t || '').trim())
+    })
+
+    /* A month with no festival names at all means the source has published
+       the day grid but not the almanac content yet — which is exactly the
+       state BS 2084 is in: 31 days, 4 unnamed holiday flags, and no festivals,
+       despite Baisakh 1 being नयाँ वर्ष. Accepting it would render as
+       "this month has no festivals", which is a confident lie.
+     *
+     * Zero is a safe threshold rather than a guess: across the 36 bundled
+     * months the count runs 11–25 with a median of 15, and never once 0. */
+    if (Object.keys(f).length === 0) return null
+
+    return assertMonthLength(year, month, { f, h, t })
+  } catch {
+    // Offline, blocked, or CORS — the bundled table covers it.
+    return null
+  }
 }

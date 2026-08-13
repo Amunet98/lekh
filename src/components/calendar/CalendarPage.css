@@ -98,8 +98,9 @@
   font-weight: 600;
   color: var(--muted);
 }
-/* शनि — Saturday is the weekly day off in Nepal, so the column header is
-   tinted like the days under it. Not Sunday: that is the Western week. */
+/* Weekend column headers. Saturday always; Sunday only for months on or after
+   Chaitra 23, 2082, when the two-day weekend took effect — the class is
+   applied conditionally in the TSX rather than pinned to a column here. */
 .cal__weekday--off {
   color: var(--accent-text);
 }
@@ -331,4 +332,17 @@
   .cal__weekday {
     font-size: 0.68rem;
   }
+}
+
+/* Where this month's festivals came from. Small, but never hidden — the
+   calendar is the one screen in Lekh that touches the network. */
+.cal__source {
+  font-size: 0.72rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+.cal__source a {
+  color: var(--accent-text);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
