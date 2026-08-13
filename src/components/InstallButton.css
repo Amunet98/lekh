@@ -29,10 +29,17 @@
   color: var(--on-accent);
 }
 
-/* On a phone the label goes and the icon carries it. The bar has to hold the
-   brand and two controls at 360px, and "Install" is the widest thing on it —
-   the button keeps its 44px target and an aria-label via the SVG's parent. */
-@media (max-width: 480px) {
+/* The label survives much further down than it used to.
+ *
+ * This collapsed to an icon at 480px, from when the section nav shared the app
+ * bar. Below 768px the nav is a bottom dock, so the bar holds only the brand
+ * and two controls and there is room to spare — and on Android this button now
+ * downloads the APK, where a bare download arrow says nothing about *what* is
+ * being downloaded. That ambiguity is what sent the owner to the PWA instead.
+ *
+ * 360px is the floor: below that the brand has already dropped its Latin half
+ * and the row genuinely runs out of room. */
+@media (max-width: 360px) {
   .install-btn {
     width: 44px;
     height: 44px;

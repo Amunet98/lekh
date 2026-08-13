@@ -3,22 +3,8 @@ import type { Tab } from './TabSwitcher'
 import { SectionIcon } from './SectionIcons'
 import { LekhMark } from './LekhMark'
 import { KEYWORDS } from '../data/keywords'
+import { APK_URL, isAndroid } from '../lib/androidApp'
 
-/* Published as a GitHub release asset rather than from public/, deliberately:
-   anything in public/ is both served at the site root and swept into the
-   service worker's precache, and shipping a megabyte of APK to every visitor
-   — including the ones on iPhones who can never use it — to save a redirect
-   is a bad trade. `releases/latest/download` always resolves to the newest
-   release, so this link never needs updating. */
-const APK_URL = 'https://github.com/Amunet98/lekh/releases/latest/download/lekh-patro.apk'
-
-function detectAndroid(): boolean {
-  try {
-    return /Android/i.test(navigator.userAgent)
-  } catch {
-    return false
-  }
-}
 import './AboutSheet.css'
 
 interface AboutSheetProps {
@@ -43,7 +29,7 @@ const SECTIONS: { id: Tab; label: string; rest: string; icon: Tab }[] = [
 
 export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
   const ref = useRef<HTMLDialogElement>(null)
-  const isAndroid = detectAndroid()
+  const android = isAndroid()
 
   /* showModal() rather than the open attribute. It is what buys the focus
      trap, the inert background, the top-layer stacking (so the sheet clears
@@ -152,11 +138,13 @@ export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
             platform this row would advertise something the visitor cannot use.
             A userAgent test is the right tool here: what decides this is the
             OS, not the screen. */}
-        {isAndroid && (
+        {android && (
           <a className="about__apk" href={APK_URL} target="_blank" rel="noopener noreferrer">
             <span className="about__apk-main">Get the Android app</span>
             <span className="about__apk-sub">
-              adds the <span className="dev">पात्रो</span> home-screen widget · ~1&nbsp;MB
+              the only version with the <span className="dev">पात्रो</span> home-screen widget ·
+              ~1&nbsp;MB. Installing from Chrome&rsquo;s own menu instead gives you the app
+              without the widget.
             </span>
           </a>
         )}
