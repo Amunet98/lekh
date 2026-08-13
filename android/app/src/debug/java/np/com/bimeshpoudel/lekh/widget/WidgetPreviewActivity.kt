@@ -35,6 +35,12 @@ class WidgetPreviewActivity : Activity() {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_HORIZONTAL
             setPadding(dp(16), dp(32), dp(16), dp(16))
+            /* Android 15 (API 35) enforces edge-to-edge for apps targeting 35,
+               so content draws *under* the status bar and action bar unless it
+               insets itself. Without this the first widget renders behind the
+               title bar with its top clipped off — which looks exactly like the
+               widget's own text being cut, and is not. */
+            fitsSystemWindows = true
         }
 
         root.addView(TextView(this).apply {

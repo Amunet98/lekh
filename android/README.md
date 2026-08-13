@@ -9,7 +9,7 @@ Android home screen; there is no web API for an Android widget. A native
 `AppWidgetProvider` is the only route, which is why there is Kotlin in a repo
 that is otherwise a web app.
 
-## Status: it compiles; it has not been seen on a screen
+## Status: built, installed and rendered on Android 15
 
 `./gradlew assembleDebug` produces a working 856 KB APK (`np.com.bimeshpoudel.lekh`,
 minSdk 26, target 35). Building it immediately caught one real bug — `R` is
@@ -18,15 +18,31 @@ generated into the *namespace* package, not this file's package, so every
 `import np.com.bimeshpoudel.lekh.R` was added. That is exactly the class of
 error "never compiled" was warning about.
 
-**It has still never been rendered on a screen.** The Android emulator does
-not run on this machine: `qemu-system-x86_64` segfaults and dumps core about
-eight seconds into guest boot, with both `-gpu swiftshader_indirect` and
-`-gpu off`, so it is not the renderer. KVM is present and usable and there is
-ample RAM and disk; it looks like an incompatibility between the bundled
-emulator QEMU and this Fedora kernel. Nothing about it implicates the widget.
+It has now been installed on an Android 15 emulator and rendered. Verified
+there:
 
-**The fastest way to actually see it is your own phone**, which is a better
-test target than an emulator anyway:
+- **Both implementations agree.** The widget showed
+  `२९ श्रावण २०८३ · शुक्रबार · 14 Aug 2026 · गुँलाधर्म आरम्भ`, matching the web
+  app's data for that date exactly — Kotlin and TypeScript, same answer.
+- **The weekend rule fires.** Advancing the device clock to Saturday 15 Aug
+  2026 flipped the date to `३० · शनिबार · चन्द्रोदय` and turned the numeral
+  crimson, where Friday's had been plain. `isWeeklyOff` works.
+- **Dark mode** picks up `values-night` — blue-black surface, `#F87171`
+  accent.
+- **The provider registers** with AppWidgetService and binds
+  `APPWIDGET_UPDATE`; no crash in logcat.
+
+Still unverified: the midnight alarm actually firing (it was exercised by
+moving the clock, not by waiting), and how it looks on a real launcher's home
+screen.
+
+**A note on the emulator, if you try it headless:** `-no-window` crashes here.
+`qemu-system-x86_64` segfaults and dumps core about eight seconds into guest
+boot under both `-gpu swiftshader_indirect` and `-gpu off`. Running it
+*windowed* on the desktop session works fine. Nothing about it implicates the
+widget.
+
+**On your own phone**, which is the better target anyway:
 
 ```sh
 npm run android:assets && cd android && ./gradlew assembleDebug
