@@ -9,6 +9,11 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.RemoteViews
+/* R is generated into the *namespace* package from build.gradle.kts
+   (np.com.bimeshpoudel.lekh), not into this file's package. Kotlin does not
+   inherit imports from a parent package, so without this line every R.layout
+   / R.id / R.color reference below is an unresolved symbol. */
+import np.com.bimeshpoudel.lekh.R
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
@@ -58,46 +63,7 @@ class LekhWidgetProvider : AppWidgetProvider() {
     }
 
     private fun render(context: Context, manager: AppWidgetManager, id: Int) {
-        NepaliCalendar.load(context)
-        Panchang.load(context)
-
-        val today = NepaliCalendar.today()
-        val info = Panchang.forDay(today)
-        val weekday = NepaliCalendar.weekdayOf(today)
-        val views = RemoteViews(context.packageName, R.layout.widget_patro)
-
-        views.setTextViewText(R.id.widget_day, NepaliCalendar.toDevanagari(today.day))
-        views.setTextViewText(
-            R.id.widget_month,
-            "${NepaliCalendar.monthNames[today.month]} ${NepaliCalendar.toDevanagari(today.year)}",
-        )
-        views.setTextViewText(R.id.widget_weekday, NepaliCalendar.weekdayNames[weekday])
-
-        val gregorian = NepaliCalendar.toGregorian(today)
-        views.setTextViewText(R.id.widget_ad, gregorian.format(AD_FORMAT))
-
-        /* One line of context under the date. A festival is what someone
-           actually wants from a calendar widget, so it wins; tithi is the
-           fallback; and if the year is past the tabulated range the widget
-           says so rather than looking like a day with nothing on it. */
-        val subtitle = when {
-            info == null && !Panchang.covers(today.year) ->
-                "पात्रो अद्यावधिक गर्नुहोस्" // "update the app for this year"
-            info != null && info.festivals.isNotEmpty() -> info.festivals.first()
-            info != null && info.tithi.isNotEmpty() -> info.tithi
-            else -> ""
-        }
-        views.setTextViewText(R.id.widget_note, subtitle)
-
-        // Holidays and weekly days off share one accent, as in the web app.
-        val isOff = NepaliCalendar.isWeeklyOff(today) || (info?.isHoliday == true)
-        views.setTextColor(
-            R.id.widget_day,
-            context.getColor(if (isOff) R.color.widget_accent else R.color.widget_text),
-        )
-
-        views.setOnClickPendingIntent(R.id.widget_root, openPatro(context))
-        manager.updateAppWidget(id, views)
+        manager.updateAppWidget(id, WidgetRenderer.build(context, openPatro(context)))
     }
 
     private fun openPatro(context: Context): PendingIntent {
@@ -141,7 +107,5 @@ class LekhWidgetProvider : AppWidgetProvider() {
 
     companion object {
         private const val ACTION_MIDNIGHT = "np.com.bimeshpoudel.lekh.widget.MIDNIGHT"
-        private val AD_FORMAT: java.time.format.DateTimeFormatter =
-            java.time.format.DateTimeFormatter.ofPattern("d MMM yyyy")
     }
 }

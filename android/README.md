@@ -9,14 +9,36 @@ Android home screen; there is no web API for an Android widget. A native
 `AppWidgetProvider` is the only route, which is why there is Kotlin in a repo
 that is otherwise a web app.
 
-## Status: written, never compiled
+## Status: it compiles; it has not been seen on a screen
 
-Be aware of this before you spend time on it. It was written on a machine with
-no Android SDK, Gradle or Kotlin compiler, so **it has never been built or run
-on a device.** Expect to fix something on first build.
+`./gradlew assembleDebug` produces a working 856 KB APK (`np.com.bimeshpoudel.lekh`,
+minSdk 26, target 35). Building it immediately caught one real bug — `R` is
+generated into the *namespace* package, not this file's package, so every
+`R.layout`/`R.id`/`R.color` reference was unresolved until an explicit
+`import np.com.bimeshpoudel.lekh.R` was added. That is exactly the class of
+error "never compiled" was warning about.
 
-What *was* verified, because it is the part that would be silently wrong
-rather than loudly broken:
+**It has still never been rendered on a screen.** The Android emulator does
+not run on this machine: `qemu-system-x86_64` segfaults and dumps core about
+eight seconds into guest boot, with both `-gpu swiftshader_indirect` and
+`-gpu off`, so it is not the renderer. KVM is present and usable and there is
+ample RAM and disk; it looks like an incompatibility between the bundled
+emulator QEMU and this Fedora kernel. Nothing about it implicates the widget.
+
+**The fastest way to actually see it is your own phone**, which is a better
+test target than an emulator anyway:
+
+```sh
+npm run android:assets && cd android && ./gradlew assembleDebug
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+```
+
+The debug build also installs a **preview activity** ("Lekh Patro preview")
+that draws the widget's real RemoteViews at 2x2 and 4x2 cell sizes in a normal
+screen — quicker to iterate on than adding a widget to a home screen, and it
+never reaches a release build because it lives in `src/debug/`.
+
+What *was* verified, beyond the build:
 
 - **The date algorithm.** `NepaliDate.kt` was ported line-for-line back into
   JavaScript and run against `nepali-date-converter` over **3,970
@@ -30,9 +52,8 @@ rather than loudly broken:
 - **Resources.** Every XML file parses, and every `@color`/`@layout`/`@drawable`
   /`@mipmap` and `R.*` reference resolves to something that exists.
 
-What was **not** verified: that it compiles, that RemoteViews renders the
-Devanagari on a real device, that the midnight alarm fires, or how it looks on
-a home screen.
+What was **not** verified: that RemoteViews renders the Devanagari on a real
+device, that the midnight alarm fires, or how it looks on a home screen.
 
 ## Build
 
@@ -44,10 +65,6 @@ adb install app/build/outputs/apk/debug/app-debug.apk
 ```
 
 Then long-press the home screen → Widgets → **Lekh Patro**.
-
-There is no Gradle wrapper committed. Open the folder in Android Studio and it
-will offer to generate one, or run `gradle wrapper` if you have Gradle
-installed.
 
 The app has **no launcher activity** — it is a widget and nothing else, so it
 will not appear in the app drawer. That is intentional.
