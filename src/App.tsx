@@ -159,8 +159,8 @@ function App() {
           <TabSwitcher active={tab} onChange={setTab} />
           <div className="app-bar__actions">
             <InstallButton />
-            <AboutButton onClick={() => setAboutOpen(true)} />
             <ThemeToggle />
+            <AboutButton onClick={() => setAboutOpen(true)} />
           </div>
         </div>
       </header>

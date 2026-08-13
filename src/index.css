@@ -343,6 +343,33 @@ textarea {
   }
 }
 
+/* Two things that read as "browser", not "app", on a phone.
+   
+   The scrollbar: a native Android app shows a fading scroll indicator, not a
+   persistent styled bar with a track. Coarse pointers get none at all. Fine
+   pointers keep the styled one above, because on a desktop a mouse has no other
+   affordance telling you a region scrolls — hiding it there would be copying
+   the look of a phone app onto a machine that is not one.
+   
+   overscroll-behavior: dragging past the top of a page in Chrome pulls to
+   refresh, and past either end paints a stretch/glow. In a TWA the refresh is
+   the worst of the two — it reloads the app, from a gesture no native app has.
+   `none` removes both and stops scroll chaining out of the document. */
+@media (pointer: coarse) {
+  ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+  * {
+    scrollbar-width: none;
+  }
+}
+
+html,
+body {
+  overscroll-behavior: none;
+}
+
 /* One focus treatment for the whole app, rather than each component inventing
    its own. :focus-visible only matches keyboard focus, so this never fires on
    a mouse click. */
