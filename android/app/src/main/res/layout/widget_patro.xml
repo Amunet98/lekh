@@ -52,6 +52,15 @@
         android:textColor="@color/widget_muted"
         android:text="13 Aug 2026" />
 
+    <!-- Hidden here: at 2x2 the festival line is the better use of the last
+         row, and tithi already falls back into it when there is no festival. -->
+    <TextView
+        android:id="@+id/widget_tithi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:text="" />
+
     <!-- The festival line. maxLines=2 with ellipsize because festival names run
          long (हरिशयनी एकादशी, तुलसी रोप्ने) and a widget cannot scroll. -->
     <TextView

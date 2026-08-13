@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Lekh Patro</string>
-    <string name="widget_description">Today\'s Bikram Sambat date, tithi and festival</string>
+    <!-- Shown under each entry in the launcher's widget picker. They differ so
+         three near-identical rows are actually distinguishable. -->
+    <string name="widget_description">Date, tithi and today\'s festival</string>
+    <string name="widget_description_small">Just the Bikram Sambat date</string>
+    <string name="widget_description_large">Date, weekday, tithi and festival</string>
 </resources>

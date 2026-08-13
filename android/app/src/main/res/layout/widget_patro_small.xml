@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 2x1. A short, wide strip: the date beside the month rather than above it,
+     because stacking five rows into one cell of height leaves nothing legible.
+     Weekday, tithi and the festival line are all gone — a festival name has
+     nowhere to go here, and a truncated one is worse than none. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:gravity="center"
+    android:padding="10dp"
+    android:background="@drawable/widget_background">
+
+    <TextView
+        android:id="@+id/widget_day"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:includeFontPadding="false"
+        android:layout_marginEnd="10dp"
+        android:textColor="@color/widget_text"
+        android:text="२९" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/widget_month"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="@color/widget_text"
+            android:text="श्रावण २०८३" />
+
+        <TextView
+            android:id="@+id/widget_ad"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="10sp"
+            android:maxLines="1"
+            android:textColor="@color/widget_muted"
+            android:text="14 Aug 2026" />
+    </LinearLayout>
+
+    <!-- Present so one renderer can populate every layout; no room at 2x1. -->
+    <TextView android:id="@+id/widget_weekday"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:visibility="gone" android:text="" />
+    <TextView android:id="@+id/widget_tithi"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:visibility="gone" android:text="" />
+    <TextView android:id="@+id/widget_note"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:visibility="gone" android:text="" />
+</LinearLayout>

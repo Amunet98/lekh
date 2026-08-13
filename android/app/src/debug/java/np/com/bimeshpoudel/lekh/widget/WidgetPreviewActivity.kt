@@ -43,28 +43,24 @@ class WidgetPreviewActivity : Activity() {
             fitsSystemWindows = true
         }
 
-        root.addView(TextView(this).apply {
-            text = "widget preview — debug only"
-            textSize = 12f
-            setPadding(0, 0, 0, dp(12))
-        })
+        /* Every size, at roughly the cell dimensions each declares, so a
+           layout that only breaks at one shape cannot hide. */
+        val sizes = listOf(
+            Triple("2x1  small", np.com.bimeshpoudel.lekh.R.layout.widget_patro_small, 160 to 70),
+            Triple("2x2  medium", np.com.bimeshpoudel.lekh.R.layout.widget_patro, 160 to 160),
+            Triple("4x2  large", np.com.bimeshpoudel.lekh.R.layout.widget_patro_large, 330 to 160),
+        )
 
-        // The real RemoteViews, inflated exactly as the launcher would.
-        val host = FrameLayout(this)
-        val views = WidgetRenderer.build(this)
-        host.addView(views.apply(applicationContext, host))
-        root.addView(host, ViewGroup.LayoutParams(dp(160), dp(160)))
-
-        // A second copy at a wider cell, to catch text that only clips when the
-        // festival name is long and the box is short.
-        root.addView(TextView(this).apply {
-            text = "4x2 cell"
-            textSize = 12f
-            setPadding(0, dp(20), 0, dp(8))
-        })
-        val wide = FrameLayout(this)
-        wide.addView(WidgetRenderer.build(this).apply(applicationContext, wide))
-        root.addView(wide, ViewGroup.LayoutParams(dp(320), dp(150)))
+        for ((label, layout, dims) in sizes) {
+            root.addView(TextView(this).apply {
+                text = label
+                textSize = 12f
+                setPadding(0, dp(14), 0, dp(6))
+            })
+            val host = FrameLayout(this)
+            host.addView(WidgetRenderer.build(this, layout).apply(applicationContext, host))
+            root.addView(host, ViewGroup.LayoutParams(dp(dims.first), dp(dims.second)))
+        }
 
         setContentView(root)
     }
