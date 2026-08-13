@@ -7,4 +7,6 @@
     <color name="widget_text">#F2F4F8</color>
     <color name="widget_muted">#828CA4</color>
     <color name="widget_accent">#F87171</color>
+    <!-- Today's cell: lifted surface, not a red wash; a crimson tint on #151A2B reads as an error state. -->
+    <color name="widget_today">#2A1A24</color>
 </resources>

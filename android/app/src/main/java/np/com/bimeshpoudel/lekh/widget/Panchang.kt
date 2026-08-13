@@ -80,4 +80,28 @@ object Panchang {
 
         return DayPanchang(festivals, isHoliday, tithi)
     }
+
+    /**
+     * The next day after [after] that carries a festival, as a
+     * (days-away, panchang) pair, or null if there is none within [withinDays].
+     *
+     * The wider widgets have room for what is coming as well as what is here,
+     * and "what is coming" is the actual reason people keep a patro on a home
+     * screen. Sixty days is a compromise: far enough that the answer is almost
+     * never empty (Nepal does not go two months without a festival), near
+     * enough that a match is still worth reading.
+     *
+     * Walking Gregorian days and converting each one back is deliberate — it
+     * cannot run off the end of a BS month, and `fromGregorian` is a few
+     * integer sums, so sixty of them at draw time is nothing.
+     */
+    fun upcoming(after: BsDate, withinDays: Int = 60): Pair<Int, DayPanchang>? {
+        val start = NepaliCalendar.toGregorian(after)
+        for (offset in 1..withinDays) {
+            val bs = NepaliCalendar.fromGregorian(start.plusDays(offset.toLong()))
+            val info = forDay(bs) ?: continue
+            if (info.festivals.isNotEmpty()) return offset to info
+        }
+        return null
+    }
 }

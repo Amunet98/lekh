@@ -128,8 +128,9 @@ the only route.
 
 It shares the web app's calendar data rather than duplicating it
 (`npm run android:assets`), and its date algorithm was validated against
-`nepali-date-converter` over 3,970 conversions. It has **never been compiled** —
-read `android/README.md` before building.
+`nepali-date-converter` over 3,970 conversions. It ships in six sizes — 2x1,
+2x2, 4x1, 4x2, 5x1 and 5x2 — released as a signed APK alongside the TWA that
+wraps the web app; see `android/README.md`.
 
 ## Installing and updating
 

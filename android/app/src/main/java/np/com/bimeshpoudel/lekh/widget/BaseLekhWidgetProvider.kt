@@ -16,11 +16,16 @@ import java.time.ZoneId
  * Everything the widgets share; the subclasses differ only in which layout
  * they draw.
  *
- * There are three separate providers rather than one resizable widget because
- * that is what shows up as three entries in the launcher's widget picker.
+ * There are six separate providers rather than one resizable widget because
+ * that is what shows up as six entries in the launcher's widget picker.
  * A single resizable widget is one entry that most people never think to drag
- * a corner on, and the three shapes want genuinely different layouts anyway —
- * a 2x1 has no room for a festival name, a 4x2 has room for several.
+ * a corner on, and the six shapes want genuinely different layouts anyway —
+ * a 2x1 has no room for a festival name, a 5x2 has room for a week strip.
+ *
+ * The two 5-wide sizes are offered on four-column launchers too — measured
+ * on one: it lists them and clamps them to four cells rather than hiding
+ * them. 4x1 and 4x2 still exist because on that grid they are the shapes that
+ * fit exactly, and the 5-wide pair are the denser alternatives.
  *
  * REFRESHING AT MIDNIGHT
  *
@@ -95,17 +100,45 @@ abstract class BaseLekhWidgetProvider : AppWidgetProvider() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 
+    /**
+     * Ask to be woken shortly after the next local midnight.
+     *
+     * NOT setExact, and this crashed a real phone before it was inexact.
+     * From Android 12 an app targeting S+ must hold SCHEDULE_EXACT_ALARM to
+     * call setExact(), and on 13+ that permission is not granted by default —
+     * measured on a live device: `canScheduleExactAlarms=false` and setExact
+     * throwing SecurityException. Since this runs inside onUpdate, the throw
+     * took the whole process down the moment a widget was placed on a home
+     * screen: "Lekh has stopped".
+     *
+     * setWindow is inexact and needs no permission. A calendar widget does not
+     * need millisecond precision at midnight, and it is not the only signal
+     * anyway — the manifest also listens for ACTION_DATE_CHANGED, which the
+     * system broadcasts when the date actually rolls. This alarm is the belt
+     * to that braces, with a ten-minute window so the OS can batch it.
+     *
+     * The whole thing is wrapped regardless. A widget must never be able to
+     * crash the app it belongs to over a cosmetic refresh; the worst case
+     * without an alarm is a date that updates on the next interaction.
+     */
     private fun scheduleMidnight(context: Context) {
-        val nextMidnight = LocalDate.now()
-            .plusDays(1)
-            .atTime(LocalTime.MIDNIGHT)
-            .atZone(ZoneId.systemDefault())
-            .toInstant()
-            .toEpochMilli()
+        try {
+            val nextMidnight = LocalDate.now()
+                .plusDays(1)
+                .atTime(LocalTime.MIDNIGHT)
+                .atZone(ZoneId.systemDefault())
+                .toInstant()
+                .toEpochMilli()
 
-        /* setExact, not setExactAndAllowWhileIdle: this is cosmetic, so it is
-           not worth an exact-alarm permission or waking a dozing device. If
-           Doze delays it, the next interaction redraws anyway. */
-        alarmManager(context).setExact(AlarmManager.RTC, nextMidnight, midnightIntent(context))
+            alarmManager(context).setWindow(
+                AlarmManager.RTC,
+                nextMidnight,
+                10 * 60 * 1000L,
+                midnightIntent(context),
+            )
+        } catch (_: Throwable) {
+            // No alarm this time; ACTION_DATE_CHANGED and the next interaction
+            // both still redraw.
+        }
     }
 }

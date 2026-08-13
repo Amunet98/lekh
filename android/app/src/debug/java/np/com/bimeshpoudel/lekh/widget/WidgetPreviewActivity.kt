@@ -7,6 +7,7 @@ import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
 
 /**
@@ -39,8 +40,8 @@ class WidgetPreviewActivity : Activity() {
                so content draws *under* the status bar and action bar unless it
                insets itself. Without this the first widget renders behind the
                title bar with its top clipped off — which looks exactly like the
-               widget's own text being cut, and is not. */
-            fitsSystemWindows = true
+               widget's own text being cut, and is not. It is set on the
+               ScrollView below, which is now the outermost view. */
         }
 
         /* Every size, at roughly the cell dimensions each declares, so a
@@ -50,6 +51,8 @@ class WidgetPreviewActivity : Activity() {
             Triple("2x2  medium", np.com.bimeshpoudel.lekh.R.layout.widget_patro, 160 to 160),
             Triple("4x1  wide", np.com.bimeshpoudel.lekh.R.layout.widget_patro_wide, 330 to 70),
             Triple("4x2  large", np.com.bimeshpoudel.lekh.R.layout.widget_patro_large, 330 to 160),
+            Triple("5x1  xl", np.com.bimeshpoudel.lekh.R.layout.widget_patro_xl, 360 to 70),
+            Triple("5x2  xl large", np.com.bimeshpoudel.lekh.R.layout.widget_patro_xl_large, 360 to 170),
         )
 
         for ((label, layout, dims) in sizes) {
@@ -63,6 +66,11 @@ class WidgetPreviewActivity : Activity() {
             root.addView(host, ViewGroup.LayoutParams(dp(dims.first), dp(dims.second)))
         }
 
-        setContentView(root)
+        /* Six sizes no longer fit on one screen, and a preview you cannot
+           reach the bottom of hides exactly the size most likely to overflow. */
+        setContentView(ScrollView(this).apply {
+            addView(root)
+            fitsSystemWindows = true
+        })
     }
 }

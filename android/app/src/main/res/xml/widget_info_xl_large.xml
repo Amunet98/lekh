@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5x2. See widget_info_xl.xml for why minWidth is 320dp. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="320dp"
+    android:minHeight="110dp"
+    android:targetCellWidth="5"
+    android:targetCellHeight="2"
+    android:description="@string/widget_description_xl_large"
+    android:previewLayout="@layout/widget_patro_xl_large"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen"
+    android:initialLayout="@layout/widget_patro_xl_large"
+    android:updatePeriodMillis="0" />

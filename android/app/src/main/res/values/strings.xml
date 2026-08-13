@@ -2,9 +2,11 @@
 <resources>
     <string name="app_name">Lekh Patro</string>
     <!-- Shown under each entry in the launcher's widget picker. They differ so
-         three near-identical rows are actually distinguishable. -->
+         six near-identical rows are actually distinguishable. -->
     <string name="widget_description">Date, tithi and today\'s festival</string>
     <string name="widget_description_small">Just the Bikram Sambat date</string>
     <string name="widget_description_large">Date, weekday, tithi and festival</string>
     <string name="widget_description_wide">A full-width strip: date and festival</string>
+    <string name="widget_description_xl">Wide strip: date, tithi and what\'s next</string>
+    <string name="widget_description_xl_large">Everything, plus this week at a glance</string>
 </resources>

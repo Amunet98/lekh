@@ -8,4 +8,6 @@
     <color name="widget_text">#141824</color>
     <color name="widget_muted">#646C7E</color>
     <color name="widget_accent">#A80D26</color>
+    <!-- Today's cell in the week strip: the web app's pale accent wash. -->
+    <color name="widget_today">#FBE9EC</color>
 </resources>

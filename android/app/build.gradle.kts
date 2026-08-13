@@ -25,8 +25,8 @@ android {
         targetSdk = 35
         /* versionCode must increase for Android to accept an update over an
            installed copy; versionName is what humans read. */
-        versionCode = 3
-        versionName = "1.2.0"
+        versionCode = 4
+        versionName = "1.3.0"
 
         /* The URL the Trusted Web Activity opens, injected into the manifest so
          * it is stated once. It must be the same origin as the assetlinks.json

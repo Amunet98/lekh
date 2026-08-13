@@ -55,9 +55,15 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
 The debug build also installs a **preview activity** ("Lekh Patro preview")
-that draws the widget's real RemoteViews at 2x2 and 4x2 cell sizes in a normal
-screen — quicker to iterate on than adding a widget to a home screen, and it
-never reaches a release build because it lives in `src/debug/`.
+that draws every size's real RemoteViews at roughly its cell dimensions in a
+normal screen — quicker to iterate on than adding a widget to a home screen,
+and it never reaches a release build because it lives in `src/debug/`.
+
+It is a preview, not a substitute. The harness calls the renderer directly and
+never goes through `onUpdate`, so it cannot catch anything in the provider —
+which is exactly how a `setExact()` SecurityException shipped in 1.2.0 and
+crashed the app the moment a widget was placed. Place one on a real home
+screen before releasing.
 
 What *was* verified, beyond the build:
 

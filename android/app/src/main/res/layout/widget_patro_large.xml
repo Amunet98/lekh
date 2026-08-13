@@ -98,4 +98,8 @@
             android:textColor="@color/widget_accent"
             android:text="गुँलाधर्म आरम्भ" />
     </LinearLayout>
+    <!-- Present so one renderer can populate every layout; no room at 4x2. -->
+    <TextView android:id="@+id/widget_next"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:visibility="gone" android:text="" />
 </LinearLayout>

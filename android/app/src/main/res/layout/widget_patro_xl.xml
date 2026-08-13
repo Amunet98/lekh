@@ -1,20 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 4x1. Full width, one cell tall.
+<!-- 5x1. The 4x1 strip plus the one thing an extra cell of width buys: what
+     is coming next. Today's festival stays on the accent line; the upcoming
+     one sits under it in muted text with how far off it is, which is what a
+     patro on a home screen is actually consulted for on the other 340 days of
+     the year.
 
-     The first version of this put the date on the left and the festival hard
-     right, with nothing in between — which on a day with a short festival name
-     (or none at all) was a widget that was mostly empty. The middle column is
-     that gap put to work: the Gregorian date and the tithi, which the 2x1 and
-     2x2 have to drop for want of room but a 4x1 has width to spare for.
+     Three rows in the right-hand column and two everywhere else. That column
+     is the widest, so its rows can be the tightest without wrapping.
 
-     Two rows per column and no more. A 4x1 cell is ~40–90dp tall depending on
-     the launcher's grid, and a third row is not safe at the bottom of that
-     range — it clips, and a clipped Devanagari row looks like a font bug.
-
-     No plain <View> anywhere in here. RemoteViews inflates only an allowlist
-     of classes and android.view.View is not on it — a layout containing one
-     throws "Class not allowed to be inflated", which on a home screen reads
-     as "Problem loading widget" and nothing more. -->
+     A four-column launcher still offers this size and clamps it to four
+     cells; the right-hand column is weighted so it gives up width first and
+     the two extra rows survive. 4x1 stays anyway — on that grid it is the
+     shape that actually fits, and this one is the denser alternative. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
@@ -28,7 +25,7 @@
         android:id="@+id/widget_day"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="28sp"
+        android:textSize="30sp"
         android:textStyle="bold"
         android:includeFontPadding="false"
         android:layout_marginEnd="10dp"
@@ -72,7 +69,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginEnd="10dp">
+        android:layout_marginEnd="12dp">
 
         <TextView
             android:id="@+id/widget_ad"
@@ -93,22 +90,33 @@
             android:text="प्रतिपदा" />
     </LinearLayout>
 
-    <!-- Takes the remaining width, so a long festival name uses the space a
-         4x1 actually has instead of being cut at a fixed column. -->
-    <TextView
-        android:id="@+id/widget_note"
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_weight="1"
         android:layout_height="wrap_content"
-        android:textSize="11sp"
-        android:maxLines="2"
-        android:ellipsize="end"
-        android:gravity="end"
-        android:textColor="@color/widget_accent"
-        android:text="गुँलाधर्म आरम्भ" />
+        android:orientation="vertical">
 
-    <!-- Present so one renderer can populate every layout; no room at 4x1. -->
-    <TextView android:id="@+id/widget_next"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:visibility="gone" android:text="" />
+        <TextView
+            android:id="@+id/widget_note"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:gravity="end"
+            android:textColor="@color/widget_accent"
+            android:text="गुँलाधर्म आरम्भ" />
+
+        <TextView
+            android:id="@+id/widget_next"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="10sp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:gravity="end"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/widget_muted"
+            android:text="आगामी · हरितालिका तीज · ५ दिनमा" />
+    </LinearLayout>
 </LinearLayout>

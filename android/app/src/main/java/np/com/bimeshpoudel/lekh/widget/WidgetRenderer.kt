@@ -9,12 +9,18 @@ import java.time.format.DateTimeFormatter
 /**
  * Builds the widget's RemoteViews for a given layout.
  *
- * All three layouts declare the same view ids, and each hides the ones its
- * shape has no room for with `visibility="gone"`. That keeps this one function
- * able to populate any of them — RemoteViews resolves ids inside its own
- * layout, and writing to a hidden view is harmless. The alternative, branching
- * per size here, puts the decision about what fits in the code instead of in
- * the layout that actually knows.
+ * All six layouts declare the same view ids, and each hides the ones its shape
+ * has no room for with `visibility="gone"`. That keeps this one function able
+ * to populate any of them — RemoteViews resolves ids inside its own layout,
+ * and writing to a hidden view is harmless. The alternative, branching per
+ * size here, puts the decision about what fits in the code instead of in the
+ * layout that actually knows.
+ *
+ * The week strip is the one exception: its ids exist only in the 5x2 layout.
+ * That is still safe — every RemoteViews action starts with a findViewById and
+ * returns quietly when the id is not in the layout it was applied to — but it
+ * is the reason the strip is written last and in its own block rather than
+ * mixed in with the fields every size shares.
  *
  * Split out of the provider so the debug preview activity renders the exact
  * same thing on screen. A widget is otherwise only visible by adding it to a
@@ -27,9 +33,25 @@ object WidgetRenderer {
 
     /** Every layout this renderer can populate, largest first. */
     val layouts = intArrayOf(
+        R.layout.widget_patro_xl_large,
         R.layout.widget_patro_large,
         R.layout.widget_patro,
+        R.layout.widget_patro_xl,
+        R.layout.widget_patro_wide,
         R.layout.widget_patro_small,
+    )
+
+    private val weekDayIds = intArrayOf(
+        R.id.widget_week_d0, R.id.widget_week_d1, R.id.widget_week_d2, R.id.widget_week_d3,
+        R.id.widget_week_d4, R.id.widget_week_d5, R.id.widget_week_d6,
+    )
+    private val weekLabelIds = intArrayOf(
+        R.id.widget_week_l0, R.id.widget_week_l1, R.id.widget_week_l2, R.id.widget_week_l3,
+        R.id.widget_week_l4, R.id.widget_week_l5, R.id.widget_week_l6,
+    )
+    private val weekCellIds = intArrayOf(
+        R.id.widget_week_c0, R.id.widget_week_c1, R.id.widget_week_c2, R.id.widget_week_c3,
+        R.id.widget_week_c4, R.id.widget_week_c5, R.id.widget_week_c6,
     )
 
     fun build(
@@ -69,6 +91,18 @@ object WidgetRenderer {
         }
         views.setTextViewText(R.id.widget_note, subtitle)
 
+        /* What is coming. Only the 5x1 and 5x2 have a row for this; on every
+           other size the view is gone and the text goes nowhere. */
+        val upcoming = Panchang.upcoming(today)
+        views.setTextViewText(
+            R.id.widget_next,
+            if (upcoming == null) "" else {
+                val (days, next) = upcoming
+                val away = if (days == 1) "भोलि" else "${NepaliCalendar.toDevanagari(days)} दिनमा"
+                "आगामी · ${next.festivals.first()} · $away"
+            },
+        )
+
         // Holidays and weekly days off share one accent, as in the web app.
         val isOff = NepaliCalendar.isWeeklyOff(today) || (info?.isHoliday == true)
         views.setTextColor(
@@ -76,7 +110,42 @@ object WidgetRenderer {
             context.getColor(if (isOff) R.color.widget_accent else R.color.widget_text),
         )
 
+        renderWeek(context, views, today)
+
         if (onClick != null) views.setOnClickPendingIntent(R.id.widget_root, onClick)
         return views
+    }
+
+    /**
+     * The 5x2 week strip: Sunday to Saturday around [today], today marked.
+     *
+     * The marker is a background applied through setInt rather than a
+     * visibility toggle on seven pre-placed shapes, because which cell is today
+     * changes daily and there is no layout answer to that. `setBackgroundResource`
+     * is one of the @RemotableViewMethod methods RemoteViews will call by name;
+     * the six other cells are cleared with 0, which is "no background" — not
+     * doing that leaves yesterday's marker behind when the widget redraws
+     * across midnight without being reinflated.
+     */
+    private fun renderWeek(context: Context, views: RemoteViews, today: BsDate) {
+        val week = NepaliCalendar.weekOf(today)
+        val text = context.getColor(R.color.widget_text)
+        val accent = context.getColor(R.color.widget_accent)
+        val muted = context.getColor(R.color.widget_muted)
+
+        for (i in 0..6) {
+            val day = week[i]
+            // A day off is red in the strip too, so Saturday and Sunday read as
+            // the weekend at a glance rather than needing to be counted to.
+            val off = NepaliCalendar.isWeeklyOff(day) || (Panchang.forDay(day)?.isHoliday == true)
+            views.setTextViewText(weekDayIds[i], NepaliCalendar.toDevanagari(day.day))
+            views.setTextColor(weekDayIds[i], if (off) accent else text)
+            views.setTextColor(weekLabelIds[i], if (off) accent else muted)
+            views.setInt(
+                weekCellIds[i],
+                "setBackgroundResource",
+                if (i == NepaliCalendar.weekdayOf(today)) R.drawable.widget_pill else 0,
+            )
+        }
     }
 }
