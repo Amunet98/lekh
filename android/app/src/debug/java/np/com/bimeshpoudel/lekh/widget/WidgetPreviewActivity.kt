@@ -48,6 +48,7 @@ class WidgetPreviewActivity : Activity() {
         val sizes = listOf(
             Triple("2x1  small", np.com.bimeshpoudel.lekh.R.layout.widget_patro_small, 160 to 70),
             Triple("2x2  medium", np.com.bimeshpoudel.lekh.R.layout.widget_patro, 160 to 160),
+            Triple("4x1  wide", np.com.bimeshpoudel.lekh.R.layout.widget_patro_wide, 330 to 70),
             Triple("4x2  large", np.com.bimeshpoudel.lekh.R.layout.widget_patro_large, 330 to 160),
         )
 

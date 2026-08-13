@@ -6,4 +6,5 @@
     <string name="widget_description">Date, tithi and today\'s festival</string>
     <string name="widget_description_small">Just the Bikram Sambat date</string>
     <string name="widget_description_large">Date, weekday, tithi and festival</string>
+    <string name="widget_description_wide">A full-width strip: date and festival</string>
 </resources>

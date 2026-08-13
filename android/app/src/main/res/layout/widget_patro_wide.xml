@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 4x1. Full width, one cell tall: everything on a single row, with the
+     festival taking whatever width is left over.
+
+     No plain <View> anywhere in here. RemoteViews inflates only an allowlist
+     of classes and android.view.View is not on it — a layout containing one
+     throws "Class not allowed to be inflated", which on a home screen reads
+     as "Problem loading widget" and nothing more. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:padding="10dp"
+    android:background="@drawable/widget_background">
+
+    <TextView
+        android:id="@+id/widget_day"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:includeFontPadding="false"
+        android:layout_marginEnd="10dp"
+        android:textColor="@color/widget_text"
+        android:text="२९" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginEnd="12dp">
+
+        <TextView
+            android:id="@+id/widget_month"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:maxLines="1"
+            android:textColor="@color/widget_text"
+            android:text="श्रावण २०८३" />
+
+        <TextView
+            android:id="@+id/widget_weekday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="10sp"
+            android:maxLines="1"
+            android:textColor="@color/widget_muted"
+            android:text="शुक्रबार" />
+    </LinearLayout>
+
+    <!-- Takes the remaining width, so a long festival name uses the space a
+         4x1 actually has instead of being cut at a fixed column. -->
+    <TextView
+        android:id="@+id/widget_note"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:textSize="11sp"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:gravity="end"
+        android:textColor="@color/widget_accent"
+        android:text="गुँलाधर्म आरम्भ" />
+
+    <!-- Present so one renderer can populate every layout; no room at 4x1. -->
+    <TextView android:id="@+id/widget_ad"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:visibility="gone" android:text="" />
+    <TextView android:id="@+id/widget_tithi"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:visibility="gone" android:text="" />
+</LinearLayout>
