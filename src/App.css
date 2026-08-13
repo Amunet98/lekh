@@ -81,7 +81,11 @@
      which the bare text did not give it. */
   min-height: 44px;
   font-family: var(--display);
-  font-size: 1.15rem;
+  /* Clamped rather than fixed: this is the largest thing in the bar and the
+     bar also has to hold the section nav and two controls. It gets its full
+     size on a phone (where the nav has left for the bottom dock) and gives a
+     little back in the middle range, where all three compete for one row. */
+  font-size: clamp(1.3rem, 1.15rem + 0.6vw, 1.45rem);
   font-weight: 600;
   color: var(--text-h);
   letter-spacing: -0.01em;
@@ -106,7 +110,9 @@
 .app-bar__brand-latin {
   color: var(--muted);
   font-weight: 500;
-  font-size: 0.9rem;
+  /* em, not rem — it scales with the Devanagari half above rather than
+     drifting out of proportion as that clamp moves. */
+  font-size: 0.72em;
   letter-spacing: 0.02em;
 }
 
