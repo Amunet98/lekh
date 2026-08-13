@@ -65,10 +65,6 @@ object NepaliCalendar {
         loaded = true
     }
 
-    fun daysInMonth(year: Int, month: Int): Int = months[year]?.getOrNull(month) ?: 30
-
-    fun isSupported(year: Int): Boolean = months.containsKey(year)
-
     /** Days from the BS epoch to the given BS date. */
     private fun daysFromEpoch(date: BsDate): Int {
         var total = 0

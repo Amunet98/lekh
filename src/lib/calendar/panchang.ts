@@ -57,8 +57,6 @@ interface PanchangFile {
 const data = raw as PanchangFile
 
 export const COVERAGE = data.coverage
-export const SOURCE = data.source
-export const GENERATED = data.generated
 
 const UPSTREAM = 'https://raw.githubusercontent.com/S4NKALP/nepali-calendar-api/main/data'
 
@@ -71,10 +69,6 @@ export interface DayPanchang {
 export interface MonthPanchang {
   byDay: Map<number, DayPanchang>
   holidays: { day: number; names: string[] }[]
-}
-
-export function hasBundled(year: number): boolean {
-  return year >= COVERAGE.from && year <= COVERAGE.to
 }
 
 /**

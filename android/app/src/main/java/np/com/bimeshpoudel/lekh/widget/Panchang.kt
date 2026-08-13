@@ -28,10 +28,10 @@ data class DayPanchang(
 object Panchang {
 
     private var years: JSONObject? = null
-    var coverageFrom = 0
-        private set
-    var coverageTo = 0
-        private set
+    // Read only by covers() below; the widget asks that question, never the
+    // bounds themselves.
+    private var coverageFrom = 0
+    private var coverageTo = 0
     private var loaded = false
 
     @Synchronized

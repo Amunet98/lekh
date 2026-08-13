@@ -32,10 +32,6 @@ export const NP_WEEKDAYS_SHORT = ['आइत', 'सोम', 'मङ्गल', '
 export const NP_WEEKDAYS_FULL = [
   'आइतबार', 'सोमबार', 'मङ्गलबार', 'बुधबार', 'बिहिबार', 'शुक्रबार', 'शनिबार',
 ] as const
-export const EN_WEEKDAYS_FULL = [
-  'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
-] as const
-
 export const SUNDAY = 0
 export const SATURDAY = 6
 

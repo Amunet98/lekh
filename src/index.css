@@ -236,16 +236,6 @@ body {
   position: relative;
 }
 
-/* A card in the page flow: a surface, a hairline, no shadow. This replaces
-   the .glass class the previous design applied to nearly every panel. If a
-   thing genuinely floats above the page — a modal, a sheet, a toast — it
-   takes --shadow-pop directly and does not use this. */
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
-}
-
 /* Visually hidden, still in the accessibility tree. Several screen headings
    are marked up but not drawn: the navigation already says which section you
    are in, so a visible <h1> on every screen was pure repetition — but
@@ -273,11 +263,6 @@ textarea {
    own change, not buried in a redesign. Devanagari has no italic form, so this
    always resets to normal even inside italic contexts. */
 .dev-serif,
-.dev-display {
-  font-family: var(--display-dev);
-  font-style: normal;
-}
-
 h1,
 h2 {
   font-family: var(--display);

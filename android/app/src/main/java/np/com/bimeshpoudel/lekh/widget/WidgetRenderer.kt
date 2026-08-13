@@ -31,16 +31,6 @@ object WidgetRenderer {
 
     private val adFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMM yyyy")
 
-    /** Every layout this renderer can populate, largest first. */
-    val layouts = intArrayOf(
-        R.layout.widget_patro_xl_large,
-        R.layout.widget_patro_large,
-        R.layout.widget_patro,
-        R.layout.widget_patro_xl,
-        R.layout.widget_patro_wide,
-        R.layout.widget_patro_small,
-    )
-
     private val weekDayIds = intArrayOf(
         R.id.widget_week_d0, R.id.widget_week_d1, R.id.widget_week_d2, R.id.widget_week_d3,
         R.id.widget_week_d4, R.id.widget_week_d5, R.id.widget_week_d6,
