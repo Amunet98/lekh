@@ -1,7 +1,7 @@
 {
   "name": "lekh",
   "private": true,
-  "version": "1.5.0",
+  "version": "1.5.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,7 +12,8 @@
     "icons": "node scripts/render-shortcut-icons.mjs",
     "app-icons": "node scripts/render-app-icons.mjs",
     "check:cheatsheet": "vite build --ssr scripts/check-cheatsheet.ts --outDir .cheatcheck --logLevel error && node .cheatcheck/check-cheatsheet.js && rm -rf .cheatcheck",
-    "calendar:data": "node scripts/fetch-calendar-data.mjs"
+    "calendar:data": "node scripts/fetch-calendar-data.mjs",
+    "android:assets": "node scripts/export-android-assets.mjs"
   },
   "dependencies": {
     "@huggingface/transformers": "^3.7.6",

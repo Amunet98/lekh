@@ -118,6 +118,19 @@ is UTC+05:45, so a UTC read moves every festival a day earlier. That mistake
 was made once already while verifying this feature and looked exactly like a
 data error.
 
+## Android home-screen widget
+
+`android/` holds a small native Kotlin widget showing today's BS date, tithi
+and festival. It exists because **a PWA cannot provide an Android home-screen
+widget** — the `widgets` manifest member is Microsoft's Windows 11 Widgets
+Board feature, not the Android home screen, so a native `AppWidgetProvider` is
+the only route.
+
+It shares the web app's calendar data rather than duplicating it
+(`npm run android:assets`), and its date algorithm was validated against
+`nepali-date-converter` over 3,970 conversions. It has **never been compiled** —
+read `android/README.md` before building.
+
 ## Installing and updating
 
 Lekh is an installable PWA with a real service worker — the typing engine,

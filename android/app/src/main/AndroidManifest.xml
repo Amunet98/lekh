@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- No <uses-permission> at all, and that is deliberate: the widget reads
+     bundled assets only, so it has no INTERNET permission to leak through and
+     cannot stall on a dead network while the launcher waits for it to draw.
+     The trade is that new holidays arrive with an app update rather than
+     within a day as they do in the browser. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application
+        android:label="@string/app_name"
+        android:icon="@mipmap/ic_launcher"
+        android:allowBackup="true"
+        android:supportsRtl="false">
+
+        <!-- exported="true" is required, not a slip. A widget provider is a
+             broadcast receiver that the *system* sends APPWIDGET_UPDATE to;
+             exported="false" means those broadcasts never arrive and the
+             widget simply never draws. Android 12+ also requires the attribute
+             to be stated explicitly whenever there is an intent-filter. -->
+        <receiver
+            android:name=".widget.LekhWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <!-- Redraw when the date moves underneath us. -->
+                <action android:name="android.intent.action.DATE_CHANGED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info" />
+        </receiver>
+    </application>
+</manifest>
