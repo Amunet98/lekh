@@ -3,6 +3,7 @@ import { ENGLISH, NEPALI, type Language } from '../lib/translation/languages'
 import { onlineProvider } from '../lib/translation/onlineProvider'
 import {
   onDeviceProvider,
+  preloadModel,
   hasConfirmedDownload,
   setConfirmedDownload,
   hasDownloadedModel,
@@ -39,6 +40,9 @@ export function useTranslateState() {
   const [modelDownloaded, setModelDownloaded] = useState(() => hasDownloadedModel())
   const debounceRef = useRef<number | undefined>(undefined)
   const requestIdRef = useRef(0)
+  // Guards against a second download being kicked off by an impatient second
+  // tap. A ref, not `status`, so the check cannot read a stale closure.
+  const downloadingRef = useRef(false)
 
   useEffect(() => {
     void isModelCached().then(setModelDownloaded)
@@ -105,6 +109,30 @@ export function useTranslateState() {
     }
   }, [sourceText, sourceLang, targetLang, direction])
 
+  /* Fetch the model without translating.
+   *
+   * This is what "Download & enable" was always supposed to do. Before, it
+   * only flipped the mode: the ~900MB fetch lived inside translate(), and with
+   * an empty input the "Translate on-device" button is disabled — so the
+   * download had no reachable trigger and the UI showed nothing at all. */
+  const downloadModel = useCallback(async () => {
+    if (downloadingRef.current) return
+    downloadingRef.current = true
+    setStatus('loading')
+    setError(null)
+    try {
+      await preloadModel((p) => setModelLoad(p.phase === 'done' ? null : p))
+      setModelDownloaded(true)
+      setStatus('idle')
+    } catch {
+      setStatus('error')
+      setError('Could not download the on-device model — check your connection and try again.')
+    } finally {
+      downloadingRef.current = false
+      setModelLoad(null)
+    }
+  }, [])
+
   const swap = useCallback(() => {
     setDirection((d) => (d === 'ne-en' ? 'en-ne' : 'ne-en'))
     setSourceText(translated)
@@ -133,7 +161,9 @@ export function useTranslateState() {
     setConfirmedDownload()
     setShowConfirm(false)
     switchToOnDevice()
-  }, [switchToOnDevice])
+    // The whole point of the button. Without this it only ever set a flag.
+    void downloadModel()
+  }, [switchToOnDevice, downloadModel])
 
   const cancelConfirm = useCallback(() => setShowConfirm(false), [])
 
@@ -152,6 +182,7 @@ export function useTranslateState() {
     modelDownloaded,
     showConfirm,
     runOnDevice,
+    downloadModel,
     swap,
     switchToOnDevice,
     switchToOnline,

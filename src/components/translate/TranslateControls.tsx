@@ -162,11 +162,26 @@ export function TranslateControls({ t }: { t: TranslateState }) {
       </div>
 
       {t.mode === 'ondevice' && (
-        <p className="sugg-hint model-status">
-          {t.modelDownloaded
-            ? 'Model downloaded — loads from browser cache.'
-            : 'Model not downloaded yet — ~900MB one-time download.'}
-        </p>
+        <div className="model-status">
+          <p className="sugg-hint">
+            {t.modelDownloaded
+              ? 'Model downloaded — loads from browser cache.'
+              : t.status === 'loading'
+                ? 'Downloading the model — you can leave this tab open.'
+                : 'Model not downloaded yet — ~900MB one-time download.'}
+          </p>
+          {/* The reachable trigger.
+              Anyone who pressed "Download & enable" before this was fixed has
+              the confirmed-flag set in localStorage, so they now skip the
+              confirm banner entirely and land here with no model and — until
+              this button existed — nothing to press, because "Translate
+              on-device" is disabled while the input is empty. */}
+          {!t.modelDownloaded && t.status !== 'loading' && (
+            <button type="button" className="btn btn--primary" onClick={() => void t.downloadModel()}>
+              Download model
+            </button>
+          )}
+        </div>
       )}
 
       {t.showConfirm && (

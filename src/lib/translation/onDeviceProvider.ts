@@ -94,7 +94,15 @@ async function loadPipeline(
       totalBytes += f.total
       if (!f.done) allDone = false
     }
-    if (allDone || totalBytes === 0) {
+    /* The threshold is 1MB rather than 0, and that is not fussiness.
+     *
+     * transformers.js initiates the small metadata files (config, tokenizer)
+     * before the ~900MB weights, so the first tick has a real but tiny total
+     * — which the MB formatter renders as the memorably useless
+     * "Downloading model… 0 MB / 0 MB". On a slow link that is the first thing
+     * anyone sees, and it reads as stuck rather than starting. Below 1MB there
+     * is nothing worth reporting, so it stays in 'preparing'. */
+    if (allDone || totalBytes < 1e6) {
       // Every fetched file is complete (or nothing is streaming, e.g. a
       // Firefox cache hit fires no progress events) — the remaining wait is
       // ONNX session init, which has no measurable progress.
@@ -161,6 +169,27 @@ async function getTranslator(
   }
   translator = await loadingPromise
   return translator
+}
+
+/**
+ * Fetch and initialise the model without translating anything.
+ *
+ * This exists because "Download & enable" used to do neither: it set a
+ * localStorage flag and switched the mode, and the ~900MB fetch only ever
+ * started inside translate(). With an empty input box the "Translate
+ * on-device" button is disabled, so there was no reachable way to trigger it
+ * — the button promised a download that could not happen, and nothing on
+ * screen said so.
+ *
+ * It deliberately goes through getTranslator() rather than calling
+ * loadPipeline() directly, so it shares the same `loadingPromise` dedupe: a
+ * translate issued while the preload is still running joins that download
+ * instead of starting a second one.
+ */
+export async function preloadModel(
+  onProgress?: (p: ModelLoadProgress) => void,
+): Promise<void> {
+  await getTranslator(onProgress)
 }
 
 export const onDeviceProvider: TranslationProvider = {
