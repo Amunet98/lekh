@@ -6,7 +6,6 @@ import { UploadPage } from './components/UploadPage'
 import { TranslatePage } from './components/TranslatePage'
 import { ThemeToggle } from './components/ThemeToggle'
 import { InstallButton } from './components/InstallButton'
-import { Footer } from './components/Footer'
 import { BootScreen } from './components/BootScreen'
 import { AboutSheet } from './components/AboutSheet'
 import { UpdatePrompt } from './components/UpdatePrompt'
@@ -175,8 +174,6 @@ function App() {
             onHandoffConsumed={() => setHandoffText(null)}
           />
         )}
-
-        <Footer />
       </div>
 
       <AboutSheet open={aboutOpen} onClose={() => setAboutOpen(false)} onGoTo={goToSection} />

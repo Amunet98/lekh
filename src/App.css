@@ -62,7 +62,20 @@
 
 .app-bar__brand {
   display: inline-flex;
-  align-items: baseline;
+  /* center, not baseline — and this is the opposite of the usual advice.
+   *
+   * Sharing a baseline is normally what makes mixed type sit together, and it
+   * is what this did first. It reads wrong here: Devanagari hangs from the
+   * शिरोरेखा with its whole body above the baseline, and लेख at 1.15rem also
+   * carries a ेmatra well above the Latin ascenders. Baseline-aligned, the
+   * two halves share a floor but not a middle, and `lekh` visibly sagged
+   * below a wordmark that looked like it was floating.
+   *
+   * Centring the boxes lines up their optical middles, which is what the eye
+   * actually reads as "on the same line". Checked at 4x against baseline and
+   * against 1px/2px nudges — an explicit nudge on top of this overshoots and
+   * lifts the Devanagari again. */
+  align-items: center;
   gap: 0.4rem;
   /* It is a button — it opens the About sheet — so it needs a real target,
      which the bare text did not give it. */
