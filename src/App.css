@@ -82,10 +82,15 @@
   min-height: 44px;
   font-family: var(--display);
   /* Clamped rather than fixed: this is the largest thing in the bar and the
-     bar also has to hold the section nav and two controls. It gets its full
+     bar also has to hold the section nav and three controls. It gets its full
      size on a phone (where the nav has left for the bottom dock) and gives a
-     little back in the middle range, where all three compete for one row. */
-  font-size: clamp(1.3rem, 1.15rem + 0.6vw, 1.45rem);
+     little back in the middle range, where all three compete for one row.
+     
+     Sized against measurement, not taste. The previous clamp topped out at
+     23px, which put a 68px wordmark in a 390px bar with 226px of the middle
+     column sitting empty — and 315px still spare at 768px, where the nav is
+     back in the row. It was small because nothing forced it to be. */
+  font-size: clamp(1.7rem, 1.45rem + 1.1vw, 2rem);
   font-weight: 600;
   color: var(--text-h);
   letter-spacing: -0.01em;
@@ -107,7 +112,10 @@
   font-weight: 700;
 }
 .app-bar__brand-latin {
-  color: var(--muted);
+  /* --text rather than --muted. The Latin half is the half a non-Nepali reader
+     actually reads, and at muted it was the quietest thing in the bar; this
+     still sits below the Devanagari without disappearing next to it. */
+  color: var(--text);
   font-weight: 500;
   /* em, not rem — it scales with the Devanagari half above rather than
      drifting out of proportion as that clamp moves. */
