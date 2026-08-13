@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 4x2. -->
+<!-- configuration_optional keeps the settings screen out of the way when a
+     widget is placed (it uses whatever script is already set) while
+     reconfigurable puts it behind a long-press on the placed widget.
+     Both are API 31+; below that the configure activity simply opens on
+     placement, which is the only behaviour those versions have. -->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:minWidth="250dp"
     android:minHeight="110dp"
@@ -9,5 +14,7 @@
     android:previewLayout="@layout/widget_patro_large"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"
+    android:configure="np.com.bimeshpoudel.lekh.widget.LekhWidgetConfigActivity"
+    android:widgetFeatures="configuration_optional|reconfigurable"
     android:initialLayout="@layout/widget_patro_large"
     android:updatePeriodMillis="0" />

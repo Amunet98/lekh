@@ -54,6 +54,12 @@ object WidgetRenderer {
         R.id.widget_week_c4, R.id.widget_week_c5, R.id.widget_week_c6,
     )
 
+    private fun num(en: Boolean, value: Int) =
+        if (en) Roman.digits(value) else NepaliCalendar.toDevanagari(value)
+
+    private fun monthName(en: Boolean, month: Int) =
+        if (en) Roman.monthNames[month] else NepaliCalendar.monthNames[month]
+
     fun build(
         context: Context,
         layoutRes: Int = R.layout.widget_patro,
@@ -62,31 +68,41 @@ object WidgetRenderer {
         NepaliCalendar.load(context)
         Panchang.load(context)
 
+        val en = WidgetPrefs.isEnglish(context)
         val today = NepaliCalendar.today()
         val info = Panchang.forDay(today)
         val weekday = NepaliCalendar.weekdayOf(today)
         val views = RemoteViews(context.packageName, layoutRes)
 
-        views.setTextViewText(R.id.widget_day, NepaliCalendar.toDevanagari(today.day))
+        views.setTextViewText(R.id.widget_day, num(en, today.day))
         views.setTextViewText(
             R.id.widget_month,
-            "${NepaliCalendar.monthNames[today.month]} ${NepaliCalendar.toDevanagari(today.year)}",
+            "${monthName(en, today.month)} ${num(en, today.year)}",
         )
-        views.setTextViewText(R.id.widget_weekday, NepaliCalendar.weekdayNames[weekday])
+        views.setTextViewText(
+            R.id.widget_weekday,
+            if (en) Roman.weekdayNames[weekday] else NepaliCalendar.weekdayNames[weekday],
+        )
         views.setTextViewText(
             R.id.widget_ad,
             NepaliCalendar.toGregorian(today).format(adFormat),
         )
-        views.setTextViewText(R.id.widget_tithi, info?.tithi ?: "")
+        views.setTextViewText(
+            R.id.widget_tithi,
+            info?.tithi?.let { if (en) Roman.tithi(it) else it } ?: "",
+        )
 
         /* The festival line. A festival is what someone actually wants from a
            calendar widget, so it wins; tithi is the fallback on the sizes with
            no separate tithi row; and past the tabulated range the widget says
            so rather than looking like a day with nothing on it. */
         val subtitle = when {
-            info == null && !Panchang.covers(today.year) -> "पात्रो अद्यावधिक गर्नुहोस्"
-            info != null && info.festivals.isNotEmpty() -> info.festivals.joinToString(" · ")
-            info != null && info.tithi.isNotEmpty() -> info.tithi
+            info == null && !Panchang.covers(today.year) ->
+                if (en) "Update Lekh for new dates" else "पात्रो अद्यावधिक गर्नुहोस्"
+            info != null && info.festivals.isNotEmpty() ->
+                info.festivals.joinToString(" · ") { if (en) Roman.festival(it) else it }
+            info != null && info.tithi.isNotEmpty() ->
+                if (en) Roman.tithi(info.tithi) else info.tithi
             else -> ""
         }
         views.setTextViewText(R.id.widget_note, subtitle)
@@ -98,8 +114,14 @@ object WidgetRenderer {
             R.id.widget_next,
             if (upcoming == null) "" else {
                 val (days, next) = upcoming
-                val away = if (days == 1) "भोलि" else "${NepaliCalendar.toDevanagari(days)} दिनमा"
-                "आगामी · ${next.festivals.first()} · $away"
+                val name = next.festivals.first()
+                if (en) {
+                    "Next · ${Roman.festival(name)} · ${if (days == 1) "tomorrow" else "in $days days"}"
+                } else {
+                    val away =
+                        if (days == 1) "भोलि" else "${NepaliCalendar.toDevanagari(days)} दिनमा"
+                    "आगामी · $name · $away"
+                }
             },
         )
 
@@ -110,7 +132,7 @@ object WidgetRenderer {
             context.getColor(if (isOff) R.color.widget_accent else R.color.widget_text),
         )
 
-        renderWeek(context, views, today)
+        renderWeek(context, views, today, en)
 
         if (onClick != null) views.setOnClickPendingIntent(R.id.widget_root, onClick)
         return views
@@ -127,7 +149,7 @@ object WidgetRenderer {
      * doing that leaves yesterday's marker behind when the widget redraws
      * across midnight without being reinflated.
      */
-    private fun renderWeek(context: Context, views: RemoteViews, today: BsDate) {
+    private fun renderWeek(context: Context, views: RemoteViews, today: BsDate, en: Boolean) {
         val week = NepaliCalendar.weekOf(today)
         val text = context.getColor(R.color.widget_text)
         val accent = context.getColor(R.color.widget_accent)
@@ -138,7 +160,14 @@ object WidgetRenderer {
             // A day off is red in the strip too, so Saturday and Sunday read as
             // the weekend at a glance rather than needing to be counted to.
             val off = NepaliCalendar.isWeeklyOff(day) || (Panchang.forDay(day)?.isHoliday == true)
-            views.setTextViewText(weekDayIds[i], NepaliCalendar.toDevanagari(day.day))
+            views.setTextViewText(weekDayIds[i], num(en, day.day))
+            // The weekday letters are in the layout as Devanagari, so English
+            // mode has to overwrite them; Nepali mode rewrites the same value
+            // rather than branching, which keeps the two paths identical.
+            views.setTextViewText(
+                weekLabelIds[i],
+                if (en) Roman.weekdayShort[i] else NepaliCalendar.weekdayShort[i],
+            )
             views.setTextColor(weekDayIds[i], if (off) accent else text)
             views.setTextColor(weekLabelIds[i], if (off) accent else muted)
             views.setInt(

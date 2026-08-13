@@ -55,16 +55,30 @@ class WidgetPreviewActivity : Activity() {
             Triple("5x2  xl large", np.com.bimeshpoudel.lekh.R.layout.widget_patro_xl_large, 360 to 170),
         )
 
-        for ((label, layout, dims) in sizes) {
+        /* Both scripts, every size, in one scroll. The language is a stored
+           preference the widget reads at draw time, so previewing it means
+           flipping the preference around each render — which is fine here and
+           would not be anywhere else. */
+        val wasEnglish = WidgetPrefs.isEnglish(this)
+        for (english in listOf(false, true)) {
+            WidgetPrefs.setEnglish(this, english)
             root.addView(TextView(this).apply {
-                text = label
-                textSize = 12f
-                setPadding(0, dp(14), 0, dp(6))
+                text = if (english) "— ENGLISH —" else "— नेपाली —"
+                textSize = 14f
+                setPadding(0, dp(20), 0, dp(4))
             })
-            val host = FrameLayout(this)
-            host.addView(WidgetRenderer.build(this, layout).apply(applicationContext, host))
-            root.addView(host, ViewGroup.LayoutParams(dp(dims.first), dp(dims.second)))
+            for ((label, layout, dims) in sizes) {
+                root.addView(TextView(this).apply {
+                    text = label
+                    textSize = 12f
+                    setPadding(0, dp(14), 0, dp(6))
+                })
+                val host = FrameLayout(this)
+                host.addView(WidgetRenderer.build(this, layout).apply(applicationContext, host))
+                root.addView(host, ViewGroup.LayoutParams(dp(dims.first), dp(dims.second)))
+            }
         }
+        WidgetPrefs.setEnglish(this, wasEnglish)
 
         /* Six sizes no longer fit on one screen, and a preview you cannot
            reach the bottom of hides exactly the size most likely to overflow. */

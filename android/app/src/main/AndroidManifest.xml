@@ -59,6 +59,21 @@
             android:name="asset_statements"
             android:resource="@string/asset_statements" />
 
+        <!-- The widget's settings screen. exported="true" because the
+             *launcher* starts it, not us — an unexported configure activity
+             means the launcher silently refuses to place the widget. It takes
+             no input and writes one boolean, so there is nothing here for
+             another app to abuse. -->
+        <activity
+            android:name=".widget.LekhWidgetConfigActivity"
+            android:theme="@style/LekhConfigTheme"
+            android:excludeFromRecents="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
         <!-- exported="true" is required, not a slip. A widget provider is a
              broadcast receiver that the *system* sends APPWIDGET_UPDATE to;
              exported="false" means those broadcasts never arrive and the

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The config screen's theme. DeviceDefault rather than a theme of our own so
+     it looks like the launcher's other widget dialogs on whatever OEM skin is
+     running; the light/dark split is done with values-night rather than
+     Theme.DeviceDefault.DayNight because that only exists from API 29 and this
+     app supports 26. -->
+<resources>
+    <style name="LekhConfigTheme" parent="@android:style/Theme.DeviceDefault.Light.Dialog" />
+</resources>

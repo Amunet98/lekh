@@ -65,6 +65,26 @@ which is exactly how a `setExact()` SecurityException shipped in 1.2.0 and
 crashed the app the moment a widget was placed. Place one on a real home
 screen before releasing.
 
+### Nepali or English
+
+`Roman.kt` turns the calendar into Latin script, and it is three layers rather
+than one table for a reason. Months, weekdays, tithis and digits are closed
+sets written out by hand, so they are simply correct. Festival names are not:
+the bundled data alone holds 452 distinct fragments and the web app refreshes
+the table daily from the upstream almanac, so a name nobody has seen can arrive
+tomorrow. A hand table can never be complete and a mechanical transliterator
+gets the famous names wrong — तीज comes out "teeja", because no letter-by-letter
+mapping can know the final vowel is silent.
+
+So the known festivals are spelled out, the components that recur across the
+rest (पूजा, जयन्ती, दिवस, पर्व…) are substituted, and anything still unmatched
+is transliterated. An unknown name reads approximately instead of not at all.
+
+The setting is one boolean for the whole app, not per widget id — "this widget
+in Nepali and that one in English" is not a thing anyone wants. It defaults to
+Nepali and must keep defaulting to Nepali: that is what every already-placed
+widget shows.
+
 What *was* verified, beyond the build:
 
 - **The date algorithm.** `NepaliDate.kt` was ported line-for-line back into

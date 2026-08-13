@@ -28,6 +28,8 @@ object NepaliCalendar {
     val weekdayNames = arrayOf(
         "आइतबार", "सोमबार", "मङ्गलबार", "बुधबार", "बिहिबार", "शुक्रबार", "शनिबार"
     )
+    /** For the 5x2 week strip, where seven full names would not fit. */
+    val weekdayShort = arrayOf("आइत", "सोम", "मङ्गल", "बुध", "बिहि", "शुक्र", "शनि")
 
     private const val SUNDAY = 0
     private const val SATURDAY = 6

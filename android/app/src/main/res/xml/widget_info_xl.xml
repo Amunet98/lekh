@@ -5,6 +5,11 @@
      and clamps it to four cells wide. targetCellWidth is a request, minWidth
      is the floor, and the layout is weighted so it degrades to the 4x1's
      proportions rather than clipping. -->
+<!-- configuration_optional keeps the settings screen out of the way when a
+     widget is placed (it uses whatever script is already set) while
+     reconfigurable puts it behind a long-press on the placed widget.
+     Both are API 31+; below that the configure activity simply opens on
+     placement, which is the only behaviour those versions have. -->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:minWidth="320dp"
     android:minHeight="40dp"
@@ -14,5 +19,7 @@
     android:previewLayout="@layout/widget_patro_xl"
     android:resizeMode="horizontal"
     android:widgetCategory="home_screen"
+    android:configure="np.com.bimeshpoudel.lekh.widget.LekhWidgetConfigActivity"
+    android:widgetFeatures="configuration_optional|reconfigurable"
     android:initialLayout="@layout/widget_patro_xl"
     android:updatePeriodMillis="0" />
