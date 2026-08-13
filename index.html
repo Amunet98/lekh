@@ -11,7 +11,7 @@
          parsed, so its getElementById returned null and it silently did nothing
          on every load. One tag that the script and the in-app toggle both own
          is the only arrangement where the phone status bar follows the theme. -->
-    <meta id="theme-color" name="theme-color" content="#FBFBFA" />
+    <meta id="theme-color" name="theme-color" content="#FAFAFB" />
     <script>
       (function () {
         /* Narrow guard: only the storage read can throw (private mode, blocked
@@ -33,7 +33,7 @@
           /* Kept in sync with applyTheme() in src/lib/theme.ts — same id, same
              two colours, which must match --bg per theme in index.css. */
           var meta = document.getElementById('theme-color')
-          if (meta) meta.setAttribute('content', resolved === 'dark' ? '#101114' : '#FBFBFA')
+          if (meta) meta.setAttribute('content', resolved === 'dark' ? '#0E1220' : '#FAFAFB')
         } catch (e) {}
       })()
     </script>

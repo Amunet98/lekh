@@ -1,9 +1,13 @@
+/* The one accent-tinted control in the app bar. It only renders when the
+   browser has actually offered an install prompt, so it is an opportunity
+   rather than permanent chrome — which is why it is allowed to be the loudest
+   thing up there while the theme toggle stays grey. */
 .install-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  height: 44px;
-  padding: 0 0.9rem;
+  height: 40px;
+  padding: 0 var(--sp-3);
   border: 1px solid var(--accent-border);
   background: var(--accent-bg);
   color: var(--accent-text);
@@ -13,7 +17,7 @@
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
-  transition: background-color 0.15s ease-out, color 0.15s ease-out,
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease),
     transform var(--dur-fast) var(--ease-expo);
 }
 .install-btn:active {
@@ -24,7 +28,17 @@
   background: var(--accent);
   color: var(--on-accent);
 }
-.install-btn:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
+
+/* On a phone the label goes and the icon carries it. The bar has to hold the
+   brand and two controls at 360px, and "Install" is the widest thing on it —
+   the button keeps its 44px target and an aria-label via the SVG's parent. */
+@media (max-width: 480px) {
+  .install-btn {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    justify-content: center;
+    font-size: 0;
+    gap: 0;
+  }
 }

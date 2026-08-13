@@ -1,13 +1,13 @@
 .direction-toggle,
 .translate-mode {
   display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+  gap: var(--sp-2);
   flex-wrap: wrap;
 }
 .direction-toggle {
   align-items: center;
 }
+
 .lang-picker {
   position: relative;
 }
@@ -25,18 +25,11 @@
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--border);
   border-radius: var(--radius-field);
-  background: var(--glass-strong);
-  -webkit-backdrop-filter: blur(var(--blur-chrome)) saturate(1.5);
-  backdrop-filter: blur(var(--blur-chrome)) saturate(1.5);
+  background: var(--surface);
   box-shadow: var(--shadow-pop);
   padding: 0.3rem;
-}
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .lang-picker__menu {
-    background: var(--surface);
-  }
 }
 .lang-picker__item {
   font-family: var(--sans);
@@ -55,9 +48,10 @@
   background: var(--accent-bg);
 }
 .lang-picker__item--active {
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 600;
 }
+
 .swap-btn {
   display: inline-flex;
   align-items: center;
@@ -66,46 +60,43 @@
   width: 44px;
   height: 44px;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--border-field);
   background: var(--surface);
   color: var(--text-h);
   cursor: pointer;
-  transition: border-color 0.15s ease-out, background-color 0.15s ease-out, color 0.15s ease-out,
-    transform var(--dur-fast) var(--ease-expo);
+  transition: border-color var(--dur) var(--ease), background-color var(--dur) var(--ease),
+    color var(--dur) var(--ease), transform var(--dur-fast) var(--ease-expo);
 }
 .swap-btn:active {
-  transform: scale(0.94);
+  transform: scale(0.94) rotate(180deg);
 }
 .swap-btn:hover,
 .swap-btn:focus-visible {
-  border-color: var(--accent-border);
+  border-color: var(--accent);
   background: var(--accent-bg);
-  color: var(--accent);
+  color: var(--accent-text);
 }
-.swap-btn:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
-}
+
 .mode-btn {
   font-family: var(--sans);
   font-weight: 500;
   font-size: 0.8rem;
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--border-field);
   background: var(--surface);
   color: var(--muted);
   border-radius: var(--radius-pill);
   padding: 0.34rem 0.9rem;
   cursor: pointer;
   min-height: 44px;
-  transition: border-color 0.15s ease-out, background-color 0.15s ease-out, color 0.15s ease-out,
-    transform var(--dur-fast) var(--ease-expo);
+  transition: border-color var(--dur) var(--ease), background-color var(--dur) var(--ease),
+    color var(--dur) var(--ease), transform var(--dur-fast) var(--ease-expo);
 }
 .mode-btn:active {
   transform: scale(0.97);
 }
 .mode-btn:hover,
 .mode-btn:focus-visible {
-  border-color: var(--accent-border);
+  border-color: var(--accent);
   color: var(--text-h);
 }
 .mode-btn--active {
@@ -118,15 +109,16 @@
 .confirm-banner {
   border: 1px solid var(--accent-border);
   background: var(--accent-bg);
-  border-radius: 8px;
-  padding: 0.9rem 1rem;
-  margin-bottom: 1rem;
+  border-radius: var(--radius-field);
+  padding: var(--sp-3) var(--sp-4);
   font-size: 0.9rem;
+  color: var(--text-h);
+  line-height: 1.7;
 }
 .confirm-actions {
   display: flex;
-  gap: 0.5rem;
-  margin-top: 0.7rem;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
 }
 
 /* Two separate cards with a real gap, rather than one box split by a 1px
@@ -135,10 +127,9 @@
 .translate-panes {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-top: 1rem;
+  gap: var(--sp-4);
 }
-@media (max-width: 640px) {
+@media (max-width: 767px) {
   .translate-panes {
     grid-template-columns: 1fr;
   }
@@ -146,26 +137,21 @@
 .translate-panes--single {
   grid-template-columns: 1fr;
 }
+
 .translate-input,
 .translate-output {
   flex: 1 1 auto;
-  background: var(--glass);
-  -webkit-backdrop-filter: blur(var(--blur-chrome)) saturate(1.4);
-  backdrop-filter: blur(var(--blur-chrome)) saturate(1.4);
-  border: 1px solid var(--glass-border);
+  background: var(--surface);
+  /* --border-field on both, including the read-only output: it is a distinct
+     region a user has to locate, and a 1.26:1 hairline does not clear the 3:1
+     floor for that. */
+  border: 1px solid var(--border-field);
   border-radius: var(--radius-card);
-  box-shadow: var(--shadow-card);
-  padding: 1rem;
-  font-size: 1.15rem;
-  line-height: 1.7;
-  min-height: 10rem;
+  padding: var(--sp-4);
+  font-size: 1.1rem;
+  line-height: 1.75;
+  min-height: 11rem;
   transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
-}
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .translate-input,
-  .translate-output {
-    background: var(--surface);
-  }
 }
 .translate-input {
   resize: vertical;
@@ -175,31 +161,36 @@
 .translate-input:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: var(--shadow-card), 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
 }
+/* The output is not editable, and it should not look like it is. A dashed
+   edge and the page tint distinguish read-only from disabled — a disabled
+   field means "you could edit this but not now", which is not what this is. */
 .translate-output {
   color: var(--text-h);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+  border-style: dashed;
+  background: var(--surface-2);
 }
+
 .interpreted-hint {
-  margin: 0 0 0.5rem;
+  margin: 0 0 var(--sp-2);
 }
 .sugg-hint {
   font-size: 0.85rem;
-  opacity: 0.75;
+  color: var(--muted);
   font-family: var(--sans);
 }
 
 .model-status {
   display: block;
-  margin: -0.4rem 0 1rem;
 }
 
 .model-progress {
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: var(--sp-2);
   width: 100%;
   align-self: center;
 }
@@ -230,6 +221,9 @@
     left: 100%;
   }
 }
+/* The global reduced-motion rule caps iteration count, which for a looping
+   indeterminate bar leaves a stub parked at one end looking broken. Give it a
+   static full-width resting state instead. */
 @media (prefers-reduced-motion: reduce) {
   .model-progress-fill--indeterminate {
     animation: none;
@@ -240,19 +234,16 @@
 }
 .model-progress-label {
   font-size: 0.85rem;
-  opacity: 0.75;
+  color: var(--muted);
   font-family: var(--sans);
 }
 
 .translate-actions {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  margin-top: 1rem;
+  gap: var(--sp-3);
 }
-/* The primary action is the accent fill now, not a near-black slab. It was
-   the same odd choice the नेपाली toggle made: the one control on the page
-   speaking a different colour language from everything around it. */
+/* The one primary action on these screens, in the accent fill. */
 .btn--primary {
   color: var(--on-accent);
   font-weight: 600;
@@ -260,15 +251,14 @@
   background: var(--accent);
   box-shadow: var(--shadow-accent);
 }
-.btn--primary:hover,
+.btn--primary:hover:not(:disabled),
 .btn--primary:focus-visible {
   color: var(--on-accent);
   border-color: var(--accent);
-  background: var(--accent);
-  opacity: 0.9;
+  background: color-mix(in srgb, var(--accent) 88%, var(--text-h));
 }
 .btn--primary:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
 }
 
@@ -279,16 +269,53 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 0.7rem;
-  margin-top: 1rem;
-  padding: 0.7rem 0.9rem;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
   border: 1px solid var(--danger);
   background: color-mix(in srgb, var(--danger) 10%, var(--surface));
-  border-radius: 10px;
+  border-radius: var(--radius-field);
   font-size: 0.88rem;
   color: var(--text-h);
 }
 
-.translate-privacy {
-  margin-top: 1.5rem;
+/* The privacy disclosure. It reads as one quiet line until opened — the dot
+   carries the state, the text names it, so it is not colour alone. */
+.privacy-note {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.privacy-note summary {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: fit-content;
+  min-height: 32px;
+  padding: 0 0.15rem;
+  cursor: pointer;
+  list-style: none;
+  color: var(--muted);
+  transition: color var(--dur) var(--ease);
+}
+.privacy-note summary::-webkit-details-marker {
+  display: none;
+}
+.privacy-note summary:hover {
+  color: var(--text-h);
+}
+.privacy-note__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+}
+.privacy-note__dot--online {
+  background: var(--warn);
+}
+.privacy-note__dot--ondevice {
+  background: var(--ok);
+}
+.privacy-note p {
+  padding: var(--sp-2) 0 0 1.2rem;
+  max-width: 62ch;
+  line-height: 1.7;
 }

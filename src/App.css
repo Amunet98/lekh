@@ -1,47 +1,69 @@
+/* The content column. 1100px rather than the old 1440: the Type page no
+   longer has a permanent cheat-sheet rail beside the editor, so the extra
+   340px bought nothing but a line length nobody can read comfortably. */
 .page {
   position: relative;
   z-index: 1;
-  max-width: 1440px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 1.25rem clamp(1rem, 4vw, 2.5rem) clamp(1.5rem, 4vw, 3.5rem);
+  padding: var(--sp-5) clamp(var(--sp-4), 4vw, var(--sp-6)) clamp(var(--sp-5), 4vw, var(--sp-7));
 }
 
-/* App bar — compact, full-bleed, sticky app-shell chrome (replaces the old
-   scrolling hero) so content starts immediately, like an installed app.
+/* App bar — one strip carrying brand, section nav and actions.
  *
- * --glass, not --glass-strong. At 88% the fill is so nearly opaque that the
- * blur behind it has almost nothing left to show, and the bar reads as a plain
- * solid strip — which is what it looked like on first pass. --glass is the
- * measured floor (76% light / 82% dark, see index.css) and it is the most
- * transparent this can be while --muted still clears AA over an aurora blob.
- * The bar's own text is --text-h, which has far more headroom than that. */
+ * THE BLUR IS ON ::before AND THAT IS LOAD-BEARING.
+ *
+ * A non-`none` backdrop-filter makes an element a containing block for its
+ * position: fixed descendants — the same rule that transform and filter carry.
+ * TabSwitcher is a child of this bar, and below 768px it becomes
+ * `position: fixed; bottom: 0` to dock at the bottom of the screen. With the
+ * blur declared on .app-bar itself, that dock anchors to the *bar* instead of
+ * the viewport and lands at the top of the page — a full-width bar of tabs
+ * pinned under the header, which looks like a rendering fault rather than a
+ * layout bug and is fiddly to trace back to a filter property.
+ *
+ * position: sticky does not create a containing block, so with the blur moved
+ * to an absolutely-positioned pseudo-element the bar still frosts, the dock
+ * still escapes to the viewport, and TabSwitcher stays a single DOM node with
+ * a single role="tablist". Do not "simplify" this back onto the parent. */
 .app-bar {
   position: sticky;
   top: 0;
   z-index: 3;
-  border-bottom: 1px solid var(--glass-border);
-  background: var(--glass);
-  -webkit-backdrop-filter: blur(var(--blur-chrome)) saturate(1.8);
-  backdrop-filter: blur(var(--blur-chrome)) saturate(1.8);
+  border-bottom: 1px solid var(--border);
 }
+.app-bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--bar-bg);
+  -webkit-backdrop-filter: blur(var(--blur-chrome)) saturate(1.6);
+  backdrop-filter: blur(var(--blur-chrome)) saturate(1.6);
+}
+/* Without backdrop-filter an 82%-opaque fill leaves body text showing through
+   the bar as it scrolls under. Same fallback the previous design carried. */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .app-bar {
+  .app-bar::before {
     background: var(--bg);
   }
 }
+
 .app-bar__inner {
-  max-width: 1440px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 0 clamp(1rem, 4vw, 2.5rem);
+  padding: 0 clamp(var(--sp-4), 4vw, var(--sp-6));
   min-height: 3.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: var(--sp-3);
 }
+
 .app-bar__brand {
   display: inline-flex;
-  align-items: center;
+  align-items: baseline;
+  gap: 0.4rem;
   /* It is a button — it opens the About sheet — so it needs a real target,
      which the bare text did not give it. */
   min-height: 44px;
@@ -58,38 +80,50 @@
   cursor: pointer;
   transition: transform var(--dur-fast) var(--ease-expo);
 }
-.app-bar__brand:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
 .app-bar__brand:active {
   transform: scale(0.97);
 }
+/* The one place the flag's blue appears literally. It is never a control and
+   never a link, so it does not compete with the crimson for the eye. */
 .app-bar__brand .dev {
   font-family: var(--display-dev);
-  color: var(--accent);
+  color: var(--flag-blue);
   font-weight: 700;
 }
-.app-bar__brand .sep {
+.app-bar__brand-latin {
   color: var(--muted);
-  font-weight: 400;
-  margin: 0 0.3rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
 }
+
 .app-bar__actions {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--sp-2);
 }
 
-@media (max-width: 860px) {
-  /* Clears the fixed bottom tab bar (see TabSwitcher.css) so the last bit
-     of content — including the footer — isn't hidden behind it. */
+/* Below the dock breakpoint the nav leaves the bar for the bottom of the
+   screen, so the bar's middle column is empty and brand/actions can spread. */
+@media (max-width: 767px) {
+  /* Clears the fixed bottom dock (see TabSwitcher.css) so the last of the
+     content — including the footer — isn't hidden behind it. */
   .page {
     padding-bottom: calc(4.75rem + env(safe-area-inset-bottom));
   }
 }
 
-/* Section tags — borderless accent-tint pills, shared across the site */
+/* At the narrowest sizes the Latin half of the wordmark is the first thing
+   that can go: लेख alone still identifies the app, and the room is worth
+   more to the actions. */
+@media (max-width: 380px) {
+  .app-bar__brand-latin {
+    display: none;
+  }
+}
+
+/* Section tags — borderless accent-tint pills, used where a label genuinely
+   classifies something rather than just decorating a heading. */
 .tag {
   display: inline-block;
   font-family: var(--sans);
@@ -98,42 +132,20 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   /* --accent-text, not --accent: uppercase 0.72rem is small type, and the
-     fill indigo does not clear AA against the accent tint behind it. */
+     fill crimson does not clear AA against the accent tint behind it. */
   color: var(--accent-text);
   background: var(--accent-bg);
   border-radius: var(--radius-pill);
   padding: 0.22rem 0.75rem;
 }
 
-/* The app content fades up as the boot screen releases it, so the reveal is
-   one continuous handoff rather than a splash lifting off a page that was
-   already sitting there fully drawn underneath it.
+/* The app content is revealed by the boot screen fading off it, not by fading
+   itself up.
  *
  * A transition, not a keyframe animation: the shell mounts at the same moment
  * the boot screen does, so an on-mount animation would play out entirely
  * behind the splash and be over before anyone saw it. --is-booting comes off
- * when BootScreen reports done (see App.tsx), and *that* is what plays.
- *
- * .page gets opacity only — never a transform. It contains the mobile tab bar,
- * which is position: fixed, and any transform on an ancestor (including a
- * settled translateY(0)) would re-anchor that bar to .page instead of the
- * viewport and drop it back into the scroll flow. */
-/* .page is deliberately NOT in this transition, and that is the fix for two
-   things at once.
- *
- * An element with opacity < 1 becomes a *backdrop root*: a descendant's
- * backdrop-filter then samples only what is painted inside that element, not
- * the aurora behind it. Fading .page in therefore made every glass surface it
- * contains — the editor, the tab pill, the cheat-sheet grid — render flat and
- * unfrosted for the whole 420ms, then snap to frosted the instant the
- * transition finished. The reveal was showing a version of the app that never
- * exists otherwise.
- *
- * It also made the handoff sequential: the splash dissolved to an empty
- * background and only then did content fade up, about 1.94s before the app was
- * fully visible. The page is simply already there now, at full opacity, behind
- * the frosted sheet — so the splash fading out *is* the reveal, and the two
- * overlap by definition. */
+ * when BootScreen reports done (see App.tsx), and *that* is what plays. */
 .app-bar {
   opacity: 1;
   transition: opacity var(--dur-slow) var(--ease-expo),
@@ -142,30 +154,30 @@
 /* pointer-events with the opacity, always the pair. The shell is fully drawn
    under the splash and was still hit-testable at opacity 0, so once .boot
    stopped swallowing taps (see BootScreen.css) a tap meant only to skip the
-   splash would land on a control nobody can see — on a phone the tab bar is
+   splash would land on a control nobody can see — on a phone the dock is
    fixed to the bottom of the viewport, right where a thumb rests, so the app
-   could change tabs behind the frosted sheet. Invisible UI must not be
-   operable. Skipping still works either way: the handler is on window, and
-   an untargetable element still lets the event through to the document. */
+   could change tabs behind the splash. Invisible UI must not be operable. */
 .app-bar--is-booting {
   opacity: 0;
   transform: translateY(-8px);
   pointer-events: none;
 }
-/* visibility, not opacity, and the distinction is the whole point.
+/* visibility, not opacity, and the distinction still matters.
  *
- * opacity: 0 hides the page but makes it a backdrop root, which is what left
- * every glass surface inside it flat until the fade finished. visibility:
- * hidden hides it without creating one — and unlike opacity it also takes the
- * subtree out of the accessibility tree and out of the tab order, which is the
- * other thing that was wrong here: a screen-reader user could walk into the
- * app behind the splash, and a Tab press put a focus ring under the frosted
- * sheet.
+ * opacity: 0 would hide the page but make it a backdrop root, which flattens
+ * any backdrop-filter inside it — and unlike opacity, visibility also takes
+ * the subtree out of the accessibility tree and out of the tab order, which
+ * is the other thing that was wrong before it: a screen-reader user could
+ * walk into the app behind the splash, and a Tab press put a focus ring under
+ * the sheet.
  *
  * There is nothing to animate: the splash is opaque enough to cover the page,
- * so the page becoming visible the moment the exit begins is revealed *by* the
- * sheet fading over it. That is the overlap the sequential fades never had. */
+ * so the page becoming visible the moment the exit begins is revealed *by*
+ * the sheet fading over it.
+ *
+ * .page must also never take a transform — not even a settled translateY(0).
+ * It is the scroll container the footer lives in, and a transform on it would
+ * re-anchor any fixed descendant to .page instead of the viewport. */
 .page--is-booting {
   visibility: hidden;
 }
-

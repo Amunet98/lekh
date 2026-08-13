@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import {
   VOWELS,
   CONSONANT_GROUPS,
@@ -7,19 +7,22 @@ import {
   SIGNS_DIGITS,
   DIGIT_CELLS,
   COMMON_WORDS,
+  type CheatCell,
   type CheatGroup,
 } from '../data/cheatSheet'
 import './CheatSheet.css'
 
 interface CheatSheetProps {
   onInsert: (ch: string) => void
+  /** Trimmed, lower-cased search text. Empty string means "show everything". */
+  query: string
 }
 
 function Cells({ group, onInsert }: { group: CheatGroup; onInsert: (ch: string) => void }) {
   // The grid draws its lines as a 1px gap over a border-coloured background,
-  // so any slot left over in the final row showed up as a solid grey block —
-  // eleven vowels in a four-column grid left one, and it read as a rendering
-  // bug. Pad the row with inert cells that paint the surface colour.
+  // so any slot left over in the final row showed up as a solid block —
+  // thirteen vowels in a four-column grid leave three, and it reads as a
+  // rendering bug. Pad the row with inert cells that paint the surface colour.
   const remainder = group.cells.length % group.columns
   const fillers = remainder === 0 ? 0 : group.columns - remainder
 
@@ -44,15 +47,67 @@ function Cells({ group, onInsert }: { group: CheatGroup; onInsert: (ch: string) 
   )
 }
 
+/* Every cell in the sheet, flattened once, for the search path. Module scope
+   and not a hook: the source data is a static import, so this is the same
+   array for the life of the page and rebuilding it per render (or per
+   keystroke) would be pure waste. */
+const ALL_CELLS: CheatCell[] = [
+  VOWELS,
+  ...CONSONANT_GROUPS,
+  SEMIVOWELS_SIBILANTS,
+  CONJUNCTS,
+  SIGNS_DIGITS,
+  DIGIT_CELLS,
+  COMMON_WORDS,
+].flatMap((group) => group.cells)
+
 /* memo'd, because this is 76 buttons of static imported data hanging off a
-   component that re-renders on every keystroke. Its only prop is the insert
-   handler, which TypePage keeps stable with useCallback — see the note there. */
-export const CheatSheet = memo(function CheatSheet({ onInsert }: CheatSheetProps) {
+   component that re-renders on every keystroke in the editor. Its handler prop
+   is kept stable with useCallback in TypePage — see the note there. The panel
+   stays mounted while closed, so this still matters when it is not on screen.
+
+   `query` is deliberately not memo-exempt: it changes only while someone is
+   typing in the search field, which is exactly when a re-render is wanted. */
+export const CheatSheet = memo(function CheatSheet({ onInsert, query }: CheatSheetProps) {
+  const results = useMemo(() => {
+    if (!query) return null
+    /* Matches romanized key or glyph, and `startsWith` before `includes` so
+       typing "k" puts क at the top rather than burying it under every cell
+       whose key merely contains a k (शंख, अंक, …). */
+    const starts = ALL_CELLS.filter((c) => c.romanized.toLowerCase().startsWith(query))
+    const contains = ALL_CELLS.filter(
+      (c) =>
+        !c.romanized.toLowerCase().startsWith(query) &&
+        (c.romanized.toLowerCase().includes(query) || c.glyph.includes(query)),
+    )
+    return [...starts, ...contains]
+  }, [query])
+
+  if (results) {
+    return (
+      <section className="cheat-sheet" aria-live="polite">
+        {results.length === 0 ? (
+          <p className="cheat-empty">
+            Nothing matches “{query}”. Try a sound rather than a spelling — <code>kh</code>,{' '}
+            <code>chh</code>, <code>tr</code>.
+          </p>
+        ) : (
+          <>
+            <p className="sub">
+              {results.length} {results.length === 1 ? 'match' : 'matches'}
+            </p>
+            <Cells
+              group={{ label: 'results', columns: 4, cells: results }}
+              onInsert={onInsert}
+            />
+          </>
+        )}
+      </section>
+    )
+  }
+
   return (
     <section className="cheat-sheet">
-      <span className="tag">Cheat sheet</span>
-      <h2>How letters map</h2>
-
       <p className="sub">{VOWELS.label}</p>
       <Cells group={VOWELS} onInsert={onInsert} />
 
@@ -77,7 +132,7 @@ export const CheatSheet = memo(function CheatSheet({ onInsert }: CheatSheetProps
       <p className="sub">{SIGNS_DIGITS.label}</p>
       <Cells group={SIGNS_DIGITS} onInsert={onInsert} />
       <Cells group={DIGIT_CELLS} onInsert={onInsert} />
-      <p className="map-caption">Digits convert too: type 0–9, get ०–९. Tap a cell to insert it directly.</p>
+      <p className="map-caption">Digits convert too: type 0–9, get ०–९. Tap a cell to insert it.</p>
 
       {/* Last, not first. The tables above are the reference someone came here
           for; this is the shortcut they'll actually reach for on the second
@@ -89,9 +144,7 @@ export const CheatSheet = memo(function CheatSheet({ onInsert }: CheatSheetProps
       <div className="cells-words">
         <Cells group={COMMON_WORDS} onInsert={onInsert} />
       </div>
-      <p className="map-caption">
-        The label under each word is what you would type to get it.
-      </p>
+      <p className="map-caption">The label under each word is what you would type to get it.</p>
     </section>
   )
 })

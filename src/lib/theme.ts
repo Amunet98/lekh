@@ -38,7 +38,7 @@ export function applyTheme(theme: Theme): void {
   // a dark-OS phone stamped the colour into a tag the browser wasn't using.
   document.getElementById('theme-color')?.setAttribute(
     'content',
-    resolved === 'dark' ? '#101114' : '#FBFBFA',
+    resolved === 'dark' ? '#0E1220' : '#FAFAFB',
   )
   try {
     localStorage.setItem(THEME_KEY, theme)

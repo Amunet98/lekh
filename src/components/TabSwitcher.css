@@ -1,20 +1,24 @@
+/* Section navigation. One component, two presentations.
+ *
+ * Desktop (>=768px): a segmented control sitting in the middle of the app bar.
+ * Mobile (<768px): the same element detaches to a full-bleed dock at the
+ * bottom of the viewport — the strongest "installed app" signal there is, and
+ * where a thumb already rests.
+ *
+ * The dock is position: fixed while its DOM parent is the app bar. That works
+ * only because the bar's backdrop-filter lives on a pseudo-element rather than
+ * on the bar itself — see the long comment in App.css. */
+
+/* Desktop: segmented control, in the bar */
 .tab-switcher {
-  position: sticky;
-  top: 3.25rem; /* stacks directly under the app bar — see App.css .app-bar */
-  z-index: 2;
   display: flex;
-  gap: 0.4rem;
-  padding: 0.4rem;
-  width: fit-content;
-  margin: 1.25rem auto 1.5rem;
-  border: 1px solid var(--glass-border);
+  gap: var(--sp-1);
+  padding: 0.2rem;
   border-radius: var(--radius-pill);
-  background: var(--glass);
-  -webkit-backdrop-filter: blur(var(--blur-chrome)) saturate(1.8);
-  backdrop-filter: blur(var(--blur-chrome)) saturate(1.8);
-  box-shadow: var(--shadow-card);
-  transition: background-color 0.2s ease-out, border-color 0.2s ease-out;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
 }
+
 .tab-switcher__btn {
   display: flex;
   align-items: center;
@@ -27,11 +31,16 @@
   background: transparent;
   color: var(--text);
   border-radius: var(--radius-pill);
-  padding: 0.5rem 1.6rem;
+  padding: 0.4rem 1.15rem;
   cursor: pointer;
-  min-height: 44px;
-  transition: background-color 0.2s ease-out, color 0.2s ease-out,
+  min-height: 40px;
+  white-space: nowrap;
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease),
     transform var(--dur-fast) var(--ease-expo);
+}
+.tab-switcher__btn:hover:not(.tab-switcher__btn--active) {
+  color: var(--text-h);
+  background: color-mix(in srgb, var(--text) 7%, transparent);
 }
 .tab-switcher__btn:active {
   transform: scale(0.96);
@@ -41,26 +50,31 @@
      both themes to have worked, but it works by coincidence — it is the page
      background, and nothing stops it from being retuned independently of the
      accent. --on-accent is the token that is *defined* as "legible on the
-     accent fill", and it is what every other accent-filled control here uses. */
+     accent fill", and it is what every other accent-filled control uses. */
   color: var(--on-accent);
   background: var(--accent);
   font-weight: 600;
   box-shadow: var(--shadow-accent);
 }
+/* Icons are for the dock only. In the bar the labels are already short and an
+   icon beside each one turns a clean segmented control into visual noise. */
 .tab-switcher__icon {
   display: none;
 }
-@media (max-width: 420px) {
+
+/* Tablet: the bar is getting tight between brand, nav and two action buttons.
+   Trim the segment padding before anything has to be dropped. */
+@media (max-width: 900px) {
   .tab-switcher__btn {
-    font-size: 0.72rem;
-    padding: 0.5rem 0.4rem;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
   }
 }
 
-/* Mobile app shell: the pill detaches from the flow and becomes a fixed,
-   full-bleed bottom tab bar — the strongest "installed app" signal, and
-   matches the PWA's own install affordance. */
-@media (max-width: 860px) {
+/* Mobile app shell: the control detaches from the bar and becomes a fixed,
+   full-bleed bottom dock. Three items, well under the five-item ceiling a
+   bottom bar can carry, each with an icon and a label. */
+@media (max-width: 767px) {
   .tab-switcher {
     position: fixed;
     top: auto;
@@ -70,51 +84,42 @@
     z-index: 4;
     width: auto;
     margin: 0;
-    padding: 0.4rem 0.5rem calc(0.4rem + env(safe-area-inset-bottom));
+    gap: var(--sp-1);
+    padding: var(--sp-1) var(--sp-2) calc(var(--sp-1) + env(safe-area-inset-bottom));
     border: 0;
-    border-top: 1px solid var(--glass-border);
+    border-top: 1px solid var(--border);
     border-radius: 0;
-    /* Full-bleed dock the page scrolls under — same frosting as the app bar,
-       so the two ends of the shell match. */
-    background: var(--glass);
-  }
-  /* A 1px highlight along the top edge. On a bar that sits flush against the
-     bottom of the screen this is what reads as thickness — without it the dock
-     is a rectangle of slightly different colour, not a pane above the page. */
-  .tab-switcher::before {
-    content: '';
-    position: absolute;
-    inset: 0 0 auto;
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      var(--glass-hi) 20%,
-      var(--glass-hi) 80%,
-      transparent
-    );
-    pointer-events: none;
+    background: var(--bar-bg);
+    -webkit-backdrop-filter: blur(var(--blur-chrome)) saturate(1.6);
+    backdrop-filter: blur(var(--blur-chrome)) saturate(1.6);
   }
   .tab-switcher__btn {
     flex: 1;
     flex-direction: column;
     gap: 0.15rem;
-    padding: 0.35rem 0.4rem;
+    padding: 0.3rem 0.4rem;
+    /* 48px on the shortest axis — a dock item is the most-tapped control in
+       the app and gets the Material floor, not the Apple one. */
+    min-height: 48px;
     border-radius: 12px;
   }
-  /* Calmer than the desktop solid chip — a full-bleed bar reads better with
-     a tint than a block of indigo at thumb height. --accent-text because on a
-     tint the label is words, not a fill. */
+  /* Calmer than the desktop solid chip. A full-bleed bar at thumb height
+     reads better with a tint than with a block of crimson, and --accent-text
+     because on a tint the label is words, not a fill. */
   .tab-switcher__btn--active {
     color: var(--accent-text);
     background: var(--accent-bg);
     box-shadow: none;
   }
+  .tab-switcher__btn:hover:not(.tab-switcher__btn--active) {
+    background: transparent;
+  }
   .tab-switcher__icon {
     display: inline-flex;
   }
   .tab-switcher__label {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
+    font-weight: 500;
   }
 }
 
@@ -122,21 +127,18 @@
  *
  * This block MUST stay at the end of the file. @supports carries no extra
  * specificity — it is a plain conditional group — so it only wins by source
- * order. The first version of this sat directly under the base .tab-switcher
- * rule, which meant the mobile media query below re-declared
- * `background: var(--glass)` *after* it and quietly won: on any engine without
- * backdrop-filter the dock rendered as a translucent bar with no blur at all,
- * which looks like a bug rather than like a fallback.
+ * order. An earlier version of this sat directly under the base rule, which
+ * meant the mobile media query re-declared its background *after* it and
+ * quietly won: on any engine without backdrop-filter the dock rendered as a
+ * translucent bar with no blur at all, which looks like a bug rather than
+ * like a fallback.
  *
- * Both layouts are restated here for that reason. If you add another
- * background declaration for this component, add it above this block. */
+ * If you add another background declaration for this component, add it
+ * above this block. */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .tab-switcher {
-    background: var(--surface);
-  }
-  @media (max-width: 860px) {
+  @media (max-width: 767px) {
     .tab-switcher {
-      background: var(--surface);
+      background: var(--bg);
     }
   }
 }

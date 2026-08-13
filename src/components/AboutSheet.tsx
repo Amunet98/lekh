@@ -61,7 +61,7 @@ export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
         if (e.target === e.currentTarget) onClose()
       }}
     >
-      <div className="about__panel glass sheen">
+      <div className="about__panel">
         <button type="button" className="about__close" aria-label="Close" onClick={onClose}>
           <svg
             viewBox="0 0 24 24"

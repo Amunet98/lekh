@@ -1,42 +1,30 @@
-/* The page used to run the full 1440px width, left-aligned, under a centred
-   tab pill — so the heading sat hard against the left edge with a third of the
-   viewport empty to its right, and the two panes stretched to a line length
-   nobody wants to read a translation at. */
-.translate-page {
-  max-width: 68rem;
+/* Both text screens share this measure and the toolbar below it. The page no
+   longer opens with an eyebrow tag and a heading restating the tab name, so
+   the toolbar is the first thing on it and the panes start near the top. */
+.translate-page,
+.upload {
+  max-width: 960px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
 }
 
-.translate-page h2 {
-  margin: 0.9rem 0 1.2rem;
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-
-/* Language pickers, swap, and the engine choice on one line. They wrap to two
-   on a phone, which is the point of the flex rather than a grid. */
+/* Language pickers, swap, and the engine choice on one line. They wrap on a
+   phone, which is the point of the flex rather than a grid. */
 .translate-toolbar {
   display: flex;
   align-items: center;
-  gap: 0.5rem 1.25rem;
+  gap: var(--sp-2) var(--sp-5);
   flex-wrap: wrap;
-  padding: 0.5rem 0.65rem;
-  margin-bottom: 1.25rem;
-  border: 1px solid var(--glass-border);
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--border);
   border-radius: var(--radius-pill);
-  background: var(--glass-strong);
-  -webkit-backdrop-filter: blur(var(--blur-chrome)) saturate(1.5);
-  backdrop-filter: blur(var(--blur-chrome)) saturate(1.5);
-  box-shadow: var(--shadow-card);
-}
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .translate-toolbar {
-    background: var(--surface);
-  }
+  background: var(--surface);
 }
 
-/* Both child groups already carry their own bottom margin for the stacked
-   layout they used to live in; inside the toolbar that would misalign them. */
+/* Both child groups carry their own bottom margin for the stacked layout they
+   used to live in; inside the toolbar that would misalign them. */
 .translate-toolbar > .direction-toggle,
 .translate-toolbar > .translate-mode {
   margin-bottom: 0;
@@ -45,7 +33,7 @@
 /* Language on the left, engine on the right, so the bar reads as a bar rather
    than as everything shoved against one end of a very wide pill. Only once
    there is room for both — below this they wrap and sit together. */
-@media (min-width: 620px) {
+@media (min-width: 640px) {
   .translate-toolbar > .translate-mode {
     margin-left: auto;
   }
@@ -57,16 +45,14 @@
  * and becomes a large lozenge with a dead corner beside the shorter row — and
  * it was wrapping a set of controls that are already pills in their own right,
  * so the box was drawing a border around borders. The controls sit directly on
- * the page instead. */
-@media (max-width: 619.98px) {
+ * the page instead.
+ *
+ * display: contents also drops this element from the accessibility tree, which
+ * is fine here: it is a presentational wrapper with no label or role of its
+ * own, and its children keep theirs. */
+@media (max-width: 639.98px) {
   .translate-toolbar {
     display: contents;
-  }
-  .translate-toolbar > .direction-toggle {
-    margin-bottom: 0.6rem;
-  }
-  .translate-toolbar > .translate-mode {
-    margin-bottom: 1.25rem;
   }
 }
 
@@ -74,6 +60,7 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  gap: var(--sp-1);
 }
 
 .translate-pane__label {
@@ -83,5 +70,5 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--muted);
-  padding: 0 0.15rem 0.4rem;
+  padding: 0 0.15rem;
 }

@@ -7,7 +7,17 @@ export function InstallButton() {
   if (!canInstall) return null
 
   return (
-    <button type="button" className="install-btn" onClick={() => void promptInstall()}>
+    <button
+      type="button"
+      className="install-btn"
+      /* Explicit, because below 480px the CSS collapses the label to
+         font-size: 0 to fit the bar. That leaves the text in the
+         accessibility tree, so the name would survive on its own — but the
+         name is doing real work here and should not depend on a stylesheet
+         detail somebody could reasonably change. */
+      aria-label="Install Lekh"
+      onClick={() => void promptInstall()}
+    >
       {/* Was a ⬇ emoji. Emoji are rendered by the platform's own font, so the
           one glyph of chrome in the header was the only mark in the app whose
           weight, colour and size we did not control — and it does not take

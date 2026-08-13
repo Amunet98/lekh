@@ -61,8 +61,8 @@ export function UploadPage({ onEditInTranslate }: UploadPageProps) {
 
   return (
     <section className="upload">
-      <span className="tag">Upload</span>
-      <h2>Upload a document</h2>
+      {/* See the note in TranslatePage — the tab bar is the page title. */}
+      <h1 className="sr-only">Upload a photo or document</h1>
 
       <div className="translate-toolbar">
         <DirectionToggle t={t} />

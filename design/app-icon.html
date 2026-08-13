@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Anek+Devanagari:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* The app icon: ले and a typing caret.
+       *
+       * One file renders every size and both purposes, selected by
+       * location.hash — see scripts/render-app-icons.mjs. Everything is sized
+       * in vmin so a single layout scales from 16px to 512px without a table
+       * of per-size values.
+       *
+       * Palette follows src/index.css dark: tile #151A2B, mark #F2F4F8, caret
+       * #F87171. Crimson and not the flag's #C8102E — the tile is always dark,
+       * where the flag red goes muddy. Same reasoning as --dark-accent.
+       *
+       * The caret is why the mark is not simply centred type: it says this is
+       * something you write *in*, which is the one thing an icon of a letter
+       * cannot say on its own.
+       */
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 100%; height: 100%; overflow: hidden; }
+      body {
+        background: #151a2b;
+        display: grid;
+        place-items: center;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .mark {
+        display: flex;
+        align-items: center;
+        gap: 2vmin;
+        /* Optical, not metric, and per-variant rather than shared.
+         *
+         * Devanagari hangs from the शिरोरेखा instead of standing on a Latin
+         * baseline, and `ले` carries a tall ि matra, so the ink sits low
+         * inside its em box and a mark centred by that box reads low on the
+         * tile. The correction does not scale with the mark either — the flex
+         * gap and the caret's own box shift the group's optical centre by a
+         * different amount at each size — so each variant carries its own,
+         * measured off the rendered PNG rather than guessed. Re-measure if you
+         * change --scale, the gap, or the caret height. */
+        transform: translateY(var(--nudge, 0));
+      }
+
+      .glyph {
+        font-family: 'Anek Devanagari', sans-serif;
+        font-weight: 700;
+        color: #f2f4f8;
+        line-height: 1;
+      }
+
+      .caret {
+        background: #f87171;
+        border-radius: 1.2vmin;
+      }
+
+      /* Full-bleed. Launchers that use this purpose draw the tile as-is, so it
+         fills the square and takes no rounding of its own — pre-rounding just
+         puts a dark corner inside whatever shape the launcher applies. */
+      body:not(:has(#maskable:target)) .mark { --scale: 1; --nudge: -1.5vmin; }
+
+      /* Maskable. Android may crop this to any shape inside the inner 80%
+         circle, so everything that must survive lives well within it — the
+         mark drops to ~62% of the full-bleed size. An icon that fills the
+         square here gets its edges shaved off on a circular-mask launcher. */
+      #maskable:target ~ .mark { --scale: 0.62; --nudge: -10.4vmin; }
+
+      .glyph { font-size: calc(52vmin * var(--scale, 1)); }
+      .caret {
+        width: calc(6vmin * var(--scale, 1));
+        height: calc(34vmin * var(--scale, 1));
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Empty target anchor. :target only matches an element the URL fragment
+         names, so the variant is chosen by loading #maskable — and with no
+         hash the sibling selector never matches and the full-bleed rule wins
+         by default. -->
+    <i id="maskable"></i>
+    <div class="mark">
+      <span class="glyph">ले</span>
+      <span class="caret"></span>
+    </div>
+  </body>
+</html>

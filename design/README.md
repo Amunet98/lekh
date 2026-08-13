@@ -44,8 +44,8 @@ npm run og
 
 **Whenever the palette changes.** The card hardcodes a copy of the dark tokens
 from `src/index.css`, because it is a PNG and cannot import them. The palette
-has moved three times so far (Paper & Ink → Ink & Slate → Ink & Glass), so this
-is not a hypothetical.
+has moved four times so far (Paper & Ink → Ink & Slate → Ink & Glass →
+Crimson & Paper), so this is not a hypothetical.
 
 Nothing will remind you. An OG image is never visible during development — only
 inside someone else's feed — and X and LinkedIn cache it hard per URL, so a
@@ -63,3 +63,47 @@ most likely to ship unnoticed.
 The render is deterministic: re-running it on an unchanged source produces a
 byte-identical file, so `git status` staying clean is a real signal that
 nothing drifted.
+
+
+## app-icon.html → the PWA icons
+
+```sh
+npm run app-icons
+```
+
+Writes all six: `android-chrome-{192,512}`, `maskable-icon-512x512`,
+`apple-touch-icon`, and `favicon-{16,32}`. One source, sized in `vmin`, so a
+single layout covers 16px to 512px; the maskable variant is selected by
+`#maskable` in the URL.
+
+These were hand-made PNGs with no source in the repo until the Crimson & Paper
+redesign, which is exactly why the old indigo caret survived it — there was
+nothing to re-render, so repainting them would have meant editing binaries.
+
+**The `--nudge` values are measured, not guessed.** Devanagari hangs from the
+शिरोरेखा rather than standing on a Latin baseline, and `ले` carries a tall ि
+matra, so the ink sits low in its em box and a mark centred by that box reads
+low on the tile. The correction is different per variant because the flex gap
+and the caret's box move the optical centre by different amounts at each scale.
+After changing `--scale`, the gap or the caret height, re-measure the ink
+bounding box of the rendered PNG and re-centre — the current values put every
+icon within ~4px of the tile centre.
+
+The maskable variant must also keep its ink inside the inner 80% circle, since
+Android may crop it to any shape. At the current scale the furthest corner is
+~150px of a 205px safe radius.
+
+### favicon.ico
+
+Not produced by the script: `.ico` is a container holding several images, which
+Chromium's `--screenshot` cannot write. Rebuild it from the finished 512 tile
+when the icon changes:
+
+```sh
+python3 -c "from PIL import Image; \
+  Image.open('public/android-chrome-512x512.png').convert('RGBA') \
+    .save('public/favicon.ico', format='ICO', sizes=[(16,16),(32,32),(48,48)])"
+```
+
+Only clients that probe `/favicon.ico` directly use it — `index.html` links the
+PNGs — so this rarely needs redoing.

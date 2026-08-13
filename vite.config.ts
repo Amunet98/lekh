@@ -42,8 +42,13 @@ export default defineConfig({
         description:
           'Type Nepali the way you already text it. Romanized-to-Devanagari transliteration, a full script cheat sheet, and a document/photo upload that reads Nepali or English text and translates it — runs entirely in your browser.',
         display: 'standalone',
-        theme_color: '#FBFBFA',
-        background_color: '#FBFBFA',
+        /* display_override is tried in order before `display`, which stays as
+           the universal fallback. minimal-ui gives a browser that cannot do
+           standalone a slim reload/back affordance instead of dropping all the
+           way to a full tab with an address bar. */
+        display_override: ['standalone', 'minimal-ui'],
+        theme_color: '#FAFAFB',
+        background_color: '#FAFAFB',
         lang: 'ne',
         dir: 'ltr',
         categories: ['productivity', 'utilities', 'education'],

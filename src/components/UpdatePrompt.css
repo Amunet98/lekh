@@ -10,8 +10,9 @@
   left: clamp(0.75rem, 3vw, 1.5rem);
   bottom: clamp(0.75rem, 3vw, 1.5rem);
   width: min(22rem, calc(100vw - 1.5rem));
-  padding: 0.9rem 1rem;
-  /* .glass (index.css) supplies the fill, hairline border and blur. */
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-pop);
   animation: update-prompt-in var(--dur-slow) var(--ease-expo) backwards;
@@ -87,7 +88,7 @@
    update lands on the next launch regardless. It stays legible rather than
    being greyed into a near-invisible secondary. */
 .update-prompt__btn--ghost {
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--border-field);
   background: transparent;
   color: var(--text-h);
 }
@@ -108,7 +109,7 @@
 /* Above the fixed dock, not behind it. The dock is 4.75rem plus the gesture
    inset (see TabSwitcher.css and the .page bottom padding in App.css); the
    toast has to clear the same distance or its buttons sit under the tab bar. */
-@media (max-width: 860px) {
+@media (max-width: 767px) {
   .update-prompt {
     left: 0.75rem;
     right: 0.75rem;

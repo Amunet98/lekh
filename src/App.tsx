@@ -134,16 +134,17 @@ function App() {
 
   return (
     <>
-      {/* Ambient light behind everything. Rendered once, outside the page, and
-          left mounted for the app's lifetime — see .aurora in index.css. */}
-      <div className="aurora" aria-hidden="true">
-        <div className="aurora__blob aurora__blob--1" />
-        <div className="aurora__blob aurora__blob--2" />
-        <div className="aurora__blob aurora__blob--3" />
-      </div>
-
       {booting && <BootScreen onDone={finishBoot} />}
 
+      {/* One strip of chrome, not two. The section nav used to be a floating
+          pill below this bar, which cost ~60px of vertical room on every
+          screen and read as two competing headers. It is now the middle
+          column of the bar itself — and on a phone the same element detaches
+          to the bottom of the viewport as a dock (see TabSwitcher.css).
+
+          That detaching is the reason .app-bar must not carry the
+          backdrop-filter itself; the blur lives on .app-bar::before. See the
+          comment in App.css, and do not move it back. */}
       <header className={`app-bar${booting ? ' app-bar--is-booting' : ''}`}>
         <div className="app-bar__inner">
           <button
@@ -154,8 +155,9 @@ function App() {
             onClick={() => setAboutOpen(true)}
           >
             <span className="dev">लेख</span>
-            <span className="sep">/</span>lekh
+            <span className="app-bar__brand-latin">lekh</span>
           </button>
+          <TabSwitcher active={tab} onChange={setTab} />
           <div className="app-bar__actions">
             <InstallButton />
             <ThemeToggle />
@@ -163,8 +165,6 @@ function App() {
         </div>
       </header>
       <div className={`page${booting ? ' page--is-booting' : ''}`}>
-        <TabSwitcher active={tab} onChange={setTab} />
-
         {tab === 'type' ? (
           <TypePage />
         ) : tab === 'upload' ? (

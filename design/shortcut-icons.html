@@ -7,16 +7,18 @@
          the installed app. Rendered one per load, selected by location.hash;
          see scripts/render-shortcut-icons.mjs.
 
-         Palette is lifted from the existing app icon (public/android-chrome-
-         192x192.png) rather than from the CSS tokens, so the shortcut sheet
-         looks like it belongs to the same app: tile #17191F, marks #EEEFF0,
-         and the indigo #6164EA that draws the typing cursor in the app icon.
+         Palette follows the app icon rather than the CSS tokens, so the
+         shortcut sheet looks like it belongs to the same app: tile #151A2B
+         (the dark surface), marks #EEEFF0, and the crimson #F87171 that draws
+         the typing cursor. Crimson and not the flag's #C8102E: these tiles are
+         always on the dark surface, where the flag red goes muddy — same
+         reasoning as --dark-accent in src/index.css.
 
          Full-bleed square, no rounding of our own — launchers apply their own
          mask, and pre-rounding it just puts a dark corner inside their shape. */
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body { width: 192px; height: 192px; overflow: hidden; }
-      body { background: #17191f; display: grid; place-items: center; }
+      body { background: #151a2b; display: grid; place-items: center; }
 
       .icon { display: none; }
       body:not(:has(#type:target)):not(:has(#upload:target)):not(:has(#translate:target)) #type { display: block; }
@@ -37,9 +39,9 @@
         stroke-linecap: round;
         stroke-linejoin: round;
       }
-      /* One indigo element per icon, echoing the cursor bar in the app icon —
+      /* One crimson element per icon, echoing the cursor bar in the app icon —
          enough to read as the same family without competing with the shape. */
-      .accent { stroke: #6164ea; }
+      .accent { stroke: #f87171; }
     </style>
   </head>
   <body>

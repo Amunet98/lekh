@@ -26,8 +26,12 @@ export function TranslatePage({ handoffText, onHandoffConsumed }: TranslatePageP
 
   return (
     <section className="translate-page">
-      <span className="tag">Translate</span>
-      <h2>Translate text</h2>
+      {/* Marked up, not drawn. The navigation already says you are in
+          Translate, so an eyebrow tag reading "TRANSLATE" above a heading
+          reading "Translate text" was the same word three times on one
+          screen — but removing the heading outright left the page with no h1
+          above the headings inside it. */}
+      <h1 className="sr-only">Translate text</h1>
 
       {/* One toolbar. These were three stacked rows — language pickers, then
           engine, then the panes — which pushed the actual text fields a third

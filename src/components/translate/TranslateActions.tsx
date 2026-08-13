@@ -36,15 +36,31 @@ export function TranslateActions({ t, context }: TranslateActionsProps) {
         </div>
       )}
 
-      <p className="privacy translate-privacy">
-        {t.mode === 'online'
-          ? context === 'upload'
-            ? 'translation uses a free online service (Google Translate, falling back to mymemory.translated.net) — the photo or document itself never leaves your browser, only the recognized text is sent'
-            : 'translation uses a free online service (Google Translate, falling back to mymemory.translated.net) — only the text you enter is sent'
-          : context === 'upload'
-            ? 'on-device mode — nothing, not even the recognized text, ever leaves your browser'
-            : 'on-device mode — nothing you enter ever leaves your browser'}
-      </p>
+      {/* Behind a disclosure rather than printed in full under every screen.
+          It was a two-line monospace paragraph sitting permanently below the
+          panes — the single largest block of text on Translate, for something
+          most people read once. The summary still states which way the switch
+          is set, which is the part that actually needs to be glanceable;
+          opening it gives the detail.
+
+          <details> and not state: it works before hydration, is
+          keyboard-operable for free, and there is nothing here worth a
+          re-render. */}
+      <details className="privacy-note">
+        <summary>
+          <span className={`privacy-note__dot privacy-note__dot--${t.mode}`} aria-hidden="true" />
+          {t.mode === 'online' ? 'Online translation' : 'On-device translation'}
+        </summary>
+        <p>
+          {t.mode === 'online'
+            ? context === 'upload'
+              ? 'Translation uses a free online service (Google Translate, falling back to mymemory.translated.net). The photo or document itself never leaves your browser — only the recognized text is sent.'
+              : 'Translation uses a free online service (Google Translate, falling back to mymemory.translated.net). Only the text you enter is sent.'
+            : context === 'upload'
+              ? 'On-device mode — nothing, not even the recognized text, ever leaves your browser.'
+              : 'On-device mode — nothing you enter ever leaves your browser.'}
+        </p>
+      </details>
     </>
   )
 }

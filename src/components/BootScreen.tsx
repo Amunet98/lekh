@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import { BOOT_KEYWORDS } from '../data/keywords'
 import { LekhMark } from './LekhMark'
 import './BootScreen.css'
 
@@ -40,7 +39,6 @@ export function BootScreen({ onDone }: BootScreenProps) {
   const [exiting, setExiting] = useState(false)
   const [step, setStep] = useState(0)
   const fillRef = useRef<HTMLDivElement>(null)
-  const pctRef = useRef<HTMLSpanElement>(null)
   /* Guards every async path below. Without it, StrictMode's double-mount in
      dev leaves a second rAF loop and a second exit timer running against an
      unmounted tree. */
@@ -70,7 +68,6 @@ export function BootScreen({ onDone }: BootScreenProps) {
       setExiting(true)
       setStep(STATUS_STEPS.length - 1)
       if (fillRef.current) fillRef.current.style.transform = 'scaleX(1)'
-      if (pctRef.current) pctRef.current.textContent = '100%'
       exitTimer = setTimeout(() => {
         if (liveRef.current) onDone()
       }, reduced ? 0 : EXIT_MS)
@@ -126,7 +123,6 @@ export function BootScreen({ onDone }: BootScreenProps) {
       const progress = ready ? Math.min(raw, 1) : Math.min(raw, 0.92)
 
       if (fillRef.current) fillRef.current.style.transform = `scaleX(${progress.toFixed(3)})`
-      if (pctRef.current) pctRef.current.textContent = `${Math.round(progress * 100)}%`
 
       const nextStep = STATUS_STEPS.reduce((acc, s, i) => (progress >= s.at ? i : acc), 0)
       setStep((prev) => (prev === nextStep ? prev : nextStep))
@@ -189,33 +185,21 @@ export function BootScreen({ onDone }: BootScreenProps) {
           lekh
         </p>
 
-        <div className="boot__bar">
-          <div className="boot__track">
-            <div className="boot__fill" ref={fillRef} />
-          </div>
-          <span className="boot__pct" ref={pctRef} aria-hidden="true">
-            0%
-          </span>
+        {/* A hairline, and no percentage beside it. The readout was precise
+            about something nobody needs to a percent — the bar already says
+            how far along this is, and the number was one more thing on a
+            screen that is up for about a second. */}
+        <div className="boot__track">
+          <div className="boot__fill" ref={fillRef} />
         </div>
 
         {/* polite, not assertive: this is progress chatter, and it must not
-            interrupt anything a screen-reader user is already hearing. */}
+            interrupt anything a screen-reader user is already hearing. It is
+            also the only status this screen still announces, now that the
+            percentage has gone. */}
         <p className={`boot__status${status.dev ? ' dev' : ''}`} aria-live="polite">
           {status.text}
         </p>
-
-        <ul className="boot__keywords" aria-hidden="true">
-          {BOOT_KEYWORDS.map(({ term, dev }, i) => (
-            <li
-              key={term}
-              className="boot__keyword"
-              style={{ animationDelay: `${420 + i * 60}ms` }}
-            >
-              {term}
-              {dev && <span className="dev boot__keyword-dev">{dev}</span>}
-            </li>
-          ))}
-        </ul>
       </div>
 
       <p className="boot__skip" aria-hidden="true">

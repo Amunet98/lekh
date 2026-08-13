@@ -1,0 +1,172 @@
+/* Slide-over on a wide screen, bottom sheet on a phone.
+ *
+ * The <dialog> element itself is the full-viewport layer; .cheat-panel__inner
+ * is the panel that actually slides. Sizing the dialog to the panel and
+ * animating the dialog directly does not work — a dialog opened with
+ * showModal() is display: none until it opens, so a transition on it has no
+ * start frame to run from and the panel simply appears.
+ */
+.cheat-panel {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  max-width: none;
+  max-height: none;
+  width: 100%;
+  height: 100%;
+  /* The dialog fills the viewport so the empty area beside the panel is a
+     click target for dismissal — see the currentTarget check in the TSX. */
+  margin: 0;
+  overflow: hidden;
+}
+.cheat-panel::backdrop {
+  /* 45%: enough to push the app behind the panel without hiding it. A sheet
+     you can still see the editor through reads as "on top of my work"
+     rather than "a different screen". */
+  background: rgba(6, 8, 16, 0.45);
+}
+
+.cheat-panel__inner {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  box-shadow: var(--shadow-pop);
+  overflow: hidden;
+}
+
+/* Bottom sheet — the default, because this is a phone-first app.
+   90svh, not vh: on iOS Safari vh counts the collapsed toolbar, so a 90vh
+   sheet is taller than the visible area and its own footer sits off-screen. */
+.cheat-panel__inner {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 90svh;
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+  border-top: 1px solid var(--border);
+  padding-bottom: env(safe-area-inset-bottom);
+  animation: cheat-sheet-up var(--dur) var(--ease-expo);
+}
+@keyframes cheat-sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+/* Slide-over from the right, once there is room for the editor to stay
+   visible beside it. Below this the sheet is the better shape: a 400px rail
+   on a 600px screen is a modal pretending to be a panel. */
+@media (min-width: 1024px) {
+  .cheat-panel__inner {
+    left: auto;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(420px, 92vw);
+    max-height: none;
+    border-radius: 0;
+    border-top: 0;
+    border-left: 1px solid var(--border);
+    padding-bottom: 0;
+    animation: cheat-sheet-in var(--dur) var(--ease-expo);
+  }
+  @keyframes cheat-sheet-in {
+    from {
+      transform: translateX(100%);
+    }
+  }
+}
+
+.cheat-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-4) var(--sp-4) var(--sp-3);
+  border-bottom: 1px solid var(--border);
+}
+.cheat-panel__head h2 {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+.cheat-panel__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  color: var(--muted);
+  cursor: pointer;
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.cheat-panel__close:hover {
+  background: var(--accent-bg);
+  color: var(--accent-text);
+}
+
+.cheat-panel__search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin: var(--sp-3) var(--sp-4) 0;
+  padding: 0 var(--sp-3);
+  border: 1px solid var(--border-field);
+  border-radius: var(--radius-pill);
+  color: var(--muted);
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.cheat-panel__search:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.cheat-panel__search input {
+  flex: 1;
+  min-width: 0;
+  /* 44px target, and 16px type — a sub-16px field makes iOS zoom the page
+     the moment it takes focus. */
+  height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--text-h);
+  font-family: var(--sans);
+  font-size: 1rem;
+}
+.cheat-panel__search input:focus {
+  outline: none;
+}
+/* Safari draws its own clear affordance on type="search" and it does not
+   take currentColor or match the one next to it. */
+.cheat-panel__search input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+.cheat-panel__clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  color: var(--muted);
+  cursor: pointer;
+}
+.cheat-panel__clear:hover {
+  color: var(--text-h);
+}
+
+.cheat-panel__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--sp-4);
+}

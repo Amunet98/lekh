@@ -1,111 +1,121 @@
 @import 'tailwindcss';
 
-/* Ink & Glass — a writing tool, not a piece of stationery.
+/* Crimson & Paper — a writing tool wearing the flag's colours, not the flag.
  *
- * Every foreground/background pair below clears WCAG AA in both themes. That
- * was measured, not eyeballed: the first draft failed on seven pairs, two of
- * which looked completely fine — white on #6366F1 came out at 4.47, a rounding
- * error under the 4.5 floor, and the "muted" grey was at 3.90.
+ * The palette derives from the Nepali flag: crimson (#DC143C) and the deep
+ * blue of its border (#003893). Only the crimson appears as an accent. The
+ * blue is folded into the neutral ramp instead, so every dark surface is a
+ * blue-black rather than a neutral grey — the flag is present in the
+ * temperature of the whole interface rather than painted onto it. Using both
+ * as accents was tried and rejected: two loud colours cannot both be the
+ * primary action, and "minimal" is the brief.
  *
- * The accent is deliberately split in two. --accent is a *fill*: buttons,
- * carets, rules, the active tab. --accent-text is for anything that is words,
- * because an indigo bright enough to look good as a button is too light to
- * read as a link. Do not collapse them back into one.
+ * Every foreground/background pair below was computed from WCAG relative
+ * luminance, not eyeballed. The measured ratios are noted per token. If you
+ * change a colour, recompute the column — the previous design shipped two
+ * pairs that looked fine and sat under the 4.5 floor.
  *
- * The palette is unchanged from Ink & Slate — what this revision adds is a
- * depth layer: an ambient aurora behind everything, and translucent frosted
- * chrome on top of it. See the --glass-* block below.
+ * The accent stays split in two, for the same reason it always was. --accent
+ * is a *fill*: buttons, the caret, the active tab. --accent-text is for
+ * anything that is words, because in light mode a crimson bright enough to
+ * carry white text is not dark enough to read as small type on a tint. Do not
+ * collapse them back into one.
+ *
+ * The aurora and the frosted-glass panes are gone. They were the identity of
+ * the previous design and they were also the most expensive thing on the page
+ * (measured: 8.8fps with blob drift, 30.9fps without — and even parked, three
+ * 110px-blurred blobs sat behind every backdrop-filter in the app). Depth now
+ * comes from a hairline and one shadow. The only blur left is on the two bars,
+ * where content genuinely scrolls underneath and the blur is doing work.
  */
 :root {
-  --text: #4b5058;
-  --text-h: #16181d;
-  --bg: #fbfbfa;
+  /* Neutrals, tinted toward the flag blue. Pure greys were tried first and
+     read as cold and generic next to the crimson; the blue cast is what makes
+     the two halves of the palette look like they come from one place. */
+  --text: #4a5162;          /* 7.61 on --bg, 7.94 on --surface */
+  --text-h: #141824;        /* 16.98 on --bg */
+  --bg: #fafafb;
   --surface: #ffffff;
-  --surface-2: #f4f4f5;
-  --muted: #6b7280;
-  --border: #d2d5dc;
-  --border-strong: #c4c7ce;
-  --code-bg: #f4f4f5;
-  --accent: #4f46e5;
-  --accent-text: #4338ca;
-  --on-accent: #ffffff;
-  --accent-bg: #eef0fe;
-  --accent-border: rgba(79, 70, 229, 0.45);
+  --surface-2: #f1f3f7;
+  --muted: #646c7e;         /* 5.05 on --bg, 4.74 on --surface-2 — the tightest pair here */
+  --border: #dde1e9;
+  /* Borders come in two strengths and the distinction is a WCAG requirement,
+     not a style choice. --border is decorative: dividers, the edge of a card
+     you are not asked to operate. It sits at 1.26:1, which is fine for that
+     and nowhere near enough for a control. Anything a user has to *find* in
+     order to use it — a textarea, a select, the file dropzone — takes
+     --border-field, which clears the 3:1 floor for UI components. */
+  --border-field: #7c87a0;  /* 3.60 on --surface */
+  --code-bg: #f1f3f7;
+  /* Flag crimson is #DC143C. This is that colour walked a little darker: at
+     #DC143C white lands on 4.99:1, which passes but leaves nothing for the
+     tinted and hover variants to spend. #C8102E gives white 5.88:1 and still
+     reads as the flag's red rather than a generic brand red. */
+  --accent: #c8102e;        /* 5.64 on --bg — clears 3:1 as a UI colour */
+  --accent-text: #a80d26;   /* 7.32 on --bg, 6.69 on --accent-bg */
+  --on-accent: #ffffff;     /* 5.88 on --accent */
+  --accent-bg: #fdecee;
+  --accent-border: rgba(200, 16, 46, 0.4);
+  /* The flag's blue, and the one place it appears literally: the ख of the
+     wordmark. Not an accent — it is never a control, never a link, and never
+     competes with the crimson for the eye. 10.13:1 on --bg. */
+  --flag-blue: #003893;
   --ok: #15803d;
   --warn: #b45309;
   --danger: #b91c1c;
-  --shadow-card: 0 1px 2px rgba(16, 17, 20, 0.04), 0 8px 24px -12px rgba(16, 17, 20, 0.12);
+  /* One shadow, and it is for things that genuinely float above the page:
+     the cheat-sheet panel, the About sheet, the update toast. Cards in the
+     normal flow get a hairline and nothing else — a page where everything
+     casts a shadow has no hierarchy left to express. */
   --shadow-pop: 0 4px 12px rgba(16, 17, 20, 0.08), 0 20px 48px -20px rgba(16, 17, 20, 0.2);
-  --shadow-accent: 0 4px 14px -4px rgba(79, 70, 229, 0.45);
-  /* Hairline that reads as an edge of glass rather than a drawn border. It is
-     a plain rgba and not a color-mix of --border, because on a translucent
-     surface the border has to be *lighter* than the fill in dark mode and
-     *darker* than it in light mode — an inversion, not a tint. */
-  --glass-border: rgba(16, 17, 20, 0.09);
-  /* Top-edge sheen: the 1px highlight that makes a pane look like it has
-     thickness. Strong in light mode, nearly absent in dark. */
-  --glass-hi: rgba(255, 255, 255, 0.6);
-  --aurora-2: #7c3aed;
-  --aurora-alpha: 0.14;
-  --glass-mix: 76%;
-  --glass-strong-mix: 88%;
+  --shadow-accent: 0 2px 8px -2px rgba(200, 16, 46, 0.4);
+  --bar-bg: rgba(250, 250, 251, 0.82);
 
-  --dark-text: #a8aeb9;
-  --dark-text-h: #f3f4f6;
-  --dark-bg: #101114;
-  --dark-surface: #17191f;
-  --dark-surface-2: #1e2128;
-  --dark-muted: #828997;
-  --dark-border: #31353f;
-  --dark-border-strong: #3d424e;
-  --dark-code-bg: #1e2128;
-  --dark-accent: #a5b4fc;
-  --dark-accent-text: #a5b4fc;
-  --dark-on-accent: #14152b;
-  --dark-accent-bg: #1d2033;
-  --dark-accent-border: rgba(165, 180, 252, 0.45);
+  --dark-text: #a6aec2;         /* 8.40 on --dark-bg */
+  --dark-text-h: #f2f4f8;       /* 16.94 on --dark-bg */
+  --dark-bg: #0e1220;
+  --dark-surface: #151a2b;
+  --dark-surface-2: #1d2338;
+  --dark-muted: #828ca4;        /* 5.54 on --dark-bg, 4.62 on --dark-surface-2 */
+  --dark-border: #2c3450;
+  --dark-border-field: #647092; /* 3.52 on --dark-surface */
+  --dark-code-bg: #1d2338;
+  /* Not the flag crimson, and not negotiable. #C8102E on a blue-black
+     background is 1.6:1 — invisible. #F87171 is the AA-checked dark red
+     already used across the sibling projects; it holds 6.74:1 here. */
+  --dark-accent: #f87171;
+  --dark-accent-text: #f87171;
+  --dark-on-accent: #2a0a10;    /* 6.61 on --dark-accent */
+  --dark-accent-bg: #2a1a24;
+  --dark-accent-border: rgba(248, 113, 113, 0.4);
+  /* Lightened well past #003893, which is unreadable on --dark-bg. */
+  --dark-flag-blue: #8fb0f0;
   --dark-ok: #4ade80;
   --dark-warn: #fbbf24;
   --dark-danger: #f87171;
-  --dark-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
   --dark-shadow-pop: 0 4px 12px rgba(0, 0, 0, 0.5), 0 20px 48px -20px rgba(0, 0, 0, 0.7);
-  --dark-shadow-accent: 0 4px 14px -4px rgba(165, 180, 252, 0.35);
-  --dark-glass-border: rgba(255, 255, 255, 0.1);
-  --dark-glass-hi: rgba(255, 255, 255, 0.07);
-  --dark-aurora-2: #8b5cf6;
-  --dark-aurora-alpha: 0.3;
-  --dark-glass-mix: 82%;
-  --dark-glass-strong-mix: 92%;
+  --dark-shadow-accent: 0 2px 8px -2px rgba(248, 113, 113, 0.35);
+  --dark-bar-bg: rgba(14, 18, 32, 0.82);
 
-  /* Glass fills. The colour derives from --surface, which is already themed;
-     the *opacity* had to become themed too, and that was measured rather than
-     chosen.
-   *
-   * Worst case is --muted text on a --glass pane sitting directly over the
-   * brightest point of an aurora blob. The first draft used 72% in both
-   * themes: light came out at 4.52 and dark at 4.37 — a real AA failure, and
-   * one that only shows up where a blob happens to drift under a panel, so it
-   * would never have been caught by looking. Dark needs 78% just to reach the
-   * floor, so it sits at 82% for margin (4.60); light at 76% (4.57).
-   *
-   * If you lower either number, re-run the composite check. Peak aurora over
-   * --bg, then the glass fill over that, then contrast against --muted. */
-  --glass: color-mix(in srgb, var(--surface) var(--glass-mix), transparent);
-  --glass-strong: color-mix(in srgb, var(--surface) var(--glass-strong-mix), transparent);
-  /* Three depths, not one, and the difference is deliberate: how much blur a
-     surface wants scales with how much of the page it covers. A full-viewport
-     sheet can take 32px; a bar or a card takes 22px; a small pill takes 10px,
-     because at that size a heavy blur has almost no backdrop to sample and
-     just reads as a grey smear. --blur-control existed as a bare 10px in
-     ThemeToggle.css before it had a name. */
-  --blur-control: 10px;
-  --blur-chrome: 22px;
-  --blur-sheet: 32px;
-  --aurora-1: var(--accent);
+  /* The only blur left in the app. It is on the app bar and the mobile dock,
+     and nowhere else — those are the two surfaces the page actually scrolls
+     under, which is the one case where a blur communicates something instead
+     of just costing frames. */
+  --blur-chrome: 20px;
 
-  --radius-card: 16px;
-  --radius-field: 12px;
+  --radius-card: 14px;
+  --radius-field: 10px;
   --radius-pill: 999px;
+
+  /* One spacing rhythm, 4px-based, used by every component. The previous
+     design set padding ad hoc per file and the sections never lined up. */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 3rem;
 
   --dur: 200ms;
   --dur-fast: 140ms;
@@ -116,9 +126,8 @@
      for anything that enters or presses; --ease stays for colour crossfades. */
   --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* Anek Devanagari covers Devanagari *and* Latin, so display type no longer
-     needs the two-font dance Fraunces required — Fraunces has no Devanagari
-     glyphs at all, which is why .dev-serif had to exist. */
+  /* Anek Devanagari covers Devanagari *and* Latin, so display type does not
+     need a second face for the two scripts. */
   --display: 'Anek Devanagari', 'Inter', system-ui, sans-serif;
   --display-dev: 'Anek Devanagari', 'Noto Sans Devanagari', sans-serif;
   --sans: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
@@ -152,25 +161,20 @@
     --surface-2: var(--dark-surface-2);
     --muted: var(--dark-muted);
     --border: var(--dark-border);
-    --border-strong: var(--dark-border-strong);
+    --border-field: var(--dark-border-field);
     --code-bg: var(--dark-code-bg);
     --accent: var(--dark-accent);
     --accent-text: var(--dark-accent-text);
     --on-accent: var(--dark-on-accent);
     --accent-bg: var(--dark-accent-bg);
     --accent-border: var(--dark-accent-border);
+    --flag-blue: var(--dark-flag-blue);
     --ok: var(--dark-ok);
     --warn: var(--dark-warn);
     --danger: var(--dark-danger);
-    --shadow-card: var(--dark-shadow-card);
     --shadow-pop: var(--dark-shadow-pop);
     --shadow-accent: var(--dark-shadow-accent);
-    --glass-border: var(--dark-glass-border);
-    --glass-hi: var(--dark-glass-hi);
-    --aurora-2: var(--dark-aurora-2);
-    --aurora-alpha: var(--dark-aurora-alpha);
-    --glass-mix: var(--dark-glass-mix);
-    --glass-strong-mix: var(--dark-glass-strong-mix);
+    --bar-bg: var(--dark-bar-bg);
   }
 }
 
@@ -184,25 +188,20 @@
   --surface-2: var(--dark-surface-2);
   --muted: var(--dark-muted);
   --border: var(--dark-border);
-  --border-strong: var(--dark-border-strong);
+  --border-field: var(--dark-border-field);
   --code-bg: var(--dark-code-bg);
   --accent: var(--dark-accent);
   --accent-text: var(--dark-accent-text);
   --on-accent: var(--dark-on-accent);
   --accent-bg: var(--dark-accent-bg);
   --accent-border: var(--dark-accent-border);
+  --flag-blue: var(--dark-flag-blue);
   --ok: var(--dark-ok);
   --warn: var(--dark-warn);
   --danger: var(--dark-danger);
-  --shadow-card: var(--dark-shadow-card);
   --shadow-pop: var(--dark-shadow-pop);
   --shadow-accent: var(--dark-shadow-accent);
-  --glass-border: var(--dark-glass-border);
-  --glass-hi: var(--dark-glass-hi);
-  --aurora-2: var(--dark-aurora-2);
-  --aurora-alpha: var(--dark-aurora-alpha);
-  --glass-mix: var(--dark-glass-mix);
-  --glass-strong-mix: var(--dark-glass-strong-mix);
+  --bar-bg: var(--dark-bar-bg);
 }
 
 * {
@@ -225,8 +224,6 @@ html {
   background: var(--bg);
 }
 
-/* The paper grain that used to live here went with Paper & Ink. Depth now
-   comes from the elevation scale and the ambient aurora, not from a texture. */
 body {
   background: var(--bg);
   color: var(--text);
@@ -239,177 +236,30 @@ body {
   position: relative;
 }
 
-/* Ambient light. Three very soft, very slow radial blobs behind everything —
-   this is what the frosted surfaces are frosting. Without it, backdrop-filter
-   has nothing interesting to blur and every glass pane looks like flat grey.
- *
- * fixed + pointer-events:none + aria-hidden: it must never intercept a tap and
- * must never scroll, or the parallax reads as a rendering fault.
- *
- * z-index 0 sits under .page (z-index 1) and .app-bar (3). #root is
- * position: relative with no z-index, so it is not a stacking context and
- * these all share the root one. */
-.aurora {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
-  contain: strict;
+/* A card in the page flow: a surface, a hairline, no shadow. This replaces
+   the .glass class the previous design applied to nearly every panel. If a
+   thing genuinely floats above the page — a modal, a sheet, a toast — it
+   takes --shadow-pop directly and does not use this. */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
 }
 
-/* Grain, and it is load-bearing rather than a texture revival.
- *
- * A wide, very low-contrast gradient across a near-black background cannot be
- * drawn in 8 bits per channel: consecutive steps of the ramp round to the same
- * value for a long stretch and then jump, so the blobs render as a set of
- * concentric rings. That is exactly what the first version did — visible as
- * tree-ring banding across the top-left corner.
- *
- * A pixel of noise per step dithers the boundary and the rings dissolve. The
- * opacity has to stay this low: high enough to break up a 1/255 step, low
- * enough not to read as texture on a white light-mode background.
- *
- * feTurbulence is rasterised once by the browser and then just composited. */
-.aurora::after {
-  content: '';
+/* Visually hidden, still in the accessibility tree. Several screen headings
+   are marked up but not drawn: the navigation already says which section you
+   are in, so a visible <h1> on every screen was pure repetition — but
+   removing it outright left the pages with <h2>s and no <h1> above them. */
+.sr-only {
   position: absolute;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
-  opacity: 0.035;
-  mix-blend-mode: overlay;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .aurora::after {
-    opacity: 0.05;
-  }
-}
-:root[data-theme='dark'] .aurora::after {
-  opacity: 0.05;
-}
-.aurora__blob {
-  position: absolute;
-  border-radius: 50%;
-  opacity: var(--aurora-alpha);
-  /* A blur this wide is expensive to recompute, so the blobs animate on
-     transform only — the filter result is cached and just moved. Animating
-     width/height or background-position here would repaint a 110px blur every
-     frame and drop the whole app to single-digit fps on a phone.
-   *
-   * The blur is doing real work beyond softness: a radial-gradient alone ends
-   * at a mathematically exact circle, and at these opacities that boundary
-   * reads as a faint drawn ring rather than as light. The blur is what
-   * dissolves the edge. Don't reduce it without checking for the ring. */
-  filter: blur(110px);
-}
-.aurora__blob--1 {
-  width: 46vmax;
-  height: 46vmax;
-  top: -14vmax;
-  left: -10vmax;
-  /* Five stops approximating a gaussian falloff rather than the linear ramp a
-     two-stop gradient gives. A linear ramp spends most of its length in the
-     dimmest few values, which is where 8-bit banding is worst; front-loading
-     the falloff keeps the steps in the range the grain above can dither. */
-  background: radial-gradient(
-    circle,
-    var(--aurora-1) 0%,
-    color-mix(in srgb, var(--aurora-1) 62%, transparent) 28%,
-    color-mix(in srgb, var(--aurora-1) 26%, transparent) 50%,
-    color-mix(in srgb, var(--aurora-1) 7%, transparent) 72%,
-    transparent 88%
-  );
-}
-.aurora__blob--2 {
-  width: 38vmax;
-  height: 38vmax;
-  top: 24vmax;
-  right: -12vmax;
-  background: radial-gradient(
-    circle,
-    var(--aurora-2) 0%,
-    color-mix(in srgb, var(--aurora-2) 62%, transparent) 28%,
-    color-mix(in srgb, var(--aurora-2) 26%, transparent) 50%,
-    color-mix(in srgb, var(--aurora-2) 7%, transparent) 72%,
-    transparent 88%
-  );
-}
-.aurora__blob--3 {
-  width: 30vmax;
-  height: 30vmax;
-  bottom: -12vmax;
-  left: 28vw;
-  background: radial-gradient(
-    circle,
-    var(--aurora-2) 0%,
-    color-mix(in srgb, var(--aurora-2) 62%, transparent) 28%,
-    color-mix(in srgb, var(--aurora-2) 26%, transparent) 50%,
-    color-mix(in srgb, var(--aurora-2) 7%, transparent) 72%,
-    transparent 88%
-  );
-}
-
-
-/* The blobs do not drift, on any screen. The depth is the point; the drift was
-   decoration, and it was by far the most expensive thing on the page.
- *
- * The mechanism was already written down here when the drift was disabled
- * below 860px: every frosted surface samples this layer through
- * backdrop-filter, and a backdrop that is still moving can never let a single
- * one of those blurs cache, so three blobs on 47/54/61s loops kept the whole
- * page's glass re-blurring forever, scrolling or idle. What was missing was
- * that this is not a phone problem. It is worst wherever there is the most
- * glass, which is the type page, at the largest viewport, which is desktop.
- *
- * Measured on the type page at 1440x900, scrolling, drift on vs off:
- *
- *     drift on    8.8 fps    26 of 27 frames over 20ms
- *     drift off  30.9 fps    85 of 93 frames over 20ms
- *
- * A 3.5x difference, and the same gap at 4x and 8x CPU throttling — which says
- * it is compositor work, not script. Nothing on a 54-second cycle is worth a
- * quarter of the frame rate.
- *
- * will-change went with it: reserving compositor memory for three 46vmax
- * layers under a 110px blur buys nothing once they never move. The blobs now
- * paint once and sit still, which is exactly the condition the glass needs to
- * cache. If you ever restore the drift, re-run that measurement first. */
-
-/* Frosted surface. One definition, applied by every pane that used to be a
-   flat --surface rectangle.
- *
- * The @supports fallback is mandatory, not defensive: without backdrop-filter
- * a 72%-opaque fill over the aurora is a smear of indigo behind body text.
- * Same pattern the app bar has used since the app-shell change. */
-.glass {
-  background: var(--glass);
-  border: 1px solid var(--glass-border);
-  -webkit-backdrop-filter: blur(var(--blur-chrome)) saturate(1.4);
-  backdrop-filter: blur(var(--blur-chrome)) saturate(1.4);
-}
-.glass--strong {
-  background: var(--glass-strong);
-}
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .glass,
-  .glass--strong {
-    background: var(--surface);
-  }
-}
-
-/* The 1px top highlight that gives a pane thickness. Kept separate from
-   .glass because it needs a positioned parent and not every glass surface has
-   one (or wants the extra pseudo-element). */
-.sheen {
-  position: relative;
-}
-.sheen::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto;
+  width: 1px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--glass-hi) 22%, var(--glass-hi) 78%, transparent);
-  pointer-events: none;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .dev,

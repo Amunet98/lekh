@@ -17,7 +17,7 @@ right in the browser.
 
 - **Type** — a phonetic transliteration engine backed by a 700+ word
   dictionary shows suggestion chips (with spelling variants) as you type;
-  a built-in Devanagari cheat sheet covers the long tail. Works with
+  a searchable Devanagari cheat sheet covers the long tail. Works with
   mobile keyboards/IMEs (Gboard-style commit flow).
 - **Upload** — OCR documents **entirely in the browser** via
   [Tesseract.js](https://github.com/naptha/tesseract.js): images, PDF,
@@ -30,12 +30,23 @@ right in the browser.
 
 ## Design
 
-**Ink & Glass** — a writing tool rather than stationery: frosted glass over
-an ink-dark ground, with light and dark themes whose glass opacity is
-measured per theme rather than shared. The first launch of a session opens
-on a **boot screen** instead of a landing page, so the app announces itself
-once and then gets out of the way — later launches in the same session go
-straight to the editor.
+**Crimson & Paper** — the Nepali flag's colours, by role rather than by
+decoration. Crimson is the only accent and it always means "you can press
+this"; the flag's deep blue is folded into the neutral ramp, so every dark
+surface is a blue-black rather than a neutral grey, and appears literally
+only in the wordmark. Every foreground/background pair in both themes is
+computed from WCAG relative luminance and recorded in `src/index.css` — the
+tightest is 4.62:1, and borders come in two strengths because a decorative
+hairline and a control you must be able to find have different floors.
+
+The chrome is one strip: brand, section nav and actions in a single app bar
+on a wide screen, with the same nav detaching to a bottom dock on a phone.
+The editor is the whole Type page — the cheat sheet is a searchable panel
+behind one button rather than a permanently-expanded wall of 76 cells.
+
+The first launch of a session opens on a **boot screen** instead of a landing
+page, so the app announces itself once and then gets out of the way — later
+launches in the same session go straight to the editor.
 
 ## Installing and updating
 
@@ -60,18 +71,25 @@ dictionary, and cheat sheet work offline. Details worth knowing:
 
 ## Performance notes
 
-Two things worth knowing before changing the look, both learned by measuring:
+Worth knowing before changing the look, all learned by measuring:
 
-- **The ambient aurora does not move, and should not be made to.** Every
-  frosted surface samples it through `backdrop-filter`, and a backdrop that is
-  still moving means none of those blurs can ever be cached. Drifting it cost
-  **8.8 fps against 30.9** on the Type page while scrolling — the same gap at
-  4x and 8x CPU throttling, so it is compositor work, not script.
+- **There is almost no `backdrop-filter` left, and that was the point.** The
+  previous design put an ambient aurora behind everything and frosted glass on
+  top of it. Every frosted surface sampled that aurora, so a moving backdrop
+  meant none of the blurs could ever be cached: drifting it cost **8.8 fps
+  against 30.9** on the Type page while scrolling, the same gap at 4x and 8x
+  CPU throttling, so it was compositor work rather than script. Parking the
+  drift recovered most of it; deleting the aurora and the glass recovered the
+  rest. Blur now survives only on the app bar and the mobile dock, where the
+  page genuinely scrolls underneath.
+- **`backdrop-filter` makes an element a containing block for its
+  `position: fixed` descendants** — the same rule `transform` carries. The app
+  bar's blur therefore lives on `.app-bar::before`, not on the bar: the bottom
+  dock is a child of the bar, and with the filter on the parent it anchors to
+  the bar instead of the viewport and lands under the header.
 - **Blur the container, not the repeated child.** `backdrop-filter` is
-  per-element, so 76 cheat-sheet cells each carrying their own blur is 76 blur
-  passes; the grid carries one instead. The same applies to anything nested
-  inside an already-blurred sheet, where a second blur samples an
-  already-blurred backdrop and changes nothing on screen.
+  per-element, so 76 cheat-sheet cells each carrying their own blur would be 76
+  blur passes. The cells are plain opaque surfaces now, which is cheaper still.
 
 ## Stack
 

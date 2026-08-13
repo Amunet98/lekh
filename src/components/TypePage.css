@@ -1,94 +1,12 @@
-/* ~52px on a phone, against the ~260px the old hero cost. */
-.hero {
-  text-align: center;
-  padding: clamp(0.75rem, 2vw, 1.25rem) 1rem clamp(0.75rem, 2vw, 1.25rem);
-}
-.hero__line {
-  margin: 0;
-  font-family: var(--display);
-  font-size: clamp(1.05rem, 2.2vw, 1.3rem);
-  font-weight: 500;
-  line-height: 1.35;
-  color: var(--muted);
-}
-.hero__accent {
-  color: var(--accent-text);
-  font-weight: 600;
-}
-
+/* One column. This used to be a two-column grid with the editor sticky on the
+   left and the full cheat sheet permanently expanded on the right; the sheet
+   is now a panel behind a toolbar button, so there is nothing to lay out
+   against and the editor gets the whole measure.
+ *
+ * The column is narrower than .page allows. An editor is a reading surface as
+ * well as a writing one, and a 1100px-wide line of Devanagari is past the
+ * point where the eye can find the start of the next one. */
 .type-page {
-  display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(340px, 1fr);
-  gap: clamp(1.5rem, 3vw, 3.5rem);
-}
-.type-page__left {
-  align-self: start;
-  position: sticky;
-  top: 4.5rem;
-  z-index: 1;
-}
-.type-page__right {
-  border-left: 1px solid var(--border);
-  padding-left: clamp(1.25rem, 3vw, 2.75rem);
-  min-width: 0;
-}
-
-/* Desktop hides the disclosure row only while the panel is *open*, which is
-   its default. Hiding it unconditionally would strand anyone who collapsed the
-   sheet on a phone and then rotated a tablet into the desktop layout: the
-   panel would stay closed with nothing left to reopen it. */
-.cheat-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  min-height: 48px;
-  padding: 0.5rem 0.25rem;
-  font-family: var(--sans);
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-h);
-  cursor: pointer;
-  list-style: none;
-}
-.cheat-toggle::-webkit-details-marker {
-  display: none;
-}
-.cheat-toggle svg {
-  color: var(--muted);
-  transition: transform var(--dur) var(--ease);
-  flex: 0 0 auto;
-}
-.type-page__right[open] .cheat-toggle svg {
-  transform: rotate(180deg);
-}
-.cheat-toggle:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-  border-radius: 8px;
-}
-
-@media (min-width: 861px) {
-  .type-page__right[open] > .cheat-toggle {
-    display: none;
-  }
-}
-
-@media (max-width: 860px) {
-  .type-page {
-    grid-template-columns: 1fr;
-  }
-  .type-page__left {
-    align-self: auto;
-    position: static;
-    top: auto;
-    z-index: auto;
-  }
-  .type-page__right {
-    border-left: 0;
-    border-top: 1px solid var(--border);
-    padding-left: 0;
-    padding-top: 0.5rem;
-  }
-
+  max-width: 780px;
+  margin: 0 auto;
 }

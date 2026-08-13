@@ -86,7 +86,7 @@ export function UpdatePrompt({ suppressed = false }: UpdatePromptProps) {
     /* role="status" + polite, not an alert: a new version is worth mentioning
        and never worth interrupting a screen reader mid-sentence for. It also
        must not steal focus — someone could be typing when this appears. */
-    <div className="update-prompt glass" role="status" aria-live="polite">
+    <div className="update-prompt" role="status" aria-live="polite">
       <p className="update-prompt__text">
         <span className="update-prompt__dot" aria-hidden="true" />
         A new version of <span className="dev">लेख</span> is ready.

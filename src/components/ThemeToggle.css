@@ -1,49 +1,27 @@
+/* The bar's icon-button shape. Quiet at rest — the theme control is not
+   something anyone came here to press — and it borrows the surface tint only
+   on hover so the bar stays clean. */
 .theme-toggle {
-  flex-shrink: 0;
-  display: inline-flex;
-  gap: 0.15rem;
-  padding: 3px;
-  border: 1px solid var(--glass-border);
-  background: var(--glass);
-  -webkit-backdrop-filter: blur(var(--blur-control)) saturate(1.4);
-  backdrop-filter: blur(var(--blur-control)) saturate(1.4);
-  border-radius: var(--radius-pill);
-}
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .theme-toggle {
-    background: var(--surface);
-  }
-}
-/* 44px, not the 34px this was. The glyph inside stays small — the padding is
-   what makes the target, and these three sit side by side, so a miss lands on
-   a neighbouring theme rather than doing nothing. */
-.theme-toggle__btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  /* 44px square. It is an icon-only control, so the target has to come from
+     the button box; there is no label padding it out. */
   width: 44px;
   height: 44px;
-  border: 1px solid transparent;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
   background: transparent;
   color: var(--muted);
-  border-radius: var(--radius-pill);
   cursor: pointer;
-  transition: color 0.15s ease-out, background-color 0.15s ease-out, border-color 0.15s ease-out,
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease),
     transform var(--dur-fast) var(--ease-expo);
 }
-.theme-toggle__btn:active {
+.theme-toggle:hover {
+  color: var(--text-h);
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+}
+.theme-toggle:active {
   transform: scale(0.92);
-}
-.theme-toggle__btn:hover,
-.theme-toggle__btn:focus-visible {
-  color: var(--accent);
-}
-.theme-toggle__btn:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
-}
-.theme-toggle__btn--active {
-  color: var(--accent-text);
-  background: var(--accent-bg);
-  border-color: var(--accent-border);
 }

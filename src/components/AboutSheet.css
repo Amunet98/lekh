@@ -32,12 +32,12 @@
   display: none;
 }
 
-/* Blur on the backdrop is the point, not decoration: it is what says the
-   thing behind is suspended and a tap out there dismisses. */
+/* A plain scrim. It used to blur the page behind it as well, which was the
+   one blur in the app that was genuinely decorative — the dim alone already
+   says the thing behind is suspended, and the sheet is opaque so there is
+   nothing to see through it anyway. */
 .about::backdrop {
-  background: color-mix(in srgb, #0b0c0f 55%, transparent);
-  -webkit-backdrop-filter: blur(var(--blur-sheet)) saturate(1.2);
-  backdrop-filter: blur(var(--blur-sheet)) saturate(1.2);
+  background: rgba(6, 8, 16, 0.55);
   animation: about-backdrop-in var(--dur) var(--ease) backwards;
 }
 @keyframes about-backdrop-in {
@@ -58,19 +58,13 @@
 
 .about__panel {
   position: relative;
-  /* .glass supplies the fill, hairline border and backdrop-filter; .sheen
-     supplies the top highlight. Both are defined in index.css.
-   *
-   * The blur is overridden to sheet weight: .glass is tuned for panes that sit
-   * *in* the page, and this one sits above a dimmed backdrop where a heavier
-   * frost is what separates the two layers. */
-  -webkit-backdrop-filter: blur(var(--blur-sheet)) saturate(1.7);
-  backdrop-filter: blur(var(--blur-sheet)) saturate(1.7);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-pop);
   padding: clamp(1.5rem, 5vw, 2.25rem);
-  /* The panel scrolls, not the dialog — so the rounded corners and the sheen
-     stay put while long content moves inside them. */
+  /* The panel scrolls, not the dialog — so the rounded corners stay put while
+     long content moves inside them. */
   max-height: calc(100dvh - 2rem);
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -113,8 +107,18 @@
   line-height: 1.1;
   color: var(--text-h);
 }
+/* The ख of ले-ख, in the flag blue.
+ *
+ * This is the wordmark, and the wordmark is identity — so it takes the blue,
+ * the same as the app bar and the footer. Crimson in this app means "you can
+ * press this", and a logo is not a control; it was accent-coloured here and
+ * blue in the chrome, which made one mark look like two.
+ *
+ * It is a plain inline <span> and must stay one — see LekhMark for why the two
+ * halves cannot be split into separate boxes without breaking the शिरोरेखा
+ * that joins them. */
 .about__ink {
-  color: var(--accent);
+  color: var(--flag-blue);
 }
 .about__latin {
   font-family: var(--display);
@@ -134,7 +138,7 @@
   line-height: 1.5;
 }
 .about__headline-accent {
-  /* --accent-text, not --accent: this is a run of words. The fill indigo is
+  /* --accent-text, not --accent: this is a run of words. The fill crimson is
      tuned to sit under white, not to be read as type. */
   color: var(--accent-text);
 }
@@ -154,7 +158,7 @@
   margin-top: 1.5rem;
   padding: 0.85rem 1.4rem;
   background: color-mix(in srgb, var(--surface) 60%, transparent);
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--border);
   border-radius: var(--radius-field);
   font-size: 1.05rem;
 }
@@ -181,7 +185,7 @@
   }
 }
 .about__arrow {
-  color: var(--border-strong);
+  color: var(--border);
   font-size: 1.15rem;
 }
 .about__out {
@@ -220,7 +224,7 @@
   text-align: left;
   color: var(--text);
   background: color-mix(in srgb, var(--surface) 55%, transparent);
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--border);
   border-radius: var(--radius-field);
   cursor: pointer;
   transition: border-color var(--dur-fast) var(--ease),
@@ -282,7 +286,7 @@
   letter-spacing: 0.04em;
   color: var(--text);
   background: color-mix(in srgb, var(--surface) 55%, transparent);
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--border);
   border-radius: var(--radius-pill);
   padding: 0.26rem 0.68rem;
 }

@@ -58,47 +58,53 @@ function MoonIcon() {
   )
 }
 
-const OPTIONS: { id: Theme; label: string; icon: ReactNode }[] = [
-  { id: 'auto', label: 'Auto', icon: <AutoIcon /> },
-  { id: 'light', label: 'Light', icon: <SunIcon /> },
-  { id: 'dark', label: 'Dark', icon: <MoonIcon /> },
-]
+/* One button that cycles, rather than three that sit there permanently.
+ *
+ * Three icon buttons is a segmented control's worth of chrome spent on a
+ * setting most people touch once, and it took a third of the app bar's action
+ * area. Cycling is the standard treatment for a three-state preference where
+ * the states have an obvious order.
+ *
+ * The order matters: auto -> light -> dark -> auto. Starting from the default
+ * and stepping toward the explicit choices means the first press from a fresh
+ * install always does something visible on a dark-OS phone. */
+const ORDER: Theme[] = ['auto', 'light', 'dark']
+
+const META: Record<Theme, { label: string; icon: ReactNode }> = {
+  auto: { label: 'System', icon: <AutoIcon /> },
+  light: { label: 'Light', icon: <SunIcon /> },
+  dark: { label: 'Dark', icon: <MoonIcon /> },
+}
 
 export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>(getInitialTheme)
 
   useEffect(() => {
     applyTheme(theme)
-    // Under prefers-reduced-motion the dot-matrix canvas only repaints on
-    // resize — nudge it so the dots pick up the new accent immediately.
-    window.dispatchEvent(new Event('resize'))
   }, [theme])
 
   useEffect(() => {
     if (theme !== 'auto') return
     const query = matchMedia('(prefers-color-scheme: dark)')
-    const onChange = () => {
-      applyTheme('auto')
-      window.dispatchEvent(new Event('resize'))
-    }
+    const onChange = () => applyTheme('auto')
     query.addEventListener('change', onChange)
     return () => query.removeEventListener('change', onChange)
   }, [theme])
 
+  const next = ORDER[(ORDER.indexOf(theme) + 1) % ORDER.length]
+
   return (
-    <div className="theme-toggle" role="group" aria-label="Theme">
-      {OPTIONS.map(({ id, label, icon }) => (
-        <button
-          key={id}
-          type="button"
-          className={`theme-toggle__btn${theme === id ? ' theme-toggle__btn--active' : ''}`}
-          aria-label={label}
-          aria-pressed={theme === id}
-          onClick={() => setTheme(id)}
-        >
-          {icon}
-        </button>
-      ))}
-    </div>
+    <button
+      type="button"
+      className="theme-toggle"
+      /* Names the current state *and* what pressing does. An icon-only
+         control that announced only its icon left a screen-reader user with
+         no way to tell which of the three modes was live. */
+      aria-label={`Theme: ${META[theme].label}. Switch to ${META[next].label}.`}
+      title={`Theme: ${META[theme].label}`}
+      onClick={() => setTheme(next)}
+    >
+      {META[theme].icon}
+    </button>
   )
 }
