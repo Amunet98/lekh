@@ -1,6 +1,6 @@
 import type { Tab } from './TabSwitcher'
 
-/* The three section icons, defined once.
+/* The section icons, defined once.
  *
  * They used to be written twice — inline in TabSwitcher and again in
  * AboutSheet — with identical `type` and `translate` glyphs and an `upload`
@@ -38,6 +38,15 @@ export function SectionIcon({ name, size = 20 }: { name: Tab; size?: number }) {
       <svg {...props}>
         <path d="M12 20h9" />
         <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+      </svg>
+    )
+  }
+
+  if (name === 'calendar') {
+    return (
+      <svg {...props}>
+        <rect x="3" y="5" width="18" height="16" rx="2" />
+        <path d="M8 3v4M16 3v4M3 10h18" />
       </svg>
     )
   }

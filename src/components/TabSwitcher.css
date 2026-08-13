@@ -33,7 +33,10 @@
   border-radius: var(--radius-pill);
   padding: 0.4rem 1.15rem;
   cursor: pointer;
-  min-height: 40px;
+  /* 44px, not 40. This is the "desktop" layout by width, but a 768px tablet in
+     portrait gets it too and is pure touch, so it has to clear the touch floor
+     rather than the mouse one. The bar is 3.5rem tall, so it fits. */
+  min-height: 44px;
   white-space: nowrap;
   transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease),
     transform var(--dur-fast) var(--ease-expo);

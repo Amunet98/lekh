@@ -1,0 +1,334 @@
+.cal {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+/* Month navigation */
+.cal__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+.cal__title {
+  text-align: center;
+  min-width: 0;
+}
+.cal__month {
+  font-family: var(--display-dev);
+  font-size: clamp(1.4rem, 5vw, 1.8rem);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-h);
+}
+.cal__sub {
+  margin-top: 0.15rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-family: var(--sans);
+}
+.cal__arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease), transform var(--dur-fast) var(--ease-expo);
+}
+.cal__arrow:hover {
+  color: var(--accent-text);
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+.cal__arrow:active {
+  transform: scale(0.92);
+}
+
+.cal__today-btn {
+  align-self: center;
+  min-height: 36px;
+  padding: 0 var(--sp-4);
+  border: 1px solid var(--accent-border);
+  background: var(--accent-bg);
+  color: var(--accent-text);
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+.cal__today-btn .dev {
+  font-family: var(--display-dev);
+}
+
+/* The grid. Same construction as the cheat sheet: a 1px gap over a
+   border-coloured container, with each cell painting the surface on top, so
+   shared edges never double up. */
+.cal__grid {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  background: var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.cal__weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: var(--border);
+}
+.cal__weekday {
+  padding: var(--sp-2) 0.15rem;
+  text-align: center;
+  background: var(--surface-2);
+  font-family: var(--display-dev);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+/* शनि — Saturday is the weekly day off in Nepal, so the column header is
+   tinted like the days under it. Not Sunday: that is the Western week. */
+.cal__weekday--off {
+  color: var(--accent-text);
+}
+
+.cal__days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: var(--border);
+}
+
+.cal__cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.05rem;
+  /* Square-ish cells that grow with the container, so the grid fills the
+     width on a phone without a media query per size. */
+  aspect-ratio: 1 / 1;
+  min-height: 44px;
+  padding: 0.2rem;
+  border: 0;
+  background: var(--surface);
+  font: inherit;
+  cursor: pointer;
+  transition: background-color var(--dur) var(--ease);
+}
+.cal__cell--blank {
+  background: var(--surface-2);
+  cursor: default;
+}
+.cal__cell:hover:not(.cal__cell--blank) {
+  background: var(--accent-bg);
+}
+.cal__cell:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  z-index: 1;
+}
+
+.cal__bs {
+  font-family: var(--display-dev);
+  font-size: clamp(0.95rem, 3.4vw, 1.15rem);
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--text-h);
+}
+.cal__ad {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--muted);
+  line-height: 1;
+}
+
+/* Holidays and Saturdays. Colour is not the only signal — these days are also
+   named as holidays in the list below the grid and in each cell's aria-label,
+   so the information survives without it. */
+.cal__cell--off .cal__bs {
+  color: var(--accent-text);
+}
+.cal__cell--off {
+  background: color-mix(in srgb, var(--accent-bg) 55%, var(--surface));
+}
+
+.cal__dot {
+  position: absolute;
+  bottom: 4px;
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+/* Today gets an inset ring rather than a fill, so it can coexist with the
+   holiday tint and the selected state without any of the three hiding the
+   others. */
+.cal__cell--today {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+.cal__cell--selected {
+  background: var(--accent);
+}
+.cal__cell--selected .cal__bs,
+.cal__cell--selected .cal__ad {
+  color: var(--on-accent);
+}
+.cal__cell--selected .cal__dot {
+  background: var(--on-accent);
+}
+
+/* Selected-day detail */
+.cal__detail {
+  padding: var(--sp-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+}
+.cal__detail-date {
+  font-family: var(--display-dev);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text-h);
+}
+.cal__detail-ad {
+  margin-top: 0.15rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.cal__detail-fest {
+  margin: var(--sp-3) 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.cal__detail-fest li {
+  position: relative;
+  padding-left: 1rem;
+  font-size: 0.95rem;
+  color: var(--text-h);
+  line-height: 1.6;
+}
+.cal__detail-fest li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--accent);
+}
+.cal__detail-none {
+  margin-top: var(--sp-2);
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* Month holiday list */
+.cal__holidays h2,
+.cal__holidays-title {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: var(--sp-2);
+}
+.cal__holidays-title .dev {
+  font-family: var(--display-dev);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.9rem;
+  color: var(--text-h);
+}
+.cal__holidays ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+.cal__holiday-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  width: 100%;
+  min-height: 44px;
+  padding: var(--sp-2) var(--sp-3);
+  border: 0;
+  background: var(--surface);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  transition: background-color var(--dur) var(--ease);
+}
+.cal__holiday-row:hover {
+  background: var(--accent-bg);
+}
+.cal__holiday-day {
+  flex: 0 0 auto;
+  min-width: 2ch;
+  font-family: var(--display-dev);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent-text);
+  text-align: right;
+}
+.cal__holiday-name {
+  font-size: 0.9rem;
+  color: var(--text-h);
+  line-height: 1.5;
+}
+
+.cal__coverage {
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.7;
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius-field);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+}
+.cal__coverage--warn {
+  border-color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 8%, var(--surface));
+  color: var(--text);
+}
+.cal__coverage b {
+  color: var(--text-h);
+}
+
+@media (max-width: 420px) {
+  .cal__cell {
+    padding: 0.1rem;
+  }
+  .cal__ad {
+    font-size: 0.55rem;
+  }
+  .cal__weekday {
+    font-size: 0.68rem;
+  }
+}

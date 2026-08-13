@@ -10,7 +10,7 @@ dependency of this project — if the cache is empty the scripts say so and tell
 you to run `npx playwright install chromium`. To use a different browser:
 `CHROME=/path/to/chrome npm run <script>`.
 
-## shortcut-icons.html → public/shortcut-{type,upload,translate}.png
+## shortcut-icons.html → public/shortcut-{type,upload,translate,calendar}.png
 
 ```sh
 npm run icons
@@ -21,9 +21,10 @@ manifest `shortcuts` entry without its own `icons` array renders as a blank
 grey placeholder** — Android does not fall back to the app icon. That is how
 these shipped as three unlabelled squares.
 
-One file renders all three, selected by `location.hash`. The selector fails
-open to `type`, so a typo produces three *identical* files rather than an
-error — check they differ (`md5sum public/shortcut-*.png`) before committing.
+One file renders all four, selected by `location.hash`. The selector fails
+open to `type`, so a typo produces *identical* files rather than an error —
+check they differ (`md5sum public/shortcut-*.png | awk '{print $1}' | sort -u
+| wc -l` should equal the number of icons) before committing.
 
 Do not add `vector-effect: non-scaling-stroke` to these. It pins the stroke to
 N device pixels regardless of the viewBox, which drew hairlines on a 192px tile

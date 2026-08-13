@@ -21,7 +21,7 @@
       body { background: #151a2b; display: grid; place-items: center; }
 
       .icon { display: none; }
-      body:not(:has(#type:target)):not(:has(#upload:target)):not(:has(#translate:target)) #type { display: block; }
+      body:not(:has(#type:target)):not(:has(#upload:target)):not(:has(#translate:target)):not(:has(#calendar:target)) #type { display: block; }
       .icon:target { display: block; }
 
       svg { display: block; width: 116px; height: 116px; }
@@ -70,5 +70,13 @@
         <path class="stroke accent" d="M20 17h-9M20 17l-3-3M20 17l-3 3" />
       </svg>
     </div>
-  </body>
+  
+    <div class="icon" id="calendar">
+      <svg viewBox="0 0 24 24">
+        <rect class="stroke" x="3" y="5" width="18" height="16" rx="2" />
+        <path class="stroke accent" d="M3 10h18" />
+        <path class="stroke" d="M8 3v4M16 3v4" />
+      </svg>
+    </div>
+</body>
 </html>

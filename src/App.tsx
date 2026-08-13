@@ -4,6 +4,7 @@ import { TypePage } from './components/TypePage'
 import { EDITOR_ID } from './components/Editor'
 import { UploadPage } from './components/UploadPage'
 import { TranslatePage } from './components/TranslatePage'
+import { CalendarPage } from './components/calendar/CalendarPage'
 import { ThemeToggle } from './components/ThemeToggle'
 import { InstallButton } from './components/InstallButton'
 import { BootScreen } from './components/BootScreen'
@@ -11,7 +12,7 @@ import { AboutSheet } from './components/AboutSheet'
 import { UpdatePrompt } from './components/UpdatePrompt'
 import './App.css'
 
-const TABS: Tab[] = ['type', 'upload', 'translate']
+const TABS: Tab[] = ['type', 'upload', 'translate', 'calendar']
 
 function isTab(value: string | null): value is Tab {
   return value !== null && (TABS as string[]).includes(value)
@@ -19,7 +20,7 @@ function isTab(value: string | null): value is Tab {
 
 /* Every section used to live at '/', so a section could not be linked, shared,
  * or opened from a PWA shortcut — and the manifest shortcuts added in
- * vite.config.ts need real targets. ?tab= is the whole routing story: three
+ * vite.config.ts need real targets. ?tab= is the whole routing story: four
  * screens, no nesting, no router dependency. */
 function tabFromUrl(): Tab {
   try {
@@ -168,11 +169,13 @@ function App() {
           <TypePage />
         ) : tab === 'upload' ? (
           <UploadPage onEditInTranslate={editInTranslate} />
-        ) : (
+        ) : tab === 'translate' ? (
           <TranslatePage
             handoffText={handoffText}
             onHandoffConsumed={() => setHandoffText(null)}
           />
+        ) : (
+          <CalendarPage />
         )}
       </div>
 

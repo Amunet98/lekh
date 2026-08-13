@@ -17,10 +17,11 @@ interface AboutSheetProps {
    between two typographic marks, at the mercy of whatever the platform
    decided a picture frame looks like. They are inline SVG now, drawn on the
    same 24-box and stroke weight as the tab bar icons. */
-const SECTIONS: { id: Tab; label: string; rest: string; icon: 'type' | 'upload' | 'translate' }[] = [
+const SECTIONS: { id: Tab; label: string; rest: string; icon: Tab }[] = [
   { id: 'type', icon: 'type', label: 'Type', rest: 'phonetic, as you already text' },
   { id: 'upload', icon: 'upload', label: 'Upload', rest: 'read text out of images & PDFs' },
   { id: 'translate', icon: 'translate', label: 'Translate', rest: 'EN ↔ NE, even offline' },
+  { id: 'calendar', icon: 'calendar', label: 'Patro', rest: 'Bikram Sambat, festivals & holidays' },
 ]
 
 

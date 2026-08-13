@@ -21,7 +21,7 @@ const source = join(root, 'design', 'shortcut-icons.html')
 
 // Must stay in step with the `shortcuts` array in vite.config.ts — these are
 // the hash ids in the source file and the filenames the manifest points at.
-const ICONS = ['type', 'upload', 'translate']
+const ICONS = ['type', 'upload', 'translate', 'calendar']
 
 const chrome = requireChromium()
 console.log(`chromium  ${chrome}`)
@@ -45,5 +45,5 @@ for (const name of ICONS) {
   console.log(`wrote     public/shortcut-${name}.png (${statSync(out).size} B)`)
 }
 
-console.log('\nCheck the three are actually different before committing — the')
-console.log('hash selector fails open to "type", so a typo yields three identical files.')
+console.log('\nCheck they are actually all different before committing — the')
+console.log('hash selector fails open to "type", so a typo yields identical files.')

@@ -1,0 +1,114 @@
+.conv {
+  padding: var(--sp-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.conv__title {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.conv__title .dev {
+  font-family: var(--display-dev);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.95rem;
+  color: var(--text-h);
+}
+
+.conv__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-4);
+}
+@media (max-width: 560px) {
+  .conv__row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.conv__side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+.conv__label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.conv__label.dev {
+  font-family: var(--display-dev);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.85rem;
+}
+
+/* Year gets more room than month, month more than day — otherwise २०८३ is
+   cramped while १ floats in a box three times its width. */
+.conv__bs {
+  display: grid;
+  grid-template-columns: 1.15fr 1.3fr 0.85fr;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
+.conv__select,
+.conv__date {
+  min-width: 0;
+  /* 44px and 16px type: a sub-16px control makes iOS zoom the page the moment
+     it takes focus, and these are the only <select>s in the app. */
+  height: 44px;
+  padding: 0 0.6rem;
+  font-size: 1rem;
+  font-family: var(--sans);
+  color: var(--text-h);
+  background: var(--surface);
+  border: 1px solid var(--border-field);
+  border-radius: var(--radius-field);
+  cursor: pointer;
+}
+.conv__select.dev {
+  font-family: var(--display-dev);
+}
+.conv__select:focus-visible,
+.conv__date:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+/* Safari renders type="date" with its own inner padding and an off-palette
+   indicator; this keeps it in line with the selects beside it. */
+.conv__date::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.6;
+}
+.conv__date::-webkit-date-and-time-value {
+  text-align: left;
+}
+
+.conv__out {
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--border);
+  font-size: 0.95rem;
+  color: var(--text-h);
+  line-height: 1.7;
+}
+.conv__out .dev {
+  font-family: var(--display-dev);
+  font-weight: 600;
+}
+.conv__out-en {
+  color: var(--muted);
+  font-size: 0.85rem;
+}

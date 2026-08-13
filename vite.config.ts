@@ -85,6 +85,13 @@ export default defineConfig({
             url: '/?tab=translate',
             icons: [{ src: '/shortcut-translate.png', sizes: '192x192', type: 'image/png' }],
           },
+          {
+            name: 'Nepali calendar',
+            short_name: 'Patro',
+            description: 'Bikram Sambat calendar with festivals and public holidays',
+            url: '/?tab=calendar',
+            icons: [{ src: '/shortcut-calendar.png', sizes: '192x192', type: 'image/png' }],
+          },
         ],
         icons: [
           { src: '/android-chrome-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },

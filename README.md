@@ -22,6 +22,8 @@ right in the browser.
 - **Upload** — OCR documents **entirely in the browser** via
   [Tesseract.js](https://github.com/naptha/tesseract.js): images, PDF,
   DOCX, and TXT, in English and Nepali. Nothing is uploaded to any server.
+- **Patro** — a Bikram Sambat calendar with festivals, public holidays and
+  tithi, plus an AD ↔ BS date converter. No ads, no account, no network.
 - **Translate** — English ↔ Nepali with a Google-style language switcher.
   Online translation by default, plus an optional **fully on-device**
   NLLB-200 model ([Transformers.js](https://github.com/huggingface/transformers.js))
@@ -48,6 +50,43 @@ The first launch of a session opens on a **boot screen** instead of a landing
 page, so the app announces itself once and then gets out of the way — later
 launches in the same session go straight to the editor.
 
+## The calendar, and why its festivals run out
+
+Dates and festivals are two different problems, and only one of them is
+solvable in general.
+
+**Dates are computable.** BS months run 29–32 days on a pattern set by solar
+transits rather than a formula, so every implementation ships a lookup table;
+`nepali-date-converter` (MIT) has one for **BS 2000–2090**. The grid and the
+converter work across that whole span.
+
+**Festivals are not.** Dashain, Tihar, Teej, Shivaratri, Janai Purnima and
+most of the rest fall on a *tithi* — a lunar day — which needs real lunar
+ephemeris plus the panchang convention about which sunrise a tithi counts
+against. Doing that in the browser would be a large bundle and a good chance
+of landing one day out, and a Dashain on the wrong day is worse than no
+Dashain at all. So they are tabulated by `npm run calendar:data`, and the
+table has a hard end. **The UI states the covered range rather than rendering
+an uncovered month as one that simply has no festivals in it.**
+
+That generator cross-checks every month length against the conversion table
+and **drops any year where the two sources disagree**. This is not paranoia:
+BS 2084 currently disagrees on five of twelve months, and shipping it would
+have put every festival from Jestha onward on the wrong square while looking
+entirely normal.
+
+Festival data comes from
+[S4NKALP/nepali-calendar-api](https://github.com/S4NKALP/nepali-calendar-api)
+(MIT, © 2026 Sankalp Tharu), which scrapes nepalicalendar.rat32.com — a
+third-party almanac, not an official Government of Nepal notice. Public
+holidays are set by cabinet decision and do move.
+
+One rule for anyone touching this code: **never read these dates back with
+`toISOString()`.** The converter returns a Date at local midnight, and Nepal
+is UTC+05:45, so a UTC read moves every festival a day earlier. That mistake
+was made once already while verifying this feature and looked exactly like a
+data error.
+
 ## Installing and updating
 
 Lekh is an installable PWA with a real service worker — the typing engine,
@@ -61,7 +100,7 @@ dictionary, and cheat sheet work offline. Details worth knowing:
   editor text survives. *(If a change seems missing on a phone, check the
   footer version first: an installed PWA can be running an older shell.)*
 - **App shortcuts** — long-press the installed icon to jump straight to
-  Type, Upload, or Translate. These need their own icons; Android draws
+  Type, Upload, Translate, or Patro. These need their own icons; Android draws
   blank placeholders without them.
 - **Offline from the first visit.** The worker takes control of the page that
   installed it, so the shell and the OCR payload are cached on the visit that
@@ -94,7 +133,7 @@ Worth knowing before changing the look, all learned by measuring:
 ## Stack
 
 React 19 · TypeScript · Vite · Tailwind CSS v4 · Tesseract.js ·
-@huggingface/transformers
+@huggingface/transformers · nepali-date-converter
 
 ## Run locally
 
