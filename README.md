@@ -81,6 +81,19 @@ Festival data comes from
 third-party almanac, not an official Government of Nepal notice. Public
 holidays are set by cabinet decision and do move.
 
+**Nepal now has a two-day weekend.** Saturday has always been the weekly day
+off; the cabinet added Sunday on 5 April 2026, effective the next day —
+**Chaitra 23, 2082 = 6 April 2026**. The rule is dated, not global, so paging
+back to BS 2081 still shows a one-day weekend rather than rewriting history.
+It covers government offices and educational institutions; several local
+levels rejected it and the private sector is not covered. If it is ever
+reversed, add an end date to `TWO_DAY_WEEKEND_FROM` rather than deleting it.
+
+The weekly pattern is applied as a rule and deliberately **not** taken from
+the festival data, whose own holiday flag is inconsistent about weekends —
+29 of 53 Saturdays in BS 2081 against 48 of 52 in BS 2082 — and does not
+encode the Sunday policy at all.
+
 One rule for anyone touching this code: **never read these dates back with
 `toISOString()`.** The converter returns a Date at local midnight, and Nepal
 is UTC+05:45, so a UTC read moves every festival a day earlier. That mistake

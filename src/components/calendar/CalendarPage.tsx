@@ -5,11 +5,14 @@ import {
   NP_WEEKDAYS_SHORT,
   NP_WEEKDAYS_FULL,
   SATURDAY,
+  SUNDAY,
   adSpanLabel,
   bsToAd,
   bsWeekday,
   daysInBsMonth,
   isSameBsDate,
+  isWeeklyOff,
+  monthHasSundayOff,
   stepMonth,
   todayBs,
   toDevanagari,
@@ -45,17 +48,19 @@ export function CalendarPage() {
   const leadingBlanks = bsWeekday(view.year, view.month, 1)
   const panchang = getMonthPanchang(view.year, view.month)
   const covered = hasPanchang(view.year)
+  const sundayOff = monthHasSundayOff(view.year, view.month)
 
   const goto = (delta: number) => {
     const next = stepMonth(view.year, view.month, delta)
     setView(next)
   }
 
-  /* Every Saturday is a public holiday in Nepal, and the source data marks
-     them as such — which is correct, and which turned this list into
-     "शनिबार, शनिबार, शनिबार, शनिबार" with the actual festivals buried among
-     them. The grid already tints every Saturday, so the list is for the days
-     you would not otherwise know about: the ones with a name. */
+  /* Named holidays only. The source flags a lot of bare weekend days as
+     holidays — inconsistently, at that: 29 of 53 Saturdays in BS 2081 but 48
+     of 52 in BS 2082 — which filled this list with unnamed rows and buried the
+     festivals among them. The weekly pattern is drawn by rule in the grid
+     (see isWeeklyOff), so the list is for the days you would not otherwise
+     know about: the ones with a name. */
   const namedHolidays = useMemo(
     () => (panchang?.holidays ?? []).filter((h) => h.names.length > 0),
     [panchang],
@@ -105,16 +110,22 @@ export function CalendarPage() {
 
       <div className="cal__grid" role="grid" aria-label={`${NP_MONTHS_EN[view.month]} ${view.year}`}>
         <div className="cal__weekdays" role="row">
-          {NP_WEEKDAYS_SHORT.map((d, i) => (
-            <span
-              key={d}
-              role="columnheader"
-              className={`cal__weekday dev${i === SATURDAY ? ' cal__weekday--off' : ''}`}
-              aria-label={NP_WEEKDAYS_FULL[i]}
-            >
-              {d}
-            </span>
-          ))}
+          {NP_WEEKDAYS_SHORT.map((d, i) => {
+            /* Sunday is highlighted only for months the two-day weekend
+               actually covers, so paging back to 2081 shows the week as it
+               was rather than as it is now. */
+            const off = i === SATURDAY || (i === SUNDAY && sundayOff)
+            return (
+              <span
+                key={d}
+                role="columnheader"
+                className={`cal__weekday dev${off ? ' cal__weekday--off' : ''}`}
+                aria-label={NP_WEEKDAYS_FULL[i]}
+              >
+                {d}
+              </span>
+            )
+          })}
         </div>
 
         <div className="cal__days" role="rowgroup">
@@ -130,9 +141,11 @@ export function CalendarPage() {
             const weekday = (leadingBlanks + i) % 7
             const isToday = isSameBsDate(today, { year: view.year, month: view.month, day })
             const isSelected = isSameBsDate(selected, { year: view.year, month: view.month, day })
-            /* Saturday is the weekly day off in Nepal, so it is marked like a
-               holiday even with no festival on it. */
-            const off = info?.isHoliday || weekday === SATURDAY
+            /* Two independent reasons a day is off: the weekly pattern (a
+               rule, and one that changed in Chaitra 2082 — see isWeeklyOff)
+               and a declared or festival holiday from the tabulated data. */
+            const weeklyOff = isWeeklyOff({ year: view.year, month: view.month, day }, weekday)
+            const off = info?.isHoliday || weeklyOff
             const ad = bsToAd(view.year, view.month, day)
 
             const label = [
@@ -141,6 +154,7 @@ export function CalendarPage() {
               info?.tithi,
               info?.festivals.join(', '),
               info?.isHoliday ? 'public holiday' : '',
+              weeklyOff ? 'weekly day off' : '',
             ].filter(Boolean).join(' — ')
 
             return (
@@ -214,7 +228,7 @@ export function CalendarPage() {
             </h2>
             {namedHolidays.length === 0 ? (
               <p className="cal__detail-none">
-                No named holiday this month — only the usual Saturdays.
+                No named holiday this month — only the weekly {sundayOff ? 'Saturdays and Sundays' : 'Saturdays'}.
               </p>
             ) : (
               <ul>

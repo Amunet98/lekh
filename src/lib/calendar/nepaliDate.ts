@@ -36,8 +36,49 @@ export const EN_WEEKDAYS_FULL = [
   'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
 ] as const
 
-/** Saturday. The weekly holiday in Nepal. */
+export const SUNDAY = 0
 export const SATURDAY = 6
+
+/* Nepal moved to a two-day weekend.
+ *
+ * Saturday has always been the weekly day off. On 5 April 2026 the cabinet
+ * declared Sunday one as well, effective the next day — Chaitra 23, 2082,
+ * which converts to 6 April 2026 and matches the date the Nepali press
+ * reported. It applies to government offices and educational institutions;
+ * several local levels rejected it as impractical, and the private sector is
+ * not covered, so this is "a public holiday" rather than "everyone is off".
+ *
+ * It is dated rather than global, and that matters: marking Sundays across BS
+ * 2081 would be retroactively wrong for every week before the change. The
+ * source data cannot help here — its own holiday flag is inconsistent about
+ * weekends (29 of 53 Saturdays in BS 2081, 48 of 52 in BS 2082) and does not
+ * encode the Sunday policy at all, so the weekly pattern is a rule we apply
+ * and the source's flag is left to mean "a declared or festival holiday".
+ *
+ * If the policy is reversed — it was reported as under threat in July 2026 and
+ * the government denied it — add an end date here rather than deleting this. */
+export const TWO_DAY_WEEKEND_FROM: BsDate = { year: 2082, month: 11, day: 23 }
+
+/** −1, 0 or 1, comparing two BS dates chronologically. */
+export function compareBsDates(a: BsDate, b: BsDate): number {
+  if (a.year !== b.year) return a.year < b.year ? -1 : 1
+  if (a.month !== b.month) return a.month < b.month ? -1 : 1
+  if (a.day !== b.day) return a.day < b.day ? -1 : 1
+  return 0
+}
+
+/** Is this date a weekly day off (as opposed to a festival/declared holiday)? */
+export function isWeeklyOff(date: BsDate, weekday: number): boolean {
+  if (weekday === SATURDAY) return true
+  if (weekday === SUNDAY) return compareBsDates(date, TWO_DAY_WEEKEND_FROM) >= 0
+  return false
+}
+
+/** Does the two-day weekend apply anywhere within this BS month? */
+export function monthHasSundayOff(year: number, month: number): boolean {
+  const lastDay = { year, month, day: daysInBsMonth(year, month) }
+  return compareBsDates(lastDay, TWO_DAY_WEEKEND_FROM) >= 0
+}
 
 const DEVANAGARI_DIGITS = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९']
 
