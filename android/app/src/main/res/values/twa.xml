@@ -1,8 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Matches the PWA manifest's theme_color / background_color so the
-         launch splash does not flash a different colour than the page. -->
+    <!-- Two colours per bar, not one, and this is the whole reason the
+         navigation bar came out white on a dark phone.
+
+         androidbrowserhelper does not resolve one colour against the current
+         configuration — it builds a CustomTabColorSchemeParams for LIGHT and
+         one for DARK, reading STATUS_BAR_COLOR / NAVIGATION_BAR_COLOR for the
+         first and the _DARK keys for the second. Setting only the base keys
+         leaves the dark scheme with no navigation colour at all, and Chrome
+         falls back to its default, which is white. A values-night override
+         does not help either: both schemes are read in one pass, so night
+         resources would simply darken the light scheme too.
+
+         Verified on a device: before this, the bottom band sampled
+         rgb(255,255,255) against Settings' rgb(30,31,37). -->
     <color name="twa_status_bar">#FAFAFB</color>
+    <color name="twa_status_bar_dark">#0E1220</color>
+    <color name="twa_navigation_bar">#FAFAFB</color>
+    <color name="twa_navigation_bar_dark">#0E1220</color>
+
+    <!-- The launch splash. This one has no _DARK key in the library, so it is
+         the one colour that genuinely does want a values-night override. -->
     <color name="twa_background">#FAFAFB</color>
 
     <!-- Declares to Chrome which site this app claims. The other half of the
