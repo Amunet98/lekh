@@ -77,8 +77,8 @@
    * lifts the Devanagari again. */
   align-items: center;
   gap: 0.4rem;
-  /* It is a button — it opens the About sheet — so it needs a real target,
-     which the bare text did not give it. */
+  /* Kept from when this was a button. It is now inert text, but the height is
+     what the bar's row is built around and the actions align to. */
   min-height: 44px;
   font-family: var(--display);
   /* Clamped rather than fixed: this is the largest thing in the bar and the
@@ -94,11 +94,10 @@
   background: transparent;
   padding: 0;
   margin: 0;
-  cursor: pointer;
-  transition: transform var(--dur-fast) var(--ease-expo);
-}
-.app-bar__brand:active {
-  transform: scale(0.97);
+  /* No cursor and no press state: it is not a control. Both were left behind
+     when the wordmark stopped opening the About sheet, and a pointer cursor
+     over dead text is a promise the page does not keep. */
+  user-select: none;
 }
 /* The one place the flag's blue appears literally. It is never a control and
    never a link, so it does not compete with the crimson for the eye. */

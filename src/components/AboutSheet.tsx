@@ -157,14 +157,13 @@ export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
         )}
 
         {/* This used to read "nothing you type is ever sent anywhere", which is
-            not true and was about to be printed on a Play Store listing:
-            online translation posts your text to a third-party service. Typing,
-            OCR and the calendar really are local, so the claim is now scoped to
-            them, and the one exception has a link rather than a footnote. */}
+            not true: online translation posts your text to a third-party
+            service, and the claim was about to be printed on a Play Store
+            listing. Typing, OCR and the calendar really are local, so it is
+            scoped to them and stands on its own. The policy itself is linked
+            from the footer, where it can be found without opening anything. */}
         <p className="about__privacy">
-          typing, OCR and the calendar run entirely in your browser · <a href="/privacy.html">
-            privacy
-          </a>
+          typing, OCR and the calendar run entirely in your browser
         </p>
 
         {/* The byline the footer used to carry. It belongs here: a footer line

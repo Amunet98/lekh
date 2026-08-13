@@ -10,6 +10,7 @@ import { InstallButton } from './components/InstallButton'
 import { BootScreen } from './components/BootScreen'
 import { AboutSheet } from './components/AboutSheet'
 import { AboutButton } from './components/AboutButton'
+import { Footer } from './components/Footer'
 import { UpdatePrompt } from './components/UpdatePrompt'
 import './App.css'
 
@@ -148,16 +149,14 @@ function App() {
           comment in App.css, and do not move it back. */}
       <header className={`app-bar${booting ? ' app-bar--is-booting' : ''}`}>
         <div className="app-bar__inner">
-          <button
-            type="button"
-            className="app-bar__brand"
-            aria-label="About Lekh"
-            aria-haspopup="dialog"
-            onClick={() => setAboutOpen(true)}
-          >
+          {/* Not a button any more. It opened the About sheet, which was the
+              only way in until the sheet got its own control in the actions
+              row — and a wordmark that silently does something is a worse
+              affordance than one that plainly does nothing. */}
+          <span className="app-bar__brand">
             <span className="dev">लेख</span>
             <span className="app-bar__brand-latin">lekh</span>
-          </button>
+          </span>
           <TabSwitcher active={tab} onChange={setTab} />
           <div className="app-bar__actions">
             <InstallButton />
@@ -179,6 +178,9 @@ function App() {
         ) : (
           <CalendarPage />
         )}
+        {/* Inside .page so it inherits the bottom padding that clears the fixed
+            mobile dock, and so it fades with the rest on boot. */}
+        <Footer />
       </div>
 
       <AboutSheet open={aboutOpen} onClose={() => setAboutOpen(false)} onGoTo={goToSection} />

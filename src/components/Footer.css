@@ -1,0 +1,24 @@
+/* Quiet on purpose. This is a legal signpost, not content — it should be
+   findable when looked for and invisible when not. */
+.footer {
+  margin-top: 2.5rem;
+  padding: 1rem 0 0.25rem;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+.footer a {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-decoration: none;
+  /* The target, not the text, carries the 44px — a 0.72rem word is not a
+     tappable thing on its own. */
+  display: inline-block;
+  padding: 0.9rem 1.25rem;
+  border-radius: var(--radius-pill);
+  transition: color var(--dur) var(--ease), background-color var(--dur) var(--ease);
+}
+.footer a:hover {
+  color: var(--text-h);
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+}
