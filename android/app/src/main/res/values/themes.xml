@@ -6,4 +6,22 @@
      app supports 26. -->
 <resources>
     <style name="LekhConfigTheme" parent="@android:style/Theme.DeviceDefault.Light.Dialog" />
+
+    <!-- The TWA launcher's own window, and the reason opening the app looked
+         like opening a browser.
+
+         androidbrowserhelper's LauncherActivity is a real Activity that holds
+         the splash while Chrome warms up. With no theme of its own it took the
+         platform default, which has an action bar — so the launch sequence
+         showed a titled grey header reading "Lekh Patro" above the icon, which
+         is a loading web page, not an app.
+
+         NoActionBar removes the header; windowBackground paints the same colour
+         as the splash so the frames before and after it match instead of
+         flashing. It resolves through values-night with the rest of the TWA
+         colours. -->
+    <style name="LekhLauncherTheme" parent="@android:style/Theme.DeviceDefault.NoActionBar">
+        <item name="android:windowBackground">@color/twa_background</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
 </resources>
