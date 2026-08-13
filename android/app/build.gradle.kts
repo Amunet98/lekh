@@ -1,6 +1,17 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+}
+
+/* Signing config comes from keystore.properties, which is gitignored and
+ * points at a keystore kept outside the repo. Absent it, release builds are
+ * simply unsigned rather than failing — so a fresh clone can still run
+ * `assembleDebug` without any secrets. */
+val keystorePropsFile = rootProject.file("keystore.properties")
+val keystoreProps = Properties().apply {
+    if (keystorePropsFile.exists()) keystorePropsFile.inputStream().use { load(it) }
 }
 
 android {
@@ -10,17 +21,36 @@ android {
     defaultConfig {
         applicationId = "np.com.bimeshpoudel.lekh"
         // 26 (Oreo) is the floor because the date logic uses java.time.
-        // desugaring could lower it, but a calendar widget on Android 7 is not
-        // worth the build complexity.
         minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0.0"
+
+        /* The URL the Trusted Web Activity opens, injected into the manifest so
+         * it is stated once. It must be the same origin as the assetlinks.json
+         * that verifies this app, or Chrome shows its address bar instead of
+         * running full-screen. */
+        manifestPlaceholders["twaUrl"] = "https://lekh-gamma.vercel.app/"
+        manifestPlaceholders["twaHost"] = "lekh-gamma.vercel.app"
+    }
+
+    signingConfigs {
+        if (keystoreProps.isNotEmpty()) {
+            create("release") {
+                storeFile = file(keystoreProps.getProperty("storeFile"))
+                storePassword = keystoreProps.getProperty("storePassword")
+                keyAlias = keystoreProps.getProperty("keyAlias")
+                keyPassword = keystoreProps.getProperty("keyPassword")
+            }
+        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
+            if (keystoreProps.isNotEmpty()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
 
@@ -34,7 +64,11 @@ android {
 }
 
 dependencies {
-    // Nothing. The widget is RemoteViews, org.json and java.time — all of
-    // which are in the platform. Adding androidx here would buy nothing and
-    // cost APK size on a two-screen app.
+    /* The only dependency, and it is what makes this one install instead of
+     * two. androidbrowserhelper provides the Trusted Web Activity launcher:
+     * the app opens Lekh full-screen in the user's Chrome, with no address bar
+     * once the domain is verified — so a single APK carries both the app and
+     * the home-screen widget. The widget itself still uses nothing but the
+     * platform. */
+    implementation("com.google.androidbrowserhelper:androidbrowserhelper:2.5.0")
 }

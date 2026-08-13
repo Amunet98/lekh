@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "np.com.bimeshpoudel.lekh",
+      "sha256_cert_fingerprints": [
+        "51:57:42:34:1C:FE:37:35:B8:2E:1D:62:07:3F:12:C7:B2:11:02:58:C8:6B:41:C0:99:5F:41:03:C0:9D:77:58"
+      ]
+    }
+  }
+]

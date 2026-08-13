@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Matches the PWA manifest's theme_color / background_color so the
+         launch splash does not flash a different colour than the page. -->
+    <color name="twa_status_bar">#FAFAFB</color>
+    <color name="twa_background">#FAFAFB</color>
+
+    <!-- Declares to Chrome which site this app claims. The other half of the
+         handshake is /.well-known/assetlinks.json on that site, which lists
+         this APK's signing certificate. Both must agree or the address bar
+         stays visible. -->
+    <string name="asset_statements" translatable="false">
+        [{
+          \"relation\": [\"delegate_permission/common.handle_all_urls\"],
+          \"target\": {
+            \"namespace\": \"web\",
+            \"site\": \"https://lekh-gamma.vercel.app\"
+          }
+        }]
+    </string>
+</resources>

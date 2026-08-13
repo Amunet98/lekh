@@ -361,3 +361,35 @@
     transform: translateY(24px);
   }
 }
+
+/* The Android download. Deliberately quieter than the section buttons above
+   it — the web app is the product and works everywhere; this is the extra for
+   one platform, not the main call to action. */
+.about__apk {
+  display: block;
+  margin-top: var(--sp-4);
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--accent-border);
+  background: var(--accent-bg);
+  border-radius: var(--radius-card);
+  text-align: center;
+  text-decoration: none;
+  min-height: 44px;
+}
+.about__apk-main {
+  display: block;
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--accent-text);
+}
+.about__apk-sub {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.about__apk-sub .dev {
+  font-family: var(--display-dev);
+  color: var(--accent-text);
+}
