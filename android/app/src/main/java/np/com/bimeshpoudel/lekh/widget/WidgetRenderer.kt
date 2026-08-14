@@ -2,6 +2,7 @@ package np.com.bimeshpoudel.lekh.widget
 
 import android.app.PendingIntent
 import android.content.Context
+import android.os.Build
 import android.widget.RemoteViews
 import np.com.bimeshpoudel.lekh.R
 import java.time.format.DateTimeFormatter
@@ -115,12 +116,28 @@ object WidgetRenderer {
             },
         )
 
-        // Holidays and weekly days off share one accent, as in the web app.
+        /* Holidays and weekly days off share one accent, as in the web app.
+         *
+         * Passed as a colour RESOURCE, not a resolved int, and that is the whole
+         * point. context.getColor() resolves against *our* process's
+         * configuration, which is not the launcher's: a widget placed while the
+         * phone was light kept a near-black day number after the phone went
+         * dark, invisible against the dark surface, and it survived a redraw
+         * because the resolved value is baked into the RemoteViews action. Every
+         * other colour in the widget is declared in the layout and was correct,
+         * which is exactly why this one was hard to see coming.
+         *
+         * setColorStateList hands the launcher the resource and lets it resolve
+         * per its own theme. It is API 31+; below that the old behaviour stands,
+         * which is wrong only across a theme change on Android 8–11.
+         */
         val isOff = NepaliCalendar.isWeeklyOff(today) || (info?.isHoliday == true)
-        views.setTextColor(
-            R.id.widget_day,
-            context.getColor(if (isOff) R.color.widget_accent else R.color.widget_text),
-        )
+        val dayColor = if (isOff) R.color.widget_accent else R.color.widget_text
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            views.setColorStateList(R.id.widget_day, "setTextColor", dayColor)
+        } else {
+            views.setTextColor(R.id.widget_day, context.getColor(dayColor))
+        }
 
         renderWeek(context, views, today, en)
 

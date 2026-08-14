@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Anek+Devanagari:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=block"
+      rel="stylesheet"
+    />
+    <style>
+      /* Play Store feature graphic, 1024x500.
+
+         Dark for the same reason as og-image.html: the listing around it is
+         light, so a dark panel reads as an object rather than as part of the
+         page.
+
+         Two constraints this shape has and the OG card does not. Play crops and
+         overlays this graphic differently across surfaces — on some the app
+         icon and title sit on top of it — so nothing load-bearing goes near an
+         edge or the lower-left corner, and there is no small print anywhere.
+         And it is 2:1, far wider than it is tall, which is why the composition
+         is one horizontal statement rather than a stacked card.
+
+         The content is the app's most characteristic moment: a Roman word
+         turning into Devanagari. That is the whole product in one line, and it
+         needs no explaining sentence underneath.
+
+         Tokens are copied from src/index.css dark palette — this renders to a
+         PNG and cannot import them, so it goes stale if the palette moves. */
+      :root {
+        --bg: #0e1220;
+        --surface: #151a2b;
+        --text: #a6aec2;
+        --text-h: #f2f4f8;
+        --muted: #828ca4;
+        --accent: #f87171;
+        --flag-blue: #8fb0f0;
+        --border: #2c3450;
+        --display-dev: 'Anek Devanagari', 'Noto Sans Devanagari', sans-serif;
+        --sans: 'Inter', system-ui, sans-serif;
+        --mono: 'JetBrains Mono', ui-monospace, monospace;
+        --devanagari: 'Noto Sans Devanagari', sans-serif;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body { width: 1024px; height: 500px; overflow: hidden; }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--sans);
+        -webkit-font-smoothing: antialiased;
+        display: flex;
+        align-items: center;
+        gap: 56px;
+        padding: 0 72px;
+        position: relative;
+      }
+
+      /* A single wide wash rather than the app's aurora: at 2:1 a centred glow
+         would sit behind the crop line on some surfaces. This keeps the light
+         on the left where the wordmark is. */
+      body::before {
+        content: '';
+        position: absolute;
+        left: -180px;
+        top: -220px;
+        width: 780px;
+        height: 780px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(143, 176, 240, 0.16), transparent 62%);
+      }
+
+      .brand { position: relative; flex: 0 0 auto; }
+      .wordmark {
+        font-family: var(--display-dev);
+        font-weight: 700;
+        font-size: 132px;
+        line-height: 0.95;
+        color: var(--text-h);
+        letter-spacing: -0.01em;
+      }
+      /* ख in flag blue, the one literal use of it in the app's own rules. */
+      .wordmark b { color: var(--flag-blue); font-weight: 700; }
+      .latin {
+        font-family: var(--mono);
+        font-size: 26px;
+        letter-spacing: 0.42em;
+        color: var(--muted);
+        padding-left: 6px;
+        margin-top: 10px;
+      }
+
+      .rule {
+        position: relative;
+        flex: 0 0 auto;
+        width: 1px;
+        height: 236px;
+        background: linear-gradient(transparent, var(--border) 18%, var(--border) 82%, transparent);
+      }
+
+      .say { position: relative; display: flex; flex-direction: column; gap: 26px; }
+
+      .demo { display: flex; align-items: center; gap: 22px; }
+      .roman {
+        font-family: var(--mono);
+        font-size: 40px;
+        color: var(--muted);
+      }
+      .arrow { color: var(--accent); font-size: 34px; line-height: 1; }
+      .deva {
+        font-family: var(--devanagari);
+        font-weight: 600;
+        font-size: 46px;
+        color: var(--text-h);
+      }
+      .deva em { color: var(--accent); font-style: normal; }
+
+      .lines { display: flex; flex-direction: column; gap: 12px; }
+      .line {
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+        font-size: 25px;
+        color: var(--text);
+      }
+      .line span.np {
+        font-family: var(--devanagari);
+        color: var(--muted);
+        font-size: 22px;
+      }
+      .dot { color: var(--accent); font-size: 20px; }
+    </style>
+  </head>
+  <body>
+    <div class="brand">
+      <div class="wordmark">ले<b>ख</b></div>
+      <div class="latin">LEKH</div>
+    </div>
+
+    <div class="rule"></div>
+
+    <div class="say">
+      <div class="demo">
+        <span class="roman">kasto chha</span>
+        <span class="arrow">&rarr;</span>
+        <span class="deva">कस्तो <em>छ</em></span>
+      </div>
+      <div class="lines">
+        <div class="line"><span class="dot">&bull;</span> Type Nepali phonetically <span class="np">लेख्नुहोस्</span></div>
+        <div class="line"><span class="dot">&bull;</span> Bikram Sambat patro, no ads <span class="np">पात्रो</span></div>
+      </div>
+    </div>
+  </body>
+</html>

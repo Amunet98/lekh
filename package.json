@@ -15,7 +15,8 @@
     "calendar:data": "node scripts/fetch-calendar-data.mjs",
     "android:assets": "node scripts/export-android-assets.mjs",
     "assetlinks": "node scripts/gen-assetlinks.mjs",
-    "android:release": "npm run android:assets && cd android && ./gradlew assembleRelease"
+    "android:release": "npm run android:assets && cd android && ./gradlew assembleRelease",
+    "play:feature": "node scripts/render-feature-graphic.mjs"
   },
   "dependencies": {
     "@huggingface/transformers": "^3.7.6",
