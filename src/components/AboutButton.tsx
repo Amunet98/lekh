@@ -4,16 +4,16 @@ interface AboutButtonProps {
   onClick: () => void
 }
 
-/* The About sheet had exactly one way in: tapping the wordmark.
+/* The About sheet used to have exactly one way in: tapping the wordmark.
  *
- * That is a nice touch and an invisible one. Nobody hunts for an affordance
+ * That was a nice touch and an invisible one. Nobody hunts for an affordance
  * they have no reason to believe exists, so in practice the sheet — which is
  * where the app explains what it is, and where Android visitors learn the APK
  * is the only build with a home-screen widget — was reachable only by being
  * told about it. This is the same sheet, with a control that says so.
  *
- * The wordmark keeps working. It costs nothing and people who found it once
- * will go back to it.
+ * The wordmark's onClick is gone now (see App.tsx) — this button is the only
+ * way in.
  */
 export function AboutButton({ onClick }: AboutButtonProps) {
   return (

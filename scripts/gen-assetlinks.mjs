@@ -22,7 +22,7 @@
  * fingerprint here too — the array holds more than one on purpose.
  */
 import { execFileSync } from 'node:child_process'
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -36,13 +36,23 @@ if (!existsSync(apk)) {
 }
 
 /* apksigner is the source of truth: it reports the certificate the APK is
-   actually signed with, which is the thing Chrome will compare against. */
+   actually signed with, which is the thing Chrome will compare against.
+   Picked from whichever build-tools version is actually installed, highest
+   first, rather than a version pinned in this script — the SDK's installed
+   versions change independently of this repo (an SDK cleanup, a bump to
+   compileSdk in android/app/build.gradle.kts) and a hardcoded version here
+   just goes stale. */
 const buildTools = join(process.env.ANDROID_HOME || join(process.env.HOME, 'Android/Sdk'), 'build-tools')
-const apksigner = join(buildTools, '35.0.0', 'apksigner')
-if (!existsSync(apksigner)) {
-  console.error(`apksigner not found at ${apksigner} — set ANDROID_HOME or install build-tools;35.0.0`)
+const buildToolsVersion = existsSync(buildTools)
+  ? readdirSync(buildTools)
+      .filter((v) => existsSync(join(buildTools, v, 'apksigner')))
+      .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))[0]
+  : undefined
+if (!buildToolsVersion) {
+  console.error(`No apksigner found under ${buildTools} — set ANDROID_HOME or install an Android build-tools package`)
   process.exit(1)
 }
+const apksigner = join(buildTools, buildToolsVersion, 'apksigner')
 
 const out = execFileSync(apksigner, ['verify', '--print-certs', apk], { encoding: 'utf8' })
 const match = /Signer #1 certificate SHA-256 digest:\s*([0-9a-f]{64})/i.exec(out)

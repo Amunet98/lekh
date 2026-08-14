@@ -11,6 +11,9 @@
  * so this never needs updating. The asset filename must stay `lekh-patro.apk`
  * for that path to resolve.
  */
+import { ANDROID_PACKAGE } from './androidPackage'
+export { ANDROID_PACKAGE } from './androidPackage'
+
 export const APK_URL =
   'https://github.com/Amunet98/lekh/releases/latest/download/lekh-patro.apk'
 
@@ -31,6 +34,23 @@ export function isAndroid(): boolean {
 export function isStandalone(): boolean {
   try {
     return matchMedia('(display-mode: standalone)').matches
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Specifically the Android APK's Trusted Web Activity — not just "installed
+ * somehow". `isStandalone()` is also true for the plain PWA that Chrome's own
+ * "Install app" menu produces, which has no widget and is exactly the case
+ * where the "Get the Android app" offer should still show. A TWA is launched
+ * with `document.referrer` set to `android-app://<package>`, which a browser
+ * tab or a Chrome-menu PWA install never sets, so it is the one signal that
+ * tells the two apart synchronously.
+ */
+export function isTWA(): boolean {
+  try {
+    return document.referrer.startsWith('android-app://')
   } catch {
     return false
   }
@@ -66,6 +86,3 @@ export async function isAndroidAppInstalled(): Promise<boolean> {
     return false
   }
 }
-
-/** Must match applicationId in android/app/build.gradle.kts. */
-export const ANDROID_PACKAGE = 'np.com.bimeshpoudel.lekh'

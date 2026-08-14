@@ -47,6 +47,17 @@ object NepaliCalendar {
     private var epochAd: LocalDate = LocalDate.of(1943, 4, 14)
     private var loaded = false
 
+    /* yearBoundaries[i] = days from the epoch to the start of BS year
+     * (epochYear + i), for i in 0..(lastTabulatedYear - epochYear); the final
+     * entry is a sentinel for the start of the first untabulated year.
+     * Computed once at load() instead of walked (and re-summed) on every
+     * daysFromEpoch/fromGregorian call — today() alone calls fromGregorian
+     * once per render, and a widget render can now call it several dozen
+     * times (see weekOf and Panchang.upcoming), so an O(years-since-epoch)
+     * walk per call was real, growing cost. */
+    private var yearBoundaries: IntArray = intArrayOf(0)
+    private var lastTabulatedYear = epochYear
+
     @Synchronized
     fun load(context: Context) {
         if (loaded) return
@@ -62,30 +73,61 @@ object NepaliCalendar {
             parsed[key.toInt()] = IntArray(arr.length()) { arr.getInt(it) }
         }
         months = parsed
+        lastTabulatedYear = parsed.keys.maxOrNull() ?: epochYear
+
+        val boundaries = IntArray(lastTabulatedYear - epochYear + 2)
+        var total = 0
+        for (y in epochYear..lastTabulatedYear) {
+            boundaries[y - epochYear] = total
+            total += months[y]?.sum() ?: 365
+        }
+        boundaries[lastTabulatedYear - epochYear + 1] = total
+        yearBoundaries = boundaries
+
         loaded = true
+    }
+
+    /** Days from the epoch to the start of [year], reading the precomputed
+     *  table for tabulated years and extrapolating (same 365-day-per-year
+     *  fallback daysFromEpoch always used) beyond it. */
+    private fun cumulativeAt(year: Int): Int {
+        val idx = year - epochYear
+        return if (idx in yearBoundaries.indices) {
+            yearBoundaries[idx]
+        } else {
+            yearBoundaries.last() + (year - lastTabulatedYear - 1) * 365
+        }
     }
 
     /** Days from the BS epoch to the given BS date. */
     private fun daysFromEpoch(date: BsDate): Int {
+        val base = cumulativeAt(date.year)
+        val lengths = months[date.year] ?: return base
         var total = 0
-        for (y in epochYear until date.year) total += months[y]?.sum() ?: 365
-        val lengths = months[date.year] ?: return total
         for (m in 0 until date.month) total += lengths[m]
-        return total + (date.day - 1)
+        return base + total + (date.day - 1)
     }
 
     fun toGregorian(date: BsDate): LocalDate = epochAd.plusDays(daysFromEpoch(date).toLong())
 
     fun fromGregorian(date: LocalDate): BsDate {
         var remaining = java.time.temporal.ChronoUnit.DAYS.between(epochAd, date).toInt()
-        var year = epochYear
-        while (true) {
-            val lengths = months[year] ?: return BsDate(year, 0, 1)
-            val inYear = lengths.sum()
-            if (remaining < inYear) break
-            remaining -= inYear
-            year++
+
+        // Binary search yearBoundaries for the tabulated year remaining falls
+        // into, in place of the old linear walk from epochYear.
+        var lo = 0
+        var hi = yearBoundaries.size - 1
+        while (lo < hi) {
+            val mid = (lo + hi + 1) / 2
+            if (yearBoundaries[mid] <= remaining) lo = mid else hi = mid - 1
         }
+        val year = epochYear + lo
+        // lo landing on the sentinel entry means remaining reached the first
+        // untabulated year — same guard the old loop hit when months[year]
+        // came back null.
+        if (year > lastTabulatedYear) return BsDate(year, 0, 1)
+
+        remaining -= yearBoundaries[lo]
         val lengths = months[year]!!
         var month = 0
         while (month < 12 && remaining >= lengths[month]) {

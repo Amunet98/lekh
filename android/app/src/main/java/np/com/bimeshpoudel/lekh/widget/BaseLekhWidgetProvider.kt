@@ -42,7 +42,7 @@ abstract class BaseLekhWidgetProvider : AppWidgetProvider() {
     protected abstract val layoutRes: Int
 
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) {
-        for (id in ids) render(context, manager, id)
+        render(context, manager, ids)
         scheduleMidnight(context)
     }
 
@@ -57,7 +57,7 @@ abstract class BaseLekhWidgetProvider : AppWidgetProvider() {
         ) {
             val manager = AppWidgetManager.getInstance(context)
             val ids = manager.getAppWidgetIds(ComponentName(context, javaClass))
-            for (id in ids) render(context, manager, id)
+            render(context, manager, ids)
             scheduleMidnight(context)
         }
     }
@@ -67,8 +67,13 @@ abstract class BaseLekhWidgetProvider : AppWidgetProvider() {
         alarmManager(context).cancel(midnightIntent(context))
     }
 
-    private fun render(context: Context, manager: AppWidgetManager, id: Int) {
-        manager.updateAppWidget(id, WidgetRenderer.build(context, layoutRes, openPatro(context)))
+    /* Every placed instance of a given size renders identically — same date,
+       same layout, same click target — so this builds the RemoteViews and its
+       PendingIntent once and hands them to AppWidgetManager's batch overload,
+       rather than rebuilding both per id. */
+    private fun render(context: Context, manager: AppWidgetManager, ids: IntArray) {
+        if (ids.isEmpty()) return
+        manager.updateAppWidget(ids, WidgetRenderer.build(context, layoutRes, openPatro(context)))
     }
 
     private fun openPatro(context: Context): PendingIntent =

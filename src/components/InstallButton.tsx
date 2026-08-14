@@ -34,8 +34,8 @@ function DownloadIcon() {
  * Android that was actively misleading: it was the most prominent control on
  * the page and it installed the *web app*, which cannot have a home-screen
  * widget — while the APK, which is a full app and carries the widget, was
- * three taps away behind the wordmark. The obvious button gave you the lesser
- * thing, which is exactly what the owner hit.
+ * behind the About sheet. The obvious button gave you the lesser thing,
+ * which is exactly what the owner hit.
  *
  * Nothing is lost by not offering the PWA prompt on Android: Chrome keeps its
  * own "Install app" entry in the overflow menu for anyone who would rather not

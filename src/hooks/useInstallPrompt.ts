@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { isStandalone } from '../lib/androidApp'
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>
@@ -13,9 +14,7 @@ interface BeforeInstallPromptEvent extends Event {
 // just stays hidden there).
 export function useInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
-  const [installed, setInstalled] = useState(
-    () => matchMedia('(display-mode: standalone)').matches,
-  )
+  const [installed, setInstalled] = useState(() => isStandalone())
 
   useEffect(() => {
     const onBeforeInstall = (e: Event) => {

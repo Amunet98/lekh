@@ -3,6 +3,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import { ANDROID_PACKAGE } from './src/lib/androidPackage'
 
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf-8'))
 
@@ -48,7 +49,7 @@ export default defineConfig({
         related_applications: [
           {
             platform: 'play',
-            id: 'np.com.bimeshpoudel.lekh',
+            id: ANDROID_PACKAGE,
             // Where the build actually comes from today. The schema requires a
             // url; Chrome matches on the package id, so this is documentation
             // rather than a lookup, and it should become the Play listing if

@@ -67,6 +67,16 @@ type TranslationPipeline = (
 let translator: TranslationPipeline | null = null
 let loadingPromise: Promise<TranslationPipeline> | null = null
 
+// getTranslator() dedupes concurrent loads onto one loadingPromise, but a
+// caller that joins an in-flight load still needs its own progress updates —
+// so every active caller's onProgress lives here for the load's duration,
+// and loadPipeline() broadcasts to all of them instead of a single callback.
+const progressListeners = new Set<(p: ModelLoadProgress) => void>()
+
+function broadcastProgress(p: ModelLoadProgress): void {
+  for (const listener of progressListeners) listener(p)
+}
+
 interface ProgressEvent {
   status: string
   file?: string
@@ -74,9 +84,7 @@ interface ProgressEvent {
   total?: number
 }
 
-async function loadPipeline(
-  onProgress?: (p: ModelLoadProgress) => void,
-): Promise<TranslationPipeline> {
+async function loadPipeline(): Promise<TranslationPipeline> {
   // Files fire per-file initiate/progress/done events; aggregate them into one
   // honest overall byte count. totalBytes grows as later files initiate, so
   // the bar can dip early on — acceptable trade-off for real numbers.
@@ -85,7 +93,7 @@ async function loadPipeline(
   let lastLoadedMB = -1
 
   const emit = () => {
-    if (!onProgress) return
+    if (progressListeners.size === 0) return
     let loadedBytes = 0
     let totalBytes = 0
     let allDone = files.size > 0
@@ -106,7 +114,7 @@ async function loadPipeline(
       // Every fetched file is complete (or nothing is streaming, e.g. a
       // Firefox cache hit fires no progress events) — the remaining wait is
       // ONNX session init, which has no measurable progress.
-      onProgress({ phase: 'preparing' })
+      broadcastProgress({ phase: 'preparing' })
       return
     }
     // Throttle: transformers.js fires per-chunk; only re-render on a visible
@@ -116,10 +124,10 @@ async function loadPipeline(
     if (percent === lastPercent && loadedMB === lastLoadedMB) return
     lastPercent = percent
     lastLoadedMB = loadedMB
-    onProgress({ phase: 'downloading', loadedBytes, totalBytes })
+    broadcastProgress({ phase: 'downloading', loadedBytes, totalBytes })
   }
 
-  onProgress?.({ phase: 'preparing' })
+  broadcastProgress({ phase: 'preparing' })
 
   // Dynamically imported so the ~21MB onnxruntime-web WASM runtime and the
   // rest of transformers.js only ever load when on-device mode is actually
@@ -150,7 +158,7 @@ async function loadPipeline(
       emit()
     },
   })
-  onProgress?.({ phase: 'done' })
+  broadcastProgress({ phase: 'done' })
   setDownloadedModel()
   return p as unknown as TranslationPipeline
 }
@@ -159,16 +167,21 @@ async function getTranslator(
   onProgress?: (p: ModelLoadProgress) => void,
 ): Promise<TranslationPipeline> {
   if (translator) return translator
-  if (!loadingPromise) {
-    loadingPromise = loadPipeline(onProgress).catch((err: unknown) => {
-      // Don't cache the rejection — a transient network failure shouldn't
-      // brick on-device mode for the rest of the session.
-      loadingPromise = null
-      throw err
-    })
+  if (onProgress) progressListeners.add(onProgress)
+  try {
+    if (!loadingPromise) {
+      loadingPromise = loadPipeline().catch((err: unknown) => {
+        // Don't cache the rejection — a transient network failure shouldn't
+        // brick on-device mode for the rest of the session.
+        loadingPromise = null
+        throw err
+      })
+    }
+    translator = await loadingPromise
+    return translator
+  } finally {
+    if (onProgress) progressListeners.delete(onProgress)
   }
-  translator = await loadingPromise
-  return translator
 }
 
 /**

@@ -58,6 +58,15 @@ object WidgetRenderer {
         NepaliCalendar.load(context)
         Panchang.load(context)
 
+        // Only these two layouts have a widget_next row, and only xl_large has
+        // the week strip (see the XML: widget_next ships visibility="gone" and
+        // empty text everywhere else, and the week ids don't exist elsewhere at
+        // all). Computing Panchang.upcoming()'s 60-day walk or the week strip's
+        // 7 NepaliDate/Panchang lookups for a size that cannot show either is
+        // pure waste.
+        val showsUpcoming = layoutRes == R.layout.widget_patro_xl || layoutRes == R.layout.widget_patro_xl_large
+        val showsWeek = layoutRes == R.layout.widget_patro_xl_large
+
         val en = WidgetPrefs.isEnglish(context)
         val today = NepaliCalendar.today()
         val info = Panchang.forDay(today)
@@ -99,21 +108,23 @@ object WidgetRenderer {
 
         /* What is coming. Only the 5x1 and 5x2 have a row for this; on every
            other size the view is gone and the text goes nowhere. */
-        val upcoming = Panchang.upcoming(today)
-        views.setTextViewText(
-            R.id.widget_next,
-            if (upcoming == null) "" else {
-                val (days, next) = upcoming
-                val name = next.festivals.first()
-                if (en) {
-                    "Next · ${Roman.festival(name)} · ${if (days == 1) "tomorrow" else "in $days days"}"
-                } else {
-                    val away =
-                        if (days == 1) "भोलि" else "${NepaliCalendar.toDevanagari(days)} दिनमा"
-                    "आगामी · $name · $away"
-                }
-            },
-        )
+        if (showsUpcoming) {
+            val upcoming = Panchang.upcoming(today)
+            views.setTextViewText(
+                R.id.widget_next,
+                if (upcoming == null) "" else {
+                    val (days, next) = upcoming
+                    val name = next.festivals.first()
+                    if (en) {
+                        "Next · ${Roman.festival(name)} · ${if (days == 1) "tomorrow" else "in $days days"}"
+                    } else {
+                        val away =
+                            if (days == 1) "भोलि" else "${NepaliCalendar.toDevanagari(days)} दिनमा"
+                        "आगामी · $name · $away"
+                    }
+                },
+            )
+        }
 
         /* Holidays and weekly days off share one accent, as in the web app.
          *
@@ -134,7 +145,7 @@ object WidgetRenderer {
         val isOff = NepaliCalendar.isWeeklyOff(today) || (info?.isHoliday == true)
         views.setBoolean(R.id.widget_day, "setEnabled", !isOff)
 
-        renderWeek(views, today, en)
+        if (showsWeek) renderWeek(views, today, en)
 
         if (onClick != null) views.setOnClickPendingIntent(R.id.widget_root, onClick)
         return views
