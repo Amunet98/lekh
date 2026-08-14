@@ -9,37 +9,41 @@ Android home screen; there is no web API for an Android widget. A native
 `AppWidgetProvider` is the only route, which is why there is Kotlin in a repo
 that is otherwise a web app.
 
-## Status: built, installed and rendered on Android 15
+## Status: released — six widget sizes, signed, on GitHub Releases
 
-`./gradlew assembleDebug` produces a working 856 KB APK (`np.com.bimeshpoudel.lekh`,
-minSdk 26, target 35). Building it immediately caught one real bug — `R` is
-generated into the *namespace* package, not this file's package, so every
-`R.layout`/`R.id`/`R.color` reference was unresolved until an explicit
-`import np.com.bimeshpoudel.lekh.R` was added. That is exactly the class of
-error "never compiled" was warning about.
+Eight releases since the first build, `android-v1.0.0` through the current
+`android-v1.5.2` (`versionCode` 10). `compileSdk`/`targetSdk` are 36 (Android
+16), which Google Play requires; `minSdk` is still 26. Widget sizes grew from
+the original three to six — 2x1, 2x2, 4x1, 4x2, 5x1, 5x2 — and rendering now
+follows Nepali or English by a widget-settings screen rather than being fixed.
+Distributed as a signed APK on GitHub Releases (asset name `lekh-patro.apk`);
+a Play Store listing is in progress, currently in internal testing.
 
-It has now been installed on an Android 15 emulator and rendered. Verified
-there:
+Two bugs only a real device placement could have caught, both fixed and
+shipped:
 
-- **Both implementations agree.** The widget showed
-  `२९ श्रावण २०८३ · शुक्रबार · 14 Aug 2026 · गुँलाधर्म आरम्भ`, matching the web
-  app's data for that date exactly — Kotlin and TypeScript, same answer.
-- **The weekend rule fires.** Advancing the device clock to Saturday 15 Aug
-  2026 flipped the date to `३० · शनिबार · चन्द्रोदय` and turned the numeral
-  crimson, where Friday's had been plain. `isWeeklyOff` works.
-- **Dark mode** picks up `values-night` — blue-black surface, `#F87171`
-  accent.
-- **The provider registers** with AppWidgetService and binds
-  `APPWIDGET_UPDATE`; no crash in logcat.
-- **The TWA verifies.** Installing the signed release on the emulator and
-  launching it opened Lekh full-screen with **no address bar**, which is the
-  only visible proof that assetlinks.json matched. The release build exposes
-  exactly one launcher activity (the TWA); the debug preview is correctly
-  absent from it.
+- **v1.2.0 crashed on placement.** `scheduleMidnight()` called `setExact()`,
+  which needs `SCHEDULE_EXACT_ALARM` from Android 12 and is not granted by
+  default on 13+. Measured on a device: `canScheduleExactAlarms() == false`,
+  and the `SecurityException` threw from inside `onUpdate`, taking the whole
+  process down the moment a widget was placed. Fixed by switching to
+  `setWindow()`, which needs no permission. The debug preview activity calls
+  the renderer directly and never runs `onUpdate`, so no amount of previewing
+  could have caught this — it took an actual widget on an actual home screen.
+- **The date could go invisible on a theme change.** Colours were resolved
+  from the app's own light/dark idea rather than the launcher's; placing a
+  widget in one theme and switching the phone to the other left the date
+  (and, on 5x2, the weekend dates and weekday letters) nearly unreadable until
+  the next redraw. Now follows the launcher's theme live, Android 8 and up.
 
-Still unverified: the midnight alarm actually firing (it was exercised by
-moving the clock, not by waiting), and how it looks on a real launcher's home
-screen.
+What the original Android-15-emulator session verified still holds — both
+implementations agreeing on a given date, the weekend rule flipping the
+numeral crimson, dark mode picking up `values-night`, the provider registering
+with `AppWidgetService`, and the signed release's TWA opening with no address
+bar — and target-36 behaviour (system bars, widget, calendar) has since been
+re-verified on a device. What is still not specifically documented as tested:
+waiting through an actual real-time midnight rollover rather than advancing
+the clock or letting the app run past it incidentally.
 
 **A note on the emulator, if you try it headless:** `-no-window` crashes here.
 `qemu-system-x86_64` segfaults and dumps core about eight seconds into guest
@@ -99,8 +103,10 @@ What *was* verified, beyond the build:
 - **Resources.** Every XML file parses, and every `@color`/`@layout`/`@drawable`
   /`@mipmap` and `R.*` reference resolves to something that exists.
 
-What was **not** verified: that RemoteViews renders the Devanagari on a real
-device, that the midnight alarm fires, or how it looks on a home screen.
+RemoteViews rendering Devanagari on a real device, the alarm surviving in
+practice, and how it looks on a home screen are no longer open questions —
+see Status above. What remains untested specifically is a real-time midnight
+rollover rather than one produced by advancing the clock.
 
 ## What the APK is
 
@@ -138,8 +144,10 @@ be updated again.
 
 Then long-press the home screen → Widgets → **Lekh Patro**.
 
-The app has **no launcher activity** — it is a widget and nothing else, so it
-will not appear in the app drawer. That is intentional.
+A debug build's only launcher activity is the "Lekh Patro preview" screen
+(`src/debug/`) — there is no widget-only, drawer-invisible variant. A signed
+release build launches the TWA instead (see "What the APK is" above), which
+is the one that ships.
 
 ## The data is shared, not copied
 
@@ -169,11 +177,12 @@ corrected, and the symptom would be a wrong date rather than a crash.
 - **`android:exported="true"` on the receiver.** A widget provider receives
   `APPWIDGET_UPDATE` from the *system*; `false` means the broadcast never
   arrives and the widget silently never draws.
-- **An exact alarm at midnight, and `updatePeriodMillis="0"`.**
-  `updatePeriodMillis` is clamped to 30 minutes and fires on Android's
-  schedule, not on a wall-clock boundary — so a date widget driven by it shows
-  yesterday's date for up to half an hour after midnight, which is the one
-  moment it must be right.
+- **A midnight alarm, not `updatePeriodMillis`, and `updatePeriodMillis="0"`
+  in the manifest.** `updatePeriodMillis` is clamped to 30 minutes and fires
+  on Android's schedule, not on a wall-clock boundary — so a date widget
+  driven by it shows yesterday's date for up to half an hour after midnight,
+  which is the one moment it must be right. The alarm itself is scheduled with
+  `setWindow()`, not `setExact()` — see Status above for why.
 - **Saturday *and* Sunday.** Nepal's two-day weekend took effect Chaitra 23,
   2082 (6 April 2026), and `isWeeklyOff` encodes that as a dated rule, matching
   the web app. Do not make it unconditional.
