@@ -144,7 +144,8 @@ dictionary, and cheat sheet work offline. Details worth knowing:
   until the OS decides otherwise. Reloading is per window: choosing "Later"
   in one window is not overridden by another window reloading, so unsaved
   editor text survives. *(If a change seems missing on a phone, check the
-  footer version first: an installed PWA can be running an older shell.)*
+  version in the About sheet first — tap the wordmark: an installed PWA
+  can be running an older shell.)*
 - **App shortcuts** — long-press the installed icon to jump straight to
   Type, Upload, Translate, or Patro. These need their own icons; Android draws
   blank placeholders without them.
@@ -198,9 +199,9 @@ npm run dev
 Both generators render to `public/`; don't edit their output by hand.
 
 **Every change bumps the patch version** in `package.json` (followed by
-`npm install`, so the lockfile follows). The footer renders that version,
-which is the first thing to check when debugging "it isn't updating on my
-phone" — see the update prompt above.
+`npm install`, so the lockfile follows). The About sheet (tap the wordmark)
+renders that version, which is the first thing to check when debugging
+"it isn't updating on my phone" — see the update prompt above.
 
 Deployment is automatic: pushes to `main` build and deploy production on
 Vercel.
