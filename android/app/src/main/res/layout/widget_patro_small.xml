@@ -20,7 +20,7 @@
         android:textStyle="bold"
         android:includeFontPadding="false"
         android:layout_marginEnd="10dp"
-        android:textColor="@color/widget_text"
+        android:textColor="@color/widget_day"
         android:text="२९" />
 
     <LinearLayout

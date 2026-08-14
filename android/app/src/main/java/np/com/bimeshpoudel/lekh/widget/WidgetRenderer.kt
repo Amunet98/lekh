@@ -2,7 +2,6 @@ package np.com.bimeshpoudel.lekh.widget
 
 import android.app.PendingIntent
 import android.content.Context
-import android.os.Build
 import android.widget.RemoteViews
 import np.com.bimeshpoudel.lekh.R
 import java.time.format.DateTimeFormatter
@@ -118,28 +117,24 @@ object WidgetRenderer {
 
         /* Holidays and weekly days off share one accent, as in the web app.
          *
-         * Passed as a colour RESOURCE, not a resolved int, and that is the whole
-         * point. context.getColor() resolves against *our* process's
-         * configuration, which is not the launcher's: a widget placed while the
-         * phone was light kept a near-black day number after the phone went
-         * dark, invisible against the dark surface, and it survived a redraw
-         * because the resolved value is baked into the RemoteViews action. Every
-         * other colour in the widget is declared in the layout and was correct,
-         * which is exactly why this one was hard to see coming.
+         * Driven by a selection STATE, not a colour. The colour itself lives in
+         * res/color/widget_day.xml and is named by the layout, so the launcher
+         * resolves it against its own theme every time it inflates.
          *
-         * setColorStateList hands the launcher the resource and lets it resolve
-         * per its own theme. It is API 31+; below that the old behaviour stands,
-         * which is wrong only across a theme change on Android 8–11.
+         * This replaces a context.getColor() call, which resolved against *our*
+         * process's configuration rather than the launcher's: a widget placed
+         * while the phone was light kept a near-black date after the phone went
+         * dark, invisible on the dark surface, and the baked value survived a
+         * redraw. Every other colour in the widget comes from the layout and was
+         * always correct, which is exactly why this one was hard to spot.
+         *
+         * setEnabled is @RemotableViewMethod on View and always has been, so
+         * this needs no API-level branch — one mechanism from Android 8 to 16.
          */
         val isOff = NepaliCalendar.isWeeklyOff(today) || (info?.isHoliday == true)
-        val dayColor = if (isOff) R.color.widget_accent else R.color.widget_text
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            views.setColorStateList(R.id.widget_day, "setTextColor", dayColor)
-        } else {
-            views.setTextColor(R.id.widget_day, context.getColor(dayColor))
-        }
+        views.setBoolean(R.id.widget_day, "setEnabled", !isOff)
 
-        renderWeek(context, views, today, en)
+        renderWeek(views, today, en)
 
         if (onClick != null) views.setOnClickPendingIntent(R.id.widget_root, onClick)
         return views
@@ -156,18 +151,20 @@ object WidgetRenderer {
      * doing that leaves yesterday's marker behind when the widget redraws
      * across midnight without being reinflated.
      */
-    private fun renderWeek(context: Context, views: RemoteViews, today: BsDate, en: Boolean) {
+    private fun renderWeek(views: RemoteViews, today: BsDate, en: Boolean) {
         val week = NepaliCalendar.weekOf(today)
-        val text = context.getColor(R.color.widget_text)
-        val accent = context.getColor(R.color.widget_accent)
-        val muted = context.getColor(R.color.widget_muted)
 
         for (i in 0..6) {
             val day = week[i]
-            // A day off is red in the strip too, so Saturday and Sunday read as
-            // the weekend at a glance rather than needing to be counted to.
+            // A day off is accented in the strip too, so Saturday and Sunday read
+            // as the weekend at a glance rather than needing to be counted to.
+            // Set as a state, not a colour, for the same reason as the date above:
+            // res/color/widget_week_*.xml is resolved by the launcher, a colour
+            // resolved here would be resolved against the wrong configuration.
             val off = NepaliCalendar.isWeeklyOff(day) || (Panchang.forDay(day)?.isHoliday == true)
             views.setTextViewText(weekDayIds[i], num(en, day.day))
+            views.setBoolean(weekDayIds[i], "setEnabled", !off)
+            views.setBoolean(weekLabelIds[i], "setEnabled", !off)
             // The weekday letters are in the layout as Devanagari, so English
             // mode has to overwrite them; Nepali mode rewrites the same value
             // rather than branching, which keeps the two paths identical.
@@ -175,8 +172,6 @@ object WidgetRenderer {
                 weekLabelIds[i],
                 if (en) Roman.weekdayShort[i] else NepaliCalendar.weekdayShort[i],
             )
-            views.setTextColor(weekDayIds[i], if (off) accent else text)
-            views.setTextColor(weekLabelIds[i], if (off) accent else muted)
             views.setInt(
                 weekCellIds[i],
                 "setBackgroundResource",

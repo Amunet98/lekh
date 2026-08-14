@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The date's colour: accent on a day off, normal otherwise.
+
+     A ColorStateList in the layout rather than a colour set at draw time, and
+     that is the entire point. context.getColor() resolves against the app
+     process's configuration, which is not the launcher's — a widget placed in
+     light mode kept a near-black date after the phone went dark, and the baked
+     value survived a redraw. Anything declared in the layout is resolved by the
+     launcher instead, against its own theme, every time it inflates.
+
+     The state is driven by setEnabled, which is @RemotableViewMethod on View
+     and has been since the beginning, so this needs no API-level branch: one
+     mechanism from Android 8 to 16. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_enabled="false" android:color="@color/widget_accent" />
+    <item android:color="@color/widget_text" />
+</selector>

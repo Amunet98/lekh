@@ -23,7 +23,7 @@
         android:textSize="38sp"
         android:textStyle="bold"
         android:includeFontPadding="false"
-        android:textColor="@color/widget_text"
+        android:textColor="@color/widget_day"
         android:text="२८" />
 
     <TextView
