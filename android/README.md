@@ -12,12 +12,24 @@ that is otherwise a web app.
 ## Status: released — six widget sizes, signed, on GitHub Releases
 
 Eight releases since the first build, `android-v1.0.0` through the current
-`android-v1.5.2` (`versionCode` 10). `compileSdk`/`targetSdk` are 36 (Android
-16), which Google Play requires; `minSdk` is still 26. Widget sizes grew from
+`android-v1.5.2` (`versionCode` 10) — the last release cut before `versionName`/
+`versionCode` were unified with the web app's `package.json` version (see
+"One version, not two" below). `compileSdk`/`targetSdk` are 36 (Android 16),
+which Google Play requires; `minSdk` is still 26. Widget sizes grew from
 the original three to six — 2x1, 2x2, 4x1, 4x2, 5x1, 5x2 — and rendering now
 follows Nepali or English by a widget-settings screen rather than being fixed.
 Distributed as a signed APK on GitHub Releases (asset name `lekh-patro.apk`);
 a Play Store listing is in progress, currently in internal testing.
+
+### One version, not two
+
+`versionName`/`versionCode` in `app/build.gradle.kts` are no longer hand-typed.
+They are read from the root `package.json`'s `version` field — the same one
+`CLAUDE.md` already requires bumping on every change — so there is exactly one
+version number for the whole app instead of two that only ever agreed by
+coincidence. `versionCode` is derived as `major*1_000_000 + minor*1_000 +
+patch`, since Play requires a plain ever-increasing integer rather than a
+semver string.
 
 Two bugs only a real device placement could have caught, both fixed and
 shipped:

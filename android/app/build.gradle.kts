@@ -14,6 +14,26 @@ val keystoreProps = Properties().apply {
     if (keystorePropsFile.exists()) keystorePropsFile.inputStream().use { load(it) }
 }
 
+/* One version number for the whole app, not two kept in sync by hand.
+ *
+ * versionName used to be hand-edited here, completely independent of
+ * package.json's version — which is what CLAUDE.md actually requires
+ * bumping on every change. The two only ever matched by coincidence, and
+ * cutting an Android release meant remembering to update this file too.
+ * Reading package.json directly makes that impossible to forget.
+ *
+ * versionCode still has to be its own thing: Play requires a plain
+ * ever-increasing integer, not a semver string. Deriving it from the same
+ * version (major*1_000_000 + minor*1_000 + patch) means it never needs
+ * separate upkeep either, as long as no version component ever reaches
+ * 1000 — true for any version this app will realistically reach. */
+val appVersion = Regex(""""version"\s*:\s*"([^"]+)"""")
+    .find(rootProject.file("../package.json").readText())
+    ?.groupValues?.get(1)
+    ?: error("Could not read \"version\" from package.json")
+val (appVersionMajor, appVersionMinor, appVersionPatch) = appVersion.split(".").map { it.toInt() }
+val appVersionCode = appVersionMajor * 1_000_000 + appVersionMinor * 1_000 + appVersionPatch
+
 android {
     namespace = "np.com.bimeshpoudel.lekh"
     compileSdk = 36
@@ -23,10 +43,8 @@ android {
         // 26 (Oreo) is the floor because the date logic uses java.time.
         minSdk = 26
         targetSdk = 36
-        /* versionCode must increase for Android to accept an update over an
-           installed copy; versionName is what humans read. */
-        versionCode = 10
-        versionName = "1.5.2"
+        versionCode = appVersionCode
+        versionName = appVersion
 
         /* The URL the Trusted Web Activity opens, injected into the manifest so
          * it is stated once. It must be the same origin as the assetlinks.json
