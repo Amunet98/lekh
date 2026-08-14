@@ -16,17 +16,17 @@ val keystoreProps = Properties().apply {
 
 android {
     namespace = "np.com.bimeshpoudel.lekh"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "np.com.bimeshpoudel.lekh"
         // 26 (Oreo) is the floor because the date logic uses java.time.
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         /* versionCode must increase for Android to accept an update over an
            installed copy; versionName is what humans read. */
-        versionCode = 7
-        versionName = "1.4.2"
+        versionCode = 8
+        versionName = "1.5.0"
 
         /* The URL the Trusted Web Activity opens, injected into the manifest so
          * it is stated once. It must be the same origin as the assetlinks.json
