@@ -44,7 +44,14 @@
 
 .boot__mark {
   margin: 0;
-  font-family: var(--display-dev);
+  /* Noto Sans Devanagari, not the shared --display-dev token: Anek
+     Devanagari already produced one silent rendering bug at this size (the
+     middle dot painted nothing — see [[frontend-design-conventions]]), and
+     Noto is what Android itself falls back to for Devanagari system-wide, so
+     it is the safer bet for "renders correctly on every Android device"
+     specifically for the mark. Scoped here, not on the shared token — the
+     Patro calendar's headings still use Anek and haven't shown the issue. */
+  font-family: 'Noto Sans Devanagari', var(--display-dev);
   font-size: clamp(3.6rem, 17vw, 6rem);
   font-weight: 700;
   line-height: 1;
@@ -52,16 +59,20 @@
   letter-spacing: 0.01em;
   animation: boot-mark var(--dur-slow) var(--ease-expo) both;
 }
-/* The ख of ले-ख, in the flag blue.
+/* The ख of ले-ख, in the flag blue — लेख is still one colour, still not a
+ * control.
  *
- * This is the wordmark, and the wordmark is identity — so it takes the blue,
- * the same as the app bar and the footer. Crimson in this app means "you can
- * press this", and a logo is not a control; it was accent-coloured here and
- * blue in the chrome, which made one mark look like two.
+ * पात्रो, below, breaks that rule on purpose: crimson there is not "you can
+ * press this", it is the second colour of a two-colour wordmark (लेख blue,
+ * पात्रो crimson), the same red used everywhere else in the UI. The
+ * distinction that matters is not "is anything here coloured accent" but
+ * "does anything here look tappable" — a static two-tone logo reads as a
+ * logo regardless of which two colours it uses; a crimson *button* is what
+ * the rule is actually protecting against, and there isn't one here.
  *
- * It is a plain inline <span> and must stay one — see LekhMark for why the two
- * halves cannot be split into separate boxes without breaking the शिरोरेखा
- * that joins them. */
+ * .boot__ink is a plain inline <span> and must stay one — see LekhMark for
+ * why ले and ख cannot be split into separate boxes without breaking the
+ * शिरोरेखा that joins them. */
 .boot__ink {
   color: var(--flag-blue);
 }
@@ -101,14 +112,18 @@
   }
 }
 
-/* Lighter than लेख, not smaller — same size reads as one phrase (लेख पात्रो),
-   the weight step is what says "Lekh" is the name and "Patro" qualifies it.
-   No separate Latin caption below: that was either a phonetic gloss missing
-   "Patro" entirely, or — briefly — the same word said twice, once in each
-   script, right next to itself. The Latin spelling still lives in the page
-   title and the About sheet. */
+/* लेख / पात्रो — the slash marks two words of one name, not a translation
+   pair. No separate Latin caption below: that was either a phonetic gloss
+   missing "Patro" entirely, or — briefly — the same word said twice, once in
+   each script, right next to itself. The Latin spelling still lives in the
+   page title and the About sheet. */
+.boot__mark-slash {
+  margin: 0 0.06em;
+  color: var(--muted);
+  font-weight: 400;
+}
 .boot__mark-patro {
-  font-weight: 500;
+  color: var(--accent-text);
 }
 
 .boot__track {

@@ -104,25 +104,37 @@
      over dead text is a promise the page does not keep. */
   user-select: none;
 }
-/* The one place the flag's blue appears literally. It is never a control and
-   never a link, so it does not compete with the crimson for the eye. */
+/* The wordmark's own font, not the shared --display-dev token: Anek
+ * Devanagari is a newer variable font, and it already produced one silent
+ * rendering bug at this size (the middle dot painted nothing — see
+ * [[frontend-design-conventions]]). Noto Sans Devanagari is the font Android
+ * itself falls back to for Devanagari system-wide, so it is the safer bet
+ * for "renders correctly on every Android device" specifically for the mark
+ * — scoped here rather than changed on the shared token, which still backs
+ * the Patro calendar's headings and hasn't shown the same issue. */
 .app-bar__brand .dev {
-  font-family: var(--display-dev);
+  font-family: 'Noto Sans Devanagari', var(--display-dev);
   color: var(--flag-blue);
   font-weight: 700;
 }
-/* The qualifier, not a translation of it: लेख already carries "Lekh", so this
- * only has to add "Patro" — in the same script, as one Devanagari phrase, not
- * as a second caption beside it. Two earlier versions got this wrong in
- * opposite directions: pairing लेख with just the Latin word "lekh" left
- * "Patro" missing from the Devanagari half entirely once the product became
- * "Lekh Patro"; pairing it with a bilingual "पात्रो · patro" caption fixed
- * that but then said "Patro" twice side by side, which reads as a stutter to
- * anyone who can read both scripts. लेख पात्रो, spoken once, is the name —
- * the Latin spelling still lives in the page title and the About sheet, it
- * does not need restating here too. */
+/* लेख / पात्रो — the slash marks two words of one name, not a translation
+ * pair. पात्रो takes the accent crimson (same red as the rest of the UI)
+ * instead of the mark's blue, so the two words read as one wordmark in two
+ * colours rather than one script with a caption bolted on. Two earlier
+ * versions got the actual "Patro" content wrong: pairing लेख with just the
+ * Latin word "lekh" left "Patro" missing from the Devanagari half entirely
+ * once the product became "Lekh Patro"; pairing it with a bilingual
+ * "पात्रो · patro" caption fixed that but then said "Patro" twice side by
+ * side, which reads as a stutter to anyone who can read both scripts. लेख
+ * पात्रो, spoken once, is the name — the Latin spelling still lives in the
+ * page title and the About sheet, it does not need restating here too. */
+.app-bar__brand-slash {
+  margin: 0 0.05em;
+  color: var(--muted);
+  font-weight: 400;
+}
 .app-bar__brand-patro {
-  font-weight: 500;
+  color: var(--accent-text);
 }
 
 .app-bar__actions {
@@ -144,6 +156,7 @@
 /* At the narrowest sizes पात्रो is the first thing that can go: लेख alone
    still identifies the app, and the room is worth more to the actions. */
 @media (max-width: 380px) {
+  .app-bar__brand-slash,
   .app-bar__brand-patro {
     display: none;
   }

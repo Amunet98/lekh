@@ -90,6 +90,9 @@ export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
           <span className="about__mark">
             <LekhMark inkClassName="about__ink" />
           </span>
+          <span className="about__slash" aria-hidden="true">
+            /
+          </span>
           <span className="about__patro">पात्रो</span>
         </p>
 

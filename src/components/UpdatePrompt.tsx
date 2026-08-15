@@ -89,7 +89,9 @@ export function UpdatePrompt({ suppressed = false }: UpdatePromptProps) {
     <div className="update-prompt" role="status" aria-live="polite">
       <p className="update-prompt__text">
         <span className="update-prompt__dot" aria-hidden="true" />
-        A new version of <span className="dev">लेख</span> Patro is ready.
+        A new version of <span className="update-prompt__mark">लेख</span>
+        <span className="update-prompt__slash">/</span>
+        <span className="update-prompt__patro">पात्रो</span> is ready.
       </p>
       {/*
         Said plainly rather than discovered afterwards. Reloading throws away

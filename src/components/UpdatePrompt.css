@@ -34,8 +34,21 @@
   font-weight: 600;
   color: var(--text-h);
 }
-.update-prompt__text .dev {
-  font-family: var(--display-dev);
+/* लेख / पात्रो, the same two-colour wordmark as the app bar, boot screen and
+   About sheet — blue लेख (see those for why: it is identity, not a
+   control), crimson पात्रो. Noto Sans Devanagari rather than the shared
+   --display-dev token: see the identical note in BootScreen.css. */
+.update-prompt__mark {
+  font-family: 'Noto Sans Devanagari', var(--display-dev);
+  font-weight: 700;
+  color: var(--flag-blue);
+}
+.update-prompt__slash {
+  margin: 0 0.05em;
+  color: var(--muted);
+}
+.update-prompt__patro {
+  font-family: 'Noto Sans Devanagari', var(--display-dev);
   font-weight: 700;
   color: var(--accent-text);
 }

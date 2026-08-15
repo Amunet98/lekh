@@ -162,7 +162,9 @@ export function BootScreen({ onDone }: BootScreenProps) {
             animated separately. पात्रो is a separate word (its own
             शिरोरेखा), so it can sit outside the animated span without risk. */}
         <h1 className="boot__mark" aria-hidden="true">
-          <LekhMark inkClassName="boot__ink" /> <span className="boot__mark-patro">पात्रो</span>
+          <LekhMark inkClassName="boot__ink" />
+          <span className="boot__mark-slash">/</span>
+          <span className="boot__mark-patro">पात्रो</span>
         </h1>
 
         <svg className="boot__swash" viewBox="0 0 300 14" fill="none" aria-hidden="true">
