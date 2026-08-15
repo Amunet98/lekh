@@ -33,26 +33,35 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const apk = join(root, 'android', 'app', 'build', 'outputs', 'apk', 'release', 'app-release.apk')
 const APPLICATION_ID = 'np.com.bimeshpoudel.lekh'
 
-/* Play App Signing's own cert — the CLASSICAL SHA-256 fingerprint, captured
- * from Protected with Play → App signing → "Classical key". Play generates
- * and owns this key server-side the moment you accept its Terms of Service
- * during app creation — there is no "use my existing key" option in the
- * current console UI, only after the fact via a Google-mediated support
- * request. So this fingerprint is never re-derivable from a local build the
- * way the one below is; it has to be hardcoded here or every re-run of this
- * script silently drops Play-installed users back to Chrome's address bar.
+/* Play App Signing's own cert(s) — the CLASSICAL SHA-256 fingerprint(s),
+ * captured from Protected with Play → App signing → "Classical key" (current)
+ * and → "Previous app signing keys" (any prior ones). Play generates and owns
+ * this key server-side the moment you accept its Terms of Service during app
+ * creation — there is no "use my existing key" option in the current console
+ * UI, only after the fact via a Google-mediated support request. So these
+ * fingerprints are never re-derivable from a local build the way the one
+ * below is; they have to be hardcoded here or every re-run of this script
+ * silently drops Play-installed users back to Chrome's address bar.
  *
- * THIS ROTATES SILENTLY. Play migrated this app to a dual classical +
- * post-quantum signing key ("Quantum-ready (beta)") on its own, which
- * replaced the classical fingerprint below without any action on our side —
- * the original 2026-08-15 fingerprint is now listed under "Previous app
- * signing keys" and stopped verifying, which is what broke the TWA (Chrome
- * showed "Running in Chrome" instead of going full-screen). If that happens
- * again: Protected with Play → App signing → "App signing key" → Classical
- * key → SHA-256 certificate fingerprint is the one Digital Asset Links
- * checks, not the post-quantum one. */
-const PLAY_APP_SIGNING_FINGERPRINT =
-  '34:79:6F:C2:DA:0F:38:AC:03:25:CD:27:03:C3:E9:AF:65:05:04:56:E9:C0:B7:FE:3C:D7:F1:F2:66:A7:F7:DB'
+ * THIS ROTATES SILENTLY, AND OLD KEYS CAN STAY LIVE FOR A WHILE AFTER
+ * ROTATION. Play migrated this app to a dual classical + post-quantum
+ * signing key ("Quantum-ready (beta)") on its own, which minted a new
+ * classical fingerprint without any action on our side. The mistake the
+ * first time around: assuming Play immediately re-signs every already-
+ * published release with the new key and replacing the old fingerprint
+ * outright. It doesn't — a release that hasn't been re-uploaded since the
+ * rotation (confirmed here by Play Console's own "Updated on" date predating
+ * the rotation) can keep being served signed with the OLD key indefinitely.
+ * KEEP BOTH FINGERPRINTS LISTED, indefinitely, unless a fresh upload is
+ * confirmed to be signed with only the new one. If it happens again: Protected
+ * with Play → App signing → "App signing key" → Classical key → SHA-256
+ * certificate fingerprint is the current one (add it); "Previous app signing
+ * keys" holds the older ones (keep them) — not the post-quantum column
+ * either way, Digital Asset Links only checks classical. */
+const PLAY_APP_SIGNING_FINGERPRINTS = [
+  '34:79:6F:C2:DA:0F:38:AC:03:25:CD:27:03:C3:E9:AF:65:05:04:56:E9:C0:B7:FE:3C:D7:F1:F2:66:A7:F7:DB',
+  '83:99:1B:6F:DA:5D:33:89:DE:CD:BE:AC:38:9C:78:BE:E3:A9:7A:B9:79:5A:6C:09:BA:05:4D:A9:8E:11:CD:D0',
+]
 
 if (!existsSync(apk)) {
   console.error(`No release APK at ${apk}\nBuild one first:  cd android && ./gradlew assembleRelease`)
@@ -95,7 +104,7 @@ const statements = [
     target: {
       namespace: 'android_app',
       package_name: APPLICATION_ID,
-      sha256_cert_fingerprints: [fingerprint, PLAY_APP_SIGNING_FINGERPRINT],
+      sha256_cert_fingerprints: [fingerprint, ...PLAY_APP_SIGNING_FINGERPRINTS],
     },
   },
 ]
@@ -107,7 +116,9 @@ writeFileSync(join(dest, 'assetlinks.json'), JSON.stringify(statements, null, 2)
 console.log('wrote public/.well-known/assetlinks.json')
 console.log(`  package            ${APPLICATION_ID}`)
 console.log(`  local fingerprint  ${fingerprint}`)
-console.log(`  Play fingerprint   ${PLAY_APP_SIGNING_FINGERPRINT} (hardcoded, not from this build)`)
+for (const fp of PLAY_APP_SIGNING_FINGERPRINTS) {
+  console.log(`  Play fingerprint   ${fp} (hardcoded, not from this build)`)
+}
 console.log('\nIt must be served at https://lekh-gamma.vercel.app/.well-known/assetlinks.json')
 console.log('as application/json. Verify after deploying — a 404 here is silent:')
 console.log('  the app still works, it just shows Chrome\'s address bar.')
