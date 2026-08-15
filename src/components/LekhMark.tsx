@@ -19,8 +19,9 @@
  *
  * Only the ink span is parameterised — the surrounding size, weight and
  * animation genuinely differ per surface and stay in each one's stylesheet.
- * The app bar is a separate composition (`लेख / lekh`, one colour, no split)
- * and does not use this, because without the split it cannot hit the bug.
+ * The app bar uses this too now (2026-08-16, to match Boot/About's split
+ * colouring) — it just doesn't animate it, so it was never at risk of the
+ * bug either way.
  */
 export function LekhMark({ inkClassName }: { inkClassName?: string }) {
   return (

@@ -114,8 +114,14 @@
  * the Patro calendar's headings and hasn't shown the same issue. */
 .app-bar__brand .dev {
   font-family: 'Noto Sans Devanagari', var(--display-dev);
-  color: var(--flag-blue);
+  color: var(--text-h);
   font-weight: 700;
+}
+/* The ख of ले-ख, in the flag blue — same split as the boot screen and About
+   sheet (LekhMark), which the app bar didn't share until now. ले stays
+   --text-h above; only ख takes the colour. */
+.app-bar__ink {
+  color: var(--flag-blue);
 }
 /* लेख / पात्रो — the slash marks two words of one name, not a translation
  * pair. पात्रो takes the accent crimson (same red as the rest of the UI)

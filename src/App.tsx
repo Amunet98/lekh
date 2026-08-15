@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { TabSwitcher, type Tab } from './components/TabSwitcher'
+import { LekhMark } from './components/LekhMark'
 import { TypePage } from './components/TypePage'
 import { EDITOR_ID } from './components/Editor'
 import { UploadPage } from './components/UploadPage'
@@ -154,7 +155,7 @@ function App() {
               affordance than one that plainly does nothing. */}
           <span className="app-bar__brand">
             <span className="dev">
-              लेख
+              <LekhMark inkClassName="app-bar__ink" />
               <span className="app-bar__brand-slash" aria-hidden="true">
                 /
               </span>
