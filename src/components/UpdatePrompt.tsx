@@ -8,15 +8,23 @@ import './UpdatePrompt.css'
 const UPDATE_INTERVAL_MS = 60 * 60 * 1000
 
 /* How long after mount a newly-detected update still counts as "found on
- * this fresh load" rather than "found while someone was using the app."
- * vite-plugin-pwa resolves its first check within a second or two of
- * registering, so anything inside this window is that initial check, not
- * the hourly one in onRegisteredSW below — the hourly one cannot possibly
- * fire this early. The distinction matters because within this window the
- * editor is provably empty: it is component state in a page that has not
- * finished its first render cycle, so nothing has been typed into it yet.
- * That is what makes it safe to skip the prompt and just apply silently. */
-const FRESH_LOAD_WINDOW_MS = 5_000
+ * this fresh load" rather than "found while someone was using the app." The
+ * hourly check in onRegisteredSW below cannot possibly fire this early, so
+ * anything inside this window is necessarily the initial check instead.
+ *
+ * 10s, not the ~1-2s vite-plugin-pwa usually takes to resolve that initial
+ * check: on a slow connection, the precache download that has to finish
+ * before the worker can even enter "waiting" state can itself take several
+ * seconds, and on-device testing over a throttled connection saw the check
+ * still unresolved past 5s more than once. There is a lot of slack to spend
+ * here before the safety argument gets uncomfortable — this is not "the
+ * editor is provably empty," it is "someone has to notice the boot screen
+ * finish, look at the screen, and decide to start typing," which takes real
+ * human reaction time on top of the boot screen's own ~1.1-1.5s. Ten seconds
+ * of a person doing nothing but watching their phone open an app is already
+ * generous; it is nowhere near long enough for "editor might have real
+ * content worth protecting" to become a live concern. */
+const FRESH_LOAD_WINDOW_MS = 10_000
 
 /* Why this exists.
  *
