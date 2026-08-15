@@ -145,8 +145,11 @@ function App() {
           to the bottom of the viewport as a dock (see TabSwitcher.css).
 
           That detaching is the reason .app-bar must not carry the
-          backdrop-filter itself; the blur lives on .app-bar::before. See the
-          comment in App.css, and do not move it back. */}
+          backdrop-filter itself; the blur lives on .app-bar::before. Same
+          reason .app-bar--is-booting animates margin-top, not transform —
+          both create a containing block for position: fixed descendants, and
+          this bar has one two levels down. See the comments in App.css, and
+          do not move either back. */}
       <header className={`app-bar${booting ? ' app-bar--is-booting' : ''}`}>
         <div className="app-bar__inner">
           {/* Not a button any more. It opened the About sheet, which was the

@@ -194,18 +194,31 @@
  * when BootScreen reports done (see App.tsx), and *that* is what plays. */
 .app-bar {
   opacity: 1;
+  margin-top: 0;
   transition: opacity var(--dur-slow) var(--ease-expo),
-    transform var(--dur-slow) var(--ease-expo);
+    margin-top var(--dur-slow) var(--ease-expo);
 }
 /* pointer-events with the opacity, always the pair. The shell is fully drawn
    under the splash and was still hit-testable at opacity 0, so once .boot
    stopped swallowing taps (see BootScreen.css) a tap meant only to skip the
    splash would land on a control nobody can see — on a phone the dock is
    fixed to the bottom of the viewport, right where a thumb rests, so the app
-   could change tabs behind the splash. Invisible UI must not be operable. */
+   could change tabs behind the splash. Invisible UI must not be operable.
+ *
+ * margin-top, not transform: translateY. This is the same containing-block
+ * hazard the file already warns about for backdrop-filter and for .page,
+ * just missed here — transform on .app-bar would make it (rather than the
+ * viewport) the containing block for position: fixed descendants, and
+ * TabSwitcher's mobile dock is exactly that, two levels down inside this bar
+ * (.app-bar > .app-bar__inner > TabSwitcher). It surfaced as the dock
+ * rendering pinned under the header for the ~1.1s the boot screen is up, then
+ * snapping down to the viewport bottom the instant --is-booting comes off —
+ * looked like a rendering glitch, was a CSS spec rule. margin-top produces
+ * the same visual "eased up 8px while fading" motion without establishing a
+ * containing block. Do not put transform back here. */
 .app-bar--is-booting {
   opacity: 0;
-  transform: translateY(-8px);
+  margin-top: -8px;
   pointer-events: none;
 }
 /* visibility, not opacity, and the distinction still matters.
