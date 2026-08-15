@@ -153,13 +153,8 @@ function App() {
               row — and a wordmark that silently does something is a worse
               affordance than one that plainly does nothing. */}
           <span className="app-bar__brand">
-            <span className="dev">लेख</span>
-            <span className="app-bar__brand-caption">
-              <span className="app-bar__brand-caption-dev">पात्रो</span>
-              <span className="app-bar__brand-caption-dot" aria-hidden="true">
-                ·
-              </span>
-              <span className="app-bar__brand-caption-latin">patro</span>
+            <span className="dev">
+              लेख <span className="app-bar__brand-patro">पात्रो</span>
             </span>
           </span>
           <TabSwitcher active={tab} onChange={setTab} />

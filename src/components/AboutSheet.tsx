@@ -90,11 +90,7 @@ export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
           <span className="about__mark">
             <LekhMark inkClassName="about__ink" />
           </span>
-          <span className="about__latin">
-            <span className="about__latin-dev">पात्रो</span>
-            <span className="about__latin-dot">·</span>
-            patro
-          </span>
+          <span className="about__patro">पात्रो</span>
         </p>
 
         <h2 id="about-title" className="about__headline dev-serif">

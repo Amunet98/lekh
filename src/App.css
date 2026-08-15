@@ -111,40 +111,18 @@
   color: var(--flag-blue);
   font-weight: 700;
 }
-/* The qualifier, not the name: लेख already carries "Lekh" (full name spelled
- * out in both scripts lives one tap away in the About sheet), so this only
- * has to add "Patro" — in Devanagari too, not just Latin. An earlier version
- * paired लेख with the Latin word "lekh" alone, which read as a phonetic gloss
- * of the mark; once the product became "Lekh Patro" that pairing looked
- * half-translated, because "Patro" only existed in the Latin half. Showing
- * both halves' qualifier together (पात्रो · patro) keeps the two scripts
- * symmetric, and dropping the redundant "lekh" restatement is what buys back
- * the width "Patro" costs — this is not longer than the old "lekh patro". */
-.app-bar__brand-caption {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.32em;
-  /* --text rather than --muted. This is the half a non-Nepali reader actually
-     reads, and at muted it was the quietest thing in the bar; this still sits
-     below the Devanagari without disappearing next to it. */
-  color: var(--text);
+/* The qualifier, not a translation of it: लेख already carries "Lekh", so this
+ * only has to add "Patro" — in the same script, as one Devanagari phrase, not
+ * as a second caption beside it. Two earlier versions got this wrong in
+ * opposite directions: pairing लेख with just the Latin word "lekh" left
+ * "Patro" missing from the Devanagari half entirely once the product became
+ * "Lekh Patro"; pairing it with a bilingual "पात्रो · patro" caption fixed
+ * that but then said "Patro" twice side by side, which reads as a stutter to
+ * anyone who can read both scripts. लेख पात्रो, spoken once, is the name —
+ * the Latin spelling still lives in the page title and the About sheet, it
+ * does not need restating here too. */
+.app-bar__brand-patro {
   font-weight: 500;
-  /* em, not rem — it scales with the Devanagari half above rather than
-     drifting out of proportion as that clamp moves. */
-  font-size: 0.72em;
-}
-.app-bar__brand-caption-dev {
-  font-family: var(--devanagari);
-}
-.app-bar__brand-caption-latin {
-  letter-spacing: 0.02em;
-}
-.app-bar__brand-caption-dot {
-  /* Anek Devanagari's middle dot is essentially invisible at this size —
-     confirmed by inspecting its painted box, not assumed — so this one
-     character needs a font that actually draws it. */
-  font-family: var(--sans);
-  color: var(--muted);
 }
 
 .app-bar__actions {
@@ -163,10 +141,10 @@
   }
 }
 
-/* At the narrowest sizes the caption is the first thing that can go: लेख
-   alone still identifies the app, and the room is worth more to the actions. */
+/* At the narrowest sizes पात्रो is the first thing that can go: लेख alone
+   still identifies the app, and the room is worth more to the actions. */
 @media (max-width: 380px) {
-  .app-bar__brand-caption {
+  .app-bar__brand-patro {
     display: none;
   }
 }

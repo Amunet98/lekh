@@ -120,29 +120,18 @@
 .about__ink {
   color: var(--flag-blue);
 }
-.about__latin {
-  font-family: var(--display);
-  font-size: 0.9rem;
+/* Lighter than लेख, not smaller — same size reads as one phrase (लेख पात्रो),
+   the weight step is what says "Lekh" is the name and "Patro" qualifies it.
+   No separate Latin caption beside it: that was either a phonetic gloss
+   missing "Patro" entirely, or — briefly — the same word said twice, once in
+   each script, right next to itself. The Latin spelling still lives in the
+   page title and the footer line below. */
+.about__patro {
+  font-family: var(--display-dev);
   font-weight: 500;
-  letter-spacing: 0.34em;
-  text-indent: 0.34em;
-  color: var(--muted);
-}
-/* Devanagari does not take the same tracking as the Latin caption around it —
-   conjuncts and matras assume normal spacing, and 0.34em between letters
-   would pull them apart. Cancelled locally rather than un-tracking the whole
-   caption; see the identical note on .boot__latin-dev. */
-.about__latin-dev {
-  font-family: var(--devanagari);
-  letter-spacing: normal;
-}
-.about__latin-dot {
-  display: inline-block;
-  /* Anek Devanagari's middle dot is essentially invisible at this size —
-     confirmed by inspecting its painted box, not assumed — so this one
-     character needs a font that actually draws it. */
-  font-family: var(--sans);
-  letter-spacing: normal;
+  font-size: 2.4rem;
+  line-height: 1.1;
+  color: var(--text-h);
 }
 
 .about__headline {

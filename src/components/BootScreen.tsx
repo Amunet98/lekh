@@ -158,10 +158,11 @@ export function BootScreen({ onDone }: BootScreenProps) {
       aria-label="Lekh Patro is starting"
     >
       <div className="boot__stage">
-        {/* One animated unit — see LekhMark for why the two halves cannot be
-            animated separately. */}
+        {/* One animated unit — see LekhMark for why ले and ख cannot be
+            animated separately. पात्रो is a separate word (its own
+            शिरोरेखा), so it can sit outside the animated span without risk. */}
         <h1 className="boot__mark" aria-hidden="true">
-          <LekhMark inkClassName="boot__ink" />
+          <LekhMark inkClassName="boot__ink" /> <span className="boot__mark-patro">पात्रो</span>
         </h1>
 
         <svg className="boot__swash" viewBox="0 0 300 14" fill="none" aria-hidden="true">
@@ -180,12 +181,6 @@ export function BootScreen({ onDone }: BootScreenProps) {
             opacity=".28"
           />
         </svg>
-
-        <p className="boot__latin" aria-hidden="true">
-          <span className="boot__latin-dev">पात्रो</span>
-          <span className="boot__latin-dot">·</span>
-          patro
-        </p>
 
         {/* A hairline, and no percentage beside it. The readout was precise
             about something nobody needs to a percent — the bar already says

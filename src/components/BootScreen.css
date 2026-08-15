@@ -78,13 +78,16 @@
    is the only motion on the screen besides the bar. */
 .boot__swash {
   /* Tracks the wordmark, not the stage. At 100% of .boot__stage this ran the
-     full 30rem/84vw while लेख is only ~1.75em wide, so it read as a stray rule
-     floating under the mark rather than as an underline of it.
+     full 30rem/84vw while लेख alone is only ~1.75em wide, so it read as a
+     stray rule floating under the mark rather than as an underline of it.
    *
-     The mark is clamp(3.6rem, 17vw, 6rem); 1.9em of that gives a line just
-     wider than the glyphs at every size, which is the overhang a swash wants.
-     If you retune the mark's font-size, retune these three values with it. */
-  width: clamp(6.84rem, 32.3vw, 11.4rem);
+     The mark is clamp(3.6rem, 17vw, 6rem). It used to hold only लेख, at 1.9×
+     that for the overhang a swash wants; now it holds लेख पात्रो, measured at
+     2.2× the width of लेख alone (rendered both ways off-screen at a fixed
+     size and compared, not estimated), so the multiplier is 1.9 × 2.2 ≈ 4.0.
+     If you retune the mark's font-size or the words in it, re-measure and
+     retune these three values with it. */
+  width: clamp(14.4rem, 68vw, 24rem);
   height: auto;
   margin-top: 0.2rem;
   animation: boot-swash 900ms var(--ease-expo) both;
@@ -98,28 +101,14 @@
   }
 }
 
-.boot__latin {
-  margin-top: var(--sp-3);
-  font-family: var(--mono);
-  font-size: 0.82rem;
-  letter-spacing: 0.5em;
-  text-indent: 0.5em;
-  color: var(--muted);
-  animation: boot-fade var(--dur-slow) var(--ease-expo) 160ms both;
-}
-/* Devanagari does not take the same tracking as the mono Latin caption around
-   it — conjuncts and matras assume normal spacing, and 0.5em between letters
-   would pull them apart. Cancelled locally rather than un-tracking the whole
-   caption. */
-.boot__latin-dev {
-  font-family: var(--devanagari);
-  letter-spacing: normal;
-}
-.boot__latin-dot {
-  display: inline-block;
-  /* Cancel the caption's own tracking on the dot itself so it does not gain a
-     0.5em gap of its own on top of the ones already either side of it. */
-  letter-spacing: normal;
+/* Lighter than लेख, not smaller — same size reads as one phrase (लेख पात्रो),
+   the weight step is what says "Lekh" is the name and "Patro" qualifies it.
+   No separate Latin caption below: that was either a phonetic gloss missing
+   "Patro" entirely, or — briefly — the same word said twice, once in each
+   script, right next to itself. The Latin spelling still lives in the page
+   title and the About sheet. */
+.boot__mark-patro {
+  font-weight: 500;
 }
 
 .boot__track {
@@ -179,7 +168,6 @@
 @media (prefers-reduced-motion: reduce) {
   .boot__mark,
   .boot__swash,
-  .boot__latin,
   .boot__track,
   .boot__status,
   .boot__skip {
