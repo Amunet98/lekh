@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Where FileProvider is allowed to serve files from. The only consumer is
+     androidbrowserhelper's splash-screen handoff: it writes the splash
+     bitmap into this cache subdirectory and hands Chrome a content:// URI to
+     it, so Chrome can paint the same splash as an overlay while it verifies
+     the site and loads the page — the moment that otherwise briefly shows
+     Chrome's own Custom Tab toolbar (address bar, share, ⋮) before the app
+     goes full-screen. -->
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <cache-path name="twa_splash" path="twa_splash/" />
+</paths>
