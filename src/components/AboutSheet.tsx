@@ -207,8 +207,19 @@ export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
             Bimesh Poudel
           </a>
         </p>
+        {/* "web build," not "v" — this is __APP_VERSION__ from package.json,
+            which bumps on every commit including web-only ones that never
+            touch android/ and so never ship a new Play Store release. On
+            Android that number and the version Play Store shows for the
+            installed app (which only moves when a new APK/AAB is actually
+            uploaded) drift apart within hours of any web-only fix — both
+            numbers are correct, they're just answering different questions,
+            and an unlabelled "v1.8.20" here next to a Play Store listing that
+            still says 1.8.18 reads as a bug instead of the two intentionally
+            different things they are. */}
         <p className="about__meta">
-          <span className="dev">लेख</span> Lekh Patro · v{__APP_VERSION__} · © {new Date().getFullYear()}
+          <span className="dev">लेख</span> Lekh Patro · web build {__APP_VERSION__} · ©{' '}
+          {new Date().getFullYear()}
         </p>
       </div>
     </dialog>
