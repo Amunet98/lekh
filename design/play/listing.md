@@ -11,7 +11,7 @@ Phonetic Nepali typing and an ad-free Bikram Sambat patro, offline.
 
 ## Full description
 
-Lekh lets you write Nepali the way you already text it. Type "namaste" and
+Lekh Patro lets you write Nepali the way you already text it. Type "namaste" and
 press space — it becomes नमस्ते. No new keyboard layout to learn, no muscle
 memory to rebuild.
 
@@ -30,7 +30,7 @@ The image never leaves your phone.
 with no connection at all.
 
 Typing, character recognition and the calendar all run on your device. There
-are no accounts, no advertising and no tracking of any kind. Lekh is free and
+are no accounts, no advertising and no tracking of any kind. Lekh Patro is free and
 open source.
 
 ## Data safety

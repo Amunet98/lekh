@@ -1,4 +1,4 @@
-# Lekh (लेख) — Nepali Typing
+# Lekh Patro (लेख) — Nepali Typing
 
 [![Live](https://img.shields.io/badge/Live-lekh--gamma.vercel.app-facc15)](https://lekh-gamma.vercel.app)
 [![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white)](https://react.dev)
@@ -8,7 +8,7 @@
 [![PWA](https://img.shields.io/badge/PWA-installable-5a0fc8)](https://lekh-gamma.vercel.app)
 
 Type Nepali without a Nepali keyboard: write romanized Nepali — `kasto chha`
-— and Lekh converts it to Devanagari — कस्तो छ — as you type, IME-style,
+— and Lekh Patro converts it to Devanagari — कस्तो छ — as you type, IME-style,
 right in the browser.
 
 **Live (install from there):** https://lekh-gamma.vercel.app
@@ -74,7 +74,7 @@ baseline and renders instantly; the app then fetches the same month from
 upstream, which re-scrapes daily, so a holiday added or dropped by cabinet
 decision arrives within about a day and years past the bundled range work
 without a redeploy. The calendar says which source the month on screen came
-from — this is the one place in Lekh that touches the network, and it is not
+from — this is the one place in Lekh Patro that touches the network, and it is not
 hidden. It is a plain GET for a public file with nothing about you attached,
 and the service worker caches it so a month fetched once keeps working
 offline.
@@ -135,7 +135,7 @@ TWA that wraps the web app; see `android/README.md`.
 
 ## Installing and updating
 
-Lekh is an installable PWA with a real service worker — the typing engine,
+Lekh Patro is an installable PWA with a real service worker — the typing engine,
 dictionary, and cheat sheet work offline. Details worth knowing:
 
 - **Install button** in the header, captured from `beforeinstallprompt`.

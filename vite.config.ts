@@ -35,8 +35,8 @@ export default defineConfig({
       registerType: 'prompt',
       injectRegister: null,
       manifest: {
-        name: 'Lekh — नेपाली Typing',
-        short_name: 'Lekh',
+        name: 'Lekh Patro — नेपाली Typing',
+        short_name: 'Lekh Patro',
         id: '/',
         /* Declares the Android APK as a related app, which is what lets
            navigator.getInstalledRelatedApps() answer "they already have it" and

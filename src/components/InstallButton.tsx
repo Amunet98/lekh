@@ -77,7 +77,7 @@ export function InstallButton() {
          accessibility tree, so the name would survive on its own — but the
          name is doing real work here and should not depend on a stylesheet
          detail somebody could reasonably change. */
-      aria-label="Install Lekh"
+      aria-label="Install Lekh Patro"
       onClick={() => void promptInstall()}
     >
       <DownloadIcon />

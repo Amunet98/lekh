@@ -90,7 +90,7 @@ export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
           <span className="about__mark">
             <LekhMark inkClassName="about__ink" />
           </span>
-          <span className="about__latin">lekh</span>
+          <span className="about__latin">lekh patro</span>
         </p>
 
         <h2 id="about-title" className="about__headline dev-serif">
@@ -205,7 +205,7 @@ export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
           </a>
         </p>
         <p className="about__meta">
-          <span className="dev">लेख</span> Lekh · v{__APP_VERSION__} · © {new Date().getFullYear()}
+          <span className="dev">लेख</span> Lekh Patro · v{__APP_VERSION__} · © {new Date().getFullYear()}
         </p>
       </div>
     </dialog>

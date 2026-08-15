@@ -20,7 +20,7 @@ export function AboutButton({ onClick }: AboutButtonProps) {
     <button
       type="button"
       className="about-btn"
-      aria-label="About Lekh"
+      aria-label="About Lekh Patro"
       aria-haspopup="dialog"
       onClick={onClick}
     >

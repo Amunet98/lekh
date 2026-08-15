@@ -155,7 +155,7 @@ export function BootScreen({ onDone }: BootScreenProps) {
       className={`boot${exiting ? ' boot--exiting' : ''}`}
       role="status"
       aria-busy={!exiting}
-      aria-label="Lekh is starting"
+      aria-label="Lekh Patro is starting"
     >
       <div className="boot__stage">
         {/* One animated unit — see LekhMark for why the two halves cannot be
@@ -182,7 +182,7 @@ export function BootScreen({ onDone }: BootScreenProps) {
         </svg>
 
         <p className="boot__latin" aria-hidden="true">
-          lekh
+          lekh patro
         </p>
 
         {/* A hairline, and no percentage beside it. The readout was precise

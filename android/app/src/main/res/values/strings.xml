@@ -15,5 +15,5 @@
     <string name="config_prompt">Which script should the widget use?</string>
     <string name="config_nepali">नेपाली · Nepali</string>
     <string name="config_english">English</string>
-    <string name="config_note">Applies to every Lekh widget on your home screen. Festival names not yet translated are transliterated.</string>
+    <string name="config_note">Applies to every Lekh Patro widget on your home screen. Festival names not yet translated are transliterated.</string>
 </resources>
