@@ -33,16 +33,26 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const apk = join(root, 'android', 'app', 'build', 'outputs', 'apk', 'release', 'app-release.apk')
 const APPLICATION_ID = 'np.com.bimeshpoudel.lekh'
 
-/* Play App Signing's own cert, captured from Play Console → Setup → App
- * integrity → App signing key after enrolling this app (2026-08-16). Play
- * generates and owns this key server-side the moment you accept its Terms of
- * Service during app creation — there is no "use my existing key" option in
- * the current console UI, only after the fact via a Google-mediated support
+/* Play App Signing's own cert — the CLASSICAL SHA-256 fingerprint, captured
+ * from Protected with Play → App signing → "Classical key". Play generates
+ * and owns this key server-side the moment you accept its Terms of Service
+ * during app creation — there is no "use my existing key" option in the
+ * current console UI, only after the fact via a Google-mediated support
  * request. So this fingerprint is never re-derivable from a local build the
  * way the one below is; it has to be hardcoded here or every re-run of this
- * script silently drops Play-installed users back to Chrome's address bar. */
+ * script silently drops Play-installed users back to Chrome's address bar.
+ *
+ * THIS ROTATES SILENTLY. Play migrated this app to a dual classical +
+ * post-quantum signing key ("Quantum-ready (beta)") on its own, which
+ * replaced the classical fingerprint below without any action on our side —
+ * the original 2026-08-15 fingerprint is now listed under "Previous app
+ * signing keys" and stopped verifying, which is what broke the TWA (Chrome
+ * showed "Running in Chrome" instead of going full-screen). If that happens
+ * again: Protected with Play → App signing → "App signing key" → Classical
+ * key → SHA-256 certificate fingerprint is the one Digital Asset Links
+ * checks, not the post-quantum one. */
 const PLAY_APP_SIGNING_FINGERPRINT =
-  '83:99:1B:6F:DA:5D:33:89:DE:CD:BE:AC:38:9C:78:BE:E3:A9:7A:B9:79:5A:6C:09:BA:05:4D:A9:8E:11:CD:D0'
+  '34:79:6F:C2:DA:0F:38:AC:03:25:CD:27:03:C3:E9:AF:65:05:04:56:E9:C0:B7:FE:3C:D7:F1:F2:66:A7:F7:DB'
 
 if (!existsSync(apk)) {
   console.error(`No release APK at ${apk}\nBuild one first:  cd android && ./gradlew assembleRelease`)
