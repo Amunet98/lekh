@@ -17,9 +17,12 @@
  * artifact proves it matches what actually shipped rather than what a keystore
  * happened to contain.
  *
- * Re-run it whenever the signing key changes. If you ever publish through Play
- * with Play App Signing, Google re-signs the app and you must ADD their
- * fingerprint here too — the array holds more than one on purpose.
+ * Re-run it whenever the local signing key changes — this re-derives that
+ * half automatically. The Play App Signing half (published 2026-08-16) is
+ * NOT re-derived; it's hardcoded as PLAY_APP_SIGNING_FINGERPRINT below,
+ * because Google generates and holds that key server-side and there is no
+ * local artifact to read it from. Update the constant by hand if it's ever
+ * rotated in Play Console → Setup → App integrity.
  */
 import { execFileSync } from 'node:child_process'
 import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs'
@@ -29,6 +32,17 @@ import { fileURLToPath } from 'node:url'
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const apk = join(root, 'android', 'app', 'build', 'outputs', 'apk', 'release', 'app-release.apk')
 const APPLICATION_ID = 'np.com.bimeshpoudel.lekh'
+
+/* Play App Signing's own cert, captured from Play Console → Setup → App
+ * integrity → App signing key after enrolling this app (2026-08-16). Play
+ * generates and owns this key server-side the moment you accept its Terms of
+ * Service during app creation — there is no "use my existing key" option in
+ * the current console UI, only after the fact via a Google-mediated support
+ * request. So this fingerprint is never re-derivable from a local build the
+ * way the one below is; it has to be hardcoded here or every re-run of this
+ * script silently drops Play-installed users back to Chrome's address bar. */
+const PLAY_APP_SIGNING_FINGERPRINT =
+  '83:99:1B:6F:DA:5D:33:89:DE:CD:BE:AC:38:9C:78:BE:E3:A9:7A:B9:79:5A:6C:09:BA:05:4D:A9:8E:11:CD:D0'
 
 if (!existsSync(apk)) {
   console.error(`No release APK at ${apk}\nBuild one first:  cd android && ./gradlew assembleRelease`)
@@ -71,7 +85,7 @@ const statements = [
     target: {
       namespace: 'android_app',
       package_name: APPLICATION_ID,
-      sha256_cert_fingerprints: [fingerprint],
+      sha256_cert_fingerprints: [fingerprint, PLAY_APP_SIGNING_FINGERPRINT],
     },
   },
 ]
@@ -81,8 +95,9 @@ mkdirSync(dest, { recursive: true })
 writeFileSync(join(dest, 'assetlinks.json'), JSON.stringify(statements, null, 2) + '\n')
 
 console.log('wrote public/.well-known/assetlinks.json')
-console.log(`  package     ${APPLICATION_ID}`)
-console.log(`  fingerprint ${fingerprint}`)
+console.log(`  package            ${APPLICATION_ID}`)
+console.log(`  local fingerprint  ${fingerprint}`)
+console.log(`  Play fingerprint   ${PLAY_APP_SIGNING_FINGERPRINT} (hardcoded, not from this build)`)
 console.log('\nIt must be served at https://lekh-gamma.vercel.app/.well-known/assetlinks.json')
 console.log('as application/json. Verify after deploying — a 404 here is silent:')
 console.log('  the app still works, it just shows Chrome\'s address bar.')
