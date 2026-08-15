@@ -85,8 +85,10 @@
 
         <!-- Backs FILE_PROVIDER_AUTHORITY above: the only file it ever serves
              is the splash bitmap androidbrowserhelper writes to the
-             twa_splash/ cache subdirectory declared in @xml/filepaths, handed
-             to Chrome as a content:// URI. -->
+             twa_splash/ subdirectory of the app's files dir, declared as a
+             files-path (not cache-path — see @xml/filepaths for why that
+             distinction crashed every launch), handed to Chrome as a
+             content:// URI. -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
