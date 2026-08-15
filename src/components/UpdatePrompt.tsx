@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRegisterSW } from 'virtual:pwa-register/react'
 import './UpdatePrompt.css'
 
@@ -6,6 +6,17 @@ import './UpdatePrompt.css'
  * against an ETag — so the interval can be generous and still beat the old
  * behaviour of never checking at all. */
 const UPDATE_INTERVAL_MS = 60 * 60 * 1000
+
+/* How long after mount a newly-detected update still counts as "found on
+ * this fresh load" rather than "found while someone was using the app."
+ * vite-plugin-pwa resolves its first check within a second or two of
+ * registering, so anything inside this window is that initial check, not
+ * the hourly one in onRegisteredSW below — the hourly one cannot possibly
+ * fire this early. The distinction matters because within this window the
+ * editor is provably empty: it is component state in a page that has not
+ * finished its first render cycle, so nothing has been typed into it yet.
+ * That is what makes it safe to skip the prompt and just apply silently. */
+const FRESH_LOAD_WINDOW_MS = 5_000
 
 /* Why this exists.
  *
@@ -35,9 +46,24 @@ export function UpdatePrompt({ suppressed = false }: UpdatePromptProps) {
      site would tie *whether the app has a service worker at all* to whether a
      toast happens to be on screen. Hence a prop that suppresses the render
      while the hook keeps running. */
-  /* True only if *this* window is the one whose Reload button was pressed.
-     See onNeedReload below — the whole point is that the answer can be no. */
+  /* True only if *this* window is the one whose Reload button was pressed —
+     or the one that auto-applied a fresh-load update, see below. See
+     onNeedReload below — the whole point is that the answer can be no. */
   const reloadRequested = useRef(false)
+
+  /* Flips once, FRESH_LOAD_WINDOW_MS after mount, and never back. Timer-driven
+     rather than a Date.now() comparison at render time on purpose — a bare
+     Date.now() call in a component body is an impure call during render (this
+     repo's react-hooks/purity rule rejects it, and rightly: it would make the
+     render's output depend on when it happened to run rather than only on
+     props/state). Routing the flip through a real state update in a setTimeout
+     callback keeps the whole component pure and gives the render body a plain
+     boolean to check instead of a clock to consult. */
+  const [freshLoadWindowExpired, setFreshLoadWindowExpired] = useState(false)
+  useEffect(() => {
+    const timer = setTimeout(() => setFreshLoadWindowExpired(true), FRESH_LOAD_WINDOW_MS)
+    return () => clearTimeout(timer)
+  }, [])
 
   const {
     needRefresh: [needRefresh, setNeedRefresh],
@@ -75,12 +101,51 @@ export function UpdatePrompt({ suppressed = false }: UpdatePromptProps) {
     },
   })
 
+  /* The fresh-load case: apply immediately instead of showing the toast, and
+   * — just as importantly — never paint the toast at all while that's still
+   * the plan. Someone who just updated via the Play Store, or opened the app
+   * for the first time in a while, should not be greeted with a
+   * website-style "reload to update" banner; that undercuts the entire point
+   * of wrapping the site as a native-feeling app. The render guard below
+   * unconditionally hides the toast for the whole fresh-load window — not
+   * only once this effect has decided to act — so there is no render in
+   * between where needRefresh is true and the toast is visible while this
+   * effect hasn't run yet.
+   *
+   * Safe specifically because of the timing: this window closes before the
+   * editor could hold anything worth protecting — it is component state in a
+   * page that has not finished its first render cycle when this opens.
+   * Anything detected later (the hourly check in onRegisteredSW above) falls
+   * through to the normal prompt, because by then it might not be.
+   *
+   * Also waits out `suppressed` (boot screen / About sheet) before actually
+   * reloading. Reloading mid-boot would restart the splash animation from
+   * zero the instant it finished — sessionStorage's boot flag isn't set
+   * until finishBoot runs, so an interrupted boot looks exactly like a fresh
+   * one to bootedThisSession and plays again. Detection can happen early;
+   * the reload itself waits for a moment with nothing on screen worth
+   * cutting off. No local setState here — the effect's only job is the
+   * external call, and reloadRequested is a ref precisely because writing it
+   * is not a React update the render needs to react to. */
+  const appliedFreshUpdate = useRef(false)
+  useEffect(() => {
+    if (!needRefresh || freshLoadWindowExpired || suppressed || appliedFreshUpdate.current) return
+    appliedFreshUpdate.current = true
+    reloadRequested.current = true
+    void updateServiceWorker(true)
+  }, [needRefresh, freshLoadWindowExpired, suppressed, updateServiceWorker])
+
   /* Suppressed during boot, and that is the normal path rather than an edge
      case: the update check runs at page load, which is exactly when the splash
      is up. Left visible, the toast showed *through* the boot screen's frosted
      sheet — legible, hazy, and un-tappable, since the overlay swallows the
-     clicks. It waits the ~1.1s and animates in against the app instead. */
-  if (!needRefresh || suppressed) return null
+     clicks. It waits the ~1.1s and animates in against the app instead.
+
+     !freshLoadWindowExpired belongs in this same guard, not just in the effect
+     above — it is what keeps the toast from ever painting during the window
+     a fresh-load update is meant to apply silently, regardless of exactly
+     when in that window the effect gets around to running. */
+  if (!needRefresh || suppressed || !freshLoadWindowExpired) return null
 
   return (
     /* role="status" + polite, not an alert: a new version is worth mentioning
