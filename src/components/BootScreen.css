@@ -107,6 +107,20 @@
   color: var(--muted);
   animation: boot-fade var(--dur-slow) var(--ease-expo) 160ms both;
 }
+/* Devanagari does not take the same tracking as the mono Latin caption around
+   it — conjuncts and matras assume normal spacing, and 0.5em between letters
+   would pull them apart. Cancelled locally rather than un-tracking the whole
+   caption. */
+.boot__latin-dev {
+  font-family: var(--devanagari);
+  letter-spacing: normal;
+}
+.boot__latin-dot {
+  display: inline-block;
+  /* Cancel the caption's own tracking on the dot itself so it does not gain a
+     0.5em gap of its own on top of the ones already either side of it. */
+  letter-spacing: normal;
+}
 
 .boot__track {
   width: min(14rem, 60vw);

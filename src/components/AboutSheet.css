@@ -128,6 +128,22 @@
   text-indent: 0.34em;
   color: var(--muted);
 }
+/* Devanagari does not take the same tracking as the Latin caption around it —
+   conjuncts and matras assume normal spacing, and 0.34em between letters
+   would pull them apart. Cancelled locally rather than un-tracking the whole
+   caption; see the identical note on .boot__latin-dev. */
+.about__latin-dev {
+  font-family: var(--devanagari);
+  letter-spacing: normal;
+}
+.about__latin-dot {
+  display: inline-block;
+  /* Anek Devanagari's middle dot is essentially invisible at this size —
+     confirmed by inspecting its painted box, not assumed — so this one
+     character needs a font that actually draws it. */
+  font-family: var(--sans);
+  letter-spacing: normal;
+}
 
 .about__headline {
   font-family: var(--display-dev);

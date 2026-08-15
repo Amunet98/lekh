@@ -182,7 +182,9 @@ export function BootScreen({ onDone }: BootScreenProps) {
         </svg>
 
         <p className="boot__latin" aria-hidden="true">
-          lekh patro
+          <span className="boot__latin-dev">पात्रो</span>
+          <span className="boot__latin-dot">·</span>
+          patro
         </p>
 
         {/* A hairline, and no percentage beside it. The readout was precise

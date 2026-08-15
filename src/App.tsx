@@ -154,7 +154,13 @@ function App() {
               affordance than one that plainly does nothing. */}
           <span className="app-bar__brand">
             <span className="dev">लेख</span>
-            <span className="app-bar__brand-latin">lekh patro</span>
+            <span className="app-bar__brand-caption">
+              <span className="app-bar__brand-caption-dev">पात्रो</span>
+              <span className="app-bar__brand-caption-dot" aria-hidden="true">
+                ·
+              </span>
+              <span className="app-bar__brand-caption-latin">patro</span>
+            </span>
           </span>
           <TabSwitcher active={tab} onChange={setTab} />
           <div className="app-bar__actions">

@@ -17,6 +17,11 @@ export { ANDROID_PACKAGE } from './androidPackage'
 export const APK_URL =
   'https://github.com/Amunet98/lekh/releases/latest/download/lekh-patro.apk'
 
+/* Not wired up to InstallButton yet — swap APK_URL for this once the Play
+ * listing actually clears review. Flipping it earlier would point "Get app"
+ * at a store page that 404s, breaking a link that currently works. */
+export const PLAY_URL = `https://play.google.com/store/apps/details?id=${ANDROID_PACKAGE}`
+
 /** A userAgent test is right here: what decides this is the OS, not the screen. */
 export function isAndroid(): boolean {
   try {
