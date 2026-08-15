@@ -89,6 +89,20 @@
         padding-left: 6px;
         margin-top: 10px;
       }
+      /* PATRO takes the accent crimson, matching the app's लेख/पात्रो
+         two-colour wordmark. Kept only on the small caption, not on
+         .wordmark itself: .brand is flex:0 0 auto in a 1024px-wide flex row
+         next to .say (flex:1), so widening .wordmark to two words at full
+         size would squeeze .say's available width and wrap it into more
+         lines — the exact overflow this bit for real in og-image.html,
+         confirmed there by measuring rendered height before/after, not
+         guessed here from that. */
+      .latin .slash {
+        margin: 0 0.05em;
+      }
+      .latin .patro {
+        color: var(--accent);
+      }
 
       .rule {
         position: relative;
@@ -134,7 +148,7 @@
   <body>
     <div class="brand">
       <div class="wordmark">ले<b>ख</b></div>
-      <div class="latin">LEKH PATRO</div>
+      <div class="latin">LEKH<span class="slash">/</span><span class="patro">PATRO</span></div>
     </div>
 
     <div class="rule"></div>

@@ -100,9 +100,15 @@
         color: var(--text-h);
         letter-spacing: -0.01em;
       }
-      /* The wordmark takes the flag blue, matching the app bar, footer, boot
-         screen and About sheet. Crimson in this design means "you can press
-         this" and a logo is not a control. */
+      /* The mark stays लेख alone here — unlike the responsive web app, this
+         card is a fixed 1200x630 canvas with .right (headline/demo/pills)
+         set to flex:1 and eating whatever width .left doesn't use. Widening
+         the mark to लेख/पात्रो at full size (tried first) squeezed .right
+         from ~409px to ~712px tall as its text wrapped into more lines,
+         overflowing the canvas top and bottom — confirmed by measuring
+         .right's own rendered height before and after, not by eyeballing
+         the crop. The slash+colour treatment goes on the small caption
+         below instead, which costs far less width. */
       .ink { color: var(--flag-blue); }
       /* Negative: Anek Devanagari reserves descender room लेख does not use,
          which left the swash floating a visible gap below the word. */
@@ -115,6 +121,15 @@
         text-indent: 0.42em;
         margin-top: 14px;
         text-align: center;
+      }
+      /* patro takes the same accent crimson as the rest of the UI, matching
+         the app's लेख/पात्रो two-colour wordmark — slash and "lekh" stay
+         muted, only the qualifier gets the colour. */
+      .latin .slash {
+        margin: 0 0.05em;
+      }
+      .latin .patro {
+        color: var(--accent);
       }
 
       .headline {
@@ -185,7 +200,7 @@
           <path d="M4 9 C 80 2, 220 2, 296 8" stroke="#f87171" stroke-width="3.2" stroke-linecap="round" opacity=".75" />
           <path d="M40 12 C 120 7, 200 7, 262 11" stroke="#f87171" stroke-width="1.6" stroke-linecap="round" opacity=".28" />
         </svg>
-        <div class="latin">lekh patro</div>
+        <div class="latin">lekh<span class="slash">/</span><span class="patro">patro</span></div>
       </div>
 
       <div class="right">
