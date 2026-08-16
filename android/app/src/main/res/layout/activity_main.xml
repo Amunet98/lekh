@@ -6,7 +6,14 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <!-- scrollbars="none": the page already draws and hides its own scroll
+         indicator via CSS (index.css, gated on pointer:coarse) — the TWA
+         never showed a second one because Chrome's own WebView instance
+         there didn't draw its View-level scrollbar the way this app's own
+         WebView does by default. Without this, Android paints its plain
+         system scrollbar on top of the styled one on every scroll. -->
     <WebView
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:scrollbars="none" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

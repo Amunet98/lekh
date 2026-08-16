@@ -19,6 +19,15 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         handleIntent(getIntent());
+        /* activity_main.xml's android:scrollbars="none" is not enough — the
+         * Bridge re-touches the WebView's own scrollbar settings after
+         * inflating that layout, so it has to be turned off again here,
+         * after the bridge exists. Without this Android draws its own plain
+         * View-level scroll indicator on top of the page's styled one
+         * (index.css) on every scroll; the TWA never showed this because
+         * that WebView instance belonged to Chrome, not this app. */
+        getBridge().getWebView().setVerticalScrollBarEnabled(false);
+        getBridge().getWebView().setHorizontalScrollBarEnabled(false);
     }
 
     @Override
