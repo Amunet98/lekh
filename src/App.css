@@ -52,7 +52,13 @@
 .app-bar__inner {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 0 clamp(var(--sp-4), 4vw, var(--sp-6));
+  /* Top only needs the inset in the Capacitor shell: the old TWA's Chrome
+     chrome always reserved status-bar space above the WebView, but the
+     native WebView here draws edge-to-edge, so without this the status bar
+     sits directly on top of the wordmark. .app-bar::before's background
+     still covers the extra height since it insets to this element's parent,
+     not to this box. */
+  padding: env(safe-area-inset-top, 0px) clamp(var(--sp-4), 4vw, var(--sp-6)) 0;
   min-height: 3.5rem;
   display: flex;
   align-items: center;

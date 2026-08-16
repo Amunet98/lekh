@@ -6,7 +6,11 @@ import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  /* android/ and android-twa-backup/ are native Gradle projects, not part of
+     the web app — android/ in particular has a build/ tree of Capacitor's
+     own generated/vendored JS (native-bridge.js and friends), which is not
+     ours to lint and doesn't share this config's TS-only ruleset. */
+  globalIgnores(['dist', 'android', 'android-twa-backup']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
