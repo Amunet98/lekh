@@ -1,103 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
-
-    <!-- The Trusted Web Activity opens Lekh in the user's own Chrome, so the
-         app needs network access. The WIDGET still reads bundled assets only
-         and makes no requests of its own — see Panchang.kt. -->
-    <uses-permission android:name="android.permission.INTERNET" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
-        android:label="@string/app_name"
-        android:icon="@mipmap/ic_launcher"
         android:allowBackup="true"
-        android:supportsRtl="false"
-        android:enableOnBackInvokedCallback="true">
-        <!-- Opts LauncherActivity into Predictive Back (Android 13+) — the
-             live shrink-and-peek-at-home-screen preview on a back swipe,
-             instead of an instant cut. Ignored harmlessly below API 33, so
-             this needs no minSdk guard. Chrome's own Custom Tab (where most
-             of a TWA session actually lives) already handles predictive back
-             for its own surface independently of this app; this flag only
-             covers LauncherActivity's own slice — the splash phase, and
-             whenever control returns to it on exit. -->
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:enableOnBackInvokedCallback="true"
+        android:theme="@style/AppTheme">
 
-        <!-- One install, two things: this activity is the app, the receiver
-             below is the home-screen widget. Splitting them into two downloads
-             was the alternative, and nobody installs two. -->
+        <!-- One install, two things: this activity is the app (a Capacitor
+             WebView pointed at lekh-gamma.vercel.app, see capacitor.config.ts),
+             the receivers below are the home-screen widget. Splitting them
+             into two downloads was the alternative, and nobody installs two. -->
         <activity
-            android:name="com.google.androidbrowserhelper.trusted.LauncherActivity"
-            android:exported="true"
-            android:theme="@style/LekhLauncherTheme"
-            android:label="@string/app_name">
-
-            <meta-data
-                android:name="android.support.customtabs.trusted.DEFAULT_URL"
-                android:value="${twaUrl}" />
-
-            <!-- Matches the PWA's own theme-color and background, so the
-                 splash the launcher draws does not flash a different colour
-                 than the page that follows it. -->
-            <meta-data
-                android:name="android.support.customtabs.trusted.STATUS_BAR_COLOR"
-                android:resource="@color/twa_status_bar" />
-            <meta-data
-                android:name="android.support.customtabs.trusted.STATUS_BAR_COLOR_DARK"
-                android:resource="@color/twa_status_bar_dark" />
-            <meta-data
-                android:name="android.support.customtabs.trusted.NAVIGATION_BAR_COLOR"
-                android:resource="@color/twa_navigation_bar" />
-            <meta-data
-                android:name="android.support.customtabs.trusted.NAVIGATION_BAR_COLOR_DARK"
-                android:resource="@color/twa_navigation_bar_dark" />
-            <meta-data
-                android:name="android.support.customtabs.trusted.SPLASH_IMAGE_DRAWABLE"
-                android:resource="@mipmap/ic_launcher" />
-            <meta-data
-                android:name="android.support.customtabs.trusted.SPLASH_SCREEN_BACKGROUND_COLOR"
-                android:resource="@color/twa_background" />
-            <meta-data
-                android:name="android.support.customtabs.trusted.SPLASH_SCREEN_FADE_OUT_DURATION"
-                android:value="300" />
-            <!-- Without this, the splash above only covers LauncherActivity's
-                 own brief moment. It disappears the instant Chrome's
-                 CustomTabsIntent launches, and Chrome has no splash bitmap of
-                 its own to paint while it runs the async Digital Asset Links
-                 check — so its default toolbar shows for that window instead.
-                 FILE_PROVIDER_AUTHORITY lets androidbrowserhelper hand the
-                 same splash bitmap to Chrome (via the FileProvider below) so
-                 it can keep showing it until verification finishes. -->
-            <meta-data
-                android:name="android.support.customtabs.trusted.FILE_PROVIDER_AUTHORITY"
-                android:value="${applicationId}.fileprovider" />
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"
+            android:name=".MainActivity"
+            android:label="@string/title_activity_main"
+            android:theme="@style/AppTheme.NoActionBarLaunch"
+            android:launchMode="singleTask"
+            android:exported="true">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- Lets the app open lekh links directly. android:autoVerify ties
-                 it to the same assetlinks.json that removes Chrome's address
-                 bar, so both are verified by one file. -->
-            <intent-filter android:autoVerify="true">
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="${twaHost}" />
-            </intent-filter>
         </activity>
 
-        <!-- Chrome needs this to know which app owns the TWA session. -->
-        <meta-data
-            android:name="asset_statements"
-            android:resource="@string/asset_statements" />
-
-        <!-- Backs FILE_PROVIDER_AUTHORITY above: the only file it ever serves
-             is the splash bitmap androidbrowserhelper writes to the
-             twa_splash/ subdirectory of the app's files dir, declared as a
-             files-path (not cache-path — see @xml/filepaths for why that
-             distinction crashed every launch), handed to Chrome as a
-             content:// URI. -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -105,7 +35,7 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/filepaths" />
+                android:resource="@xml/file_paths"></meta-data>
         </provider>
 
         <!-- The widget's settings screen. exported="true" because the
@@ -144,8 +74,8 @@
                 android:resource="@xml/widget_info" />
         </receiver>
 
-        <!-- Two more sizes. Separate providers, so the launcher's widget
-             picker shows three entries rather than one that has to be
+        <!-- Five more sizes. Separate providers, so the launcher's widget
+             picker shows each as its own entry rather than one that has to be
              resized by dragging a corner most people never try. -->
         <receiver
             android:name=".widget.LekhWidgetSmallProvider"
@@ -215,4 +145,8 @@
                 android:resource="@xml/widget_info_xl_large" />
         </receiver>
     </application>
+
+    <!-- Permissions -->
+
+    <uses-permission android:name="android.permission.INTERNET" />
 </manifest>

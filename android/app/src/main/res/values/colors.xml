@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Light theme. Values are the web app's Crimson & Paper tokens, and the
-     foreground/background pairs were contrast-checked there — see the table at
-     the top of src/index.css. -->
+<!-- Light theme. Widget colors are the web app's Crimson & Paper tokens,
+     contrast-checked there — see the table at the top of src/index.css.
+     colorPrimary/colorPrimaryDark/colorAccent back AppTheme (styles.xml);
+     launch_background is the native-splash color, shown briefly before
+     MainActivity's WebView paints — see AppTheme.NoActionBarLaunch. -->
 <resources>
+    <color name="colorPrimary">#0E1220</color>
+    <color name="colorPrimaryDark">#0E1220</color>
+    <color name="colorAccent">#A80D26</color>
+
+    <color name="launch_background">#FAFAFB</color>
+
     <color name="widget_surface">#FFFFFF</color>
     <color name="widget_border">#DDE1E9</color>
     <color name="widget_text">#141824</color>

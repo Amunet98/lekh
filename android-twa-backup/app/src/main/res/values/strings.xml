@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Lekh Patro</string>
+    <!-- Shown under each entry in the launcher's widget picker. They differ so
+         six near-identical rows are actually distinguishable. -->
+    <string name="widget_description">Date, tithi and today\'s festival</string>
+    <string name="widget_description_small">Just the Bikram Sambat date</string>
+    <string name="widget_description_large">Date, weekday, tithi and festival</string>
+    <string name="widget_description_wide">A full-width strip: date and festival</string>
+    <string name="widget_description_xl">Wide strip: date, tithi and what\'s next</string>
+    <string name="widget_description_xl_large">Everything, plus this week at a glance</string>
+
+    <!-- Widget configuration screen. -->
+    <string name="config_title">Patro widget</string>
+    <string name="config_prompt">Which script should the widget use?</string>
+    <string name="config_nepali">नेपाली · Nepali</string>
+    <string name="config_english">English</string>
+    <string name="config_note">Applies to every Lekh Patro widget on your home screen. Festival names not yet translated are transliterated.</string>
+</resources>

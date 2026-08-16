@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- The Trusted Web Activity opens Lekh in the user's own Chrome, so the
+         app needs network access. The WIDGET still reads bundled assets only
+         and makes no requests of its own — see Panchang.kt. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:label="@string/app_name"
+        android:icon="@mipmap/ic_launcher"
+        android:allowBackup="true"
+        android:supportsRtl="false"
+        android:enableOnBackInvokedCallback="true">
+        <!-- Opts LauncherActivity into Predictive Back (Android 13+) — the
+             live shrink-and-peek-at-home-screen preview on a back swipe,
+             instead of an instant cut. Ignored harmlessly below API 33, so
+             this needs no minSdk guard. Chrome's own Custom Tab (where most
+             of a TWA session actually lives) already handles predictive back
+             for its own surface independently of this app; this flag only
+             covers LauncherActivity's own slice — the splash phase, and
+             whenever control returns to it on exit. -->
+
+        <!-- One install, two things: this activity is the app, the receiver
+             below is the home-screen widget. Splitting them into two downloads
+             was the alternative, and nobody installs two. -->
+        <activity
+            android:name="com.google.androidbrowserhelper.trusted.LauncherActivity"
+            android:exported="true"
+            android:theme="@style/LekhLauncherTheme"
+            android:label="@string/app_name">
+
+            <meta-data
+                android:name="android.support.customtabs.trusted.DEFAULT_URL"
+                android:value="${twaUrl}" />
+
+            <!-- Matches the PWA's own theme-color and background, so the
+                 splash the launcher draws does not flash a different colour
+                 than the page that follows it. -->
+            <meta-data
+                android:name="android.support.customtabs.trusted.STATUS_BAR_COLOR"
+                android:resource="@color/twa_status_bar" />
+            <meta-data
+                android:name="android.support.customtabs.trusted.STATUS_BAR_COLOR_DARK"
+                android:resource="@color/twa_status_bar_dark" />
+            <meta-data
+                android:name="android.support.customtabs.trusted.NAVIGATION_BAR_COLOR"
+                android:resource="@color/twa_navigation_bar" />
+            <meta-data
+                android:name="android.support.customtabs.trusted.NAVIGATION_BAR_COLOR_DARK"
+                android:resource="@color/twa_navigation_bar_dark" />
+            <meta-data
+                android:name="android.support.customtabs.trusted.SPLASH_IMAGE_DRAWABLE"
+                android:resource="@mipmap/ic_launcher" />
+            <meta-data
+                android:name="android.support.customtabs.trusted.SPLASH_SCREEN_BACKGROUND_COLOR"
+                android:resource="@color/twa_background" />
+            <meta-data
+                android:name="android.support.customtabs.trusted.SPLASH_SCREEN_FADE_OUT_DURATION"
+                android:value="300" />
+            <!-- Without this, the splash above only covers LauncherActivity's
+                 own brief moment. It disappears the instant Chrome's
+                 CustomTabsIntent launches, and Chrome has no splash bitmap of
+                 its own to paint while it runs the async Digital Asset Links
+                 check — so its default toolbar shows for that window instead.
+                 FILE_PROVIDER_AUTHORITY lets androidbrowserhelper hand the
+                 same splash bitmap to Chrome (via the FileProvider below) so
+                 it can keep showing it until verification finishes. -->
+            <meta-data
+                android:name="android.support.customtabs.trusted.FILE_PROVIDER_AUTHORITY"
+                android:value="${applicationId}.fileprovider" />
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- Lets the app open lekh links directly. android:autoVerify ties
+                 it to the same assetlinks.json that removes Chrome's address
+                 bar, so both are verified by one file. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="${twaHost}" />
+            </intent-filter>
+        </activity>
+
+        <!-- Chrome needs this to know which app owns the TWA session. -->
+        <meta-data
+            android:name="asset_statements"
+            android:resource="@string/asset_statements" />
+
+        <!-- Backs FILE_PROVIDER_AUTHORITY above: the only file it ever serves
+             is the splash bitmap androidbrowserhelper writes to the
+             twa_splash/ subdirectory of the app's files dir, declared as a
+             files-path (not cache-path — see @xml/filepaths for why that
+             distinction crashed every launch), handed to Chrome as a
+             content:// URI. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepaths" />
+        </provider>
+
+        <!-- The widget's settings screen. exported="true" because the
+             *launcher* starts it, not us — an unexported configure activity
+             means the launcher silently refuses to place the widget. It takes
+             no input and writes one boolean, so there is nothing here for
+             another app to abuse. -->
+        <activity
+            android:name=".widget.LekhWidgetConfigActivity"
+            android:theme="@style/LekhConfigTheme"
+            android:excludeFromRecents="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
+        <!-- exported="true" is required, not a slip. A widget provider is a
+             broadcast receiver that the *system* sends APPWIDGET_UPDATE to;
+             exported="false" means those broadcasts never arrive and the
+             widget silently never draws. Android 12+ also requires the
+             attribute to be stated explicitly whenever there is an
+             intent-filter. -->
+        <receiver
+            android:name=".widget.LekhWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <!-- Redraw when the date moves underneath us. -->
+                <action android:name="android.intent.action.DATE_CHANGED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info" />
+        </receiver>
+
+        <!-- Two more sizes. Separate providers, so the launcher's widget
+             picker shows three entries rather than one that has to be
+             resized by dragging a corner most people never try. -->
+        <receiver
+            android:name=".widget.LekhWidgetSmallProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.DATE_CHANGED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info_small" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.LekhWidgetWideProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.DATE_CHANGED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info_wide" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.LekhWidgetLargeProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.DATE_CHANGED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info_large" />
+        </receiver>
+        <receiver
+            android:name=".widget.LekhWidgetXlProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.DATE_CHANGED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info_xl" />
+        </receiver>
+        <receiver
+            android:name=".widget.LekhWidgetXlLargeProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.DATE_CHANGED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info_xl_large" />
+        </receiver>
+    </application>
+</manifest>

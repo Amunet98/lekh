@@ -11,6 +11,7 @@
  * so this never needs updating. The asset filename must stay `lekh-patro.apk`
  * for that path to resolve.
  */
+import { Capacitor } from '@capacitor/core'
 import { ANDROID_PACKAGE } from './androidPackage'
 export { ANDROID_PACKAGE } from './androidPackage'
 
@@ -45,49 +46,22 @@ export function isStandalone(): boolean {
 }
 
 /**
- * Specifically the Android APK's Trusted Web Activity — not just "installed
- * somehow". `isStandalone()` is also true for the plain PWA that Chrome's own
+ * Specifically inside the Android APK — not just "installed somehow".
+ * `isStandalone()` is also true for the plain PWA that Chrome's own
  * "Install app" menu produces, which has no widget and is exactly the case
- * where the "Get the Android app" offer should still show. A TWA is launched
- * with `document.referrer` set to `android-app://<package>`, which a browser
- * tab or a Chrome-menu PWA install never sets, so it is the one signal that
- * tells the two apart synchronously.
+ * where the "Get the Android app" offer should still show.
+ *
+ * Capacitor.isNativePlatform() is a synchronous, direct answer from the
+ * runtime itself — no verification handshake to fail, unlike the old TWA-era
+ * check this replaced (`document.referrer.startsWith('android-app://')`,
+ * a signal Capacitor's WebView never sets, since there is no Chrome tab
+ * handing off to it).
  */
-export function isTWA(): boolean {
+export function isNativeApp(): boolean {
   try {
-    return document.referrer.startsWith('android-app://')
+    return Capacitor.isNativePlatform()
   } catch {
     return false
   }
 }
 
-/**
- * Whether the Android APK is installed on this device — asked of the browser,
- * not inferred.
- *
- * `isStandalone()` only answers "am I running inside an installed app right
- * now". It is false when you open lekh in an ordinary Chrome tab on a phone
- * that already has the APK, which is exactly the case where offering to
- * install it again is wrong, and exactly the case the owner hit.
- *
- * getInstalledRelatedApps is the browser's answer to that. It needs both ends
- * of the association: `related_applications` in the web manifest naming the
- * package (vite.config.ts), and the app claiming the site through
- * assetlinks.json — which it already does, because the same file is what
- * removes Chrome's address bar inside the TWA.
- *
- * Chrome-only and Android-only; everywhere else it is simply absent, and the
- * answer is "no" rather than an error.
- */
-export async function isAndroidAppInstalled(): Promise<boolean> {
-  try {
-    const nav = navigator as Navigator & {
-      getInstalledRelatedApps?: () => Promise<{ id?: string; platform?: string }[]>
-    }
-    if (typeof nav.getInstalledRelatedApps !== 'function') return false
-    const apps = await nav.getInstalledRelatedApps()
-    return apps.some((app) => app.id === ANDROID_PACKAGE)
-  } catch {
-    return false
-  }
-}

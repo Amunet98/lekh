@@ -1,6 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
     <string name="app_name">Lekh Patro</string>
+    <string name="title_activity_main">Lekh Patro</string>
+    <string name="package_name">np.com.bimeshpoudel.lekh</string>
+    <string name="custom_url_scheme">np.com.bimeshpoudel.lekh</string>
+
     <!-- Shown under each entry in the launcher's widget picker. They differ so
          six near-identical rows are actually distinguishable. -->
     <string name="widget_description">Date, tithi and today\'s festival</string>

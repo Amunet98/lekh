@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Dark theme. The accent is #F87171 rather than the flag crimson for the
-     same reason as the web app: #C8102E on a blue-black surface is 1.6:1. -->
+<!-- Dark theme. Widget accent is #F87171 rather than the flag crimson for
+     the same reason as the web app: #C8102E on a blue-black surface is
+     1.6:1. launch_background has no light key here on purpose — this file
+     only overrides what actually differs at night. -->
 <resources>
+    <color name="launch_background">#0E1220</color>
+
     <color name="widget_surface">#151A2B</color>
     <color name="widget_border">#2C3450</color>
     <color name="widget_text">#F2F4F8</color>

@@ -3,7 +3,6 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
-import { ANDROID_PACKAGE } from './src/lib/androidPackage'
 
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf-8'))
 
@@ -38,25 +37,13 @@ export default defineConfig({
         name: 'Lekh Patro — नेपाली Typing',
         short_name: 'Lekh Patro',
         id: '/',
-        /* Declares the Android APK as a related app, which is what lets
-           navigator.getInstalledRelatedApps() answer "they already have it" and
-           the install button hide itself. The other half of the association is
-           assetlinks.json, which the app already verifies against.
-
-           prefer_related_applications is deliberately NOT set: it would
-           suppress the browser's own PWA install path everywhere, including
-           desktop, to solve an Android-only problem. */
-        related_applications: [
-          {
-            platform: 'play',
-            id: ANDROID_PACKAGE,
-            // Where the build actually comes from today. The schema requires a
-            // url; Chrome matches on the package id, so this is documentation
-            // rather than a lookup, and it should become the Play listing if
-            // the app is ever published there.
-            url: 'https://github.com/Amunet98/lekh/releases/latest',
-          },
-        ],
+        /* related_applications/getInstalledRelatedApps was the TWA-era way to
+           answer "do they already have the app" and hide the install button —
+           it needed assetlinks.json's Digital Asset Links verification to
+           succeed, which is exactly the fragility that migrating off TWA to a
+           Capacitor WebView removed. androidApp.ts's isNativeApp() now answers
+           that directly via Capacitor.isNativePlatform(), so there's nothing
+           left for this field to do. */
         start_url: '/',
         scope: '/',
         description:

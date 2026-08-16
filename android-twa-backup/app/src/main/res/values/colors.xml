@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Light theme. Values are the web app's Crimson & Paper tokens, and the
+     foreground/background pairs were contrast-checked there — see the table at
+     the top of src/index.css. -->
+<resources>
+    <color name="widget_surface">#FFFFFF</color>
+    <color name="widget_border">#DDE1E9</color>
+    <color name="widget_text">#141824</color>
+    <color name="widget_muted">#646C7E</color>
+    <color name="widget_accent">#A80D26</color>
+    <!-- Today's cell in the week strip: the web app's pale accent wash. -->
+    <color name="widget_today">#FBE9EC</color>
+</resources>

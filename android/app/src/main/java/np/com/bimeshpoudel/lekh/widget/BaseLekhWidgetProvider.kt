@@ -76,11 +76,18 @@ abstract class BaseLekhWidgetProvider : AppWidgetProvider() {
         manager.updateAppWidget(ids, WidgetRenderer.build(context, layoutRes, openPatro(context)))
     }
 
+    // Explicit intent naming MainActivity directly, not a bare ACTION_VIEW
+    // https intent — that would depend on Android App Links/Digital Asset
+    // Links verification succeeding to resolve to the app instead of a
+    // browser tab, the same verification that has already failed silently
+    // once for this project (see assetlinks.json's history). MainActivity
+    // reads the data URI itself and points the WebView at it.
     private fun openPatro(context: Context): PendingIntent =
         PendingIntent.getActivity(
             context,
             requestCode(),
-            Intent(Intent.ACTION_VIEW, Uri.parse("https://lekh-gamma.vercel.app/?tab=calendar")),
+            Intent(Intent.ACTION_VIEW, Uri.parse("https://lekh-gamma.vercel.app/?tab=calendar"))
+                .setClassName(context, "np.com.bimeshpoudel.lekh.MainActivity"),
             // FLAG_IMMUTABLE is required from Android 12 (S); without it the
             // PendingIntent constructor throws at runtime.
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,

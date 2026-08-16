@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:background">@null</item>
+    </style>
+
+
+    <!-- A flat color, not @drawable/splash — the whole reason this file
+         existed before was to avoid a colored flash when the page underneath
+         is dark; a bitmap splash designed for a different app would just
+         reintroduce that as a mismatched-color flash instead of a missing
+         one. This shows briefly while MainActivity/its WebView spin up, then
+         the app's own JS BootScreen (App.tsx) takes over. -->
+    <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
+        <item name="android:background">@color/launch_background</item>
+    </style>
+
+    <!-- The widget config screen's theme. DeviceDefault rather than a theme
+         of our own so it looks like the launcher's other widget dialogs on
+         whatever OEM skin is running; the light/dark split is done with
+         values-night rather than Theme.DeviceDefault.DayNight because that
+         only exists from API 29 and this app supports 26. -->
+    <style name="LekhConfigTheme" parent="@android:style/Theme.DeviceDefault.Light.Dialog" />
+</resources>

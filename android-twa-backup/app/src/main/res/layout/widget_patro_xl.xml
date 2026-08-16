@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5x1. The 4x1 strip plus the one thing an extra cell of width buys: what
+     is coming next. Today's festival stays on the accent line; the upcoming
+     one sits under it in muted text with how far off it is, which is what a
+     patro on a home screen is actually consulted for on the other 340 days of
+     the year.
+
+     Three rows in the right-hand column and two everywhere else. That column
+     is the widest, so its rows can be the tightest without wrapping.
+
+     A four-column launcher still offers this size and clamps it to four
+     cells; the right-hand column is weighted so it gives up width first and
+     the two extra rows survive. 4x1 stays anyway — on that grid it is the
+     shape that actually fits, and this one is the denser alternative. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:padding="10dp"
+    android:background="@drawable/widget_background">
+
+    <TextView
+        android:id="@+id/widget_day"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:includeFontPadding="false"
+        android:layout_marginEnd="10dp"
+        android:textColor="@color/widget_day"
+        android:text="२९" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginEnd="10dp">
+
+        <TextView
+            android:id="@+id/widget_month"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:maxLines="1"
+            android:textColor="@color/widget_text"
+            android:text="श्रावण २०८३" />
+
+        <TextView
+            android:id="@+id/widget_weekday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="10sp"
+            android:maxLines="1"
+            android:textColor="@color/widget_muted"
+            android:text="शुक्रबार" />
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:layout_marginVertical="4dp"
+        android:layout_marginEnd="10dp"
+        android:contentDescription="@null"
+        android:background="@color/widget_border" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginEnd="12dp">
+
+        <TextView
+            android:id="@+id/widget_ad"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="10sp"
+            android:maxLines="1"
+            android:textColor="@color/widget_muted"
+            android:text="14 Aug 2026" />
+
+        <TextView
+            android:id="@+id/widget_tithi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="10sp"
+            android:maxLines="1"
+            android:textColor="@color/widget_muted"
+            android:text="प्रतिपदा" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/widget_note"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:gravity="end"
+            android:textColor="@color/widget_accent"
+            android:text="गुँलाधर्म आरम्भ" />
+
+        <TextView
+            android:id="@+id/widget_next"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="10sp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:gravity="end"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/widget_muted"
+            android:text="आगामी · हरितालिका तीज · ५ दिनमा" />
+    </LinearLayout>
+</LinearLayout>

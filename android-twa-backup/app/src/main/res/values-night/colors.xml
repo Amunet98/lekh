@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dark theme. The accent is #F87171 rather than the flag crimson for the
+     same reason as the web app: #C8102E on a blue-black surface is 1.6:1. -->
+<resources>
+    <color name="widget_surface">#151A2B</color>
+    <color name="widget_border">#2C3450</color>
+    <color name="widget_text">#F2F4F8</color>
+    <color name="widget_muted">#828CA4</color>
+    <color name="widget_accent">#F87171</color>
+    <!-- Today's cell: lifted surface, not a red wash; a crimson tint on #151A2B reads as an error state. -->
+    <color name="widget_today">#2A1A24</color>
+</resources>

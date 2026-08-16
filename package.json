@@ -1,7 +1,7 @@
 {
   "name": "lekh",
   "private": true,
-  "version": "1.8.26",
+  "version": "1.8.27",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -14,11 +14,12 @@
     "check:cheatsheet": "vite build --ssr scripts/check-cheatsheet.ts --outDir .cheatcheck --logLevel error && node .cheatcheck/check-cheatsheet.js && rm -rf .cheatcheck",
     "calendar:data": "node scripts/fetch-calendar-data.mjs",
     "android:assets": "node scripts/export-android-assets.mjs",
-    "assetlinks": "node scripts/gen-assetlinks.mjs",
-    "android:release": "npm run android:assets && cd android && ./gradlew assembleRelease",
+    "android:release": "npm run android:assets && npm run build && npx cap sync android && cd android && ./gradlew assembleRelease",
     "play:feature": "node scripts/render-feature-graphic.mjs"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/core": "^8.5.0",
     "@huggingface/transformers": "^3.7.6",
     "docx": "^9.7.1",
     "mammoth": "^1.12.0",
@@ -29,6 +30,7 @@
     "tesseract.js": "^6.0.1"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.5.0",
     "@eslint/js": "^9.39.4",
     "@tailwindcss/vite": "^4.1.16",
     "@types/node": "^24.13.2",

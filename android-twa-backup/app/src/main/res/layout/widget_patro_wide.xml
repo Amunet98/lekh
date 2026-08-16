@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 4x1. Full width, one cell tall.
+
+     The first version of this put the date on the left and the festival hard
+     right, with nothing in between — which on a day with a short festival name
+     (or none at all) was a widget that was mostly empty. The middle column is
+     that gap put to work: the Gregorian date and the tithi, which the 2x1 and
+     2x2 have to drop for want of room but a 4x1 has width to spare for.
+
+     Two rows per column and no more. A 4x1 cell is ~40–90dp tall depending on
+     the launcher's grid, and a third row is not safe at the bottom of that
+     range — it clips, and a clipped Devanagari row looks like a font bug.
+
+     No plain <View> anywhere in here. RemoteViews inflates only an allowlist
+     of classes and android.view.View is not on it — a layout containing one
+     throws "Class not allowed to be inflated", which on a home screen reads
+     as "Problem loading widget" and nothing more. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:padding="10dp"
+    android:background="@drawable/widget_background">
+
+    <TextView
+        android:id="@+id/widget_day"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:includeFontPadding="false"
+        android:layout_marginEnd="10dp"
+        android:textColor="@color/widget_day"
+        android:text="२९" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginEnd="10dp">
+
+        <TextView
+            android:id="@+id/widget_month"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:maxLines="1"
+            android:textColor="@color/widget_text"
+            android:text="श्रावण २०८३" />
+
+        <TextView
+            android:id="@+id/widget_weekday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="10sp"
+            android:maxLines="1"
+            android:textColor="@color/widget_muted"
+            android:text="शुक्रबार" />
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:layout_marginVertical="4dp"
+        android:layout_marginEnd="10dp"
+        android:contentDescription="@null"
+        android:background="@color/widget_border" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginEnd="10dp">
+
+        <TextView
+            android:id="@+id/widget_ad"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="10sp"
+            android:maxLines="1"
+            android:textColor="@color/widget_muted"
+            android:text="14 Aug 2026" />
+
+        <TextView
+            android:id="@+id/widget_tithi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="10sp"
+            android:maxLines="1"
+            android:textColor="@color/widget_muted"
+            android:text="प्रतिपदा" />
+    </LinearLayout>
+
+    <!-- Takes the remaining width, so a long festival name uses the space a
+         4x1 actually has instead of being cut at a fixed column. -->
+    <TextView
+        android:id="@+id/widget_note"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:textSize="11sp"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:gravity="end"
+        android:textColor="@color/widget_accent"
+        android:text="गुँलाधर्म आरम्भ" />
+
+    <!-- Present so one renderer can populate every layout; no room at 4x1. -->
+    <TextView android:id="@+id/widget_next"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:visibility="gone" android:text="" />
+</LinearLayout>
