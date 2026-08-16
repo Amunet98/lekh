@@ -46,10 +46,23 @@ export function warmOcrCacheInBackground(): void {
 
   void (async () => {
     try {
-      // Waits for the worker to actually control this page — a fetch fired
-      // before that would go straight to the network, ungoverned by the
-      // runtime-caching route that is the entire point of this call.
+      /* .ready resolves once the registration HAS an active worker — it does
+       * not mean THIS page is controlled by it yet. On a fresh install, this
+       * navigation is the one that installed the worker, and clientsClaim
+       * taking control of an already-loading client is a separate, slightly
+       * later step. A fetch fired between those two points slips straight to
+       * the network past the CacheFirst route: it still resolves .ok, so
+       * WARMED_KEY gets set, but nothing was ever written to
+       * 'lekh-ocr-assets' — a silent, permanent no-op, confirmed on-device
+       * (fresh install: warmed='1', cache never created; the exact fetch
+       * repeated after `controller` was actually set cached correctly).
+       * controllerchange is what actually fires when clientsClaim finishes. */
       await navigator.serviceWorker.ready
+      if (!navigator.serviceWorker.controller) {
+        await new Promise<void>((resolve) => {
+          navigator.serviceWorker.addEventListener('controllerchange', () => resolve(), { once: true })
+        })
+      }
       const results = await Promise.allSettled(OCR_ASSET_URLS.map((url) => fetch(url)))
       if (results.every((r) => r.status === 'fulfilled' && r.value.ok)) {
         localStorage.setItem(WARMED_KEY, '1')
