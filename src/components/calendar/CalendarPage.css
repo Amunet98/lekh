@@ -134,8 +134,16 @@
   background: var(--surface-2);
   cursor: default;
 }
-.cal__cell:hover:not(.cal__cell--blank) {
-  background: var(--accent-bg);
+/* hover: hover excludes touchscreens, which have no way to leave a :hover
+   state once a tap triggers it — a "stuck hover" that otherwise permanently
+   wins over .cal__cell--selected below (:hover + :not() outweighs one
+   class), leaving --on-accent text sitting on --accent-bg's dark background
+   instead of --accent's bright one. Exactly what selecting a date on a
+   phone showed. */
+@media (hover: hover) {
+  .cal__cell:hover:not(.cal__cell--blank) {
+    background: var(--accent-bg);
+  }
 }
 .cal__cell:focus-visible {
   outline: 2px solid var(--accent);
