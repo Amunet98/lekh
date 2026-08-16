@@ -15,7 +15,9 @@
     "calendar:data": "node scripts/fetch-calendar-data.mjs",
     "android:assets": "node scripts/export-android-assets.mjs",
     "android:release": "npm run android:assets && npm run build && npx cap sync android && cd android && ./gradlew assembleRelease",
-    "play:feature": "node scripts/render-feature-graphic.mjs"
+    "android:bundle": "npm run android:assets && npm run build && npx cap sync android && cd android && ./gradlew bundleRelease",
+    "play:feature": "node scripts/render-feature-graphic.mjs",
+    "play:publish": "npm run android:bundle && node scripts/play-publish.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.0",
@@ -41,6 +43,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.4.0",
+    "googleapis": "^174.0.1",
     "tailwindcss": "^4.1.16",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.57.0",
