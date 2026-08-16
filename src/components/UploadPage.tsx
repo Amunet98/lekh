@@ -17,6 +17,7 @@ type ReadStatus = 'idle' | 'reading' | 'error'
 export function UploadPage({ onEditInTranslate }: UploadPageProps) {
   const t = useTranslateState()
   const [readStatus, setReadStatus] = useState<ReadStatus>('idle')
+  const [readErrorIsOffline, setReadErrorIsOffline] = useState(false)
   const [readLabel, setReadLabel] = useState('Reading text…')
   const [readProgress, setReadProgress] = useState<number | null>(null)
   // Recognized/extracted text is collapsed by default — the translation is
@@ -53,6 +54,16 @@ export function UploadPage({ onEditInTranslate }: UploadPageProps) {
       }
       setReadStatus('idle')
     } catch {
+      // The OCR engine and the pdf.js worker are deliberately not part of the
+      // install-time precache (see vite.config.ts) — they're ~20MB, fetched
+      // and cached on first actual use. A first scan/PDF attempt made before
+      // that has ever succeeded once online has nothing to fall back to and
+      // fails here, indistinguishable by error shape from a genuinely bad
+      // photo — navigator.onLine is what tells them apart. Text/docx never
+      // touch that lazy fetch (their code is part of the regular app bundle,
+      // already precached), so this only applies to the two extensions that do.
+      const usesLazyEngine = input.kind === 'image' || input.file.name.toLowerCase().endsWith('.pdf')
+      setReadErrorIsOffline(usesLazyEngine && !navigator.onLine)
       setReadStatus('error')
     } finally {
       setReadProgress(null)
@@ -89,11 +100,17 @@ export function UploadPage({ onEditInTranslate }: UploadPageProps) {
           </div>
         </div>
       )}
-      {readStatus === 'error' && (
-        <div className="error-banner" role="alert">
-          Couldn&rsquo;t read that document — try a clearer photo or a different file.
-        </div>
-      )}
+      {readStatus === 'error' &&
+        (readErrorIsOffline ? (
+          <div className="error-banner" role="alert">
+            Scanning needs the internet the first time, to download the reader — connect once and it&rsquo;ll
+            keep working offline after that.
+          </div>
+        ) : (
+          <div className="error-banner" role="alert">
+            Couldn&rsquo;t read that document — try a clearer photo or a different file.
+          </div>
+        ))}
 
       <div className="translate-panes translate-panes--single">
         <TranslationOutput t={t} />

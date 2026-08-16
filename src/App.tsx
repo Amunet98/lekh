@@ -12,6 +12,7 @@ import { BootScreen } from './components/BootScreen'
 import { AboutSheet } from './components/AboutSheet'
 import { AboutButton } from './components/AboutButton'
 import { UpdatePrompt } from './components/UpdatePrompt'
+import { warmOcrCacheInBackground } from './lib/ocr/prefetch'
 import './App.css'
 
 const TABS: Tab[] = ['type', 'upload', 'translate', 'calendar']
@@ -132,6 +133,14 @@ function App() {
     document.getElementById(EDITOR_ID)?.focus()
     // Only when the splash leaves — not on every later tab switch back to Type.
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [booting])
+
+  /* Same "only once the splash leaves" timing as the caret-focus effect above
+     — no need to compete with the boot screen's own network/CPU use, and no
+     reason to fire on every tab switch. See prefetch.ts for why this exists. */
+  useEffect(() => {
+    if (booting) return
+    warmOcrCacheInBackground()
   }, [booting])
 
   return (
