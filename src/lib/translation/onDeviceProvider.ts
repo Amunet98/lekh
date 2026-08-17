@@ -61,7 +61,12 @@ export async function isModelCached(): Promise<boolean> {
 
 type TranslationPipeline = (
   text: string,
-  options: { src_lang: string; tgt_lang: string; no_repeat_ngram_size?: number },
+  options: {
+    src_lang: string
+    tgt_lang: string
+    no_repeat_ngram_size?: number
+    repetition_penalty?: number
+  },
 ) => Promise<Array<{ translation_text: string }> | { translation_text: string }>
 
 let translator: TranslationPipeline | null = null
@@ -215,11 +220,27 @@ export const onDeviceProvider: TranslationProvider = {
       /* Confirmed on-device on a real phone: with no repetition guard,
        * multi-line input (a several-line Nepali poem) translates the first
        * line or two correctly, then collapses into one short phrase
-       * ("There is no one here!") repeated for the rest of the output —
-       * the classic greedy-decoding repetition trap, reproducible bit-for-
-       * bit since generation here is deterministic. no_repeat_ngram_size
-       * forbids repeating any 3-token sequence, which breaks the loop
-       * outright rather than just discouraging it. */
+       * ("There is no one here!") repeated for the rest of the output — the
+       * classic greedy-decoding repetition trap, reproducible bit-for-bit
+       * since generation here is deterministic.
+       *
+       * no_repeat_ngram_size alone (a hard ban on repeating any 3-token
+       * sequence) stopped the literal loop, but a same-input comparison
+       * against this model's own un-penalised output showed why that isn't
+       * enough on its own: left alone, the model's way of signalling "I'm
+       * running out of confident content" is to start repeating and let
+       * that repetition converge into an EOS — outright forbidding repeats
+       * removes that off-ramp and pushes generation into inventing
+       * unrelated continuations instead, which is what read as "translation
+       * is mostly unrelated to the source" once the loop itself was fixed.
+       * repetition_penalty is a soft discouragement rather than a hard ban:
+       * it still lets the model wind down and hit a natural stopping point,
+       * it just makes literal loops increasingly costly, so pure repetition
+       * never becomes the cheapest option. no_repeat_ngram_size stays on
+       * too, at a default we no longer lean on for the main effect — pure
+       * belt-and-suspenders against a verbatim loop slipping through on
+       * some input the penalty alone doesn't cover. */
+      repetition_penalty: 1.3,
       no_repeat_ngram_size: 3,
     })
     const first = Array.isArray(out) ? out[0] : out
