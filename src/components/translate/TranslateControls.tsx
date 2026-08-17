@@ -190,6 +190,12 @@ export function TranslateControls({ t }: { t: TranslateState }) {
             The on-device model is about ~900MB and downloads once (cached in your browser
             afterward). Recommended on WiFi — continue?
           </p>
+          {t.deviceMemoryTier === 'warn' && (
+            <p>
+              Your device reports limited memory — on-device translation may run slowly or fail
+              partway through. Online mode is more reliable here.
+            </p>
+          )}
           <div className="confirm-actions">
             <button type="button" className="btn" onClick={t.confirmDownload}>
               Download &amp; enable

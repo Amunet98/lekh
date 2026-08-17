@@ -10,6 +10,7 @@ import {
   isModelCached,
 } from '../lib/translation/onDeviceProvider'
 import { romanizedToDevanagari } from '../lib/engine/romanize'
+import { memoryTier } from '../lib/translation/deviceMemory'
 import type { ModelLoadProgress } from '../lib/translation/provider'
 
 export type TranslateMode = 'online' | 'ondevice'
@@ -50,6 +51,10 @@ export function useTranslateState() {
 
   const sourceLang: Language = direction === 'ne-en' ? NEPALI : ENGLISH
   const targetLang: Language = direction === 'ne-en' ? ENGLISH : NEPALI
+
+  // navigator.deviceMemory can't change mid-session — compute once rather
+  // than on every render.
+  const deviceMemoryTier = useMemo(() => memoryTier(), [])
 
   // Devanagari form of romanized input, shown as an "interpreted as:" hint;
   // null when the source isn't ne-en or contains no Latin letters.
@@ -150,12 +155,23 @@ export function useTranslateState() {
   }, [])
 
   const requestOnDevice = useCallback(() => {
+    // Below the trustworthy range entirely — the ~900MB WASM heap this
+    // needs won't fit, and the failure isn't even a catchable JS error (see
+    // runOnDevice's catch): the WebView's renderer itself gets evicted by
+    // the OS mid-load, discarding whatever was on screen. Refusing up front
+    // is kinder than a silent reload partway through a download.
+    if (deviceMemoryTier === 'low') {
+      setError(
+        'This device may not have enough memory to run on-device translation — please use Online mode.',
+      )
+      return
+    }
     if (hasConfirmedDownload() || hasDownloadedModel()) {
       switchToOnDevice()
     } else {
       setShowConfirm(true)
     }
-  }, [switchToOnDevice])
+  }, [switchToOnDevice, deviceMemoryTier])
 
   const confirmDownload = useCallback(() => {
     setConfirmedDownload()
@@ -180,6 +196,7 @@ export function useTranslateState() {
     error,
     modelLoad,
     modelDownloaded,
+    deviceMemoryTier,
     showConfirm,
     runOnDevice,
     downloadModel,

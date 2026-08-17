@@ -28,7 +28,7 @@ export function TranslateActions({ t, context }: TranslateActionsProps) {
       {t.error && (
         <div className="error-banner" role="alert">
           <span>{t.error}</span>
-          {t.mode === 'online' && (
+          {t.mode === 'online' && t.deviceMemoryTier !== 'low' && (
             <button type="button" className="btn" onClick={t.requestOnDevice}>
               Switch to on-device
             </button>
