@@ -61,7 +61,7 @@ export async function isModelCached(): Promise<boolean> {
 
 type TranslationPipeline = (
   text: string,
-  options: { src_lang: string; tgt_lang: string },
+  options: { src_lang: string; tgt_lang: string; no_repeat_ngram_size?: number },
 ) => Promise<Array<{ translation_text: string }> | { translation_text: string }>
 
 let translator: TranslationPipeline | null = null
@@ -209,7 +209,19 @@ export const onDeviceProvider: TranslationProvider = {
   id: 'ondevice',
   async translate(text, source, target, options?: TranslateOptions) {
     const t = await getTranslator(options?.onModelProgress)
-    const out = await t(text, { src_lang: source.nllb, tgt_lang: target.nllb })
+    const out = await t(text, {
+      src_lang: source.nllb,
+      tgt_lang: target.nllb,
+      /* Confirmed on-device on a real phone: with no repetition guard,
+       * multi-line input (a several-line Nepali poem) translates the first
+       * line or two correctly, then collapses into one short phrase
+       * ("There is no one here!") repeated for the rest of the output —
+       * the classic greedy-decoding repetition trap, reproducible bit-for-
+       * bit since generation here is deterministic. no_repeat_ngram_size
+       * forbids repeating any 3-token sequence, which breaks the loop
+       * outright rather than just discouraging it. */
+      no_repeat_ngram_size: 3,
+    })
     const first = Array.isArray(out) ? out[0] : out
     return first.translation_text
   },
