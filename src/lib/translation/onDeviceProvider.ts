@@ -66,6 +66,7 @@ type TranslationPipeline = (
     tgt_lang: string
     no_repeat_ngram_size?: number
     repetition_penalty?: number
+    max_new_tokens?: number
   },
 ) => Promise<Array<{ translation_text: string }> | { translation_text: string }>
 
@@ -214,32 +215,36 @@ export const onDeviceProvider: TranslationProvider = {
   id: 'ondevice',
   async translate(text, source, target, options?: TranslateOptions) {
     const t = await getTranslator(options?.onModelProgress)
+    /* Confirmed on-device on a real phone, twice now, on the actual WASM
+     * backend (onnxruntime-web) that production runs on — NOT reproducible
+     * on the same model/input via the Node/CPU backend, which stops at a
+     * short, reasonably faithful translation on its own. That backend gap
+     * means neither fix below can be trusted from a local test alone; both
+     * were verified against a live phone run.
+     *
+     * First failure: with no repetition guard, a several-line Nepali poem
+     * translated the first line or two correctly, then collapsed into one
+     * short phrase repeated for the rest of the output — the classic
+     * greedy-decoding repetition trap, reproducible bit-for-bit since
+     * generation here is deterministic.
+     *
+     * no_repeat_ngram_size alone (a hard ban on repeating any 3-token
+     * sequence) stopped that literal loop, but traded it for a second,
+     * subtler failure confirmed on the same phone: freed from ever
+     * repeating, generation just kept going — past the poem's actual
+     * content and into invented, unrelated imagery — because nothing was
+     * bounding how much it was allowed to invent. repetition_penalty (a
+     * soft discouragement rather than a hard ban) didn't fix that alone
+     * either. max_new_tokens is what actually bounds it: scaled off the
+     * input's length so a short phrase can't ramble on for paragraphs, but
+     * a long document isn't clipped mid-sentence. no_repeat_ngram_size
+     * and repetition_penalty both stay on as defense in depth against the
+     * literal-loop failure mode within whatever length is now allowed. */
+    const maxNewTokens = Math.min(1024, Math.max(64, text.length * 2))
     const out = await t(text, {
       src_lang: source.nllb,
       tgt_lang: target.nllb,
-      /* Confirmed on-device on a real phone: with no repetition guard,
-       * multi-line input (a several-line Nepali poem) translates the first
-       * line or two correctly, then collapses into one short phrase
-       * ("There is no one here!") repeated for the rest of the output — the
-       * classic greedy-decoding repetition trap, reproducible bit-for-bit
-       * since generation here is deterministic.
-       *
-       * no_repeat_ngram_size alone (a hard ban on repeating any 3-token
-       * sequence) stopped the literal loop, but a same-input comparison
-       * against this model's own un-penalised output showed why that isn't
-       * enough on its own: left alone, the model's way of signalling "I'm
-       * running out of confident content" is to start repeating and let
-       * that repetition converge into an EOS — outright forbidding repeats
-       * removes that off-ramp and pushes generation into inventing
-       * unrelated continuations instead, which is what read as "translation
-       * is mostly unrelated to the source" once the loop itself was fixed.
-       * repetition_penalty is a soft discouragement rather than a hard ban:
-       * it still lets the model wind down and hit a natural stopping point,
-       * it just makes literal loops increasingly costly, so pure repetition
-       * never becomes the cheapest option. no_repeat_ngram_size stays on
-       * too, at a default we no longer lean on for the main effect — pure
-       * belt-and-suspenders against a verbatim loop slipping through on
-       * some input the penalty alone doesn't cover. */
+      max_new_tokens: maxNewTokens,
       repetition_penalty: 1.3,
       no_repeat_ngram_size: 3,
     })
