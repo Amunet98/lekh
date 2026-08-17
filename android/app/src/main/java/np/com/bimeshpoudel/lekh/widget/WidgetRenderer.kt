@@ -98,8 +98,15 @@ object WidgetRenderer {
         val subtitle = when {
             info == null && !Panchang.covers(today.year) ->
                 if (en) "Update Lekh for new dates" else "पात्रो अद्यावधिक गर्नुहोस्"
+            // Festival names stay in Devanagari even in English mode: the
+            // Roman table is a plain, diacritic-free transliteration meant to
+            // be readable at a glance, not a translation, and it renders
+            // unfamiliar names (Newar/Tamang/Sherpa festivals especially) in
+            // ways a Nepali reader doesn't recognise. Everything else on the
+            // widget (months, weekdays, tithi, digits) is a small closed
+            // vocabulary the table gets exactly right, so those still switch.
             info != null && info.festivals.isNotEmpty() ->
-                info.festivals.joinToString(" · ") { if (en) Roman.festival(it) else it }
+                info.festivals.joinToString(" · ")
             info != null && info.tithi.isNotEmpty() ->
                 if (en) Roman.tithi(info.tithi) else info.tithi
             else -> ""
@@ -116,7 +123,7 @@ object WidgetRenderer {
                     val (days, next) = upcoming
                     val name = next.festivals.first()
                     if (en) {
-                        "Next · ${Roman.festival(name)} · ${if (days == 1) "tomorrow" else "in $days days"}"
+                        "Next · $name · ${if (days == 1) "tomorrow" else "in $days days"}"
                     } else {
                         val away =
                             if (days == 1) "भोलि" else "${NepaliCalendar.toDevanagari(days)} दिनमा"
