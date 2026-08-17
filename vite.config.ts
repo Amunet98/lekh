@@ -138,6 +138,31 @@ export default defineConfig({
               cacheableResponse: { statuses: [0, 200] },
             },
           },
+          /* onnxruntime-web's WASM execution binary (~21MB, bundled by Vite as
+           * a content-hashed asset — confirmed same-origin, not a CDN fetch).
+           * transformers.js's own weight download is cached separately under
+           * 'transformers-cache', but that only covers the ~600MB model
+           * weights; this binary is a second, independent fetch onnxruntime
+           * issues while *initialising* the inference session, and nothing
+           * routed it before this rule existed.
+           *
+           * That gap bites on every relaunch, not just the first: the loaded
+           * `translator` pipeline lives in a plain module-level variable, so
+           * a killed WebView process (routine on a low-RAM device — confirmed
+           * repeatedly on a 3.6GB-RAM Samsung A07) forgets it and re-runs the
+           * full pipeline() init from scratch, including this fetch. Confirmed
+           * on-device: on that phone, on-device translation failed outright —
+           * even for one word — while offline, with the model weights already
+           * cached; CacheFirst here makes the second and later inits offline
+           * -safe the same way the OCR assets above already are. */
+          {
+            urlPattern: /\.wasm$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'lekh-wasm-assets',
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\//,
             handler: 'StaleWhileRevalidate',
