@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Long-press app shortcuts. See the comment above the shortcut_* strings in
+  strings.xml for why this exists as a separate, native resource rather than
+  just relying on the web manifest's own `shortcuts` (vite.config.ts).
+
+  Each intent mirrors BaseLekhWidgetProvider.kt's openPatro() exactly — same
+  ACTION_VIEW + explicit https://lekh-gamma.vercel.app/?tab=... URL pointed
+  at MainActivity, which already knows how to load an incoming intent's data
+  straight into the WebView (see MainActivity.handleIntent). Static, not
+  dynamic: these three destinations are fixed and don't depend on runtime
+  state the way a "reopen this exact note" shortcut might.
+-->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="type"
+        android:enabled="true"
+        android:icon="@drawable/shortcut_type"
+        android:shortcutShortLabel="@string/shortcut_type_short"
+        android:shortcutLongLabel="@string/shortcut_type_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="np.com.bimeshpoudel.lekh"
+            android:targetClass="np.com.bimeshpoudel.lekh.MainActivity"
+            android:data="https://lekh-gamma.vercel.app/?tab=type" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="translate"
+        android:enabled="true"
+        android:icon="@drawable/shortcut_translate"
+        android:shortcutShortLabel="@string/shortcut_translate_short"
+        android:shortcutLongLabel="@string/shortcut_translate_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="np.com.bimeshpoudel.lekh"
+            android:targetClass="np.com.bimeshpoudel.lekh.MainActivity"
+            android:data="https://lekh-gamma.vercel.app/?tab=translate" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="patro"
+        android:enabled="true"
+        android:icon="@drawable/shortcut_calendar"
+        android:shortcutShortLabel="@string/shortcut_patro_short"
+        android:shortcutLongLabel="@string/shortcut_patro_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="np.com.bimeshpoudel.lekh"
+            android:targetClass="np.com.bimeshpoudel.lekh.MainActivity"
+            android:data="https://lekh-gamma.vercel.app/?tab=calendar" />
+    </shortcut>
+</shortcuts>

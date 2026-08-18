@@ -26,6 +26,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- Long-press shortcuts (Type/Translate/Patro) — see
+                 res/xml/shortcuts.xml and the comment in strings.xml for why
+                 this native declaration exists alongside the web manifest's
+                 own, unrelated `shortcuts` field. -->
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
+
         </activity>
 
         <provider

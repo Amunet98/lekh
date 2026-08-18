@@ -14,6 +14,19 @@
     <string name="widget_description_xl">Wide strip: date, tithi and what\'s next</string>
     <string name="widget_description_xl_large">Everything, plus this week at a glance</string>
 
+    <!-- Long-press app shortcuts (res/xml/shortcuts.xml). The web manifest's
+         own `shortcuts` (vite.config.ts) only reach the launcher for an
+         installed PWA/WebAPK — this app is a plain Capacitor WebView, not
+         registered with Chrome's WebAPK system, so the OS never sees those.
+         Native static shortcuts are the separate, required mechanism for an
+         actual APK; they were never carried over from the old TWA project. -->
+    <string name="shortcut_type_short">Type</string>
+    <string name="shortcut_type_long">Type Nepali</string>
+    <string name="shortcut_translate_short">Translate</string>
+    <string name="shortcut_translate_long">Translate</string>
+    <string name="shortcut_patro_short">Patro</string>
+    <string name="shortcut_patro_long">Nepali calendar</string>
+
     <!-- Widget configuration screen. -->
     <string name="config_title">Patro widget</string>
     <string name="config_prompt">Which script should the widget use?</string>
