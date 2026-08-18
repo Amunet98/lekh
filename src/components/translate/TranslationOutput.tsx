@@ -45,6 +45,32 @@ export function TranslationOutput({ t }: { t: TranslateState }) {
               </span>
             </div>
           )
+        ) : t.chunkProgress !== null && t.chunkProgress.total > 1 ? (
+          // A long document translates as several sequential requests/passes
+          // rather than one — a determinate bar (unlike the indeterminate
+          // ones above) since chunk count is known upfront, plus the
+          // translation so far so it reads as progress, not a stall.
+          <>
+            <div className="model-progress">
+              <div
+                className="model-progress-track"
+                role="progressbar"
+                aria-label="Translating"
+                aria-valuemin={0}
+                aria-valuemax={t.chunkProgress.total}
+                aria-valuenow={t.chunkProgress.current}
+              >
+                <div
+                  className="model-progress-fill"
+                  style={{ width: `${(t.chunkProgress.current / t.chunkProgress.total) * 100}%` }}
+                />
+              </div>
+              <span className="model-progress-label">
+                Translating part {t.chunkProgress.current}/{t.chunkProgress.total}…
+              </span>
+            </div>
+            {t.translated && <p className="chunk-partial">{t.translated}</p>}
+          </>
         ) : t.status === 'loading' && t.mode === 'ondevice' ? (
           // Same indeterminate-bar treatment as model loading above, not just
           // static text — inference on a phone's CPU can take a genuinely long

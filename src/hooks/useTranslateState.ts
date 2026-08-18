@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ENGLISH, NEPALI, type Language } from '../lib/translation/languages'
 import { onlineProvider } from '../lib/translation/onlineProvider'
+import { chunkText } from '../lib/translation/chunk'
 import {
   onDeviceProvider,
   preloadModel,
@@ -16,6 +17,10 @@ import type { ModelLoadProgress } from '../lib/translation/provider'
 export type TranslateMode = 'online' | 'ondevice'
 export type Direction = 'ne-en' | 'en-ne'
 type Status = 'idle' | 'loading' | 'error'
+export interface ChunkProgress {
+  current: number
+  total: number
+}
 
 const SOURCE_TEXT_KEY = 'lekh:translate-source-text'
 
@@ -45,6 +50,10 @@ export function useTranslateState() {
   const [modelLoad, setModelLoad] = useState<ModelLoadProgress | null>(null)
   const [showConfirm, setShowConfirm] = useState(false)
   const [copied, setCopied] = useState(false)
+  // Only set while a chunked (multi-request) translation is running — null
+  // for the common single-chunk case, so short translations render exactly
+  // as they always have.
+  const [chunkProgress, setChunkProgress] = useState<ChunkProgress | null>(null)
   // localStorage isn't reactive — seed from it for an instant paint, then
   // self-heal against the real Cache Storage entry (the flag can go stale
   // in either direction: cache evicted under storage pressure, or flag lost
@@ -86,18 +95,37 @@ export function useTranslateState() {
       return
     }
     const effectiveSource = romanizedHint(text, dir) ?? text
+    // A long upload otherwise gets stuffed whole into one GET request — both
+    // providers either reject or fail outright past a few hundred characters
+    // (MyMemory's ~500-char anonymous cap, and Google's endpoint on a long
+    // enough query string). Chunking keeps every request small regardless of
+    // document length; a chunks.length of 1 is the same request as before.
+    const chunks = chunkText(effectiveSource)
     const requestId = ++requestIdRef.current
     setStatus('loading')
+    setTranslated('')
+    if (chunks.length > 1) setChunkProgress({ current: 0, total: chunks.length })
     try {
-      const result = await onlineProvider.translate(effectiveSource, source, target)
-      if (requestId !== requestIdRef.current) return
-      setTranslated(result)
+      const results: string[] = []
+      for (const chunk of chunks) {
+        const piece = await onlineProvider.translate(chunk, source, target)
+        if (requestId !== requestIdRef.current) return
+        results.push(piece)
+        setTranslated(results.join('\n\n'))
+        if (chunks.length > 1) setChunkProgress({ current: results.length, total: chunks.length })
+      }
       setStatus('idle')
       setError(null)
     } catch {
       if (requestId !== requestIdRef.current) return
       setStatus('error')
-      setError('Translation service is unavailable right now — check your connection or try again shortly.')
+      setError(
+        chunks.length > 1
+          ? 'Translation service is unavailable right now — part of this document translated before the connection dropped.'
+          : 'Translation service is unavailable right now — check your connection or try again shortly.',
+      )
+    } finally {
+      if (requestId === requestIdRef.current) setChunkProgress(null)
     }
   }, [])
 
@@ -113,23 +141,40 @@ export function useTranslateState() {
   const runOnDevice = useCallback(async () => {
     if (!sourceText.trim()) return
     const effectiveSource = romanizedHint(sourceText, direction) ?? sourceText
+    // Same reasoning as runOnline's chunking: NLLB's practical input length
+    // is well below what a whole uploaded document can run to, and nothing
+    // here truncates on its own — a chunks.length of 1 is the same single
+    // inference call as before.
+    const chunks = chunkText(effectiveSource)
     setStatus('loading')
     setError(null)
+    setTranslated('')
+    if (chunks.length > 1) setChunkProgress({ current: 0, total: chunks.length })
     try {
-      const result = await onDeviceProvider.translate(effectiveSource, sourceLang, targetLang, {
-        // 'done' means the model is ready and inference is starting — clear
-        // the load UI so the pane shows plain "Translating…" from there.
-        onModelProgress: (p) => setModelLoad(p.phase === 'done' ? null : p),
-      })
-      setTranslated(result)
+      const results: string[] = []
+      for (const chunk of chunks) {
+        const piece = await onDeviceProvider.translate(chunk, sourceLang, targetLang, {
+          // 'done' means the model is ready and inference is starting — clear
+          // the load UI so the pane shows plain "Translating…" from there.
+          onModelProgress: (p) => setModelLoad(p.phase === 'done' ? null : p),
+        })
+        results.push(piece)
+        setTranslated(results.join('\n\n'))
+        if (chunks.length > 1) setChunkProgress({ current: results.length, total: chunks.length })
+      }
       setStatus('idle')
       setModelDownloaded(hasDownloadedModel())
     } catch {
       setStatus('error')
-      setError('On-device translation failed on this device — switched back to online.')
+      setError(
+        chunks.length > 1
+          ? 'On-device translation failed partway through this document — switched back to online.'
+          : 'On-device translation failed on this device — switched back to online.',
+      )
       setMode('online')
     } finally {
       setModelLoad(null)
+      setChunkProgress(null)
     }
   }, [sourceText, sourceLang, targetLang, direction])
 
@@ -248,6 +293,7 @@ export function useTranslateState() {
     status,
     error,
     modelLoad,
+    chunkProgress,
     modelDownloaded,
     deviceMemoryTier,
     showConfirm,
