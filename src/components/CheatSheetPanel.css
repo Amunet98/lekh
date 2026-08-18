@@ -24,6 +24,16 @@
      you can still see the editor through reads as "on top of my work"
      rather than "a different screen". */
   background: rgba(6, 8, 16, 0.45);
+  /* Without this the dim snaps in instantly while the panel below eases in
+     over --dur-slow, and the mismatch is what reads as janky rather than
+     smooth. backwards holds the from-frame until the animation starts,
+     same as AboutSheet's backdrop. */
+  animation: cheat-backdrop-in var(--dur) var(--ease) backwards;
+}
+@keyframes cheat-backdrop-in {
+  from {
+    opacity: 0;
+  }
 }
 
 .cheat-panel__inner {
@@ -46,7 +56,7 @@
   border-radius: var(--radius-card) var(--radius-card) 0 0;
   border-top: 1px solid var(--border);
   padding-bottom: env(safe-area-inset-bottom);
-  animation: cheat-sheet-up var(--dur) var(--ease-expo);
+  animation: cheat-sheet-up var(--dur-slow) var(--ease-expo) backwards;
 }
 @keyframes cheat-sheet-up {
   from {
@@ -69,7 +79,7 @@
     border-top: 0;
     border-left: 1px solid var(--border);
     padding-bottom: 0;
-    animation: cheat-sheet-in var(--dur) var(--ease-expo);
+    animation: cheat-sheet-in var(--dur-slow) var(--ease-expo) backwards;
   }
   @keyframes cheat-sheet-in {
     from {
