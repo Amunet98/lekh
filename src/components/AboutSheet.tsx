@@ -5,6 +5,7 @@ import { LekhMark } from './LekhMark'
 import { KEYWORDS } from '../data/keywords'
 import { useHasAndroidApp } from '../hooks/useHasAndroidApp'
 import { APK_URL, isAndroid } from '../lib/androidApp'
+import { runtimeNoun } from '../lib/runtime'
 import { useSheetDrag } from '../hooks/useSheetDrag'
 
 import './SheetGrabber.css'
@@ -132,7 +133,7 @@ export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
           सोच्नुहोस् अंग्रेजीमा,{' '}
           <span className="about__headline-accent">लेख्नुहोस् नेपालीमा।</span>
         </h2>
-        <p className="about__sub">Think in English, write in Nepali — right in your browser.</p>
+        <p className="about__sub">Think in English, write in Nepali — right in your {runtimeNoun()}.</p>
 
         <div className="about__demo" aria-hidden="true">
           <span className="about__typed">

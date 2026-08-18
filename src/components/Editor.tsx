@@ -1,6 +1,7 @@
 import type { RefObject } from 'react'
 import type { EditorState } from '../hooks/useEditorState'
 import { SAMPLES } from '../data/samples'
+import { runtimeNoun } from '../lib/runtime'
 import './Editor.css'
 
 /* Exported so App can hand the caret over when the boot screen leaves without
@@ -211,7 +212,7 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
         <span className="editor-hint__coarse">
           tap <b>(keep)</b> for English
         </span>{' '}
-        · <kbd>.</kbd> becomes । · runs entirely in your browser
+        · <kbd>.</kbd> becomes । · runs entirely in your {runtimeNoun()}
       </p>
     </div>
   )
