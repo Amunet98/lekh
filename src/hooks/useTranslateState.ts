@@ -17,6 +17,16 @@ export type TranslateMode = 'online' | 'ondevice'
 export type Direction = 'ne-en' | 'en-ne'
 type Status = 'idle' | 'loading' | 'error'
 
+const SOURCE_TEXT_KEY = 'lekh:translate-source-text'
+
+function getInitialSourceText(): string {
+  try {
+    return localStorage.getItem(SOURCE_TEXT_KEY) ?? ''
+  } catch {
+    return ''
+  }
+}
+
 // Romanized Nepali ("mero naam") only makes sense to transliterate when
 // translating FROM Nepali — English input is Latin by definition, so en-ne
 // is left untouched.
@@ -27,13 +37,14 @@ function romanizedHint(text: string, direction: Direction): string | null {
 
 export function useTranslateState() {
   const [direction, setDirection] = useState<Direction>('en-ne')
-  const [sourceText, setSourceText] = useState('')
+  const [sourceText, setSourceText] = useState(getInitialSourceText)
   const [translated, setTranslated] = useState('')
   const [mode, setMode] = useState<TranslateMode>('online')
   const [status, setStatus] = useState<Status>('idle')
   const [error, setError] = useState<string | null>(null)
   const [modelLoad, setModelLoad] = useState<ModelLoadProgress | null>(null)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [copied, setCopied] = useState(false)
   // localStorage isn't reactive — seed from it for an instant paint, then
   // self-heal against the real Cache Storage entry (the flag can go stale
   // in either direction: cache evicted under storage pressure, or flag lost
@@ -48,6 +59,14 @@ export function useTranslateState() {
   useEffect(() => {
     void isModelCached().then(setModelDownloaded)
   }, [])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(SOURCE_TEXT_KEY, sourceText)
+    } catch {
+      // localStorage unavailable — source text still works this visit, just won't survive a reload
+    }
+  }, [sourceText])
 
   const sourceLang: Language = direction === 'ne-en' ? NEPALI : ENGLISH
   const targetLang: Language = direction === 'ne-en' ? ENGLISH : NEPALI
@@ -162,6 +181,18 @@ export function useTranslateState() {
     setStatus('idle')
   }, [])
 
+  const clearSource = useCallback(() => {
+    setSourceText('')
+    clearTranslation()
+  }, [clearTranslation])
+
+  const copy = useCallback(async () => {
+    if (!translated) return
+    await navigator.clipboard.writeText(translated)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1600)
+  }, [translated])
+
   const switchToOnDevice = useCallback(() => {
     setMode('ondevice')
     setError(null)
@@ -220,11 +251,14 @@ export function useTranslateState() {
     modelDownloaded,
     deviceMemoryTier,
     showConfirm,
+    copied,
+    copy,
     runOnDevice,
     downloadModel,
     swap,
     setDirectionOnly,
     clearTranslation,
+    clearSource,
     switchToOnDevice,
     switchToOnline,
     requestOnDevice,

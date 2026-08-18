@@ -42,9 +42,14 @@ export function TranslatePage({ t, handoffText, onHandoffConsumed }: TranslatePa
 
       <div className="translate-panes">
         <div className="translate-pane">
-          <label className="translate-pane__label" htmlFor="translate-source">
-            {t.sourceLang.label}
-          </label>
+          <div className="translate-pane__header">
+            <label className="translate-pane__label" htmlFor="translate-source">
+              {t.sourceLang.label}
+            </label>
+            <button type="button" className="btn" disabled={!t.sourceText} onClick={t.clearSource}>
+              clear
+            </button>
+          </div>
           <textarea
             id="translate-source"
             className="translate-input dev"

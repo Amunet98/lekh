@@ -1,6 +1,25 @@
 /* .upload shares its measure and column layout with .translate-page — see the
    top of TranslatePage.css. Only the parts unique to this screen live here. */
 
+.upload-current {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+}
+.upload-current__name {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  color: var(--text-h);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .upload-progress {
   display: flex;
   flex-direction: column;

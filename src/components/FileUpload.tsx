@@ -1,7 +1,9 @@
 import { useRef, useState } from 'react'
 import './FileUpload.css'
 
-export type UploadInput = { kind: 'image'; canvas: HTMLCanvasElement } | { kind: 'file'; file: File }
+export type UploadInput =
+  | { kind: 'image'; canvas: HTMLCanvasElement; name: string }
+  | { kind: 'file'; file: File }
 
 interface FileUploadProps {
   onInput: (input: UploadInput) => void
@@ -31,7 +33,7 @@ export function FileUpload({ onInput }: FileUploadProps) {
       const ctx = canvas.getContext('2d')
       if (ctx) {
         ctx.drawImage(img, 0, 0)
-        onInput({ kind: 'image', canvas })
+        onInput({ kind: 'image', canvas, name: file.name })
       }
       URL.revokeObjectURL(img.src)
     }

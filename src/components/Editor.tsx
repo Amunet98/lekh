@@ -25,6 +25,7 @@ interface EditorProps {
 
 export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
   const isEmpty = editor.text.length === 0
+  const wordCount = editor.text.trim() === '' ? 0 : editor.text.trim().split(/\s+/).length
 
   return (
     <div className="editor-shell">
@@ -135,18 +136,26 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
           <button type="button" className="btn" disabled={isEmpty} onClick={editor.copy}>
             {editor.copied ? 'copied' : 'copy'}
           </button>
-          <button
-            type="button"
-            className="btn"
-            disabled={isEmpty}
-            onClick={() => {
-              editor.clear()
-              textareaRef.current?.focus()
-            }}
-          >
-            clear
-          </button>
-          <span className="count">{editor.text.length}</span>
+          {editor.lastCleared !== null ? (
+            <button type="button" className="btn" onClick={editor.undoClear}>
+              undo clear
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="btn"
+              disabled={isEmpty}
+              onClick={() => {
+                editor.clear()
+                textareaRef.current?.focus()
+              }}
+            >
+              clear
+            </button>
+          )}
+          <span className="count">
+            {wordCount} {wordCount === 1 ? 'word' : 'words'} · {editor.text.length}
+          </span>
         </div>
       </div>
 

@@ -1,6 +1,16 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { convert, suggest } from '../lib/engine'
 import type { Chip } from '../lib/engine/types'
+
+const TEXT_KEY = 'lekh:editor-text'
+
+function getInitialText(): string {
+  try {
+    return localStorage.getItem(TEXT_KEY) ?? ''
+  } catch {
+    return ''
+  }
+}
 
 function computePending(text: string): string {
   const m = text.match(/[A-Za-z0-9~]+$/)
@@ -23,10 +33,20 @@ function isTrigger(ch: string): boolean {
 }
 
 export function useEditorState() {
-  const [text, setText] = useState('')
+  const [text, setText] = useState(getInitialText)
   const [nepali, setNepali] = useState(true)
   const [copied, setCopied] = useState(false)
   const [flashing, setFlashing] = useState(false)
+  const [lastCleared, setLastCleared] = useState<string | null>(null)
+  const undoTimeoutRef = useRef<number | undefined>(undefined)
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(TEXT_KEY, text)
+    } catch {
+      // localStorage unavailable — text still works this visit, just won't survive a reload
+    }
+  }, [text])
 
   const pending = useMemo(() => (nepali ? computePending(text) : ''), [text, nepali])
 
@@ -103,7 +123,25 @@ export function useEditorState() {
 
   const toggleMode = useCallback(() => setNepali((n) => !n), [])
 
-  const clear = useCallback(() => setText(''), [])
+  // 6s undo window — long enough to notice and act, distinct from the
+  // 1.6s/350ms copy/flash feedback timers above so it doesn't read as either.
+  const clear = useCallback(() => {
+    setText((t) => {
+      setLastCleared(t)
+      return ''
+    })
+    window.clearTimeout(undoTimeoutRef.current)
+    undoTimeoutRef.current = window.setTimeout(() => setLastCleared(null), 6000)
+  }, [])
+
+  const undoClear = useCallback(() => {
+    setLastCleared((cleared) => {
+      if (cleared === null) return cleared
+      setText(cleared)
+      window.clearTimeout(undoTimeoutRef.current)
+      return null
+    })
+  }, [])
 
   // Appends typed-then-committed text — used by cheat-sheet tap-to-insert
   // and the sample-phrase buttons. Deliberately end-of-text-only.
@@ -146,6 +184,8 @@ export function useEditorState() {
     keepRaw,
     toggleMode,
     clear,
+    lastCleared,
+    undoClear,
     copy,
     insertAtCursor,
     appendSample,

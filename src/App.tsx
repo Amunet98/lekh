@@ -104,6 +104,22 @@ function App() {
     setAboutOpen(false)
   }
 
+  /* Alt+1..4 switch tabs, matching TABS' left-to-right order. Alt-digit isn't
+     text any browser inserts into a focused field, and useEditorState's own
+     keydown handler already bails out on e.altKey — so no focus guard is
+     needed here. */
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!e.altKey || e.metaKey || e.ctrlKey || e.shiftKey) return
+      const index = Number(e.key) - 1
+      if (index < 0 || index >= TABS.length) return
+      e.preventDefault()
+      goToSection(TABS[index])
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
+
   /* Stable identity — BootScreen takes it as an effect dependency, and a fresh
      closure every render would restart the boot timer on every render. */
   const finishBoot = useCallback(() => {

@@ -15,11 +15,20 @@ interface UploadPageProps {
 
 type ReadStatus = 'idle' | 'reading' | 'error'
 
+const SUPPORTED_EXTS = ['txt', 'docx', 'pdf']
+// OCR and pdf.js are the slow paths — typical phone-camera photos run 3-8MB,
+// so 15MB comfortably excludes normal photos while catching genuinely large
+// scans/multi-page PDFs that will visibly stall the progress bar.
+const LARGE_FILE_BYTES = 15 * 1024 * 1024
+
 export function UploadPage({ t, onEditInTranslate }: UploadPageProps) {
   const [readStatus, setReadStatus] = useState<ReadStatus>('idle')
   const [readErrorIsOffline, setReadErrorIsOffline] = useState(false)
   const [readLabel, setReadLabel] = useState('Reading text…')
   const [readProgress, setReadProgress] = useState<number | null>(null)
+  const [currentFile, setCurrentFile] = useState<string | null>(null)
+  const [unsupportedExt, setUnsupportedExt] = useState<string | null>(null)
+  const [largeFileWarning, setLargeFileWarning] = useState(false)
   // Recognized/extracted text is collapsed by default — the translation is
   // the primary output; this stays around (and editable) for OCR-error
   // correction and the Translate handoff.
@@ -40,6 +49,9 @@ export function UploadPage({ t, onEditInTranslate }: UploadPageProps) {
     setReadStatus('reading')
     setReadProgress(0)
     setScriptMismatch(null)
+    setUnsupportedExt(null)
+    setCurrentFile(input.kind === 'image' ? input.name : input.file.name)
+    setLargeFileWarning(input.kind === 'file' && input.file.size > LARGE_FILE_BYTES)
     // A stale translation of the *previous* upload would otherwise sit on
     // screen through the whole read — and in on-device mode, which only
     // (re)translates on an explicit button press, keep sitting there
@@ -58,6 +70,11 @@ export function UploadPage({ t, onEditInTranslate }: UploadPageProps) {
         t.setSourceText(text)
       } else {
         const ext = input.file.name.split('.').pop()?.toLowerCase()
+        if (!ext || !SUPPORTED_EXTS.includes(ext)) {
+          setUnsupportedExt(ext ?? 'unknown')
+          setReadStatus('idle')
+          return
+        }
         if (ext === 'txt') {
           setReadLabel('Reading file…')
           t.setSourceText(await input.file.text())
@@ -89,7 +106,17 @@ export function UploadPage({ t, onEditInTranslate }: UploadPageProps) {
       setReadStatus('error')
     } finally {
       setReadProgress(null)
+      setLargeFileWarning(false)
     }
+  }
+
+  const clearUpload = () => {
+    setCurrentFile(null)
+    setScriptMismatch(null)
+    setUnsupportedExt(null)
+    setReadStatus('idle')
+    t.setSourceText('')
+    t.clearTranslation()
   }
 
   const retryWithCorrectDirection = () => {
@@ -112,12 +139,22 @@ export function UploadPage({ t, onEditInTranslate }: UploadPageProps) {
 
       <FileUpload onInput={(input) => void handleInput(input)} />
 
+      {currentFile && (
+        <div className="upload-current">
+          <span className="upload-current__name">{currentFile}</span>
+          <button type="button" className="btn" onClick={clearUpload}>
+            remove
+          </button>
+        </div>
+      )}
+
       {/* A real progress bar rather than a line of text with a percentage in
           it. OCR on a phone can take twenty seconds, and "Reading page 3/9…"
           on its own gives no sense of how much is left. aria-live announces
           the label without the bar itself chattering on every repaint. */}
       {readStatus === 'reading' && (
         <div className="upload-progress" role="status" aria-live="polite">
+          {largeFileWarning && <p className="sugg-hint">Large file — this may take a while.</p>}
           <div className="upload-progress__row">
             <span>{readLabel}</span>
             {readProgress !== null && <span>{Math.round(readProgress * 100)}%</span>}
@@ -128,6 +165,11 @@ export function UploadPage({ t, onEditInTranslate }: UploadPageProps) {
               style={readProgress !== null ? { width: `${Math.round(readProgress * 100)}%` } : undefined}
             />
           </div>
+        </div>
+      )}
+      {unsupportedExt && (
+        <div className="error-banner" role="alert">
+          {`".${unsupportedExt}" isn't a supported format — use an image, .pdf, .docx, or .txt file.`}
         </div>
       )}
       {readStatus === 'error' &&
