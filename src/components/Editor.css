@@ -83,8 +83,10 @@
   transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease),
     transform var(--dur-fast) var(--ease-expo);
 }
-.chip:hover {
-  border-color: var(--accent-border);
+@media (hover: hover) {
+  .chip:hover {
+    border-color: var(--accent-border);
+  }
 }
 .chip:active {
   transform: scale(0.96);
@@ -193,9 +195,11 @@
   transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease),
     color var(--dur) var(--ease), transform var(--dur-fast) var(--ease-expo);
 }
-.btn:hover:not(:disabled) {
-  color: var(--text-h);
-  border-color: var(--border-field);
+@media (hover: hover) {
+  .btn:hover:not(:disabled) {
+    color: var(--text-h);
+    border-color: var(--border-field);
+  }
 }
 .btn:active:not(:disabled) {
   transform: scale(0.96);
@@ -218,10 +222,12 @@
   border-color: var(--accent-border);
   background: var(--accent-bg);
 }
-.btn--icon:hover:not(:disabled) {
-  background: var(--accent);
-  color: var(--on-accent);
-  border-color: var(--accent);
+@media (hover: hover) {
+  .btn--icon:hover:not(:disabled) {
+    background: var(--accent);
+    color: var(--on-accent);
+    border-color: var(--accent);
+  }
 }
 
 .count {
@@ -267,11 +273,13 @@
   transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease),
     border-color var(--dur) var(--ease), transform var(--dur-fast) var(--ease-expo);
 }
-.starter:hover {
-  border-style: solid;
-  border-color: var(--accent);
-  color: var(--accent-text);
-  background: var(--accent-bg);
+@media (hover: hover) {
+  .starter:hover {
+    border-style: solid;
+    border-color: var(--accent);
+    color: var(--accent-text);
+    background: var(--accent-bg);
+  }
 }
 .starter:active {
   transform: scale(0.96);

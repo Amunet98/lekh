@@ -41,9 +41,11 @@
   transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease),
     transform var(--dur-fast) var(--ease-expo);
 }
-.tab-switcher__btn:hover:not(.tab-switcher__btn--active) {
-  color: var(--text-h);
-  background: color-mix(in srgb, var(--text) 7%, transparent);
+@media (hover: hover) {
+  .tab-switcher__btn:hover:not(.tab-switcher__btn--active) {
+    color: var(--text-h);
+    background: color-mix(in srgb, var(--text) 7%, transparent);
+  }
 }
 .tab-switcher__btn:active {
   transform: scale(0.96);
@@ -114,8 +116,10 @@
     background: var(--accent-bg);
     box-shadow: none;
   }
-  .tab-switcher__btn:hover:not(.tab-switcher__btn--active) {
-    background: transparent;
+  @media (hover: hover) {
+    .tab-switcher__btn:hover:not(.tab-switcher__btn--active) {
+      background: transparent;
+    }
   }
   .tab-switcher__icon {
     display: inline-flex;

@@ -45,10 +45,12 @@
   transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease),
     border-color var(--dur) var(--ease), transform var(--dur-fast) var(--ease-expo);
 }
-.cal__arrow:hover {
-  color: var(--accent-text);
-  border-color: var(--accent);
-  background: var(--accent-bg);
+@media (hover: hover) {
+  .cal__arrow:hover {
+    color: var(--accent-text);
+    border-color: var(--accent);
+    background: var(--accent-bg);
+  }
 }
 .cal__arrow:active {
   transform: scale(0.92);
@@ -294,8 +296,10 @@
   cursor: pointer;
   transition: background-color var(--dur) var(--ease);
 }
-.cal__holiday-row:hover {
-  background: var(--accent-bg);
+@media (hover: hover) {
+  .cal__holiday-row:hover {
+    background: var(--accent-bg);
+  }
 }
 .cal__holiday-day {
   flex: 0 0 auto;

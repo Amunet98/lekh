@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { TranslateState } from '../../hooks/useTranslateState'
 import { ENGLISH, NEPALI, type Language } from '../../lib/translation/languages'
-import { runtimeNoun } from '../../lib/runtime'
 import './translate.css'
 
 const LANGUAGES: Language[] = [NEPALI, ENGLISH]
@@ -166,7 +165,7 @@ export function TranslateControls({ t }: { t: TranslateState }) {
         <div className="model-status">
           <p className="sugg-hint">
             {t.modelDownloaded
-              ? `Model downloaded — loads from ${runtimeNoun()} cache.`
+              ? 'Model downloaded — loads from device cache.'
               : t.status === 'loading'
                 ? 'Downloading the model — you can leave this tab open.'
                 : 'Model not downloaded yet — ~900MB one-time download.'}
@@ -188,7 +187,8 @@ export function TranslateControls({ t }: { t: TranslateState }) {
       {t.showConfirm && (
         <div className="confirm-banner" role="dialog" aria-label="Download on-device model">
           <p>
-            {`The on-device model is about ~900MB and downloads once (cached in your ${runtimeNoun()} afterward). Recommended on WiFi — continue?`}
+            The on-device model is about ~900MB and downloads once (cached on your device
+            afterward). Recommended on WiFi — continue?
           </p>
           {t.deviceMemoryTier === 'warn' && (
             <p>

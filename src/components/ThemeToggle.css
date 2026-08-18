@@ -18,9 +18,11 @@
   transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease),
     transform var(--dur-fast) var(--ease-expo);
 }
-.theme-toggle:hover {
-  color: var(--text-h);
-  background: color-mix(in srgb, var(--text) 8%, transparent);
+@media (hover: hover) {
+  .theme-toggle:hover {
+    color: var(--text-h);
+    background: color-mix(in srgb, var(--text) 8%, transparent);
+  }
 }
 .theme-toggle:active {
   transform: scale(0.92);

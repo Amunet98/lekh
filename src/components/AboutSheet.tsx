@@ -5,7 +5,6 @@ import { LekhMark } from './LekhMark'
 import { KEYWORDS } from '../data/keywords'
 import { useHasAndroidApp } from '../hooks/useHasAndroidApp'
 import { APK_URL, isAndroid } from '../lib/androidApp'
-import { runtimeNoun } from '../lib/runtime'
 import { useSheetDrag } from '../hooks/useSheetDrag'
 
 import './SheetGrabber.css'
@@ -133,7 +132,7 @@ export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
           सोच्नुहोस् अंग्रेजीमा,{' '}
           <span className="about__headline-accent">लेख्नुहोस् नेपालीमा।</span>
         </h2>
-        <p className="about__sub">Think in English, write in Nepali — right in your {runtimeNoun()}.</p>
+        <p className="about__sub">Think in English, write in Nepali — right on your device.</p>
 
         <div className="about__demo" aria-hidden="true">
           <span className="about__typed">
@@ -183,11 +182,11 @@ export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
             the visitor already owns. */}
         {android && !hasApp && (
           <a className="about__apk" href={APK_URL} target="_blank" rel="noopener noreferrer">
-            <span className="about__apk-main">Get the Android app</span>
+            <span className="about__apk-main">Get the Android app (.apk)</span>
             <span className="about__apk-sub">
-              the only version with the <span className="dev">पात्रो</span> home-screen widget ·
-              ~1&nbsp;MB. Installing from Chrome&rsquo;s own menu instead gives you the app
-              without the widget.
+              Downloads a ~1&nbsp;MB .apk file directly — the only version with the{' '}
+              <span className="dev">पात्रो</span> home-screen widget. Installing from Chrome&rsquo;s
+              own menu instead skips the download and gives you the app without the widget.
             </span>
           </a>
         )}

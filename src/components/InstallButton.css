@@ -23,7 +23,12 @@
 .install-btn:active {
   transform: scale(0.96);
 }
-.install-btn:hover,
+@media (hover: hover) {
+  .install-btn:hover {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+}
 .install-btn:focus-visible {
   background: var(--accent);
   color: var(--on-accent);

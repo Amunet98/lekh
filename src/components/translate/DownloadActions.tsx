@@ -1,9 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import type { TranslateState } from '../../hooks/useTranslateState'
-import { runtimeNoun } from '../../lib/runtime'
 import './DownloadActions.css'
 
 type Format = 'txt' | 'docx' | 'pdf'
+
+const FORMATS: { id: Format; label: string; hint: string }[] = [
+  { id: 'txt', label: '.txt', hint: 'Plain text' },
+  { id: 'docx', label: '.docx', hint: 'Word document' },
+  { id: 'pdf', label: 'PDF', hint: 'Via your device’s print dialog' },
+]
 
 function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob)
@@ -72,22 +77,15 @@ export function DownloadActions({ t }: { t: TranslateState }) {
     }
   }, [open])
 
-  // Dispatch by id rather than storing the handlers in the list — building
-  // the list with `run:` closures meant an array constructed *during render*
-  // held a function that reads printSheetRef, which react-hooks/refs
-  // correctly rejects. formats itself is still fine to build during render:
-  // it's plain strings, no ref involved, just the runtimeNoun() lookup below.
+  // Dispatch by id rather than storing the handlers in the list. FORMATS is
+  // module-level, inert data; building it here with `run:` closures meant an
+  // array constructed *during render* held a function that reads
+  // printSheetRef — which react-hooks/refs correctly rejects.
   const run = (id: Format) => {
     if (id === 'txt') downloadTxt()
     else if (id === 'docx') void downloadDocx()
     else printPdf()
   }
-
-  const formats: { id: Format; label: string; hint: string }[] = [
-    { id: 'txt', label: '.txt', hint: 'Plain text' },
-    { id: 'docx', label: '.docx', hint: 'Word document' },
-    { id: 'pdf', label: 'PDF', hint: `Via your ${runtimeNoun()}’s print dialog` },
-  ]
 
   return (
     <div className="download-actions" ref={wrapRef}>
@@ -108,7 +106,7 @@ export function DownloadActions({ t }: { t: TranslateState }) {
         </button>
         {open && (
           <div className="download-menu__menu" role="menu" aria-label="Download translation as">
-            {formats.map((f) => (
+            {FORMATS.map((f) => (
               <button
                 key={f.id}
                 type="button"

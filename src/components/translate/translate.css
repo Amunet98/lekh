@@ -43,7 +43,11 @@
   min-height: 44px;
   cursor: pointer;
 }
-.lang-picker__item:hover,
+@media (hover: hover) {
+  .lang-picker__item:hover {
+    background: var(--accent-bg);
+  }
+}
 .lang-picker__item:focus-visible {
   background: var(--accent-bg);
 }
@@ -70,7 +74,13 @@
 .swap-btn:active {
   transform: scale(0.94) rotate(180deg);
 }
-.swap-btn:hover,
+@media (hover: hover) {
+  .swap-btn:hover {
+    border-color: var(--accent);
+    background: var(--accent-bg);
+    color: var(--accent-text);
+  }
+}
 .swap-btn:focus-visible {
   border-color: var(--accent);
   background: var(--accent-bg);
@@ -94,7 +104,12 @@
 .mode-btn:active {
   transform: scale(0.97);
 }
-.mode-btn:hover,
+@media (hover: hover) {
+  .mode-btn:hover {
+    border-color: var(--accent);
+    color: var(--text-h);
+  }
+}
 .mode-btn:focus-visible {
   border-color: var(--accent);
   color: var(--text-h);
@@ -266,7 +281,13 @@
   background: var(--accent);
   box-shadow: var(--shadow-accent);
 }
-.btn--primary:hover:not(:disabled),
+@media (hover: hover) {
+  .btn--primary:hover:not(:disabled) {
+    color: var(--on-accent);
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 88%, var(--text-h));
+  }
+}
 .btn--primary:focus-visible {
   color: var(--on-accent);
   border-color: var(--accent);
@@ -314,8 +335,10 @@
 .privacy-note summary::-webkit-details-marker {
   display: none;
 }
-.privacy-note summary:hover {
-  color: var(--text-h);
+@media (hover: hover) {
+  .privacy-note summary:hover {
+    color: var(--text-h);
+  }
 }
 .privacy-note__dot {
   width: 7px;

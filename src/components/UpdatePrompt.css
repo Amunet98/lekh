@@ -105,9 +105,11 @@
   background: transparent;
   color: var(--text-h);
 }
-.update-prompt__btn--ghost:hover {
-  border-color: var(--accent-border);
-  background: var(--accent-bg);
+@media (hover: hover) {
+  .update-prompt__btn--ghost:hover {
+    border-color: var(--accent-border);
+    background: var(--accent-bg);
+  }
 }
 .update-prompt__btn--primary {
   border: 1px solid var(--accent);
@@ -115,8 +117,10 @@
   color: var(--on-accent);
   box-shadow: var(--shadow-accent);
 }
-.update-prompt__btn--primary:hover {
-  opacity: 0.92;
+@media (hover: hover) {
+  .update-prompt__btn--primary:hover {
+    opacity: 0.92;
+  }
 }
 
 /* Above the fixed dock, not behind it. The dock is 4.75rem plus the gesture

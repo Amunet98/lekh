@@ -118,7 +118,12 @@
   cursor: pointer;
   transition: color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease);
 }
-.about__close:hover,
+@media (hover: hover) {
+  .about__close:hover {
+    color: var(--text-h);
+    background: color-mix(in srgb, var(--text) 8%, transparent);
+  }
+}
 .about__close:focus-visible {
   color: var(--text-h);
   background: color-mix(in srgb, var(--text) 8%, transparent);
@@ -281,7 +286,12 @@
   transition: border-color var(--dur-fast) var(--ease),
     background-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease-expo);
 }
-.about__section:hover,
+@media (hover: hover) {
+  .about__section:hover {
+    border-color: var(--accent-border);
+    background: var(--accent-bg);
+  }
+}
 .about__section:focus-visible {
   border-color: var(--accent-border);
   background: var(--accent-bg);
@@ -313,9 +323,11 @@
   color: var(--muted);
   transition: transform var(--dur-fast) var(--ease-expo), color var(--dur-fast) var(--ease);
 }
-.about__section:hover .about__section-go {
-  color: var(--accent-text);
-  transform: translateX(3px);
+@media (hover: hover) {
+  .about__section:hover .about__section-go {
+    color: var(--accent-text);
+    transform: translateX(3px);
+  }
 }
 
 .about__keywords {
@@ -360,8 +372,10 @@
 .about__section--aside .about__section-icon {
   color: var(--muted);
 }
-.about__section--aside:hover .about__section-icon {
-  color: var(--accent-text);
+@media (hover: hover) {
+  .about__section--aside:hover .about__section-icon {
+    color: var(--accent-text);
+  }
 }
 .about__by {
   margin-top: 1.25rem;
@@ -379,7 +393,11 @@
      sentence, not a control, and it sits well clear of anything else tappable. */
   transition: border-color var(--dur-fast) var(--ease);
 }
-.about__by a:hover,
+@media (hover: hover) {
+  .about__by a:hover {
+    border-bottom-color: var(--accent);
+  }
+}
 .about__by a:focus-visible {
   border-bottom-color: var(--accent);
 }

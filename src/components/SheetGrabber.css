@@ -30,8 +30,10 @@
   background: var(--border-field);
   transition: background-color var(--dur) var(--ease), width var(--dur) var(--ease);
 }
-.sheet-grabber:hover .sheet-grabber-bar {
-  background: var(--muted);
+@media (hover: hover) {
+  .sheet-grabber:hover .sheet-grabber-bar {
+    background: var(--muted);
+  }
 }
 .sheet-grabber--dragging {
   cursor: grabbing;

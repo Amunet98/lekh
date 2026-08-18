@@ -137,9 +137,11 @@
     cursor: pointer;
     transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
   }
-  .cheat-panel__close:hover {
-    background: var(--accent-bg);
-    color: var(--accent-text);
+  @media (hover: hover) {
+    .cheat-panel__close:hover {
+      background: var(--accent-bg);
+      color: var(--accent-text);
+    }
   }
 }
 
@@ -193,8 +195,10 @@
   color: var(--muted);
   cursor: pointer;
 }
-.cheat-panel__clear:hover {
-  color: var(--text-h);
+@media (hover: hover) {
+  .cheat-panel__clear:hover {
+    color: var(--text-h);
+  }
 }
 
 .cheat-panel__body {

@@ -67,9 +67,14 @@ export function TranslatePage({ t }: TranslatePageProps) {
                 <SectionIcon name="upload" size={14} />
                 upload
               </button>
-              <button type="button" className="btn" disabled={isEmpty} onClick={upload.clearUpload}>
-                clear
-              </button>
+              {/* Hidden once a file's uploaded — the "remove" button on its
+                  filename chip below does the exact same thing, and showing
+                  both reads as two controls where there's only one action. */}
+              {!upload.currentFile && (
+                <button type="button" className="btn" disabled={isEmpty} onClick={upload.clearUpload}>
+                  clear
+                </button>
+              )}
             </div>
           </div>
           <input
@@ -155,7 +160,14 @@ export function TranslatePage({ t }: TranslatePageProps) {
           />
         </div>
         <div className="translate-pane">
-          <span className="translate-pane__label">{t.targetLang.label}</span>
+          {/* Wrapped in the same header class as the source pane (even with
+              no buttons of its own) so both headers reserve the same height
+              — otherwise this pane's box started higher than the source
+              textarea's, since its header was only ever as tall as a bare
+              label. */}
+          <div className="translate-pane__header">
+            <span className="translate-pane__label">{t.targetLang.label}</span>
+          </div>
           <TranslationOutput t={t} />
         </div>
       </div>

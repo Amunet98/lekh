@@ -1,5 +1,4 @@
 import type { TranslateState } from '../../hooks/useTranslateState'
-import { runtimeNoun } from '../../lib/runtime'
 import './translate.css'
 
 interface TranslateActionsProps {
@@ -51,7 +50,7 @@ export function TranslateActions({ t }: TranslateActionsProps) {
         <p>
           {t.mode === 'online'
             ? 'Translation uses a free online service (Google Translate, falling back to mymemory.translated.net). Only the text in this box is sent — if it came from an uploaded photo or document, only the recognized text is sent, never the file itself.'
-            : `On-device mode — nothing in this box ever leaves your ${runtimeNoun()}, including anything recognized from an uploaded file.`}
+            : 'On-device mode — nothing in this box ever leaves your device, including anything recognized from an uploaded file.'}
         </p>
       </details>
     </>

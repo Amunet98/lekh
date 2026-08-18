@@ -99,7 +99,19 @@ export function CheatSheetPanel({ open, onClose, onInsert }: CheatSheetPanelProp
           className={`sheet-grabber cheat-panel__grabber${drag.isDragging ? ' sheet-grabber--dragging' : ''}`}
           aria-label="Close"
           onClick={drag.handleGrabberClick}
-          onPointerDown={drag.handleGrabberPointerDown}
+          /* Blurred right here, synchronously inside the touch that starts
+             the gesture — not just in the dialog's onClose below. A blur()
+             called later, from the transitionend callback the drag-closed
+             path ends in, is too far removed from any real user gesture for
+             Android's IME to treat it as a reason to actually hide the
+             keyboard: the DOM focus moves, but the keyboard doesn't follow.
+             Touching the grabber at all is real user activity, whether it
+             ends in a tap, a snap-back, or a full drag-closed — so it's the
+             reliable place to do this regardless of how the gesture ends. */
+          onPointerDown={(e) => {
+            searchRef.current?.blur()
+            drag.handleGrabberPointerDown(e)
+          }}
           onPointerMove={drag.handleGrabberPointerMove}
           onPointerUp={drag.handleGrabberPointerEnd}
           onPointerCancel={drag.handleGrabberPointerEnd}

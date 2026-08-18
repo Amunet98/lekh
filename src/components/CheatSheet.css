@@ -65,11 +65,16 @@
 .cell:active {
   transform: scale(0.94);
 }
-.cell:hover,
-.cell:focus-visible {
-  background: var(--accent-bg);
+/* hover: hover excludes touchscreens — without it, tapping a cell leaves it
+   permanently tinted (there's no way to "un-hover" with a finger) until some
+   other cell is tapped, which reads as a stuck/broken button. */
+@media (hover: hover) {
+  .cell:hover {
+    background: var(--accent-bg);
+  }
 }
 .cell:focus-visible {
+  background: var(--accent-bg);
   outline: 2px solid var(--accent);
   outline-offset: -2px;
 }
@@ -92,8 +97,10 @@
 .cell--filler {
   cursor: default;
 }
-.cell--filler:hover {
-  background: var(--surface);
+@media (hover: hover) {
+  .cell--filler:hover {
+    background: var(--surface);
+  }
 }
 .cell--filler:active {
   transform: none;

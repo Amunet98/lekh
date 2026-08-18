@@ -77,6 +77,11 @@
   align-items: baseline;
   justify-content: space-between;
   gap: var(--sp-2);
+  /* Matches .btn's own min-height, so this row reserves the same space
+     whether or not it's actually holding any buttons — the target pane's
+     header has none, and without this its box started higher than the
+     source pane's, whose header carries the upload/clear buttons. */
+  min-height: 36px;
 }
 
 .translate-pane__header-actions {
@@ -97,10 +102,12 @@
   border-color: var(--accent-border);
   background: var(--accent-bg);
 }
-.pane-upload-btn:hover:not(:disabled) {
-  background: var(--accent);
-  color: var(--on-accent);
-  border-color: var(--accent);
+@media (hover: hover) {
+  .pane-upload-btn:hover:not(:disabled) {
+    background: var(--accent);
+    color: var(--on-accent);
+    border-color: var(--accent);
+  }
 }
 
 /* Dragging a file over the source pane — same accent highlight FileUpload's

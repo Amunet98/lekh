@@ -58,10 +58,10 @@ export function InstallButton() {
         href={APK_URL}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="Get the Android app, which includes the Patro home-screen widget"
+        aria-label="Download the Android app as an APK file, which includes the Patro home-screen widget"
       >
         <DownloadIcon />
-        Get app
+        Get app (.apk)
       </a>
     )
   }

@@ -45,7 +45,11 @@
   cursor: pointer;
   font-family: var(--sans);
 }
-.download-menu__item:hover,
+@media (hover: hover) {
+  .download-menu__item:hover {
+    background: var(--accent-bg);
+  }
+}
 .download-menu__item:focus-visible {
   background: var(--accent-bg);
 }
