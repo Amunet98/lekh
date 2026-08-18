@@ -4,7 +4,6 @@ import { TabSwitcher, type Tab } from './components/TabSwitcher'
 import { LekhMark } from './components/LekhMark'
 import { TypePage } from './components/TypePage'
 import { EDITOR_ID } from './components/Editor'
-import { UploadPage } from './components/UploadPage'
 import { TranslatePage } from './components/TranslatePage'
 import { CalendarPage } from './components/calendar/CalendarPage'
 import { ThemeToggle } from './components/ThemeToggle'
@@ -16,7 +15,7 @@ import { UpdatePrompt } from './components/UpdatePrompt'
 import { warmOcrCacheInBackground } from './lib/ocr/prefetch'
 import './App.css'
 
-const TABS: Tab[] = ['type', 'upload', 'translate', 'calendar']
+const TABS: Tab[] = ['type', 'translate', 'calendar']
 
 function isTab(value: string | null): value is Tab {
   return value !== null && (TABS as string[]).includes(value)
@@ -24,7 +23,7 @@ function isTab(value: string | null): value is Tab {
 
 /* Every section used to live at '/', so a section could not be linked, shared,
  * or opened from a PWA shortcut — and the manifest shortcuts added in
- * vite.config.ts need real targets. ?tab= is the whole routing story: four
+ * vite.config.ts need real targets. ?tab= is the whole routing story: three
  * screens, no nesting, no router dependency. */
 function tabFromUrl(): Tab {
   try {
@@ -61,13 +60,9 @@ function App() {
   const [tab, setTab] = useState<Tab>(tabFromUrl)
   const [booting, setBooting] = useState(() => !bootedThisSession())
   const [aboutOpen, setAboutOpen] = useState(false)
-  // Upload's "Edit in Translate" handoff — TranslatePage consumes and clears
-  // this on mount so re-entering Upload later doesn't replay a stale handoff.
-  const [handoffText, setHandoffText] = useState<string | null>(null)
-  // Lifted out of Translate/Upload (both used to call useTranslateState()
-  // themselves) so switching between those two tabs — which are really two
-  // input methods for the same feature — doesn't silently reset the language
-  // direction back to English→Nepali and drop whatever was on screen.
+  // Lifted out of TranslatePage (which used to be two components, Translate
+  // and Upload, each calling useTranslateState() themselves) so it survives
+  // the tab unmounting/remounting rather than resetting on every visit.
   const translateState = useTranslateState()
 
   /* replaceState, not pushState: the tab bar is a view switch, not navigation,
@@ -94,17 +89,12 @@ function App() {
     return () => window.removeEventListener('popstate', sync)
   }, [])
 
-  const editInTranslate = (text: string) => {
-    setHandoffText(text)
-    setTab('translate')
-  }
-
   const goToSection = (next: Tab) => {
     setTab(next)
     setAboutOpen(false)
   }
 
-  /* Alt+1..4 switch tabs, matching TABS' left-to-right order. Alt-digit isn't
+  /* Alt+1..3 switch tabs, matching TABS' left-to-right order. Alt-digit isn't
      text any browser inserts into a focused field, and useEditorState's own
      keydown handler already bails out on e.altKey — so no focus guard is
      needed here. */
@@ -207,14 +197,8 @@ function App() {
       <div className={`page${booting ? ' page--is-booting' : ''}`}>
         {tab === 'type' ? (
           <TypePage />
-        ) : tab === 'upload' ? (
-          <UploadPage t={translateState} onEditInTranslate={editInTranslate} />
         ) : tab === 'translate' ? (
-          <TranslatePage
-            t={translateState}
-            handoffText={handoffText}
-            onHandoffConsumed={() => setHandoffText(null)}
-          />
+          <TranslatePage t={translateState} />
         ) : (
           <CalendarPage />
         )}

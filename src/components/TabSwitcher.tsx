@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { SectionIcon } from './SectionIcons'
 import './TabSwitcher.css'
 
-export type Tab = 'type' | 'upload' | 'translate' | 'calendar'
+export type Tab = 'type' | 'translate' | 'calendar'
 
 interface TabSwitcherProps {
   active: Tab
@@ -11,11 +11,7 @@ interface TabSwitcherProps {
 
 const TABS: { id: Tab; label: string; icon: ReactNode }[] = [
   { id: 'type', label: 'Type', icon: <SectionIcon name="type" /> },
-  { id: 'upload', label: 'Upload', icon: <SectionIcon name="upload" /> },
   { id: 'translate', label: 'Translate', icon: <SectionIcon name="translate" /> },
-  /* Four is still inside the five-item ceiling a bottom dock can carry. The
-     label stays short for the same reason — at four columns on a 360px screen
-     each dock item has about 80px to work with. */
   { id: 'calendar', label: 'Patro', icon: <SectionIcon name="calendar" /> },
 ]
 

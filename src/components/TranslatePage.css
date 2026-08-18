@@ -1,8 +1,7 @@
-/* Both text screens share this measure and the toolbar below it. The page no
-   longer opens with an eyebrow tag and a heading restating the tab name, so
-   the toolbar is the first thing on it and the panes start near the top. */
-.translate-page,
-.upload {
+/* The page no longer opens with an eyebrow tag and a heading restating the
+   tab name, so the toolbar is the first thing on it and the panes start
+   near the top. */
+.translate-page {
   max-width: 960px;
   margin: 0 auto;
   display: flex;
@@ -78,4 +77,60 @@
   align-items: baseline;
   justify-content: space-between;
   gap: var(--sp-2);
+}
+
+.translate-pane__header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+}
+
+/* Dragging a file over the source pane — same accent highlight FileUpload's
+   dropzone used to show, applied to the textarea itself since that's this
+   pane's only visible chrome (the pane div otherwise has none of its own). */
+.translate-pane--dragging .translate-input {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+/* Uploaded/dropped filename, with a way to remove it without retyping
+   everything. Ported from the old standalone Upload tab. */
+.upload-current {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+}
+.upload-current__name {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  color: var(--text-h);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.upload-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.upload-progress__row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.upload-progress__row span:last-child {
+  font-family: var(--mono);
+  /* Tabular figures — the percentage ticks up continuously and proportional
+     digits make the trailing edge of the row jitter as it counts. */
+  font-variant-numeric: tabular-nums;
+  color: var(--text-h);
 }

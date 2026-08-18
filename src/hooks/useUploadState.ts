@@ -1,17 +1,10 @@
-import { useState } from 'react'
-import type { TranslateState } from '../hooks/useTranslateState'
+import { useRef, useState, type RefObject } from 'react'
+import type { TranslateState } from './useTranslateState'
 import { recognizeText, looksLikeWrongScript, type OcrLang } from '../lib/ocr/tesseract'
-import { FileUpload, type UploadInput } from './FileUpload'
-import { DirectionToggle, TranslateControls } from './translate/TranslateControls'
-import { TranslationOutput } from './translate/TranslationOutput'
-import { TranslateActions } from './translate/TranslateActions'
-import { DownloadActions } from './translate/DownloadActions'
-import './UploadPage.css'
 
-interface UploadPageProps {
-  t: TranslateState
-  onEditInTranslate: (text: string) => void
-}
+export type UploadInput =
+  | { kind: 'image'; canvas: HTMLCanvasElement; name: string }
+  | { kind: 'file'; file: File }
 
 type ReadStatus = 'idle' | 'reading' | 'error'
 
@@ -21,7 +14,24 @@ const SUPPORTED_EXTS = ['txt', 'docx', 'pdf']
 // scans/multi-page PDFs that will visibly stall the progress bar.
 const LARGE_FILE_BYTES = 15 * 1024 * 1024
 
-export function UploadPage({ t, onEditInTranslate }: UploadPageProps) {
+export const FILE_ACCEPT = 'image/*,.pdf,.docx,.txt'
+
+/**
+ * Everything about turning a dropped/picked file (or camera-captured photo)
+ * into source text — drag-and-drop, OCR/extraction, and the upload-specific
+ * UI state (filename, progress, script-mismatch retry). Takes the shared
+ * TranslateState so a successful read can land directly in `sourceText`,
+ * the same field a typed translation uses — uploading is just another way
+ * of filling in the Translate source pane, not a separate feature.
+ *
+ * fileInputRef is a parameter, not something this hook creates and returns —
+ * a ref bundled into the returned object taints the whole object for
+ * react-hooks/refs (it can no longer tell the plain state apart from the
+ * ref), so the caller owns the ref and attaches it to the JSX directly, the
+ * same way Editor.tsx receives textareaRef rather than useEditorState vending
+ * one.
+ */
+export function useUploadState(t: TranslateState, fileInputRef: RefObject<HTMLInputElement | null>) {
   const [readStatus, setReadStatus] = useState<ReadStatus>('idle')
   const [readErrorIsOffline, setReadErrorIsOffline] = useState(false)
   const [readLabel, setReadLabel] = useState('Reading text…')
@@ -29,10 +39,6 @@ export function UploadPage({ t, onEditInTranslate }: UploadPageProps) {
   const [currentFile, setCurrentFile] = useState<string | null>(null)
   const [unsupportedExt, setUnsupportedExt] = useState<string | null>(null)
   const [largeFileWarning, setLargeFileWarning] = useState(false)
-  // Recognized/extracted text is collapsed by default — the translation is
-  // the primary output; this stays around (and editable) for OCR-error
-  // correction and the Translate handoff.
-  const [showRecognized, setShowRecognized] = useState(false)
   // Set when an image's OCR result doesn't look like the expected source
   // script — see looksLikeWrongScript. Kept alongside the input that
   // produced it so "Switch & retry" can redo OCR against the same photo
@@ -40,6 +46,12 @@ export function UploadPage({ t, onEditInTranslate }: UploadPageProps) {
   const [scriptMismatch, setScriptMismatch] = useState<{ input: UploadInput; expected: OcrLang } | null>(
     null,
   )
+  const [dragging, setDragging] = useState(false)
+
+  // dragenter/dragleave fire for every child element the pointer crosses, so a
+  // single boolean flickers as the cursor moves over the icon and the labels.
+  // Counting enters minus leaves is the standard fix.
+  const dragDepth = useRef(0)
 
   // langOverride exists for the mismatch-retry path: it calls t.setDirectionOnly()
   // and immediately re-runs handleInput, but React state updates aren't visible
@@ -115,8 +127,7 @@ export function UploadPage({ t, onEditInTranslate }: UploadPageProps) {
     setScriptMismatch(null)
     setUnsupportedExt(null)
     setReadStatus('idle')
-    t.setSourceText('')
-    t.clearTranslation()
+    t.clearSource()
   }
 
   const retryWithCorrectDirection = () => {
@@ -127,108 +138,72 @@ export function UploadPage({ t, onEditInTranslate }: UploadPageProps) {
     void handleInput(input, expected)
   }
 
-  return (
-    <section className="upload">
-      {/* See the note in TranslatePage — the tab bar is the page title. */}
-      <h1 className="sr-only">Upload a photo or document</h1>
+  const acceptFile = (file: File | undefined) => {
+    if (!file) return
+    if (!file.type.startsWith('image/')) {
+      void handleInput({ kind: 'file', file })
+      return
+    }
+    const img = new Image()
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = img.naturalWidth
+      canvas.height = img.naturalHeight
+      const ctx = canvas.getContext('2d')
+      if (ctx) {
+        ctx.drawImage(img, 0, 0)
+        void handleInput({ kind: 'image', canvas, name: file.name })
+      }
+      URL.revokeObjectURL(img.src)
+    }
+    img.src = URL.createObjectURL(file)
+  }
 
-      <div className="translate-toolbar">
-        <DirectionToggle t={t} />
-        <TranslateControls t={t} />
-      </div>
+  const openFilePicker = () => fileInputRef.current?.click()
 
-      <FileUpload onInput={(input) => void handleInput(input)} />
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    acceptFile(file)
+  }
 
-      {currentFile && (
-        <div className="upload-current">
-          <span className="upload-current__name">{currentFile}</span>
-          <button type="button" className="btn" onClick={clearUpload}>
-            remove
-          </button>
-        </div>
-      )}
+  const onDragEnter = (e: React.DragEvent) => {
+    e.preventDefault()
+    dragDepth.current += 1
+    setDragging(true)
+  }
+  const onDragOver = (e: React.DragEvent) => e.preventDefault()
+  const onDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    dragDepth.current -= 1
+    if (dragDepth.current <= 0) setDragging(false)
+  }
+  const onDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    dragDepth.current = 0
+    setDragging(false)
+    acceptFile(e.dataTransfer.files?.[0])
+  }
 
-      {/* A real progress bar rather than a line of text with a percentage in
-          it. OCR on a phone can take twenty seconds, and "Reading page 3/9…"
-          on its own gives no sense of how much is left. aria-live announces
-          the label without the bar itself chattering on every repaint. */}
-      {readStatus === 'reading' && (
-        <div className="upload-progress" role="status" aria-live="polite">
-          {largeFileWarning && <p className="sugg-hint">Large file — this may take a while.</p>}
-          <div className="upload-progress__row">
-            <span>{readLabel}</span>
-            {readProgress !== null && <span>{Math.round(readProgress * 100)}%</span>}
-          </div>
-          <div className="model-progress-track">
-            <div
-              className={`model-progress-fill${readProgress === null ? ' model-progress-fill--indeterminate' : ''}`}
-              style={readProgress !== null ? { width: `${Math.round(readProgress * 100)}%` } : undefined}
-            />
-          </div>
-        </div>
-      )}
-      {unsupportedExt && (
-        <div className="error-banner" role="alert">
-          {`".${unsupportedExt}" isn't a supported format — use an image, .pdf, .docx, or .txt file.`}
-        </div>
-      )}
-      {readStatus === 'error' &&
-        (readErrorIsOffline ? (
-          <div className="error-banner" role="alert">
-            Scanning needs the internet the first time, to download the reader — connect once and it&rsquo;ll
-            keep working offline after that.
-          </div>
-        ) : (
-          <div className="error-banner" role="alert">
-            Couldn&rsquo;t read that document — try a clearer photo or a different file.
-          </div>
-        ))}
-
-      {scriptMismatch && (
-        <div className="error-banner" role="alert">
-          <span>
-            This looks like {scriptMismatch.expected === 'nep' ? 'Nepali' : 'English'} text, but the
-            direction above is set to translate from {scriptMismatch.expected === 'nep' ? 'English' : 'Nepali'}
-            . Reading it that way won&rsquo;t work.
-          </span>
-          <button type="button" className="btn" onClick={retryWithCorrectDirection}>
-            Switch direction &amp; retry
-          </button>
-        </div>
-      )}
-
-      <div className="translate-panes translate-panes--single">
-        <TranslationOutput t={t} />
-      </div>
-
-      <button
-        type="button"
-        className="btn upload-toggle"
-        onClick={() => setShowRecognized((v) => !v)}
-        aria-expanded={showRecognized}
-      >
-        {showRecognized ? 'Hide recognized text ▾' : 'Show recognized text ▸'}
-      </button>
-
-      {showRecognized && (
-        <div className="upload-recognized">
-          <div className="translate-panes translate-panes--single">
-            <textarea
-              className="translate-input dev"
-              rows={6}
-              placeholder="Recognized text appears here — capture a photo, or edit it directly…"
-              value={t.sourceText}
-              onChange={(e) => t.setSourceText(e.target.value)}
-            />
-          </div>
-          <button type="button" className="btn" onClick={() => onEditInTranslate(t.sourceText)}>
-            Edit in Translate →
-          </button>
-        </div>
-      )}
-
-      <TranslateActions t={t} context="upload" />
-      <DownloadActions t={t} />
-    </section>
-  )
+  return {
+    readStatus,
+    readErrorIsOffline,
+    readLabel,
+    readProgress,
+    currentFile,
+    unsupportedExt,
+    largeFileWarning,
+    scriptMismatch,
+    dragging,
+    clearUpload,
+    retryWithCorrectDirection,
+    openFilePicker,
+    handleFileInputChange,
+    onDragEnter,
+    onDragOver,
+    onDragLeave,
+    onDrop,
+  }
 }
+
+export type UploadState = ReturnType<typeof useUploadState>

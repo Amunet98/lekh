@@ -3,13 +3,9 @@ import './translate.css'
 
 interface TranslateActionsProps {
   t: TranslateState
-  // Upload's photo/document never leaves the browser even in online mode
-  // (only the recognized text is sent) — Translate has no upload, so the
-  // copy differs.
-  context: 'upload' | 'translate'
 }
 
-export function TranslateActions({ t, context }: TranslateActionsProps) {
+export function TranslateActions({ t }: TranslateActionsProps) {
   return (
     <>
       {t.mode === 'ondevice' && (
@@ -53,12 +49,8 @@ export function TranslateActions({ t, context }: TranslateActionsProps) {
         </summary>
         <p>
           {t.mode === 'online'
-            ? context === 'upload'
-              ? 'Translation uses a free online service (Google Translate, falling back to mymemory.translated.net). The photo or document itself never leaves your browser — only the recognized text is sent.'
-              : 'Translation uses a free online service (Google Translate, falling back to mymemory.translated.net). Only the text you enter is sent.'
-            : context === 'upload'
-              ? 'On-device mode — nothing, not even the recognized text, ever leaves your browser.'
-              : 'On-device mode — nothing you enter ever leaves your browser.'}
+            ? 'Translation uses a free online service (Google Translate, falling back to mymemory.translated.net). Only the text in this box is sent — if it came from an uploaded photo or document, only the recognized text is sent, never the file itself.'
+            : 'On-device mode — nothing in this box ever leaves your browser, including anything recognized from an uploaded file.'}
         </p>
       </details>
     </>

@@ -79,16 +79,9 @@ export default defineConfig({
             icons: [{ src: '/shortcut-type.png', sizes: '192x192', type: 'image/png' }],
           },
           {
-            name: 'Read a photo or PDF',
-            short_name: 'Upload',
-            description: 'Pull Nepali or English text out of an image or document',
-            url: '/?tab=upload',
-            icons: [{ src: '/shortcut-upload.png', sizes: '192x192', type: 'image/png' }],
-          },
-          {
             name: 'Translate',
             short_name: 'Translate',
-            description: 'Translate between English and Nepali',
+            description: 'Translate between English and Nepali, or drop in a photo or document',
             url: '/?tab=translate',
             icons: [{ src: '/shortcut-translate.png', sizes: '192x192', type: 'image/png' }],
           },

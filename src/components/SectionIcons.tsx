@@ -1,5 +1,10 @@
 import type { Tab } from './TabSwitcher'
 
+// 'upload' survives as an icon (now used for the inline upload button on
+// Translate) even though it's no longer a nav destination in its own right —
+// see TabSwitcher's Tab type, which dropped it when Upload merged in.
+type IconName = Tab | 'upload'
+
 /* The section icons, defined once.
  *
  * They used to be written twice — inline in TabSwitcher and again in
@@ -30,7 +35,7 @@ function iconProps(size: number) {
   }
 }
 
-export function SectionIcon({ name, size = 20 }: { name: Tab; size?: number }) {
+export function SectionIcon({ name, size = 20 }: { name: IconName; size?: number }) {
   const props = iconProps(size)
 
   if (name === 'type') {

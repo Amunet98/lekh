@@ -22,8 +22,7 @@ interface AboutSheetProps {
    same 24-box and stroke weight as the tab bar icons. */
 const SECTIONS: { id: Tab; label: string; rest: string; icon: Tab }[] = [
   { id: 'type', icon: 'type', label: 'Type', rest: 'phonetic, as you already text' },
-  { id: 'upload', icon: 'upload', label: 'Upload', rest: 'read text out of images & PDFs' },
-  { id: 'translate', icon: 'translate', label: 'Translate', rest: 'EN ↔ NE, even offline' },
+  { id: 'translate', icon: 'translate', label: 'Translate', rest: 'EN ↔ NE, even offline — type it or drop in a photo/PDF' },
   { id: 'calendar', icon: 'calendar', label: 'Patro', rest: 'Bikram Sambat, festivals & holidays' },
 ]
 
