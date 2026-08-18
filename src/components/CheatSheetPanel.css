@@ -43,6 +43,13 @@
   background: var(--surface);
   box-shadow: var(--shadow-pop);
   overflow: hidden;
+  /* Drives the drag-to-dismiss glide (snap-back, or fling the rest of the way
+     off-screen before actually closing) — see CheatSheetPanel.tsx. Off while
+     a pointer is actively dragging it, so the sheet tracks 1:1 with no lag. */
+  transition: transform var(--dur-slow) var(--ease-expo);
+}
+.cheat-panel__inner--dragging {
+  transition: none;
 }
 
 /* Bottom sheet — the default, because this is a phone-first app.
@@ -88,6 +95,52 @@
   }
 }
 
+/* The bottom-sheet grabber. A real <button>, not a decorative bar, so it
+   stays keyboard/AT-operable (a plain click/Enter closes it, same as the X
+   used to) — the drag/fling gesture is layered on top of that, not instead
+   of it. Full-width with generous vertical padding rather than a tight box
+   around the pill: a slim 4px target is unusable to grab on a phone, so the
+   hit area is the whole bar, only the *visible* pill stays slim. */
+.cheat-panel__grabber {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 28px;
+  padding: var(--sp-2) 0;
+  border: 0;
+  background: transparent;
+  cursor: grab;
+  /* Stops the browser's own scroll/pull-to-refresh gesture from fighting the
+     drag on touch devices. */
+  touch-action: none;
+}
+.cheat-panel__grabber-bar {
+  width: 36px;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--border-field);
+  transition: background-color var(--dur) var(--ease), width var(--dur) var(--ease);
+}
+.cheat-panel__grabber:hover .cheat-panel__grabber-bar {
+  background: var(--muted);
+}
+.cheat-panel__grabber--dragging {
+  cursor: grabbing;
+}
+.cheat-panel__grabber--dragging .cheat-panel__grabber-bar {
+  width: 44px;
+  background: var(--accent);
+}
+/* Desktop's slide-over keeps a plain close button instead — see the X's own
+   media query below, and the panel-shape switch this file already makes at
+   the same breakpoint. */
+@media (min-width: 1024px) {
+  .cheat-panel__grabber {
+    display: none;
+  }
+}
+
 .cheat-panel__head {
   display: flex;
   align-items: center;
@@ -100,23 +153,30 @@
   font-size: 1.05rem;
   font-weight: 600;
 }
+/* Hidden on the bottom sheet — the grabber above replaces it there. Desktop's
+   slide-over has no drag gesture, so it keeps this as the one close control. */
 .cheat-panel__close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-  width: 40px;
-  height: 40px;
-  border: 0;
-  border-radius: var(--radius-pill);
-  background: var(--surface-2);
-  color: var(--muted);
-  cursor: pointer;
-  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
+  display: none;
 }
-.cheat-panel__close:hover {
-  background: var(--accent-bg);
-  color: var(--accent-text);
+@media (min-width: 1024px) {
+  .cheat-panel__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--surface-2);
+    color: var(--muted);
+    cursor: pointer;
+    transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
+  }
+  .cheat-panel__close:hover {
+    background: var(--accent-bg);
+    color: var(--accent-text);
+  }
 }
 
 .cheat-panel__search {
