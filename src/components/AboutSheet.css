@@ -69,8 +69,39 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   text-align: center;
+  /* Drives the drag-to-dismiss glide on the mobile bottom-sheet layout below
+     (snap-back, or fling the rest of the way off-screen before actually
+     closing) — see useSheetDrag. Inert on desktop: the grabber that drives
+     it is hidden there, so this transform never moves off 0. Off while a
+     pointer is actively dragging it, so the sheet tracks 1:1 with no lag. */
+  transition: transform var(--dur-slow) var(--ease-expo);
+}
+.about__panel--dragging {
+  transition: none;
 }
 
+/* The grabber's look lives in SheetGrabber.css (shared with CheatSheetPanel)
+   — this file only positions it and decides when it shows. Absolutely
+   positioned like .about__close below, for the same reason: the panel's own
+   padding and centred text-align would otherwise fight a full-width bar
+   flush with the top edge. Hidden by default (the desktop centred card has
+   no drag gesture) and shown only once the panel becomes a bottom sheet,
+   at the same breakpoint as the shape switch further down this file. */
+.about__grabber {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+@media (max-width: 560px) {
+  .about__grabber {
+    display: flex;
+  }
+}
+
+/* Hidden once the grabber above takes over on the mobile bottom sheet —
+   see the same breakpoint further down this file. */
 .about__close {
   position: absolute;
   top: 0.5rem;
@@ -372,9 +403,17 @@
     top: auto;
     bottom: 0;
   }
+  /* The grabber above replaces this here. */
+  .about__close {
+    display: none;
+  }
   .about__panel {
     border-radius: var(--radius-card) var(--radius-card) 0 0;
     max-height: 88dvh;
+    /* A bit more than the clamped default (up to 2.25rem elsewhere) so the
+       absolutely-positioned grabber has clearance above the wordmark instead
+       of sitting flush against it. */
+    padding-top: 2.75rem;
     padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
   }
   .about[open] .about__panel {

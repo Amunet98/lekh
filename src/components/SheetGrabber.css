@@ -1,0 +1,42 @@
+/* The bottom-sheet grabber, shared by CheatSheetPanel and AboutSheet's mobile
+   layout (see useSheetDrag for the gesture itself; each caller supplies its
+   own component-scoped class for the show/hide breakpoint, since the two
+   panels switch to a bottom sheet at different widths).
+ *
+ * A real <button>, not a decorative bar, so it stays keyboard/AT-operable — a
+ * plain click/Enter closes it, same as an X would. The drag/fling gesture is
+ * layered on top of that, not instead of it. Full-width with generous
+ * vertical padding rather than a tight box around the pill: a slim 4px
+ * target is unusable to grab on a phone, so the hit area is the whole bar,
+ * only the *visible* pill stays slim. */
+.sheet-grabber {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 28px;
+  padding: var(--sp-2) 0;
+  border: 0;
+  background: transparent;
+  cursor: grab;
+  /* Stops the browser's own scroll/pull-to-refresh gesture from fighting the
+     drag on touch devices. */
+  touch-action: none;
+}
+.sheet-grabber-bar {
+  width: 36px;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--border-field);
+  transition: background-color var(--dur) var(--ease), width var(--dur) var(--ease);
+}
+.sheet-grabber:hover .sheet-grabber-bar {
+  background: var(--muted);
+}
+.sheet-grabber--dragging {
+  cursor: grabbing;
+}
+.sheet-grabber--dragging .sheet-grabber-bar {
+  width: 44px;
+  background: var(--accent);
+}

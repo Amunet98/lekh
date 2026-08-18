@@ -5,7 +5,9 @@ import { LekhMark } from './LekhMark'
 import { KEYWORDS } from '../data/keywords'
 import { useHasAndroidApp } from '../hooks/useHasAndroidApp'
 import { APK_URL, isAndroid } from '../lib/androidApp'
+import { useSheetDrag } from '../hooks/useSheetDrag'
 
+import './SheetGrabber.css'
 import './AboutSheet.css'
 
 interface AboutSheetProps {
@@ -29,8 +31,15 @@ const SECTIONS: { id: Tab; label: string; rest: string; icon: Tab }[] = [
 
 export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
   const ref = useRef<HTMLDialogElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
   const android = isAndroid()
   const hasApp = useHasAndroidApp()
+
+  // Drag-to-dismiss — only engages on the mobile bottom-sheet layout (see
+  // .about__grabber's own media query below at the same 560px breakpoint the
+  // bottom-sheet conversion already uses); the desktop centered card keeps
+  // the plain X, since dragging isn't a natural gesture for a floating card.
+  const drag = useSheetDrag(ref, panelRef, onClose)
 
   /* showModal() rather than the open attribute. It is what buys the focus
      trap, the inert background, the top-layer stacking (so the sheet clears
@@ -58,7 +67,10 @@ export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
       aria-labelledby="about-title"
       /* Fires for Escape and for close() alike, so the parent's state can
          never drift out of sync with the element's own open flag. */
-      onClose={onClose}
+      onClose={() => {
+        drag.reset()
+        onClose()
+      }}
       /* Backdrop click. The ::backdrop pseudo-element is not an event target,
          so the click lands on the <dialog> itself — anything inside the panel
          stops at the panel, which is why the check is against currentTarget. */
@@ -66,7 +78,28 @@ export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
         if (e.target === e.currentTarget) onClose()
       }}
     >
-      <div className="about__panel">
+      <div
+        ref={panelRef}
+        className={`about__panel${drag.isDragging ? ' about__panel--dragging' : ''}`}
+        style={{ transform: `translateY(${drag.dragY}px)` }}
+        onTransitionEnd={drag.handlePanelTransitionEnd}
+      >
+        {/* Mobile bottom-sheet only (see .about__grabber's media query) — a
+            plain click closes it like any button, keeping this operable for
+            keyboard/AT users who can't drag; dragging or flinging it down
+            closes it too, which is the whole point of a grabber over an X. */}
+        <button
+          type="button"
+          className={`sheet-grabber about__grabber${drag.isDragging ? ' sheet-grabber--dragging' : ''}`}
+          aria-label="Close"
+          onClick={drag.handleGrabberClick}
+          onPointerDown={drag.handleGrabberPointerDown}
+          onPointerMove={drag.handleGrabberPointerMove}
+          onPointerUp={drag.handleGrabberPointerEnd}
+          onPointerCancel={drag.handleGrabberPointerEnd}
+        >
+          <span className="sheet-grabber-bar" aria-hidden="true" />
+        </button>
         <button type="button" className="about__close" aria-label="Close" onClick={onClose}>
           <svg
             viewBox="0 0 24 24"

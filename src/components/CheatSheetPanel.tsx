@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { CheatSheet } from './CheatSheet'
+import { useSheetDrag } from '../hooks/useSheetDrag'
+import './SheetGrabber.css'
 import './CheatSheetPanel.css'
 
 interface CheatSheetPanelProps {
@@ -7,15 +9,6 @@ interface CheatSheetPanelProps {
   onClose: () => void
   onInsert: (ch: string) => void
 }
-
-// Drag past 30% of the sheet's own height, or fling it fast enough even over
-// a short distance, and it commits to closing rather than snapping back.
-const DISMISS_HEIGHT_FRACTION = 0.3
-const DISMISS_VELOCITY = 0.5 // px/ms
-// Below this many px of vertical movement, a pointer session counts as a tap
-// (closes via the click below) rather than a drag (closes only past the
-// thresholds above, via handleGrabberPointerEnd).
-const TAP_SLOP = 6
 
 /* The script reference, on demand.
  *
@@ -31,80 +24,11 @@ export function CheatSheetPanel({ open, onClose, onInsert }: CheatSheetPanelProp
   const searchRef = useRef<HTMLInputElement>(null)
   const [query, setQuery] = useState('')
 
-  // Drag-to-dismiss for the mobile bottom sheet (see .cheat-panel__grabber —
-  // hidden on the desktop slide-over, which keeps a plain click-to-close
-  // button instead, since dragging isn't a natural desktop gesture).
-  //
-  // dragY drives the sheet's live position with an inline style rather than a
-  // class, since it changes on every pointermove; isDragging only toggles the
-  // CSS transition on/off (off while a finger is actually moving it, so the
-  // sheet tracks 1:1 with no lag — on for the snap-back/fling-closed glide
-  // once the pointer lifts).
-  const [dragY, setDragY] = useState(0)
-  const [isDragging, setIsDragging] = useState(false)
-  const dragStartRef = useRef<{ y: number; time: number } | null>(null)
-  // Set right before the fling-closed animation starts; onTransitionEnd
-  // checks it to tell "just finished snapping back to 0" apart from "just
-  // finished sliding the rest of the way off-screen, actually close now."
-  const pendingCloseRef = useRef(false)
-  // setPointerCapture (below) keeps the grabber as the pointer/click target
-  // for the whole gesture even once the finger has moved well past its
-  // bounds — which means the browser's own click-after-pointerup would fire
-  // on this button after *every* drag, not just a tap. This is what tells
-  // handleGrabberClick whether that click is a real tap (act on it) or the
-  // tail end of a drag pointerup already decided (ignore it).
-  const movedRef = useRef(false)
-
-  const handleGrabberPointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
-    e.currentTarget.setPointerCapture(e.pointerId)
-    dragStartRef.current = { y: e.clientY, time: performance.now() }
-    movedRef.current = false
-    setIsDragging(true)
-  }
-
-  const handleGrabberPointerMove = (e: React.PointerEvent<HTMLButtonElement>) => {
-    if (!dragStartRef.current) return
-    const delta = e.clientY - dragStartRef.current.y
-    if (Math.abs(delta) > TAP_SLOP) movedRef.current = true
-    setDragY(Math.max(0, delta))
-  }
-
-  const handleGrabberPointerEnd = (e: React.PointerEvent<HTMLButtonElement>) => {
-    const start = dragStartRef.current
-    if (!start) return
-    dragStartRef.current = null
-    setIsDragging(false)
-    if (!movedRef.current) {
-      // A tap, not a drag — handleGrabberClick (fired right after this)
-      // handles closing, so there's nothing to animate back from here.
-      setDragY(0)
-      return
-    }
-    const delta = Math.max(0, e.clientY - start.y)
-    const elapsed = performance.now() - start.time
-    const velocity = delta / Math.max(elapsed, 1)
-    const height = innerRef.current?.getBoundingClientRect().height ?? 0
-    if (delta > height * DISMISS_HEIGHT_FRACTION || velocity > DISMISS_VELOCITY) {
-      pendingCloseRef.current = true
-      setDragY(height)
-    } else {
-      setDragY(0)
-    }
-  }
-
-  const handleGrabberClick = () => {
-    // Real drags are already fully handled in handleGrabberPointerEnd —
-    // acting on the click too would close the panel after *every* drag
-    // regardless of distance, not just a tap.
-    if (movedRef.current) return
-    onClose()
-  }
-
-  const handleInnerTransitionEnd = (e: React.TransitionEvent<HTMLDivElement>) => {
-    if (e.propertyName !== 'transform' || !pendingCloseRef.current) return
-    pendingCloseRef.current = false
-    ref.current?.close()
-  }
+  // Drag-to-dismiss for the mobile bottom sheet — see useSheetDrag. Hidden on
+  // the desktop slide-over (.cheat-panel__grabber's own media query), which
+  // keeps a plain click-to-close button instead, since dragging isn't a
+  // natural desktop gesture.
+  const drag = useSheetDrag(ref, innerRef, onClose)
 
   /* showModal() rather than the open attribute — the same call AboutSheet
      makes, for the same reasons: it buys the focus trap, the inert background,
@@ -138,10 +62,19 @@ export function CheatSheetPanel({ open, onClose, onInsert }: CheatSheetPanelProp
        * Which is why the search resets here rather than in an effect watching
        * `open`. Clearing it from an effect body is a setState during render
        * commit, and React flags it: it schedules a second render pass for
-       * something that is really just part of handling the close event. */
+       * something that is really just part of handling the close event.
+       *
+       * The blur matters for the same reason: dialog.close() only reliably
+       * hands focus back to whatever opened it when the close is a direct
+       * result of a user gesture. The drag-to-dismiss path closes from a
+       * transitionend callback instead — not a gesture in the browser's
+       * eyes — so without this, closing by drag left the search field
+       * focused and the on-screen keyboard sitting open over a panel that
+       * had already visually closed. */
       onClose={() => {
         setQuery('')
-        setDragY(0)
+        drag.reset()
+        searchRef.current?.blur()
         onClose()
       }}
       /* Backdrop click. The ::backdrop pseudo-element is not an event target,
@@ -153,9 +86,9 @@ export function CheatSheetPanel({ open, onClose, onInsert }: CheatSheetPanelProp
     >
       <div
         ref={innerRef}
-        className={`cheat-panel__inner${isDragging ? ' cheat-panel__inner--dragging' : ''}`}
-        style={{ transform: `translateY(${dragY}px)` }}
-        onTransitionEnd={handleInnerTransitionEnd}
+        className={`cheat-panel__inner${drag.isDragging ? ' cheat-panel__inner--dragging' : ''}`}
+        style={{ transform: `translateY(${drag.dragY}px)` }}
+        onTransitionEnd={drag.handlePanelTransitionEnd}
       >
         {/* Bottom-sheet only (see the media query in CheatSheetPanel.css) — a
             plain click closes it like any button, keeping this operable for
@@ -163,15 +96,15 @@ export function CheatSheetPanel({ open, onClose, onInsert }: CheatSheetPanelProp
             closes it too, which is the whole point of a grabber over an X. */}
         <button
           type="button"
-          className={`cheat-panel__grabber${isDragging ? ' cheat-panel__grabber--dragging' : ''}`}
+          className={`sheet-grabber cheat-panel__grabber${drag.isDragging ? ' sheet-grabber--dragging' : ''}`}
           aria-label="Close"
-          onClick={handleGrabberClick}
-          onPointerDown={handleGrabberPointerDown}
-          onPointerMove={handleGrabberPointerMove}
-          onPointerUp={handleGrabberPointerEnd}
-          onPointerCancel={handleGrabberPointerEnd}
+          onClick={drag.handleGrabberClick}
+          onPointerDown={drag.handleGrabberPointerDown}
+          onPointerMove={drag.handleGrabberPointerMove}
+          onPointerUp={drag.handleGrabberPointerEnd}
+          onPointerCancel={drag.handleGrabberPointerEnd}
         >
-          <span className="cheat-panel__grabber-bar" aria-hidden="true" />
+          <span className="sheet-grabber-bar" aria-hidden="true" />
         </button>
 
         <header className="cheat-panel__head">

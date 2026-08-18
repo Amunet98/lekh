@@ -95,46 +95,10 @@
   }
 }
 
-/* The bottom-sheet grabber. A real <button>, not a decorative bar, so it
-   stays keyboard/AT-operable (a plain click/Enter closes it, same as the X
-   used to) — the drag/fling gesture is layered on top of that, not instead
-   of it. Full-width with generous vertical padding rather than a tight box
-   around the pill: a slim 4px target is unusable to grab on a phone, so the
-   hit area is the whole bar, only the *visible* pill stays slim. */
-.cheat-panel__grabber {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  min-height: 28px;
-  padding: var(--sp-2) 0;
-  border: 0;
-  background: transparent;
-  cursor: grab;
-  /* Stops the browser's own scroll/pull-to-refresh gesture from fighting the
-     drag on touch devices. */
-  touch-action: none;
-}
-.cheat-panel__grabber-bar {
-  width: 36px;
-  height: 4px;
-  border-radius: var(--radius-pill);
-  background: var(--border-field);
-  transition: background-color var(--dur) var(--ease), width var(--dur) var(--ease);
-}
-.cheat-panel__grabber:hover .cheat-panel__grabber-bar {
-  background: var(--muted);
-}
-.cheat-panel__grabber--dragging {
-  cursor: grabbing;
-}
-.cheat-panel__grabber--dragging .cheat-panel__grabber-bar {
-  width: 44px;
-  background: var(--accent);
-}
-/* Desktop's slide-over keeps a plain close button instead — see the X's own
-   media query below, and the panel-shape switch this file already makes at
-   the same breakpoint. */
+/* The grabber's look lives in SheetGrabber.css (shared with AboutSheet) —
+   this file only decides when it shows. Desktop's slide-over keeps a plain
+   close button instead, at the same breakpoint the panel-shape switch above
+   already uses. */
 @media (min-width: 1024px) {
   .cheat-panel__grabber {
     display: none;
