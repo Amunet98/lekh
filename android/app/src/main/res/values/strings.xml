@@ -24,8 +24,12 @@
     <string name="shortcut_type_long">Type Nepali</string>
     <string name="shortcut_translate_short">Translate</string>
     <string name="shortcut_translate_long">Translate</string>
+    <!-- Bare "Patro", matching the in-app tab exactly (TabSwitcher.tsx) —
+         same reasoning as shortcut_translate_long staying just "Translate":
+         the name is already the identity, a descriptor after it reads like
+         a translation gloss rather than the app's own word for the thing. -->
     <string name="shortcut_patro_short">Patro</string>
-    <string name="shortcut_patro_long">Nepali calendar</string>
+    <string name="shortcut_patro_long">Patro</string>
 
     <!-- Widget configuration screen. -->
     <string name="config_title">Patro widget</string>
