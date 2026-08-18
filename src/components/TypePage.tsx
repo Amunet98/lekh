@@ -33,8 +33,18 @@ export function TypePage() {
     [insertAtCursor],
   )
 
+  /* Not on touch. This mirrors App.tsx's own caret-focus effect exactly, and
+     for the same reason: refocusing the textarea is a convenience on desktop
+     (the caret comes back, nothing else happens) but on a phone it also
+     summons the on-screen keyboard back over the app the instant the sheet
+     has finished visually closing — worse than just leaving focus alone. */
   const closeCheat = useCallback(() => {
     setCheatOpen(false)
+    try {
+      if (!matchMedia('(pointer: fine)').matches) return
+    } catch {
+      return
+    }
     textareaRef.current?.focus()
   }, [])
 
