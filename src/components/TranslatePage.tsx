@@ -59,12 +59,13 @@ export function TranslatePage({ t }: TranslatePageProps) {
             <div className="translate-pane__header-actions">
               <button
                 type="button"
-                className="btn btn--icon"
+                className="btn pane-upload-btn"
                 title="Upload a photo or document"
                 aria-label="Upload a photo or document"
                 onClick={upload.openFilePicker}
               >
-                <SectionIcon name="upload" size={16} />
+                <SectionIcon name="upload" size={14} />
+                upload
               </button>
               <button type="button" className="btn" disabled={isEmpty} onClick={upload.clearUpload}>
                 clear

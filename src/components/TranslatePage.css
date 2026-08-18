@@ -85,6 +85,24 @@
   gap: var(--sp-1);
 }
 
+/* Icon-only read as a cryptic square next to "clear" — the label is what
+   actually tells someone this is an upload control. A light accent tint
+   (the same treatment .btn--icon uses) keeps it visually distinct from the
+   plain "clear" pill beside it, just as text-and-icon rather than icon-only. */
+.pane-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--accent-text);
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+}
+.pane-upload-btn:hover:not(:disabled) {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
+}
+
 /* Dragging a file over the source pane — same accent highlight FileUpload's
    dropzone used to show, applied to the textarea itself since that's this
    pane's only visible chrome (the pane div otherwise has none of its own). */
