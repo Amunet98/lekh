@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useTranslateState } from '../hooks/useTranslateState'
+import type { TranslateState } from '../hooks/useTranslateState'
 import { DirectionToggle, TranslateControls } from './translate/TranslateControls'
 import { TranslationOutput } from './translate/TranslationOutput'
 import { TranslateActions } from './translate/TranslateActions'
@@ -7,13 +7,12 @@ import { DownloadActions } from './translate/DownloadActions'
 import './TranslatePage.css'
 
 interface TranslatePageProps {
+  t: TranslateState
   handoffText: string | null
   onHandoffConsumed: () => void
 }
 
-export function TranslatePage({ handoffText, onHandoffConsumed }: TranslatePageProps) {
-  const t = useTranslateState()
-
+export function TranslatePage({ t, handoffText, onHandoffConsumed }: TranslatePageProps) {
   useEffect(() => {
     if (handoffText === null) return
     t.setSourceText(handoffText)

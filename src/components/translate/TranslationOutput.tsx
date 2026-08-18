@@ -44,6 +44,17 @@ export function TranslationOutput({ t }: { t: TranslateState }) {
             </span>
           </div>
         )
+      ) : t.status === 'loading' && t.mode === 'ondevice' ? (
+        // Same indeterminate-bar treatment as model loading above, not just
+        // static text — inference on a phone's CPU can take a genuinely long
+        // moment on a full document, and a bar reads as "still working"
+        // where a line of text that never changes starts to read as stuck.
+        <div className="model-progress">
+          <div className="model-progress-track" role="progressbar" aria-label="Translating">
+            <div className="model-progress-fill model-progress-fill--indeterminate" />
+          </div>
+          <span className="model-progress-label">Translating…</span>
+        </div>
       ) : t.status === 'loading' ? (
         <span className="sugg-hint">Translating…</span>
       ) : t.translated ? (

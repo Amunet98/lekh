@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useTranslateState } from './hooks/useTranslateState'
 import { TabSwitcher, type Tab } from './components/TabSwitcher'
 import { LekhMark } from './components/LekhMark'
 import { TypePage } from './components/TypePage'
@@ -63,6 +64,11 @@ function App() {
   // Upload's "Edit in Translate" handoff — TranslatePage consumes and clears
   // this on mount so re-entering Upload later doesn't replay a stale handoff.
   const [handoffText, setHandoffText] = useState<string | null>(null)
+  // Lifted out of Translate/Upload (both used to call useTranslateState()
+  // themselves) so switching between those two tabs — which are really two
+  // input methods for the same feature — doesn't silently reset the language
+  // direction back to English→Nepali and drop whatever was on screen.
+  const translateState = useTranslateState()
 
   /* replaceState, not pushState: the tab bar is a view switch, not navigation,
      and pushing would make the browser Back button walk through every tab a
@@ -186,9 +192,10 @@ function App() {
         {tab === 'type' ? (
           <TypePage />
         ) : tab === 'upload' ? (
-          <UploadPage onEditInTranslate={editInTranslate} />
+          <UploadPage t={translateState} onEditInTranslate={editInTranslate} />
         ) : tab === 'translate' ? (
           <TranslatePage
+            t={translateState}
             handoffText={handoffText}
             onHandoffConsumed={() => setHandoffText(null)}
           />

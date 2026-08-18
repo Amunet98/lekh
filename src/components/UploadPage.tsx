@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { useTranslateState } from '../hooks/useTranslateState'
-import { recognizeText } from '../lib/ocr/tesseract'
+import type { TranslateState } from '../hooks/useTranslateState'
+import { recognizeText, looksLikeWrongScript, type OcrLang } from '../lib/ocr/tesseract'
 import { FileUpload, type UploadInput } from './FileUpload'
 import { DirectionToggle, TranslateControls } from './translate/TranslateControls'
 import { TranslationOutput } from './translate/TranslationOutput'
@@ -9,13 +9,13 @@ import { DownloadActions } from './translate/DownloadActions'
 import './UploadPage.css'
 
 interface UploadPageProps {
+  t: TranslateState
   onEditInTranslate: (text: string) => void
 }
 
 type ReadStatus = 'idle' | 'reading' | 'error'
 
-export function UploadPage({ onEditInTranslate }: UploadPageProps) {
-  const t = useTranslateState()
+export function UploadPage({ t, onEditInTranslate }: UploadPageProps) {
   const [readStatus, setReadStatus] = useState<ReadStatus>('idle')
   const [readErrorIsOffline, setReadErrorIsOffline] = useState(false)
   const [readLabel, setReadLabel] = useState('Reading text…')
@@ -24,15 +24,37 @@ export function UploadPage({ onEditInTranslate }: UploadPageProps) {
   // the primary output; this stays around (and editable) for OCR-error
   // correction and the Translate handoff.
   const [showRecognized, setShowRecognized] = useState(false)
+  // Set when an image's OCR result doesn't look like the expected source
+  // script — see looksLikeWrongScript. Kept alongside the input that
+  // produced it so "Switch & retry" can redo OCR against the same photo
+  // instead of asking for a re-upload.
+  const [scriptMismatch, setScriptMismatch] = useState<{ input: UploadInput; expected: OcrLang } | null>(
+    null,
+  )
 
-  const handleInput = async (input: UploadInput) => {
+  // langOverride exists for the mismatch-retry path: it calls t.setDirectionOnly()
+  // and immediately re-runs handleInput, but React state updates aren't visible
+  // synchronously — reading t.direction right after would still see the old
+  // value. Passing the corrected language explicitly sidesteps that stale read.
+  const handleInput = async (input: UploadInput, langOverride?: OcrLang) => {
     setReadStatus('reading')
     setReadProgress(0)
-    const lang = t.direction === 'ne-en' ? 'nep' : 'eng'
+    setScriptMismatch(null)
+    // A stale translation of the *previous* upload would otherwise sit on
+    // screen through the whole read — and in on-device mode, which only
+    // (re)translates on an explicit button press, keep sitting there
+    // afterward looking like it already covers the new photo.
+    t.clearTranslation()
+    const lang = langOverride ?? (t.direction === 'ne-en' ? 'nep' : 'eng')
     try {
       if (input.kind === 'image') {
         setReadLabel('Reading text…')
-        const text = await recognizeText(input.canvas, lang, setReadProgress)
+        const { text, confidence } = await recognizeText(input.canvas, lang, setReadProgress)
+        if (looksLikeWrongScript(text, confidence, lang)) {
+          setScriptMismatch({ input, expected: lang === 'nep' ? 'eng' : 'nep' })
+          setReadStatus('idle')
+          return
+        }
         t.setSourceText(text)
       } else {
         const ext = input.file.name.split('.').pop()?.toLowerCase()
@@ -68,6 +90,14 @@ export function UploadPage({ onEditInTranslate }: UploadPageProps) {
     } finally {
       setReadProgress(null)
     }
+  }
+
+  const retryWithCorrectDirection = () => {
+    if (!scriptMismatch) return
+    const { input, expected } = scriptMismatch
+    t.setDirectionOnly(expected === 'nep' ? 'ne-en' : 'en-ne')
+    setScriptMismatch(null)
+    void handleInput(input, expected)
   }
 
   return (
@@ -111,6 +141,19 @@ export function UploadPage({ onEditInTranslate }: UploadPageProps) {
             Couldn&rsquo;t read that document — try a clearer photo or a different file.
           </div>
         ))}
+
+      {scriptMismatch && (
+        <div className="error-banner" role="alert">
+          <span>
+            This looks like {scriptMismatch.expected === 'nep' ? 'Nepali' : 'English'} text, but the
+            direction above is set to translate from {scriptMismatch.expected === 'nep' ? 'English' : 'Nepali'}
+            . Reading it that way won&rsquo;t work.
+          </span>
+          <button type="button" className="btn" onClick={retryWithCorrectDirection}>
+            Switch direction &amp; retry
+          </button>
+        </div>
+      )}
 
       <div className="translate-panes translate-panes--single">
         <TranslationOutput t={t} />

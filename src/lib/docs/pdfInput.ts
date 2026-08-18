@@ -49,7 +49,7 @@ export async function extractPdfText(
     if (!ctx) continue
     await page.render({ canvas, canvasContext: ctx, viewport }).promise
     const { recognizeText } = await import('../ocr/tesseract')
-    pages.push(await recognizeText(canvas, lang))
+    pages.push((await recognizeText(canvas, lang)).text)
   }
 
   return pages.join('\n\n')

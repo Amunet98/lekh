@@ -144,9 +144,31 @@ export function useTranslateState() {
     setTranslated(sourceText)
   }, [sourceText, translated])
 
+  // Direction-only — unlike swap(), does not carry text across. For the
+  // wrong-direction-upload recovery flow: the source text is about to be
+  // replaced by a fresh OCR pass anyway, so swapping the old translated text
+  // into place first would just be discarded a moment later.
+  const setDirectionOnly = useCallback((d: Direction) => setDirection(d), [])
+
+  // Wipes a translation that no longer describes the current source text —
+  // without this, re-uploading a new photo in on-device mode (which only
+  // translates on an explicit button press) leaves whatever was translated
+  // last on screen, and it is easy to mistake that leftover for a fresh
+  // result. Online mode doesn't need this: its debounced effect below
+  // overwrites `translated` within ~500ms of any sourceText change anyway.
+  const clearTranslation = useCallback(() => {
+    setTranslated('')
+    setError(null)
+    setStatus('idle')
+  }, [])
+
   const switchToOnDevice = useCallback(() => {
     setMode('ondevice')
     setError(null)
+    // Also guards against the same staleness above: switching modes with
+    // existing source text left a stale online result on screen looking like
+    // it had already been translated on-device, when nothing had run yet.
+    setTranslated('')
   }, [])
 
   const switchToOnline = useCallback(() => {
@@ -201,6 +223,8 @@ export function useTranslateState() {
     runOnDevice,
     downloadModel,
     swap,
+    setDirectionOnly,
+    clearTranslation,
     switchToOnDevice,
     switchToOnline,
     requestOnDevice,
