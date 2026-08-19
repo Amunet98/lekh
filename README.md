@@ -15,7 +15,7 @@ right in the browser.
 
 ## What it does
 
-- **Type** — a phonetic transliteration engine backed by a 700+ word
+- **Type** — a phonetic transliteration engine backed by a 630+ word
   dictionary shows suggestion chips (with spelling variants) as you type;
   a searchable Devanagari cheat sheet covers the long tail. Works with
   mobile keyboards/IMEs (Gboard-style commit flow).
