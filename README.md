@@ -19,16 +19,17 @@ right in the browser.
   dictionary shows suggestion chips (with spelling variants) as you type;
   a searchable Devanagari cheat sheet covers the long tail. Works with
   mobile keyboards/IMEs (Gboard-style commit flow).
-- **Upload** — OCR documents **entirely in the browser** via
-  [Tesseract.js](https://github.com/naptha/tesseract.js): images, PDF,
-  DOCX, and TXT, in English and Nepali. Nothing is uploaded to any server.
+- **Translate** — English ↔ Nepali with a Google-style language switcher.
+  Type directly or drop in a photo, PDF, DOCX, or TXT file — OCR happens
+  **entirely in the browser** via
+  [Tesseract.js](https://github.com/naptha/tesseract.js), and nothing is
+  uploaded to any server. Online translation by default, plus an optional
+  **fully on-device** NLLB-200 model
+  ([Transformers.js](https://github.com/huggingface/transformers.js)) —
+  private and offline-capable once cached (large download, fetched in
+  phases with progress).
 - **Patro** — a Bikram Sambat calendar with festivals, public holidays and
   tithi, plus an AD ↔ BS date converter. No ads, no account, no network.
-- **Translate** — English ↔ Nepali with a Google-style language switcher.
-  Online translation by default, plus an optional **fully on-device**
-  NLLB-200 model ([Transformers.js](https://github.com/huggingface/transformers.js))
-  — private and offline-capable once cached (large download, fetched in
-  phases with progress).
 
 ## Design
 
@@ -131,7 +132,9 @@ It shares the web app's calendar data rather than duplicating it
 `nepali-date-converter` over 3,970 conversions. It ships in six sizes — 2x1,
 2x2, 4x1, 4x2, 5x1 and 5x2 — and draws in either Devanagari or Latin, chosen
 from the widget's own settings screen. Released as a signed APK alongside the
-TWA that wraps the web app; see `android/README.md`.
+Capacitor Android app that wraps the web app (`capacitor.config.ts`'s
+`server.url` points at the live site, so most web fixes ship without a new
+build).
 
 ## Installing and updating
 
@@ -147,7 +150,7 @@ dictionary, and cheat sheet work offline. Details worth knowing:
   version in the About sheet first (tap the ⓘ button): an installed PWA
   can be running an older shell.)*
 - **App shortcuts** — long-press the installed icon to jump straight to
-  Type, Upload, Translate, or Patro. These need their own icons; Android draws
+  Type, Translate, or Patro. These need their own icons; Android draws
   blank placeholders without them.
 - **Offline from the first visit.** The worker takes control of the page that
   installed it, so the shell and the OCR payload are cached on the visit that
