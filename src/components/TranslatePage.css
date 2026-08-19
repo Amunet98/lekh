@@ -74,7 +74,7 @@
 
 .translate-pane__header {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: var(--sp-2);
   /* Matches .btn's own min-height, so this row reserves the same space

@@ -21,17 +21,6 @@ export function TranslateActions({ t }: TranslateActionsProps) {
         </div>
       )}
 
-      {t.error && (
-        <div className="error-banner" role="alert">
-          <span>{t.error}</span>
-          {t.mode === 'online' && t.deviceMemoryTier !== 'low' && (
-            <button type="button" className="btn" onClick={t.requestOnDevice}>
-              Switch to on-device
-            </button>
-          )}
-        </div>
-      )}
-
       {/* Behind a disclosure rather than printed in full under every screen.
           It was a two-line monospace paragraph sitting permanently below the
           panes — the single largest block of text on Translate, for something

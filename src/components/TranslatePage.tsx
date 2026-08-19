@@ -44,6 +44,22 @@ export function TranslatePage({ t }: TranslatePageProps) {
         <TranslateControls t={t} />
       </div>
 
+      {/* Right under the toolbar, not at the foot of the page below both
+          panes. This fires the moment someone taps the On-device pill, and a
+          phone screen doesn't show the bottom of the page without scrolling
+          — buried there, the tap looked like it did nothing, not like it was
+          refused. */}
+      {t.error && (
+        <div className="error-banner" role="alert">
+          <span>{t.error}</span>
+          {t.mode === 'online' && t.deviceMemoryTier !== 'low' && (
+            <button type="button" className="btn" onClick={t.requestOnDevice}>
+              Switch to on-device
+            </button>
+          )}
+        </div>
+      )}
+
       <div className="translate-panes">
         <div
           className={`translate-pane${upload.dragging ? ' translate-pane--dragging' : ''}`}
