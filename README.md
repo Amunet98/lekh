@@ -131,10 +131,11 @@ It shares the web app's calendar data rather than duplicating it
 (`npm run android:assets`), and its date algorithm was validated against
 `nepali-date-converter` over 3,970 conversions. It ships in six sizes — 2x1,
 2x2, 4x1, 4x2, 5x1 and 5x2 — and draws in either Devanagari or Latin, chosen
-from the widget's own settings screen. Released as a signed APK alongside the
-Capacitor Android app that wraps the web app (`capacitor.config.ts`'s
-`server.url` points at the live site, so most web fixes ship without a new
-build).
+from the widget's own settings screen. It ships as part of the Capacitor
+Android app that wraps the web app (`capacitor.config.ts`'s `server.url`
+points at the live site, so most web fixes ship without a new build), and is
+published on Google Play. See `android/README.md` for the build, widget, and
+release details.
 
 ## Installing and updating
 
