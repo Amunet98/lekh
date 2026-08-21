@@ -63,8 +63,11 @@ object Panchang {
         } else {
             // The source packs several festivals into one comma-separated
             // string, in rough significance order — so the first one is the
-            // one to show when there is only room for one.
-            festivalText.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+            // one to show when there is only room for one. A few entries have
+            // a comma *inside* a parenthetical note (e.g. "...होली(हिमाली,
+            // पहाडी तथा भित्री मधेशका ५६ जिल्लाहरूमा बिदा)"), so a plain split
+            // on "," would cut that note in half — split only at top level.
+            splitTopLevel(festivalText).map { it.trim() }.filter { it.isNotEmpty() }
         }
 
         val holidays = monthObj.optJSONArray("h")
@@ -103,5 +106,28 @@ object Panchang {
             if (info.festivals.isNotEmpty()) return offset to info
         }
         return null
+    }
+
+    /**
+     * Splits on "," except while inside "(...)". An unclosed paren (a couple
+     * of entries in the bundled data run off the end of the string without
+     * ever closing one) just means depth never returns to zero, so the rest
+     * of the text stays one fragment instead of being cut at the next comma —
+     * still better than splitting mid-note.
+     */
+    private fun splitTopLevel(text: String): List<String> {
+        val parts = mutableListOf<String>()
+        val current = StringBuilder()
+        var depth = 0
+        for (ch in text) {
+            when {
+                ch == '(' -> { depth++; current.append(ch) }
+                ch == ')' -> { depth--; current.append(ch) }
+                ch == ',' && depth <= 0 -> { parts.add(current.toString()); current.clear() }
+                else -> current.append(ch)
+            }
+        }
+        parts.add(current.toString())
+        return parts
     }
 }

@@ -86,6 +86,35 @@ export function getBundledMonth(year: number, month: number): RawMonth | null {
   return m ? assertMonthLength(year, month, m) : null
 }
 
+/**
+ * Splits on ',' except while inside '(...)'. An unclosed paren (a couple of
+ * entries in the bundled data run off the end of the string without ever
+ * closing one) just means depth never returns to zero, so the rest of the
+ * text stays one fragment instead of being cut at the next comma — still
+ * better than splitting mid-note.
+ */
+function splitTopLevel(text: string): string[] {
+  const parts: string[] = []
+  let current = ''
+  let depth = 0
+  for (const ch of text) {
+    if (ch === '(') {
+      depth++
+      current += ch
+    } else if (ch === ')') {
+      depth--
+      current += ch
+    } else if (ch === ',' && depth <= 0) {
+      parts.push(current)
+      current = ''
+    } else {
+      current += ch
+    }
+  }
+  parts.push(current)
+  return parts
+}
+
 /** Turns either source's raw month into what the UI renders. */
 export function buildMonth(m: RawMonth): MonthPanchang {
   const holidaySet = new Set(m.h)
@@ -97,8 +126,11 @@ export function buildMonth(m: RawMonth): MonthPanchang {
       /* The source packs several festivals into one comma-separated string.
          Split for rendering but keep the original order — it is roughly
          significance order, so the first name is the one worth showing when
-         there is only room for one. */
-      festivals: text ? text.split(',').map((s) => s.trim()).filter(Boolean) : [],
+         there is only room for one. A few entries have a comma *inside* a
+         parenthetical note (e.g. "...होली(हिमाली, पहाडी तथा भित्री मधेशका ५६
+         जिल्लाहरूमा बिदा)"), so a plain split on ',' would cut that note in
+         half — split only at top level. */
+      festivals: text ? splitTopLevel(text).map((s) => s.trim()).filter(Boolean) : [],
       isHoliday: holidaySet.has(day),
       tithi: m.t[day - 1] ?? '',
     })
