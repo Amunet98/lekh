@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslateState } from './hooks/useTranslateState'
 import { useSwipe } from './hooks/useSwipe'
 import { TabSwitcher, type Tab } from './components/TabSwitcher'
@@ -115,6 +115,49 @@ function App() {
     tabSwipe.onTouchStart(e)
   }
 
+  /* The directional slide between tabs. TRANSITION_MS both drives the CSS
+     animation (see .page__pane--enter/--exit in App.css) and how long the
+     outgoing pane stays mounted here — the two have to agree or the pane
+     either vanishes mid-animation or lingers, inert, after it's finished.
+     prevTabRef (not state) tracks the tab we're animating *from*: reading it
+     inside the effect after every tab change, then overwriting it, is what
+     lets rapid re-switching interrupt cleanly rather than animating from a
+     stale starting point.
+   *
+   * Checked once per switch rather than left to a CSS media query, unlike
+   * every other reduced-motion guard in this app: those only ever suppress
+   * a cosmetic animation on a single already-mounted element. This one
+   * decides whether a *second* DOM node (the outgoing pane) exists at all —
+   * skip the check and reduced-motion users would get two full-opacity
+   * panes stacked on top of each other for the whole transition window,
+   * which is a broken render, not just a missing animation. */
+  const TRANSITION_MS = 420
+  const prevTabRef = useRef<Tab>(tab)
+  const transitionTimerRef = useRef<number | undefined>(undefined)
+  const [outgoing, setOutgoing] = useState<{ tab: Tab; direction: 1 | -1 } | null>(null)
+
+  useEffect(() => {
+    const prev = prevTabRef.current
+    prevTabRef.current = tab
+    if (prev === tab) return
+    let reduced = false
+    try {
+      reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
+    } catch {
+      reduced = false
+    }
+    if (reduced) return
+    const direction: 1 | -1 = TABS.indexOf(tab) > TABS.indexOf(prev) ? 1 : -1
+    setOutgoing({ tab: prev, direction })
+    window.clearTimeout(transitionTimerRef.current)
+    transitionTimerRef.current = window.setTimeout(() => setOutgoing(null), TRANSITION_MS)
+  }, [tab])
+
+  useEffect(() => () => window.clearTimeout(transitionTimerRef.current), [])
+
+  const renderTabContent = (t: Tab) =>
+    t === 'type' ? <TypePage /> : t === 'translate' ? <TranslatePage t={translateState} /> : <CalendarPage />
+
   /* Alt+1..3 switch tabs, matching TABS' left-to-right order. Alt-digit isn't
      text any browser inserts into a focused field, and useEditorState's own
      keydown handler already bails out on e.altKey — so no focus guard is
@@ -216,18 +259,32 @@ function App() {
         </div>
       </header>
       <div
-        className={`page${booting ? ' page--is-booting' : ''}`}
+        className={`page${booting ? ' page--is-booting' : ''}${outgoing ? ' page--transitioning' : ''}`}
         onTouchStart={onPageTouchStart}
         onTouchMove={tabSwipe.onTouchMove}
         onTouchEnd={tabSwipe.onTouchEnd}
       >
-        {tab === 'type' ? (
-          <TypePage />
-        ) : tab === 'translate' ? (
-          <TranslatePage t={translateState} />
-        ) : (
-          <CalendarPage />
+        {/* The outgoing pane is a frozen snapshot of the tab we just left —
+            not a live one, since that component has already unmounted from
+            `tab`'s own branch below. Re-mounting it here just to animate its
+            exit is deliberate: cheaper than keeping every tab's state alive
+            at all times purely for a 420ms slide, and each page's own state
+            (translateState aside, which is lifted) doesn't need to survive
+            being swiped away from. */}
+        {outgoing && (
+          <div
+            className={`page__pane page__pane--exit page__pane--${outgoing.direction === 1 ? 'fwd' : 'back'}`}
+            aria-hidden="true"
+            inert
+          >
+            {renderTabContent(outgoing.tab)}
+          </div>
         )}
+        <div
+          className={outgoing ? `page__pane page__pane--enter page__pane--${outgoing.direction === 1 ? 'fwd' : 'back'}` : undefined}
+        >
+          {renderTabContent(tab)}
+        </div>
       </div>
 
       <AboutSheet open={aboutOpen} onClose={() => setAboutOpen(false)} onGoTo={goToSection} />
