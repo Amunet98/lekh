@@ -7,33 +7,47 @@
   max-width: 1100px;
   margin: 0 auto;
   padding: var(--sp-5) clamp(var(--sp-4), 4vw, var(--sp-6)) clamp(var(--sp-5), 4vw, var(--sp-7));
+  /* Lets the browser's touch-scroll recognizer keep vertical panning while
+     leaving horizontal drags to the swipe handlers in App.tsx — the same
+     reasoning as .cal__grid's touch-action in CalendarPage.css. */
+  touch-action: pan-y;
 }
 
 /* The directional slide between tabs — see the transition effect in App.tsx
    for why the reduced-motion opt-out lives in JS instead of a media query
    here, unlike everywhere else in this app.
  *
- * Only .page__pane--exit takes position: absolute; the entering pane stays
- * in normal flow (position: relative only to make z-index apply) so .page's
- * height still comes from the tab actually being switched *to*, not from an
- * empty box with two absolutely-positioned children and nothing left to
- * size it. The exit pane's inset: 0 then overlays it against whatever
- * height that turns out to be.
+ * Both panes are placed in the *same* grid cell (grid-row/grid-column: 1 in
+ * .page__pane below) rather than one absolute and one in flow. A grid track
+ * sizes to the tallest item placed in it even when several items share a
+ * cell, so .page's height during the transition is the taller of the two
+ * tabs' natural heights — neither pane needs to guess the other's size, and
+ * nothing snaps to a shorter height mid-slide only to clip the taller
+ * content that's still animating out. (The first version of this used
+ * position: absolute on the exit pane, which meant .page's height came
+ * from whichever pane was still in normal flow — the *new* tab's height,
+ * applied the instant React re-rendered, before the old tab had visibly
+ * gone anywhere. Going to a shorter tab, that cut the outgoing pane off at
+ * the new height rather than letting it slide away in full — the "jump and
+ * clip" this replaces.)
  *
  * overflow: hidden only while .page--transitioning — the rest of the time
  * .page must stay unclipped, same as it must stay untransformed (see
  * .page--is-booting below): nothing here should risk becoming a clipping or
  * containing-block hazard for the rest of the page. */
 .page--transitioning {
+  display: grid;
   overflow: hidden;
 }
+.page--transitioning .page__pane {
+  grid-row: 1;
+  grid-column: 1;
+  min-width: 0;
+}
 .page__pane--enter {
-  position: relative;
   z-index: 2;
 }
 .page__pane--exit {
-  position: absolute;
-  inset: 0;
   z-index: 1;
 }
 .page__pane--fwd.page__pane--enter {
