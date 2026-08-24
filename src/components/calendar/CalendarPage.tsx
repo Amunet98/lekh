@@ -20,7 +20,6 @@ import {
 } from '../../lib/calendar/nepaliDate'
 import { COVERAGE } from '../../lib/calendar/panchang'
 import { useMonthPanchang } from '../../hooks/useMonthPanchang'
-import { useSwipe } from '../../hooks/useSwipe'
 import { DateConverter } from './DateConverter'
 import './CalendarPage.css'
 
@@ -106,12 +105,6 @@ export function CalendarPage() {
     setView(next)
   }
 
-  // The grid owns horizontal swipes outright — stopPropagation on both ends
-  // of the gesture keeps it from ever reaching App's page-level swipe (which
-  // switches tabs), rather than relying on the two conflicting only when
-  // App's own threshold also happens to trigger.
-  const monthSwipe = useSwipe(goto)
-
   /* Named holidays only. The source flags a lot of bare weekend days as
      holidays — inconsistently, at that: 29 of 53 Saturdays in BS 2081 but 48
      of 52 in BS 2082 — which filled this list with unnamed rows and buried the
@@ -171,23 +164,7 @@ export function CalendarPage() {
         </button>
       )}
 
-      <div
-        className="cal__grid"
-        role="grid"
-        aria-label={`${NP_MONTHS_EN[view.month]} ${view.year}`}
-        onTouchStart={(e) => {
-          e.stopPropagation()
-          monthSwipe.onTouchStart(e)
-        }}
-        onTouchMove={(e) => {
-          e.stopPropagation()
-          monthSwipe.onTouchMove(e)
-        }}
-        onTouchEnd={(e) => {
-          e.stopPropagation()
-          monthSwipe.onTouchEnd(e)
-        }}
-      >
+      <div className="cal__grid" role="grid" aria-label={`${NP_MONTHS_EN[view.month]} ${view.year}`}>
         <div className="cal__weekdays" role="row">
           {NP_WEEKDAYS_SHORT.map((d, i) => {
             /* Sunday is highlighted only for months the two-day weekend

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslateState } from './hooks/useTranslateState'
-import { useSwipe } from './hooks/useSwipe'
 import { TabSwitcher, type Tab } from './components/TabSwitcher'
 import { LekhMark } from './components/LekhMark'
 import { TypePage } from './components/TypePage'
@@ -93,26 +92,6 @@ function App() {
   const goToSection = (next: Tab) => {
     setTab(next)
     setAboutOpen(false)
-  }
-
-  /* Swipe between tabs, in the same left-to-right order as the tab bar and
-     Alt+1..3 below. Patro's month grid owns horizontal swipes over itself
-     outright (stopPropagation on both ends, see CalendarPage) so a swipe
-     there pages the month, never the tab — this only ever sees gestures
-     that started somewhere else on the page. Clamped, not wrapping: swiping
-     forward past Patro or back past Type is a no-op, same as the tab bar
-     having no wraparound of its own. */
-  const tabSwipe = useSwipe((direction) => {
-    const next = TABS.indexOf(tab) + direction
-    if (next >= 0 && next < TABS.length) goToSection(TABS[next])
-  })
-  const onPageTouchStart = (e: React.TouchEvent) => {
-    if (booting || aboutOpen) return
-    // A drag inside a text field or a native form control is that control's
-    // own gesture (caret placement, text selection, a <select>'s own touch
-    // handling) — never hijacked into a tab switch.
-    if ((e.target as HTMLElement).closest('textarea, input, select, [contenteditable="true"]')) return
-    tabSwipe.onTouchStart(e)
   }
 
   /* The directional slide between tabs — enter-only, not a two-pane
@@ -261,12 +240,7 @@ function App() {
           </div>
         </div>
       </header>
-      <div
-        className={`page${booting ? ' page--is-booting' : ''}${entering ? ' page--transitioning' : ''}`}
-        onTouchStart={onPageTouchStart}
-        onTouchMove={tabSwipe.onTouchMove}
-        onTouchEnd={tabSwipe.onTouchEnd}
-      >
+      <div className={`page${booting ? ' page--is-booting' : ''}${entering ? ' page--transitioning' : ''}`}>
         <div
           className={
             entering ? `page__pane page__pane--${entering.direction === 1 ? 'fwd' : 'back'}` : undefined

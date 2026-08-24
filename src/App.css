@@ -7,10 +7,6 @@
   max-width: 1100px;
   margin: 0 auto;
   padding: var(--sp-5) clamp(var(--sp-4), 4vw, var(--sp-6)) clamp(var(--sp-5), 4vw, var(--sp-7));
-  /* Lets the browser's touch-scroll recognizer keep vertical panning while
-     leaving horizontal drags to the swipe handlers in App.tsx — the same
-     reasoning as .cal__grid's touch-action in CalendarPage.css. */
-  touch-action: pan-y;
 }
 
 /* The directional slide between tabs — enter-only (see the transition

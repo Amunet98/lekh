@@ -84,13 +84,6 @@
   display: flex;
   flex-direction: column;
   gap: 1px;
-  /* Tells the browser's own touch-scroll recognizer to leave horizontal
-     drags on this element alone — without it, a swipe here was competing
-     with the browser's native diagonal-scroll heuristic for the same
-     gesture, which is most of why month-swipe read as unresponsive rather
-     than actually failing to detect anything. Vertical panning (the page
-     scroll) still passes straight through. */
-  touch-action: pan-y;
 }
 .cal__weekdays {
   display: grid;
