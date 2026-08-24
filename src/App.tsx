@@ -115,26 +115,29 @@ function App() {
     tabSwipe.onTouchStart(e)
   }
 
-  /* The directional slide between tabs. TRANSITION_MS both drives the CSS
-     animation (see .page__pane--enter/--exit in App.css) and how long the
-     outgoing pane stays mounted here — the two have to agree or the pane
-     either vanishes mid-animation or lingers, inert, after it's finished.
-     prevTabRef (not state) tracks the tab we're animating *from*: reading it
-     inside the effect after every tab change, then overwriting it, is what
-     lets rapid re-switching interrupt cleanly rather than animating from a
-     stale starting point.
+  /* The directional slide between tabs — enter-only, not a two-pane
+     enter/exit. An earlier version also re-mounted a frozen copy of the tab
+     just left so it could visibly slide away underneath; on a phone that
+     meant two complete page trees (Patro's month grid included) mounting,
+     computing and painting at the same moment the CSS animation needed a
+     clean run of frames, which is what actually made the slide stutter —
+     not the animation itself, which was always just a transform/opacity.
+     Animating only the pane that was going to mount anyway, doing no more
+     work than a plain tab switch already did, removes that cost outright
+     rather than trying to make the extra mount cheaper.
    *
-   * Checked once per switch rather than left to a CSS media query, unlike
-   * every other reduced-motion guard in this app: those only ever suppress
-   * a cosmetic animation on a single already-mounted element. This one
-   * decides whether a *second* DOM node (the outgoing pane) exists at all —
-   * skip the check and reduced-motion users would get two full-opacity
-   * panes stacked on top of each other for the whole transition window,
-   * which is a broken render, not just a missing animation. */
+   * prevTabRef (not state) tracks the tab being switched *from*: reading it
+   * inside the effect after every change, then overwriting it, is what lets
+   * rapid re-switching restart the animation cleanly rather than compounding.
+   *
+   * Reduced-motion is skipped in JS, same principle as before even though
+   * there's now only one pane: without it this still adds transform/opacity
+   * animation and an overflow: hidden clip that reduced-motion users asked
+   * not to get, even if it's no longer a two-pane correctness hazard. */
   const TRANSITION_MS = 420
   const prevTabRef = useRef<Tab>(tab)
   const transitionTimerRef = useRef<number | undefined>(undefined)
-  const [outgoing, setOutgoing] = useState<{ tab: Tab; direction: 1 | -1 } | null>(null)
+  const [entering, setEntering] = useState<{ direction: 1 | -1 } | null>(null)
 
   useEffect(() => {
     const prev = prevTabRef.current
@@ -148,9 +151,9 @@ function App() {
     }
     if (reduced) return
     const direction: 1 | -1 = TABS.indexOf(tab) > TABS.indexOf(prev) ? 1 : -1
-    setOutgoing({ tab: prev, direction })
+    setEntering({ direction })
     window.clearTimeout(transitionTimerRef.current)
-    transitionTimerRef.current = window.setTimeout(() => setOutgoing(null), TRANSITION_MS)
+    transitionTimerRef.current = window.setTimeout(() => setEntering(null), TRANSITION_MS)
   }, [tab])
 
   useEffect(() => () => window.clearTimeout(transitionTimerRef.current), [])
@@ -259,29 +262,15 @@ function App() {
         </div>
       </header>
       <div
-        className={`page${booting ? ' page--is-booting' : ''}${outgoing ? ' page--transitioning' : ''}`}
+        className={`page${booting ? ' page--is-booting' : ''}${entering ? ' page--transitioning' : ''}`}
         onTouchStart={onPageTouchStart}
         onTouchMove={tabSwipe.onTouchMove}
         onTouchEnd={tabSwipe.onTouchEnd}
       >
-        {/* The outgoing pane is a frozen snapshot of the tab we just left —
-            not a live one, since that component has already unmounted from
-            `tab`'s own branch below. Re-mounting it here just to animate its
-            exit is deliberate: cheaper than keeping every tab's state alive
-            at all times purely for a 420ms slide, and each page's own state
-            (translateState aside, which is lifted) doesn't need to survive
-            being swiped away from. */}
-        {outgoing && (
-          <div
-            className={`page__pane page__pane--exit page__pane--${outgoing.direction === 1 ? 'fwd' : 'back'}`}
-            aria-hidden="true"
-            inert
-          >
-            {renderTabContent(outgoing.tab)}
-          </div>
-        )}
         <div
-          className={outgoing ? `page__pane page__pane--enter page__pane--${outgoing.direction === 1 ? 'fwd' : 'back'}` : undefined}
+          className={
+            entering ? `page__pane page__pane--${entering.direction === 1 ? 'fwd' : 'back'}` : undefined
+          }
         >
           {renderTabContent(tab)}
         </div>

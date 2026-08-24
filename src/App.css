@@ -13,54 +13,40 @@
   touch-action: pan-y;
 }
 
-/* The directional slide between tabs — see the transition effect in App.tsx
-   for why the reduced-motion opt-out lives in JS instead of a media query
-   here, unlike everywhere else in this app.
+/* The directional slide between tabs — enter-only (see the transition
+   effect in App.tsx for why there's no exit pane any more), so .page's
+   height comes from the one pane that's actually there, the same as when
+   nothing is animating at all. Nothing here needs the grid-stacking or
+   z-index a two-pane version would.
  *
- * Both panes are placed in the *same* grid cell (grid-row/grid-column: 1 in
- * .page__pane below) rather than one absolute and one in flow. A grid track
- * sizes to the tallest item placed in it even when several items share a
- * cell, so .page's height during the transition is the taller of the two
- * tabs' natural heights — neither pane needs to guess the other's size, and
- * nothing snaps to a shorter height mid-slide only to clip the taller
- * content that's still animating out. (The first version of this used
- * position: absolute on the exit pane, which meant .page's height came
- * from whichever pane was still in normal flow — the *new* tab's height,
- * applied the instant React re-rendered, before the old tab had visibly
- * gone anywhere. Going to a shorter tab, that cut the outgoing pane off at
- * the new height rather than letting it slide away in full — the "jump and
- * clip" this replaces.)
+ * will-change tells the browser to promote this pane to its own compositor
+ * layer *before* the animation starts rather than the moment it does — on a
+ * phone, promoting a layer with a page's worth of content already in it
+ * mid-animation is itself a dropped frame or two, which is a second,
+ * independent way this could stutter beyond the double-mount cost the
+ * comment in App.tsx describes.
  *
  * overflow: hidden only while .page--transitioning — the rest of the time
  * .page must stay unclipped, same as it must stay untransformed (see
  * .page--is-booting below): nothing here should risk becoming a clipping or
- * containing-block hazard for the rest of the page. */
+ * containing-block hazard for the rest of the page.
+ *
+ * Reduced-motion opt-out lives in JS (see App.tsx) rather than a media query
+ * here, unlike everywhere else in this app — kept that way even with only
+ * one pane now, so a reduced-motion user never pays for the will-change
+ * promotion or the clip either. */
 .page--transitioning {
-  display: grid;
   overflow: hidden;
 }
-.page--transitioning .page__pane {
-  grid-row: 1;
-  grid-column: 1;
-  min-width: 0;
+.page__pane--fwd,
+.page__pane--back {
+  will-change: transform, opacity;
 }
-.page__pane--enter {
-  z-index: 2;
-}
-.page__pane--exit {
-  z-index: 1;
-}
-.page__pane--fwd.page__pane--enter {
+.page__pane--fwd {
   animation: page-enter-fwd var(--dur-slow) var(--ease-expo) forwards;
 }
-.page__pane--fwd.page__pane--exit {
-  animation: page-exit-fwd var(--dur-slow) var(--ease-expo) forwards;
-}
-.page__pane--back.page__pane--enter {
+.page__pane--back {
   animation: page-enter-back var(--dur-slow) var(--ease-expo) forwards;
-}
-.page__pane--back.page__pane--exit {
-  animation: page-exit-back var(--dur-slow) var(--ease-expo) forwards;
 }
 @keyframes page-enter-fwd {
   from {
@@ -72,20 +58,6 @@
     opacity: 1;
   }
 }
-@keyframes page-exit-fwd {
-  from {
-    transform: translateX(0);
-    opacity: 1;
-  }
-  to {
-    /* A partial exit, not the full 100% the entering pane travels — the
-       outgoing content only needs to clear enough to read as "moving away
-       behind" while it fades, the same parallax a native push transition
-       uses rather than two panes racing across the screen at equal speed. */
-    transform: translateX(-30%);
-    opacity: 0;
-  }
-}
 @keyframes page-enter-back {
   from {
     transform: translateX(-100%);
@@ -94,16 +66,6 @@
   to {
     transform: translateX(0);
     opacity: 1;
-  }
-}
-@keyframes page-exit-back {
-  from {
-    transform: translateX(0);
-    opacity: 1;
-  }
-  to {
-    transform: translateX(30%);
-    opacity: 0;
   }
 }
 
