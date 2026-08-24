@@ -16,6 +16,21 @@ const LARGE_FILE_BYTES = 15 * 1024 * 1024
 
 export const FILE_ACCEPT = 'image/*,.pdf,.docx,.txt'
 
+// Downscaled copy of an uploaded photo for the filename chip — the original
+// canvas can be several megapixels and isn't kept around after OCR reads it,
+// so this is generated once up front, small enough to sit inline as a data
+// URL without holding onto real image memory for the rest of the session.
+function makeThumbnail(canvas: HTMLCanvasElement, size = 40): string {
+  const scale = Math.min(1, size / Math.max(canvas.width, canvas.height))
+  const w = Math.max(1, Math.round(canvas.width * scale))
+  const h = Math.max(1, Math.round(canvas.height * scale))
+  const thumb = document.createElement('canvas')
+  thumb.width = w
+  thumb.height = h
+  thumb.getContext('2d')?.drawImage(canvas, 0, 0, w, h)
+  return thumb.toDataURL('image/jpeg', 0.7)
+}
+
 /**
  * Everything about turning a dropped/picked file (or camera-captured photo)
  * into source text — drag-and-drop, OCR/extraction, and the upload-specific
@@ -37,6 +52,7 @@ export function useUploadState(t: TranslateState, fileInputRef: RefObject<HTMLIn
   const [readLabel, setReadLabel] = useState('Reading text…')
   const [readProgress, setReadProgress] = useState<number | null>(null)
   const [currentFile, setCurrentFile] = useState<string | null>(null)
+  const [currentThumbnail, setCurrentThumbnail] = useState<string | null>(null)
   const [unsupportedExt, setUnsupportedExt] = useState<string | null>(null)
   const [largeFileWarning, setLargeFileWarning] = useState(false)
   // Set when an image's OCR result doesn't look like the expected source
@@ -63,6 +79,7 @@ export function useUploadState(t: TranslateState, fileInputRef: RefObject<HTMLIn
     setScriptMismatch(null)
     setUnsupportedExt(null)
     setCurrentFile(input.kind === 'image' ? input.name : input.file.name)
+    setCurrentThumbnail(input.kind === 'image' ? makeThumbnail(input.canvas) : null)
     setLargeFileWarning(input.kind === 'file' && input.file.size > LARGE_FILE_BYTES)
     // A stale translation of the *previous* upload would otherwise sit on
     // screen through the whole read — and in on-device mode, which only
@@ -124,6 +141,7 @@ export function useUploadState(t: TranslateState, fileInputRef: RefObject<HTMLIn
 
   const clearUpload = () => {
     setCurrentFile(null)
+    setCurrentThumbnail(null)
     setScriptMismatch(null)
     setUnsupportedExt(null)
     setReadStatus('idle')
@@ -167,6 +185,24 @@ export function useUploadState(t: TranslateState, fileInputRef: RefObject<HTMLIn
     acceptFile(file)
   }
 
+  // Screenshot-paste. Only intercepts when the clipboard actually carries an
+  // image — anything else (plain text, a copied sentence) falls through to
+  // the textarea's native paste untouched.
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items
+    if (!items) return
+    for (const item of items) {
+      if (item.kind === 'file' && item.type.startsWith('image/')) {
+        const file = item.getAsFile()
+        if (file) {
+          e.preventDefault()
+          acceptFile(file)
+        }
+        return
+      }
+    }
+  }
+
   const onDragEnter = (e: React.DragEvent) => {
     e.preventDefault()
     dragDepth.current += 1
@@ -191,6 +227,7 @@ export function useUploadState(t: TranslateState, fileInputRef: RefObject<HTMLIn
     readLabel,
     readProgress,
     currentFile,
+    currentThumbnail,
     unsupportedExt,
     largeFileWarning,
     scriptMismatch,
@@ -199,6 +236,7 @@ export function useUploadState(t: TranslateState, fileInputRef: RefObject<HTMLIn
     retryWithCorrectDirection,
     openFilePicker,
     handleFileInputChange,
+    handlePaste,
     onDragEnter,
     onDragOver,
     onDragLeave,

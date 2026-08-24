@@ -110,12 +110,119 @@
   }
 }
 
+/* A second, icon-only pill next to "upload" — same accent tint, square
+   instead of padded-with-a-label since a camera glyph reads on its own. */
+.pane-camera-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  padding: 0;
+  color: var(--accent-text);
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+}
+@media (hover: hover) {
+  .pane-camera-btn:hover:not(:disabled) {
+    background: var(--accent);
+    color: var(--on-accent);
+    border-color: var(--accent);
+  }
+}
+
 /* Dragging a file over the source pane — same accent highlight FileUpload's
    dropzone used to show, applied to the textarea itself since that's this
    pane's only visible chrome (the pane div otherwise has none of its own). */
 .translate-pane--dragging .translate-input {
   border-color: var(--accent);
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+/* A sweep across the textarea itself while OCR/extraction runs, layered on
+   top of its own background rather than a separate overlay element — the
+   progress bar below already carries the percentage, this just makes the
+   pane read as "busy" at a glance instead of looking idle underneath it. */
+.translate-pane--reading .translate-input {
+  background-image: linear-gradient(
+    100deg,
+    transparent 30%,
+    color-mix(in srgb, var(--accent) 14%, transparent) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: upload-shimmer 1.6s ease-in-out infinite;
+}
+@keyframes upload-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .translate-pane--reading .translate-input {
+    animation: none;
+    background-image: none;
+    background-color: var(--accent-bg);
+  }
+}
+
+.translate-input-wrap {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+}
+.translate-input-wrap .translate-input {
+  width: 100%;
+}
+
+/* The empty-state affordance that replaced the textarea's own placeholder —
+   a plain placeholder can't carry a format list without turning into one
+   long run-on sentence, and it disappears the moment focus lands rather than
+   the moment there's actually content, which made it blink out on tab or a
+   stray click before anyone had typed anything. This instead tracks
+   `isEmpty` in JSX, and doubles as the field's aria-describedby so the
+   instructions still reach screen readers once the box isn't empty. */
+.upload-hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  padding: var(--sp-4);
+  text-align: center;
+  color: var(--muted);
+  pointer-events: none;
+}
+.upload-hint__type {
+  font-family: var(--devanagari);
+  font-size: 1rem;
+  color: var(--muted);
+}
+.upload-hint__or {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+.upload-hint__formats {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.upload-hint__formats span {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  padding: 0.15rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  color: var(--muted);
 }
 
 /* Uploaded/dropped filename, with a way to remove it without retyping
@@ -130,7 +237,17 @@
   border-radius: var(--radius-pill);
   background: var(--surface);
 }
+.upload-current__thumb {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
 .upload-current__name {
+  flex: 1 1 auto;
+  min-width: 0;
   font-family: var(--sans);
   font-size: 0.85rem;
   color: var(--text-h);

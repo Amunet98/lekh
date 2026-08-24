@@ -12,6 +12,27 @@ interface TranslatePageProps {
   t: TranslateState
 }
 
+// Not in SectionIcon — that set is deliberately scoped to nav destinations
+// (see its own header comment), and a camera has no destination of its own.
+function CameraIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M4 8h3l2-2h6l2 2h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z" />
+      <circle cx="12" cy="13" r="3.5" />
+    </svg>
+  )
+}
+
 /* Upload used to be its own tab. It reused this page's toolbar, output pane,
  * actions and downloads wholesale — the only things it actually added were a
  * dropzone, OCR/extraction progress, a filename chip, and a script-mismatch
@@ -24,6 +45,7 @@ interface TranslatePageProps {
  */
 export function TranslatePage({ t }: TranslatePageProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const cameraInputRef = useRef<HTMLInputElement>(null)
   const upload = useUploadState(t, fileInputRef)
   const isEmpty = t.sourceText.length === 0
 
@@ -62,7 +84,9 @@ export function TranslatePage({ t }: TranslatePageProps) {
 
       <div className="translate-panes">
         <div
-          className={`translate-pane${upload.dragging ? ' translate-pane--dragging' : ''}`}
+          className={`translate-pane${upload.dragging ? ' translate-pane--dragging' : ''}${
+            upload.readStatus === 'reading' ? ' translate-pane--reading' : ''
+          }`}
           onDragEnter={upload.onDragEnter}
           onDragOver={upload.onDragOver}
           onDragLeave={upload.onDragLeave}
@@ -83,6 +107,19 @@ export function TranslatePage({ t }: TranslatePageProps) {
                 <SectionIcon name="upload" size={14} />
                 upload
               </button>
+              {/* A second capture-mode input rather than a second visible
+                  affordance for "browse" vs "camera" — most phones already
+                  offer camera as one of the file-picker's own options, this
+                  button just skips that extra tap and jumps straight to it. */}
+              <button
+                type="button"
+                className="btn pane-camera-btn"
+                title="Take a photo"
+                aria-label="Take a photo"
+                onClick={() => cameraInputRef.current?.click()}
+              >
+                <CameraIcon size={14} />
+              </button>
               {/* Hidden once a file's uploaded — the "remove" button on its
                   filename chip below does the exact same thing, and showing
                   both reads as two controls where there's only one action. */}
@@ -100,9 +137,20 @@ export function TranslatePage({ t }: TranslatePageProps) {
             hidden
             onChange={upload.handleFileInputChange}
           />
+          <input
+            ref={cameraInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            hidden
+            onChange={upload.handleFileInputChange}
+          />
 
           {upload.currentFile && (
             <div className="upload-current">
+              {upload.currentThumbnail && (
+                <img className="upload-current__thumb" src={upload.currentThumbnail} alt="" />
+              )}
               <span className="upload-current__name">{upload.currentFile}</span>
               <button type="button" className="btn" onClick={upload.clearUpload}>
                 remove
@@ -166,14 +214,42 @@ export function TranslatePage({ t }: TranslatePageProps) {
             </div>
           )}
 
-          <textarea
-            id="translate-source"
-            className="translate-input dev"
-            rows={6}
-            placeholder="Type English or Nepali (or romanized Nepali like 'mero naam')… or drop a photo, PDF, DOCX or TXT"
-            value={t.sourceText}
-            onChange={(e) => t.setSourceText(e.target.value)}
-          />
+          <div className="translate-input-wrap">
+            <textarea
+              id="translate-source"
+              className="translate-input dev"
+              rows={6}
+              aria-describedby={isEmpty ? 'translate-source-hint' : undefined}
+              value={t.sourceText}
+              onChange={(e) => t.setSourceText(e.target.value)}
+              onPaste={upload.handlePaste}
+            />
+            {/* Shown only over the truly empty, idle pane — once there's
+                text, a file, an in-progress read or an active drag, those
+                already say what's happening and this would just be visual
+                noise stacked on top. pointer-events: none lets a click here
+                still land on and focus the textarea underneath. */}
+            {isEmpty &&
+              !upload.currentFile &&
+              upload.readStatus === 'idle' &&
+              !upload.dragging && (
+                <div className="upload-hint" id="translate-source-hint">
+                  <p className="upload-hint__type">
+                    Type English or Nepali — romanized works too, like &lsquo;mero naam&rsquo;
+                  </p>
+                  <div className="upload-hint__or">
+                    <SectionIcon name="upload" size={18} />
+                    <span>or drop, paste, or upload a photo or document</span>
+                  </div>
+                  <div className="upload-hint__formats">
+                    <span>image</span>
+                    <span>.pdf</span>
+                    <span>.docx</span>
+                    <span>.txt</span>
+                  </div>
+                </div>
+              )}
+          </div>
         </div>
         <div className="translate-pane">
           {/* Wrapped in the same header class as the source pane (even with
