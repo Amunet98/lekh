@@ -9,62 +9,6 @@
   padding: var(--sp-5) clamp(var(--sp-4), 4vw, var(--sp-6)) clamp(var(--sp-5), 4vw, var(--sp-7));
 }
 
-/* The directional slide between tabs — enter-only (see the transition
-   effect in App.tsx for why there's no exit pane any more), so .page's
-   height comes from the one pane that's actually there, the same as when
-   nothing is animating at all. Nothing here needs the grid-stacking or
-   z-index a two-pane version would.
- *
- * will-change tells the browser to promote this pane to its own compositor
- * layer *before* the animation starts rather than the moment it does — on a
- * phone, promoting a layer with a page's worth of content already in it
- * mid-animation is itself a dropped frame or two, which is a second,
- * independent way this could stutter beyond the double-mount cost the
- * comment in App.tsx describes.
- *
- * overflow: hidden only while .page--transitioning — the rest of the time
- * .page must stay unclipped, same as it must stay untransformed (see
- * .page--is-booting below): nothing here should risk becoming a clipping or
- * containing-block hazard for the rest of the page.
- *
- * Reduced-motion opt-out lives in JS (see App.tsx) rather than a media query
- * here, unlike everywhere else in this app — kept that way even with only
- * one pane now, so a reduced-motion user never pays for the will-change
- * promotion or the clip either. */
-.page--transitioning {
-  overflow: hidden;
-}
-.page__pane--fwd,
-.page__pane--back {
-  will-change: transform, opacity;
-}
-.page__pane--fwd {
-  animation: page-enter-fwd var(--dur-slow) var(--ease-expo) forwards;
-}
-.page__pane--back {
-  animation: page-enter-back var(--dur-slow) var(--ease-expo) forwards;
-}
-@keyframes page-enter-fwd {
-  from {
-    transform: translateX(100%);
-    opacity: 0.6;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-@keyframes page-enter-back {
-  from {
-    transform: translateX(-100%);
-    opacity: 0.6;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
 /* App bar — one strip carrying brand, section nav and actions.
  *
  * THE BLUR IS ON ::before AND THAT IS LOAD-BEARING.

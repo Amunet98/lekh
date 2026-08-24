@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslateState } from './hooks/useTranslateState'
 import { TabSwitcher, type Tab } from './components/TabSwitcher'
 import { LekhMark } from './components/LekhMark'
@@ -93,52 +93,6 @@ function App() {
     setTab(next)
     setAboutOpen(false)
   }
-
-  /* The directional slide between tabs — enter-only, not a two-pane
-     enter/exit. An earlier version also re-mounted a frozen copy of the tab
-     just left so it could visibly slide away underneath; on a phone that
-     meant two complete page trees (Patro's month grid included) mounting,
-     computing and painting at the same moment the CSS animation needed a
-     clean run of frames, which is what actually made the slide stutter —
-     not the animation itself, which was always just a transform/opacity.
-     Animating only the pane that was going to mount anyway, doing no more
-     work than a plain tab switch already did, removes that cost outright
-     rather than trying to make the extra mount cheaper.
-   *
-   * prevTabRef (not state) tracks the tab being switched *from*: reading it
-   * inside the effect after every change, then overwriting it, is what lets
-   * rapid re-switching restart the animation cleanly rather than compounding.
-   *
-   * Reduced-motion is skipped in JS, same principle as before even though
-   * there's now only one pane: without it this still adds transform/opacity
-   * animation and an overflow: hidden clip that reduced-motion users asked
-   * not to get, even if it's no longer a two-pane correctness hazard. */
-  const TRANSITION_MS = 420
-  const prevTabRef = useRef<Tab>(tab)
-  const transitionTimerRef = useRef<number | undefined>(undefined)
-  const [entering, setEntering] = useState<{ direction: 1 | -1 } | null>(null)
-
-  useEffect(() => {
-    const prev = prevTabRef.current
-    prevTabRef.current = tab
-    if (prev === tab) return
-    let reduced = false
-    try {
-      reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
-    } catch {
-      reduced = false
-    }
-    if (reduced) return
-    const direction: 1 | -1 = TABS.indexOf(tab) > TABS.indexOf(prev) ? 1 : -1
-    setEntering({ direction })
-    window.clearTimeout(transitionTimerRef.current)
-    transitionTimerRef.current = window.setTimeout(() => setEntering(null), TRANSITION_MS)
-  }, [tab])
-
-  useEffect(() => () => window.clearTimeout(transitionTimerRef.current), [])
-
-  const renderTabContent = (t: Tab) =>
-    t === 'type' ? <TypePage /> : t === 'translate' ? <TranslatePage t={translateState} /> : <CalendarPage />
 
   /* Alt+1..3 switch tabs, matching TABS' left-to-right order. Alt-digit isn't
      text any browser inserts into a focused field, and useEditorState's own
@@ -240,14 +194,14 @@ function App() {
           </div>
         </div>
       </header>
-      <div className={`page${booting ? ' page--is-booting' : ''}${entering ? ' page--transitioning' : ''}`}>
-        <div
-          className={
-            entering ? `page__pane page__pane--${entering.direction === 1 ? 'fwd' : 'back'}` : undefined
-          }
-        >
-          {renderTabContent(tab)}
-        </div>
+      <div className={`page${booting ? ' page--is-booting' : ''}`}>
+        {tab === 'type' ? (
+          <TypePage />
+        ) : tab === 'translate' ? (
+          <TranslatePage t={translateState} />
+        ) : (
+          <CalendarPage />
+        )}
       </div>
 
       <AboutSheet open={aboutOpen} onClose={() => setAboutOpen(false)} onGoTo={goToSection} />
