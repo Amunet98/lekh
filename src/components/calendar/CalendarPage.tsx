@@ -20,6 +20,7 @@ import {
 } from '../../lib/calendar/nepaliDate'
 import { COVERAGE } from '../../lib/calendar/panchang'
 import { useMonthPanchang } from '../../hooks/useMonthPanchang'
+import { useSwipe } from '../../hooks/useSwipe'
 import { DateConverter } from './DateConverter'
 import './CalendarPage.css'
 
@@ -40,6 +41,55 @@ function formatAd(date: Date): string {
   return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
+function pad2(n: number): string {
+  return String(n).padStart(2, '0')
+}
+
+// Local calendar components, not toISOString — the same one-day trap as
+// formatAd above: reading a local-midnight Date back as UTC can shift the
+// date it names.
+function icsDate(date: Date): string {
+  return `${date.getFullYear()}${pad2(date.getMonth() + 1)}${pad2(date.getDate())}`
+}
+
+// DTSTAMP is a real UTC instant (when the file was generated), not a
+// calendar date, so toISOString is the correct tool here rather than the
+// trap it is for icsDate above.
+function icsStamp(date: Date): string {
+  return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
+}
+
+function icsEscape(s: string): string {
+  return s.replace(/\\/g, '\\\\').replace(/,/g, '\\,').replace(/;/g, '\\;').replace(/\n/g, '\\n')
+}
+
+function downloadIcs(names: string[], date: Date) {
+  const end = new Date(date)
+  end.setDate(end.getDate() + 1)
+  const uid = `${icsDate(date)}-${Math.random().toString(36).slice(2)}@lekh-patro`
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Lekh Patro//EN',
+    'CALSCALE:GREGORIAN',
+    'BEGIN:VEVENT',
+    `UID:${uid}`,
+    `DTSTAMP:${icsStamp(new Date())}`,
+    `DTSTART;VALUE=DATE:${icsDate(date)}`,
+    `DTEND;VALUE=DATE:${icsDate(end)}`,
+    `SUMMARY:${icsEscape(names.join(', '))}`,
+    'END:VEVENT',
+    'END:VCALENDAR',
+  ]
+  const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'lekh-patro-holiday.ics'
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 export function CalendarPage() {
   const today = useMemo(() => todayBs(), [])
   const [view, setView] = useState({ year: today.year, month: today.month })
@@ -55,6 +105,12 @@ export function CalendarPage() {
     const next = stepMonth(view.year, view.month, delta)
     setView(next)
   }
+
+  // The grid owns horizontal swipes outright — stopPropagation on both ends
+  // of the gesture keeps it from ever reaching App's page-level swipe (which
+  // switches tabs), rather than relying on the two conflicting only when
+  // App's own threshold also happens to trigger.
+  const monthSwipe = useSwipe(goto)
 
   /* Named holidays only. The source flags a lot of bare weekend days as
      holidays — inconsistently, at that: 29 of 53 Saturdays in BS 2081 but 48
@@ -115,7 +171,23 @@ export function CalendarPage() {
         </button>
       )}
 
-      <div className="cal__grid" role="grid" aria-label={`${NP_MONTHS_EN[view.month]} ${view.year}`}>
+      <div
+        className="cal__grid"
+        role="grid"
+        aria-label={`${NP_MONTHS_EN[view.month]} ${view.year}`}
+        onTouchStart={(e) => {
+          e.stopPropagation()
+          monthSwipe.onTouchStart(e)
+        }}
+        onTouchMove={(e) => {
+          e.stopPropagation()
+          monthSwipe.onTouchMove(e)
+        }}
+        onTouchEnd={(e) => {
+          e.stopPropagation()
+          monthSwipe.onTouchEnd(e)
+        }}
+      >
         <div className="cal__weekdays" role="row">
           {NP_WEEKDAYS_SHORT.map((d, i) => {
             /* Sunday is highlighted only for months the two-day weekend
@@ -205,11 +277,20 @@ export function CalendarPage() {
           {selectedInfo?.tithi && <> · <span className="dev">{selectedInfo.tithi}</span></>}
         </p>
         {selectedInfo && selectedInfo.festivals.length > 0 ? (
-          <ul className="cal__detail-fest">
-            {selectedInfo.festivals.map((f) => (
-              <li key={f} className="dev">{f}</li>
-            ))}
-          </ul>
+          <>
+            <ul className="cal__detail-fest">
+              {selectedInfo.festivals.map((f) => (
+                <li key={f} className="dev">{f}</li>
+              ))}
+            </ul>
+            <button
+              type="button"
+              className="btn cal__detail-add"
+              onClick={() => downloadIcs(selectedInfo.festivals, selectedAd)}
+            >
+              add to calendar
+            </button>
+          </>
         ) : (
           <p className="cal__detail-none">
             {loading

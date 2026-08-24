@@ -1,4 +1,5 @@
 import type { TranslateState } from '../../hooks/useTranslateState'
+import { SHARE_AVAILABLE } from '../../lib/share'
 import './translate.css'
 
 const formatMB = (bytes: number) => `${Math.round(bytes / 1e6)} MB`
@@ -94,6 +95,11 @@ export function TranslationOutput({ t }: { t: TranslateState }) {
         <button type="button" className="btn" disabled={!t.translated} onClick={() => void t.copy()}>
           {t.copied ? 'copied' : 'copy'}
         </button>
+        {SHARE_AVAILABLE && (
+          <button type="button" className="btn" disabled={!t.translated} onClick={() => void t.share()}>
+            share
+          </button>
+        )}
       </div>
     </>
   )

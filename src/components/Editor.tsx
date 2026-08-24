@@ -1,6 +1,7 @@
 import type { RefObject } from 'react'
 import type { EditorState } from '../hooks/useEditorState'
 import { SAMPLES } from '../data/samples'
+import { SHARE_AVAILABLE } from '../lib/share'
 import './Editor.css'
 
 /* Exported so App can hand the caret over when the boot screen leaves without
@@ -136,6 +137,15 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
           <button type="button" className="btn" disabled={isEmpty} onClick={editor.copy}>
             {editor.copied ? 'copied' : 'copy'}
           </button>
+          {/* Feature-detected, not just tried-and-caught — a browser with no
+              navigator.share has no share sheet to fail into, so the button
+              itself shouldn't exist there rather than existing and erroring
+              on every tap. */}
+          {SHARE_AVAILABLE && (
+            <button type="button" className="btn" disabled={isEmpty} onClick={() => void editor.share()}>
+              share
+            </button>
+          )}
           {editor.lastCleared !== null ? (
             <button type="button" className="btn" onClick={editor.undoClear}>
               undo clear

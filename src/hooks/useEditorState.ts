@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { convert, suggest } from '../lib/engine'
 import type { Chip } from '../lib/engine/types'
+import { tick } from '../lib/haptics'
+import { shareText } from '../lib/share'
 
 const TEXT_KEY = 'lekh:editor-text'
 
@@ -112,6 +114,7 @@ export function useEditorState() {
   const chooseChip = useCallback(
     (chipText: string) => {
       triggerFlash()
+      tick()
       setText((t) => commitText(t, chipText) + ' ')
     },
     [triggerFlash],
@@ -170,6 +173,13 @@ export function useEditorState() {
     setTimeout(() => setCopied(false), 1600)
   }, [text])
 
+  const share = useCallback(async () => {
+    const committed = commitText(text)
+    setText(committed)
+    if (!committed) return
+    await shareText(committed)
+  }, [text])
+
   return {
     text,
     setText,
@@ -187,6 +197,7 @@ export function useEditorState() {
     lastCleared,
     undoClear,
     copy,
+    share,
     insertAtCursor,
     appendSample,
   }

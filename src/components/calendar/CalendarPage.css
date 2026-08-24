@@ -251,6 +251,9 @@
   font-size: 0.85rem;
   color: var(--muted);
 }
+.cal__detail-add {
+  margin-top: var(--sp-3);
+}
 
 /* Month holiday list */
 .cal__holidays h2,

@@ -13,6 +13,7 @@ import {
 import { romanizedToDevanagari } from '../lib/engine/romanize'
 import { memoryTier } from '../lib/translation/deviceMemory'
 import type { ModelLoadProgress } from '../lib/translation/provider'
+import { shareText } from '../lib/share'
 
 export type TranslateMode = 'online' | 'ondevice'
 export type Direction = 'ne-en' | 'en-ne'
@@ -238,6 +239,11 @@ export function useTranslateState() {
     setTimeout(() => setCopied(false), 1600)
   }, [translated])
 
+  const share = useCallback(async () => {
+    if (!translated) return
+    await shareText(translated)
+  }, [translated])
+
   const switchToOnDevice = useCallback(() => {
     setMode('ondevice')
     setError(null)
@@ -299,6 +305,7 @@ export function useTranslateState() {
     showConfirm,
     copied,
     copy,
+    share,
     runOnDevice,
     downloadModel,
     swap,
