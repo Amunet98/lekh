@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 4x1. -->
+<!-- 4x1. resizeMode includes vertical: dragged taller, the provider swaps in
+     widget_patro_wide_expanded (see BaseLekhWidgetProvider's EXPANDING ON
+     RESIZE) rather than just centering this row in more space. -->
 <!-- configuration_optional keeps the settings screen out of the way when a
      widget is placed (it uses whatever script is already set) while
      reconfigurable puts it behind a long-press on the placed widget.
@@ -12,7 +14,7 @@
     android:targetCellHeight="1"
     android:description="@string/widget_description_wide"
     android:previewLayout="@layout/widget_patro_wide"
-    android:resizeMode="horizontal"
+    android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"
     android:configure="np.com.bimeshpoudel.lekh.widget.LekhWidgetConfigActivity"
     android:widgetFeatures="configuration_optional|reconfigurable"

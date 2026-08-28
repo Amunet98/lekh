@@ -4,7 +4,11 @@
      A four-column launcher does not hide this — measured on one, it lists it
      and clamps it to four cells wide. targetCellWidth is a request, minWidth
      is the floor, and the layout is weighted so it degrades to the 4x1's
-     proportions rather than clipping. -->
+     proportions rather than clipping.
+
+     resizeMode includes vertical: dragged taller, the provider swaps in
+     widget_patro_xl_expanded (see BaseLekhWidgetProvider's EXPANDING ON
+     RESIZE) rather than just centering this row in more space. -->
 <!-- configuration_optional keeps the settings screen out of the way when a
      widget is placed (it uses whatever script is already set) while
      reconfigurable puts it behind a long-press on the placed widget.
@@ -17,7 +21,7 @@
     android:targetCellHeight="1"
     android:description="@string/widget_description_xl"
     android:previewLayout="@layout/widget_patro_xl"
-    android:resizeMode="horizontal"
+    android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"
     android:configure="np.com.bimeshpoudel.lekh.widget.LekhWidgetConfigActivity"
     android:widgetFeatures="configuration_optional|reconfigurable"

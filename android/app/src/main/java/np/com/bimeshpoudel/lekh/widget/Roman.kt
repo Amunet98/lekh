@@ -35,6 +35,7 @@ object Roman {
     val weekdayNames = arrayOf(
         "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",
     )
+    val weekdayShort = arrayOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
 
     /** All sixteen tithis in the data, spelled as Nepali sources usually do. */
     private val TITHI = mapOf(
