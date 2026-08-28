@@ -1,4 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- widget_surface is translucent (90% opacity), not solid.
+
+     A RemoteViews widget cannot blur what's behind it itself — there is no
+     API for that; real background blur is the launcher's job, drawn
+     underneath whatever the widget hands it. Nothing OS 5.0 (Android 17)
+     and some other launchers now do exactly that: a live Gaussian blur
+     behind every widget's card, as part of a translucent/frosted material
+     across the whole home screen. An opaque fill would paint straight over
+     that blur and just look like a flat card again; translucent lets it
+     read through, on the launchers that provide it.
+
+     On a launcher without that feature this still works fine on its own —
+     a soft frosted-over-wallpaper look — it just isn't live-blurred. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
     <solid android:color="@color/widget_surface" />
     <corners android:radius="20dp" />

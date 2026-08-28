@@ -28,11 +28,4 @@
          a translation gloss rather than the app's own word for the thing. -->
     <string name="shortcut_patro_short">Patro</string>
     <string name="shortcut_patro_long">Patro</string>
-
-    <!-- Widget configuration screen. -->
-    <string name="config_title">Patro widget</string>
-    <string name="config_prompt">Which script should the widget use?</string>
-    <string name="config_nepali">नेपाली · Nepali</string>
-    <string name="config_english">English</string>
-    <string name="config_note">Applies to every Lekh Patro widget on your home screen. Festival names not yet translated are transliterated.</string>
 </resources>

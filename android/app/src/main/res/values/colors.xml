@@ -11,7 +11,8 @@
 
     <color name="launch_background">#FAFAFB</color>
 
-    <color name="widget_surface">#FFFFFF</color>
+    <!-- Translucent, not opaque: see the comment on widget_background.xml for why. -->
+    <color name="widget_surface">#E6FFFFFF</color>
     <color name="widget_border">#DDE1E9</color>
     <color name="widget_text">#141824</color>
     <color name="widget_muted">#646C7E</color>
