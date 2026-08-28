@@ -11,9 +11,17 @@
      read through, on the launchers that provide it.
 
      On a launcher without that feature this still works fine on its own —
-     a soft frosted-over-wallpaper look — it just isn't live-blurred. -->
+     a soft frosted-over-wallpaper look — it just isn't live-blurred.
+
+     No stroke: most system/launcher widgets don't outline their own card,
+     leaning on the launcher's shadow/blur for separation instead, and a flat
+     solid-color outline stood out as an obviously hand-drawn extra layer
+     next to those — worse once the fill went translucent and started
+     sitting over a real blur on launchers that provide one.
+     @color/widget_border is still used for the internal dividers between
+     sections (see widget_patro_wide.xml / widget_patro_xl*.xml), just not
+     as the card's own edge. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
     <solid android:color="@color/widget_surface" />
     <corners android:radius="20dp" />
-    <stroke android:width="1dp" android:color="@color/widget_border" />
 </shape>
