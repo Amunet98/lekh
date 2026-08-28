@@ -19,15 +19,12 @@ memory to rebuild.
 क ख ग reference for the characters that are hard to guess.
 
 **Patro** — the Bikram Sambat calendar, with festivals and public holidays. No
-ads, ever. Add the home-screen widget in any of six sizes, from a compact date
-to a full week strip with the next festival. Nepali or English script, your
-choice.
+ads, ever. Add the home-screen widget in any of four sizes, from a compact
+date to a full week strip with the next festival.
 
-**Upload** — pull Nepali or English text out of photos, screenshots and PDFs.
-The image never leaves your phone.
-
-**Translate** — English ↔ Nepali. Download the offline model once and it works
-with no connection at all.
+**Translate** — English ↔ Nepali, with photos, screenshots, PDFs and
+documents dropped straight in. Download the offline model once and it works
+with no connection at all. Images never leave your phone.
 
 Typing, character recognition and the calendar all run on your device. There
 are no accounts, no advertising and no tracking of any kind. Lekh Patro is free and
