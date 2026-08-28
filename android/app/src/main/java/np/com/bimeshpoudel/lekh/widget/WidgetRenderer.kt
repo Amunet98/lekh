@@ -9,18 +9,12 @@ import java.time.format.DateTimeFormatter
 /**
  * Builds the widget's RemoteViews for a given layout.
  *
- * All six layouts declare the same view ids, and each hides the ones its shape
+ * All four layouts declare the same view ids, and each hides the ones its shape
  * has no room for with `visibility="gone"`. That keeps this one function able
  * to populate any of them — RemoteViews resolves ids inside its own layout,
  * and writing to a hidden view is harmless. The alternative, branching per
  * size here, puts the decision about what fits in the code instead of in the
  * layout that actually knows.
- *
- * The week strip is the one exception: its ids exist only in the 5x2 layout.
- * That is still safe — every RemoteViews action starts with a findViewById and
- * returns quietly when the id is not in the layout it was applied to — but it
- * is the reason the strip is written last and in its own block rather than
- * mixed in with the fields every size shares.
  *
  * Split out of the provider so the debug preview activity renders the exact
  * same thing on screen. A widget is otherwise only visible by adding it to a
@@ -30,19 +24,6 @@ import java.time.format.DateTimeFormatter
 object WidgetRenderer {
 
     private val adFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMM yyyy")
-
-    private val weekDayIds = intArrayOf(
-        R.id.widget_week_d0, R.id.widget_week_d1, R.id.widget_week_d2, R.id.widget_week_d3,
-        R.id.widget_week_d4, R.id.widget_week_d5, R.id.widget_week_d6,
-    )
-    private val weekLabelIds = intArrayOf(
-        R.id.widget_week_l0, R.id.widget_week_l1, R.id.widget_week_l2, R.id.widget_week_l3,
-        R.id.widget_week_l4, R.id.widget_week_l5, R.id.widget_week_l6,
-    )
-    private val weekCellIds = intArrayOf(
-        R.id.widget_week_c0, R.id.widget_week_c1, R.id.widget_week_c2, R.id.widget_week_c3,
-        R.id.widget_week_c4, R.id.widget_week_c5, R.id.widget_week_c6,
-    )
 
     private fun num(en: Boolean, value: Int) =
         if (en) Roman.digits(value) else NepaliCalendar.toDevanagari(value)
@@ -58,14 +39,11 @@ object WidgetRenderer {
         NepaliCalendar.load(context)
         Panchang.load(context)
 
-        // Only these two layouts have a widget_next row, and only xl_large has
-        // the week strip (see the XML: widget_next ships visibility="gone" and
-        // empty text everywhere else, and the week ids don't exist elsewhere at
-        // all). Computing Panchang.upcoming()'s 60-day walk or the week strip's
-        // 7 NepaliDate/Panchang lookups for a size that cannot show either is
+        // Only the 5x1 has a widget_next row (see the XML: widget_next ships
+        // visibility="gone" and empty text everywhere else). Computing
+        // Panchang.upcoming()'s 60-day walk for a size that cannot show it is
         // pure waste.
-        val showsUpcoming = layoutRes == R.layout.widget_patro_xl || layoutRes == R.layout.widget_patro_xl_large
-        val showsWeek = layoutRes == R.layout.widget_patro_xl_large
+        val showsUpcoming = layoutRes == R.layout.widget_patro_xl
 
         val en = WidgetPrefs.isEnglish(context)
         val today = NepaliCalendar.today()
@@ -106,8 +84,8 @@ object WidgetRenderer {
         }
         views.setTextViewText(R.id.widget_note, subtitle)
 
-        /* What is coming. Only the 5x1 and 5x2 have a row for this; on every
-           other size the view is gone and the text goes nowhere. */
+        /* What is coming. Only the 5x1 has a row for this; on every other
+           size the view is gone and the text goes nowhere. */
         if (showsUpcoming) {
             val upcoming = Panchang.upcoming(today)
             views.setTextViewText(
@@ -145,49 +123,7 @@ object WidgetRenderer {
         val isOff = NepaliCalendar.isWeeklyOff(today) || (info?.isHoliday == true)
         views.setBoolean(R.id.widget_day, "setEnabled", !isOff)
 
-        if (showsWeek) renderWeek(views, today, en)
-
         if (onClick != null) views.setOnClickPendingIntent(R.id.widget_root, onClick)
         return views
-    }
-
-    /**
-     * The 5x2 week strip: Sunday to Saturday around [today], today marked.
-     *
-     * The marker is a background applied through setInt rather than a
-     * visibility toggle on seven pre-placed shapes, because which cell is today
-     * changes daily and there is no layout answer to that. `setBackgroundResource`
-     * is one of the @RemotableViewMethod methods RemoteViews will call by name;
-     * the six other cells are cleared with 0, which is "no background" — not
-     * doing that leaves yesterday's marker behind when the widget redraws
-     * across midnight without being reinflated.
-     */
-    private fun renderWeek(views: RemoteViews, today: BsDate, en: Boolean) {
-        val week = NepaliCalendar.weekOf(today)
-
-        for (i in 0..6) {
-            val day = week[i]
-            // A day off is accented in the strip too, so Saturday and Sunday read
-            // as the weekend at a glance rather than needing to be counted to.
-            // Set as a state, not a colour, for the same reason as the date above:
-            // res/color/widget_week_*.xml is resolved by the launcher, a colour
-            // resolved here would be resolved against the wrong configuration.
-            val off = NepaliCalendar.isWeeklyOff(day) || (Panchang.forDay(day)?.isHoliday == true)
-            views.setTextViewText(weekDayIds[i], num(en, day.day))
-            views.setBoolean(weekDayIds[i], "setEnabled", !off)
-            views.setBoolean(weekLabelIds[i], "setEnabled", !off)
-            // The weekday letters are in the layout as Devanagari, so English
-            // mode has to overwrite them; Nepali mode rewrites the same value
-            // rather than branching, which keeps the two paths identical.
-            views.setTextViewText(
-                weekLabelIds[i],
-                if (en) Roman.weekdayShort[i] else NepaliCalendar.weekdayShort[i],
-            )
-            views.setInt(
-                weekCellIds[i],
-                "setBackgroundResource",
-                if (i == NepaliCalendar.weekdayOf(today)) R.drawable.widget_pill else 0,
-            )
-        }
     }
 }

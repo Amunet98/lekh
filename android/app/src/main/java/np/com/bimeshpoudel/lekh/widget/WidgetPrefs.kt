@@ -11,7 +11,7 @@ import android.content.Intent
  * Stored once for the whole app rather than per widget id. A per-widget setting
  * is what the AppWidget configuration API is shaped for, but "this widget in
  * Nepali and that one in English" is not a thing anybody wants, and it would
- * mean the answer depends on which of six shapes you happened to long-press.
+ * mean the answer depends on which of four shapes you happened to long-press.
  *
  * The default is Nepali, and must stay Nepali: it is what every already-placed
  * widget shows, and an update that silently switched people's home screens to
@@ -35,9 +35,7 @@ object WidgetPrefs {
         LekhWidgetProvider::class.java,
         LekhWidgetSmallProvider::class.java,
         LekhWidgetWideProvider::class.java,
-        LekhWidgetLargeProvider::class.java,
         LekhWidgetXlProvider::class.java,
-        LekhWidgetXlLargeProvider::class.java,
     )
 
     /**

@@ -28,8 +28,6 @@ object NepaliCalendar {
     val weekdayNames = arrayOf(
         "आइतबार", "सोमबार", "मङ्गलबार", "बुधबार", "बिहिबार", "शुक्रबार", "शनिबार"
     )
-    /** For the 5x2 week strip, where seven full names would not fit. */
-    val weekdayShort = arrayOf("आइत", "सोम", "मङ्गल", "बुध", "बिहि", "शुक्र", "शनि")
 
     private const val SUNDAY = 0
     private const val SATURDAY = 6
@@ -141,20 +139,6 @@ object NepaliCalendar {
 
     /** 0 = Sunday. */
     fun weekdayOf(date: BsDate): Int = toGregorian(date).dayOfWeek.value % 7
-
-    /**
-     * The seven days of the week containing [date], Sunday first — what the
-     * 5x2 widget draws as a strip.
-     *
-     * Built by walking Gregorian days rather than BS ones on purpose: a week
-     * routinely straddles a BS month boundary, and BS months are 29–32 days on
-     * no pattern, so "day - weekday" arithmetic in BS would fall off the start
-     * of the month several times a year.
-     */
-    fun weekOf(date: BsDate): List<BsDate> {
-        val sunday = toGregorian(date).minusDays(weekdayOf(date).toLong())
-        return (0..6).map { fromGregorian(sunday.plusDays(it.toLong())) }
-    }
 
     private fun compare(a: BsDate, b: BsDate): Int = when {
         a.year != b.year -> a.year.compareTo(b.year)

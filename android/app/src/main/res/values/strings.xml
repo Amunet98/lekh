@@ -6,13 +6,11 @@
     <string name="custom_url_scheme">np.com.bimeshpoudel.lekh</string>
 
     <!-- Shown under each entry in the launcher's widget picker. They differ so
-         six near-identical rows are actually distinguishable. -->
+         four near-identical rows are actually distinguishable. -->
     <string name="widget_description">Date, tithi and today\'s festival</string>
     <string name="widget_description_small">Just the Bikram Sambat date</string>
-    <string name="widget_description_large">Date, weekday, tithi and festival</string>
     <string name="widget_description_wide">A full-width strip: date and festival</string>
     <string name="widget_description_xl">Wide strip: date, tithi and what\'s next</string>
-    <string name="widget_description_xl_large">Everything, plus this week at a glance</string>
 
     <!-- Long-press app shortcuts (res/xml/shortcuts.xml). The web manifest's
          own `shortcuts` (vite.config.ts) only reach the launcher for an

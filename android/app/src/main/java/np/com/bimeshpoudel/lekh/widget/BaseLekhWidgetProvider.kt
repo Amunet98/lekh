@@ -16,16 +16,16 @@ import java.time.ZoneId
  * Everything the widgets share; the subclasses differ only in which layout
  * they draw.
  *
- * There are six separate providers rather than one resizable widget because
- * that is what shows up as six entries in the launcher's widget picker.
+ * There are four separate providers rather than one resizable widget because
+ * that is what shows up as four entries in the launcher's widget picker.
  * A single resizable widget is one entry that most people never think to drag
- * a corner on, and the six shapes want genuinely different layouts anyway —
- * a 2x1 has no room for a festival name, a 5x2 has room for a week strip.
+ * a corner on, and the four shapes want genuinely different layouts anyway —
+ * a 2x1 has no room for a festival name, a 5x1 has room for what's next.
  *
- * The two 5-wide sizes are offered on four-column launchers too — measured
- * on one: it lists them and clamps them to four cells rather than hiding
- * them. 4x1 and 4x2 still exist because on that grid they are the shapes that
- * fit exactly, and the 5-wide pair are the denser alternatives.
+ * The 5x1 is offered on four-column launchers too — measured on one: it
+ * lists it and clamps it to four cells rather than hiding it. 4x1 still
+ * exists because on that grid it is the shape that fits exactly, and 5x1 is
+ * the denser alternative.
  *
  * REFRESHING AT MIDNIGHT
  *
@@ -96,9 +96,9 @@ abstract class BaseLekhWidgetProvider : AppWidgetProvider() {
     private fun alarmManager(context: Context) =
         context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-    /* Per-subclass action and request code. Without them the three providers
+    /* Per-subclass action and request code. Without them the four providers
        would share one PendingIntent: whichever registered last would own the
-       alarm, and removing that size would cancel the other two sizes' refresh
+       alarm, and removing that size would cancel the other sizes' refresh
        as well. */
     private fun midnightAction() = "np.com.bimeshpoudel.lekh.widget.MIDNIGHT.${javaClass.simpleName}"
 

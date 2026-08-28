@@ -82,7 +82,7 @@
                 android:resource="@xml/widget_info" />
         </receiver>
 
-        <!-- Five more sizes. Separate providers, so the launcher's widget
+        <!-- Three more sizes. Separate providers, so the launcher's widget
              picker shows each as its own entry rather than one that has to be
              resized by dragging a corner most people never try. -->
         <receiver
@@ -114,19 +114,6 @@
         </receiver>
 
         <receiver
-            android:name=".widget.LekhWidgetLargeProvider"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="android.intent.action.DATE_CHANGED" />
-                <action android:name="android.intent.action.TIME_SET" />
-                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widget_info_large" />
-        </receiver>
-        <receiver
             android:name=".widget.LekhWidgetXlProvider"
             android:exported="true">
             <intent-filter>
@@ -138,19 +125,6 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_info_xl" />
-        </receiver>
-        <receiver
-            android:name=".widget.LekhWidgetXlLargeProvider"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="android.intent.action.DATE_CHANGED" />
-                <action android:name="android.intent.action.TIME_SET" />
-                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widget_info_xl_large" />
         </receiver>
     </application>
 
