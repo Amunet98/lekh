@@ -7,10 +7,13 @@ import np.com.bimeshpoudel.lekh.R
  * filling whatever width is left. No Gregorian date or tithi; one cell of
  * height does not have the rows for them.
  *
- * Dragged taller, it switches to [expandedLayoutRes] instead — see
- * BaseLekhWidgetProvider's EXPANDING ON RESIZE.
+ * Vertical resize is still allowed (see widget_info_wide.xml) but there is no
+ * [expandedLayoutRes]: this row's root already centers vertically in
+ * whatever height it is given, and there is nothing this size can gain from
+ * extra height that the 5x1's expanded form does not already cover — so
+ * dragging it taller just gives the same row more breathing room instead of
+ * switching to a second, denser layout.
  */
 class LekhWidgetWideProvider : BaseLekhWidgetProvider() {
     override val layoutRes = R.layout.widget_patro_wide
-    override val expandedLayoutRes = R.layout.widget_patro_wide_expanded
 }

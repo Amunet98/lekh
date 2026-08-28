@@ -45,15 +45,14 @@ class WidgetPreviewActivity : Activity() {
         }
 
         /* Every size, at roughly the cell dimensions each declares, so a
-           layout that only breaks at one shape cannot hide. The two expanded
-           forms are what onAppWidgetOptionsChanged switches wide/xl to once
-           they're dragged tall — previewed here at that height since neither
-           is reachable by placing a widget at its default size. */
+           layout that only breaks at one shape cannot hide. The expanded xl
+           form is what onAppWidgetOptionsChanged switches to once it's
+           dragged tall — previewed here at that height since it is not
+           reachable by placing a widget at its default size. */
         val sizes = listOf(
             Triple("2x1  small", np.com.bimeshpoudel.lekh.R.layout.widget_patro_small, 160 to 70),
             Triple("2x2  medium", np.com.bimeshpoudel.lekh.R.layout.widget_patro, 160 to 160),
             Triple("4x1  wide", np.com.bimeshpoudel.lekh.R.layout.widget_patro_wide, 330 to 70),
-            Triple("4x1  wide, expanded", np.com.bimeshpoudel.lekh.R.layout.widget_patro_wide_expanded, 330 to 160),
             Triple("5x1  xl", np.com.bimeshpoudel.lekh.R.layout.widget_patro_xl, 360 to 70),
             Triple("5x1  xl, expanded", np.com.bimeshpoudel.lekh.R.layout.widget_patro_xl_expanded, 360 to 170),
         )

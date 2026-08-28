@@ -30,14 +30,27 @@ import java.time.ZoneId
  *
  * EXPANDING ON RESIZE
  *
- * 4x1 and 5x1 both declare vertical resizeMode. Dragged tall enough, they
- * switch to a second, denser layout instead of just centering the same row
- * in more space — see [expandedLayoutRes] and [layoutFor]. This is what
- * replaced the old dedicated 4x2/5x2 providers: those left a bare column of
- * wallpaper on a launcher whose grid was wider than four or five columns,
- * because a fixed-size widget only ever claims exactly the columns it
- * declares. Reading the *actual* placed size at draw time and choosing the
- * layout from that has no such gap.
+ * 4x1 and 5x1 both declare vertical resizeMode, but only 5x1 has an
+ * [expandedLayoutRes] — see [layoutFor]. This is what replaced the old
+ * dedicated 4x2/5x2 providers: those left a bare column of wallpaper on a
+ * launcher whose grid was wider than four or five columns, because a
+ * fixed-size widget only ever claims exactly the columns it declares.
+ * Reading the *actual* placed size at draw time and choosing the layout from
+ * that has no such gap.
+ *
+ * The expanded xl layout reuses the compact row's exact structure for its
+ * top part rather than re-deriving a new column arrangement for it, and adds
+ * the week strip as a second section below. An earlier version put
+ * weekday/date/tithi/note/next in a new, narrower stacked column instead: it
+ * measured correctly in this file's own debug preview (an in-process
+ * RemoteViews.apply(), never a real placed widget) but on an actual home
+ * screen the two rows using ellipsize — the festival note and what's
+ * upcoming — came back blank while the plain rows next to them rendered
+ * fine, on every height it was resized to. The compact row uses those same
+ * ellipsize rows and has always rendered them correctly on-device, in this
+ * app and every version before resizing existed, so the fix was to stop
+ * asking a new, deeper-nested column to hold that text and give the reused,
+ * proven row the extra height's real estate instead.
  *
  * REFRESHING AT MIDNIGHT
  *
