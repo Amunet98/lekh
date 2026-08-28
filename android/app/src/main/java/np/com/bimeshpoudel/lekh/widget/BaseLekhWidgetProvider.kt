@@ -51,7 +51,7 @@ import java.time.ZoneId
 abstract class BaseLekhWidgetProvider : AppWidgetProvider() {
 
     private companion object {
-        const val EXPAND_MIN_HEIGHT_DP = 90
+        const val EXPAND_MIN_HEIGHT_DP = 110
     }
 
     /** The layout this size draws. */
@@ -138,9 +138,13 @@ abstract class BaseLekhWidgetProvider : AppWidgetProvider() {
      * that allows landscape reports the taller one there — and this widget
      * should expand if it has the room in either orientation.
      *
-     * The threshold sits between this provider's compact minHeight (40dp) and
-     * the old dedicated tall providers' minHeight (110dp): comfortably past
-     * "barely resized" but well short of "deliberately dragged taller".
+     * 110dp, not some point between the compact minHeight (40dp) and this: it
+     * is exactly what the old dedicated tall providers declared as their own
+     * minHeight, i.e. the height their content was actually laid out and
+     * tested for. Switching in early — a smaller threshold measured true on a
+     * live device — left the bottom rows (the festival note and what's
+     * upcoming) squeezed into less space than a wrap_content stack of five
+     * lines needs, clipped rather than shown.
      */
     private fun layoutFor(options: Bundle): Int {
         val expanded = expandedLayoutRes ?: return layoutRes
