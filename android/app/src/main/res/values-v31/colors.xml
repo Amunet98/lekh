@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Material You, light. Android 12 (API 31) and up only; everything below it
+     keeps the hand-picked Crimson & Paper values in values/colors.xml.
+
+     Android's shade numbering is the inverse of Material's tone numbering:
+     shade 0 is white, shade 1000 is black, so shade N is about tone
+     (1000 - N) / 10. The pairs below are the standard M3 role mapping, and
+     they are chosen rather than aliased wholesale because the widget's
+     contrast still has to hold on *any* wallpaper:
+
+       widget_text   neutral1_900  (tone 10) on a tone-99/100 card
+       widget_muted  neutral2_600  (tone 40) — the tightest pair here, and the
+                                     lowest shade that still clears 4.5:1
+                                     against a near-white card across the hue
+                                     circle. neutral2 is the desaturated ramp,
+                                     so this stays grey-ish however loud the
+                                     wallpaper is.
+       widget_accent accent1_700   (tone 30), not the tone-40 fill shade: this
+                                     colour is only ever *text* (the date on a
+                                     day off, via color/widget_day.xml), and a
+                                     tone-40 yellow on a white card is 3.5:1.
+
+     These are declared as resource aliases, not resolved in Kotlin, for the
+     reason spelled out in color/widget_day.xml: a widget's colours must be
+     resolved by the launcher against the launcher's configuration, or a widget
+     placed in light mode keeps light colours after the phone goes dark. -->
+<resources>
+    <!-- The status bar behind the WebView. Deliberately the dark end of the
+         neutral ramp in light mode too, which is what the fixed #0E1220 it
+         replaces was already doing. -->
+    <color name="colorPrimary">@android:color/system_neutral1_900</color>
+    <color name="colorPrimaryDark">@android:color/system_neutral1_900</color>
+    <color name="colorAccent">@android:color/system_accent1_600</color>
+
+    <!-- The flat colour shown between process start and the WebView's first
+         paint. It has to match what the page itself paints as its background
+         token, which src/lib/dynamicColor.ts maps to this same neutral1_10, or
+         the launch reads as a flash. -->
+    <color name="launch_background">@android:color/system_neutral1_10</color>
+
+    <color name="widget_border">@android:color/system_neutral2_100</color>
+    <color name="widget_text">@android:color/system_neutral1_900</color>
+    <color name="widget_muted">@android:color/system_neutral2_600</color>
+    <color name="widget_accent">@android:color/system_accent1_700</color>
+    <!-- Today's cell in the week strip: the pale accent wash, tone 90. -->
+    <color name="widget_today">@android:color/system_accent1_100</color>
+</resources>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The widget card's fill under Material You, light.
+
+     A one-item ColorStateList rather than a <color> in values-v31/, and that
+     is the whole reason this file exists: the card is 90% opaque on purpose
+     (see drawable/widget_background.xml for why — launchers that blur behind
+     widgets need something to blur through), and XML has no way to bolt an
+     alpha onto a colour *reference*. android:alpha on a ColorStateList item
+     does exactly that, and <solid> has accepted a ColorStateList since API 21.
+
+     Named widget_surface_dynamic rather than overriding widget_surface so the
+     name lives in exactly one resource type: values/colors.xml keeps
+     widget_surface as a plain colour for API 26-30, and only the -v31 drawable
+     below reaches for this one. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:alpha="0.9" android:color="@android:color/system_neutral1_0" />
+</selector>

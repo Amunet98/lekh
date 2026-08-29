@@ -42,6 +42,19 @@ computed from WCAG relative luminance and recorded in `src/index.css` — the
 tightest is 4.62:1, and borders come in two strengths because a decorative
 hairline and a control you must be able to find have different floors.
 
+**Material You** — on Android 12 and up, the app in the Play/APK build wears
+the palette Android derives from the user's wallpaper instead, and so do the
+home-screen widgets. Only the colours change: layout, spacing, shape, type and
+motion are the same design underneath. Crimson & Paper stays the app's identity
+on the web, in the PWA, on Android 11 and below, and for anyone who turns
+wallpaper colours off in the About sheet.
+
+It is not a lookup table. Android's shade numbers are only guaranteed to mean a
+given lightness on a phone running something close to AOSP — several OEMs
+substitute their own palette extraction — so `src/lib/dynamicColor.ts` walks a
+candidate list per role and measures each one, holding the wallpaper's colours
+to the same floors `src/index.css` records for the hand-picked ones.
+
 The chrome is one strip: brand, section nav and actions in a single app bar
 on a wide screen, with the same nav detaching to a bottom dock on a phone.
 The editor is the whole Type page — the cheat sheet is a searchable panel

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Material You variant of drawable/widget_background.xml — read that file
+     for the reasoning about translucency and the absent stroke, all of which
+     still applies. The only difference is where the fill comes from: a
+     wallpaper-derived neutral with the alpha reattached (see
+     color-v31/widget_surface_dynamic.xml), instead of the fixed
+     @color/widget_surface.
+
+     The 20dp radius is repeated rather than shared because a <shape> cannot
+     inherit from another one; if it changes, it changes in both files. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/widget_surface_dynamic" />
+    <corners android:radius="20dp" />
+</shape>

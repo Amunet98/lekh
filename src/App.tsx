@@ -13,6 +13,7 @@ import { AboutSheet } from './components/AboutSheet'
 import { AboutButton } from './components/AboutButton'
 import { UpdatePrompt } from './components/UpdatePrompt'
 import { warmOcrCacheInBackground } from './lib/ocr/prefetch'
+import { refreshDynamicColor } from './lib/dynamicColor'
 import './App.css'
 
 const TABS: Tab[] = ['type', 'translate', 'calendar']
@@ -154,6 +155,24 @@ function App() {
     if (booting) return
     warmOcrCacheInBackground()
   }, [booting])
+
+  /* Material You. Not gated on `booting` like the two above: this one is a
+     single bridge call that decides what colour the app is, and the boot
+     screen is exactly the moment it should land — main.tsx has already
+     repainted the cached palette, and this is what corrects it after the user
+     changes their wallpaper. A no-op everywhere but the Android app.
+
+     visibilitychange, because the wallpaper is changed *outside* this app:
+     the user leaves, picks a new one, comes back. Without it the app keeps
+     last launch's colours until it is killed. */
+  useEffect(() => {
+    void refreshDynamicColor()
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') void refreshDynamicColor()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
+  }, [])
 
   return (
     <>

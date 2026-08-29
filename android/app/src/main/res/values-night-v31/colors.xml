@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Material You, dark. Only what actually differs at night — same rule as
+     values-night/colors.xml. widget_accent moves to tone 80 and widget_muted
+     to tone 70 for the same reason the static palette lightens its accent in
+     the dark: a tone-30 anything on a tone-20 card is unreadable. -->
+<resources>
+    <color name="launch_background">@android:color/system_neutral1_900</color>
+
+    <color name="widget_border">@android:color/system_neutral2_700</color>
+    <color name="widget_text">@android:color/system_neutral1_50</color>
+    <color name="widget_muted">@android:color/system_neutral2_300</color>
+    <color name="widget_accent">@android:color/system_accent1_200</color>
+    <!-- Today's cell: a lifted dark tint, not a bright wash — a tone-80 fill
+         behind a tone-95 date would invert the strip's whole hierarchy. -->
+    <color name="widget_today">@android:color/system_accent1_800</color>
+</resources>

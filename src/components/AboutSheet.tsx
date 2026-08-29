@@ -4,6 +4,8 @@ import { SectionIcon } from './SectionIcons'
 import { LekhMark } from './LekhMark'
 import { KEYWORDS } from '../data/keywords'
 import { useHasAndroidApp } from '../hooks/useHasAndroidApp'
+import { useDynamicColor } from '../hooks/useDynamicColor'
+import { setDynamicColorEnabled } from '../lib/dynamicColor'
 import { APK_URL, isAndroid } from '../lib/androidApp'
 import { useSheetDrag } from '../hooks/useSheetDrag'
 
@@ -34,6 +36,7 @@ export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
   const panelRef = useRef<HTMLDivElement>(null)
   const android = isAndroid()
   const hasApp = useHasAndroidApp()
+  const dynamicColor = useDynamicColor()
 
   // Drag-to-dismiss — only engages on the mobile bottom-sheet layout (see
   // .about__grabber's own media query below at the same 560px breakpoint the
@@ -189,6 +192,61 @@ export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
               own menu instead skips the download and gives you the app without the widget.
             </span>
           </a>
+        )}
+
+        {/* Material You. Rendered only where the OS actually hands over a
+            palette — the Android app on Android 12 and up. A switch offering
+            to turn off something that was never on is worse than no switch,
+            so on the web, on the plain PWA and on Android 11 and below this
+            row does not exist at all.
+
+            It is an opt-*out*. On a phone that has the colours, the app wears
+            them by default; this is here for the person who wants the flag
+            crimson back, which is still the app's identity everywhere else.
+
+            The home-screen widgets are not covered by it. They follow the
+            wallpaper unconditionally, because their neighbours on that screen
+            do too — a widget is a citizen of the launcher before it is part of
+            this app, and the only widgets that ignore the wallpaper are the
+            ones that look out of place. */}
+        {dynamicColor.supported && (
+          <button
+            type="button"
+            className="about__section about__section--switch"
+            role="switch"
+            aria-checked={dynamicColor.enabled}
+            onClick={() => setDynamicColorEnabled(!dynamicColor.enabled)}
+          >
+            <span className="about__section-icon">
+              <svg
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M12 3a9 9 0 1 0 0 18c1 0 1.7-.8 1.7-1.7 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.1 0-.9.8-1.7 1.7-1.7H16a5 5 0 0 0 5-5c0-4-4-7.3-9-7.3Z" />
+                <circle cx="7.5" cy="11" r="1.1" fill="currentColor" stroke="none" />
+                <circle cx="10.5" cy="7" r="1.1" fill="currentColor" stroke="none" />
+                <circle cx="15" cy="7.5" r="1.1" fill="currentColor" stroke="none" />
+              </svg>
+            </span>
+            <span className="about__section-text">
+              <b>Wallpaper colours</b>
+              {/* Same length as the rows above, so the block keeps one
+                  rhythm at 390px. */}
+              <span className="about__section-rest">
+                {dynamicColor.enabled ? 'following your Material You theme' : 'off — using Lekh\u2019s own crimson'}
+              </span>
+            </span>
+            <span className="about__switch" aria-hidden="true">
+              <span className="about__switch-thumb" />
+            </span>
+          </button>
         )}
 
         {/* A row, not a footer link.

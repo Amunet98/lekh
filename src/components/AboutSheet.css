@@ -476,3 +476,53 @@
   font-family: var(--display-dev);
   color: var(--accent-text);
 }
+
+/* The Material You switch row.
+
+   It borrows .about__section wholesale — same height, border, hover and press
+   as the navigation rows above it — because it sits in that stack and a
+   settings row that styled itself differently would just look like a mistake.
+   The only difference is what occupies the right-hand slot: a track instead of
+   the → arrow, since this row changes something in place rather than going
+   somewhere.
+
+   role="switch" on the <button> carries the state to a screen reader, so the
+   track below is aria-hidden: it is the same fact drawn twice, and announcing
+   it twice is worse than not drawing it. */
+.about__section--switch {
+  /* The rows above are links and this one is a control; without this the
+     stack loses its rhythm where the aside row's own margin starts. */
+  margin-top: 0.5rem;
+}
+.about__switch {
+  margin-left: auto;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 20px;
+  padding: 2px;
+  border-radius: var(--radius-pill);
+  /* --border-field, not --border: this is a control the user has to find in
+     order to operate it, which is the 3:1 case index.css sets that token
+     aside for. */
+  border: 1px solid var(--border-field);
+  background: var(--surface-2);
+  transition: background-color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease);
+}
+.about__switch-thumb {
+  display: block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: transform var(--dur) var(--ease-expo),
+    background-color var(--dur-fast) var(--ease);
+}
+[aria-checked='true'] .about__switch {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+[aria-checked='true'] .about__switch-thumb {
+  background: var(--on-accent);
+  transform: translateX(16px);
+}
