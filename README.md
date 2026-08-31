@@ -176,6 +176,44 @@ dictionary, and cheat sheet work offline. Details worth knowing:
   config, and `grep -c clientsClaim dist/sw.js` is the check that it survived —
   switching the plugin to prompt-style updates silently drops it.
 
+### Installing the Android app on a phone with Advanced Protection
+
+The PWA needs none of this — open the site and use the install button in the
+header. This section is only for the `.apk` on the
+[releases page](https://github.com/Amunet98/lekh/releases).
+
+**If Android's Advanced Protection is switched on, the install will fail and
+the phone will not really tell you why.** Advanced Protection is a single
+master switch that turns on several protections at once, and one of them
+blocks installing anything from outside the Play Store. While it is on, the
+per-app "install unknown apps" permission is greyed out, so there is nothing
+to toggle and no error worth reading — it simply will not proceed.
+
+To install:
+
+1. Open **Settings → Security & privacy → Advanced Protection**. If it is not
+   there, search Settings for *Advanced Protection* — Samsung, OnePlus and
+   Nothing each put it somewhere different.
+2. **Turn it off.** Android will ask you to confirm.
+3. Download `lekh-patro.apk` from the releases page.
+4. Open the downloaded file. Android will ask whether your browser or file
+   manager may install apps — allow it. (Directly: **Settings → Apps →
+   Special app access → Install unknown apps**.)
+5. Install.
+6. **Turn Advanced Protection back on.** It only blocks *new* installs from
+   outside Play — the app you just installed keeps working and keeps updating
+   normally.
+
+Step 6 is not politeness. Advanced Protection bundles real protections that
+have nothing to do with sideloading, and leaving it off to keep one app is a
+bad trade.
+
+**This is your phone's setting, not a warning about this app.** Lekh Patro's
+signing key is registered with Google under Android developer verification
+(2026-09-01), so the separate friction Android applies to apps from
+*unverified* developers — a one-time setup and a one-day wait, arriving in
+some countries from 30 September 2026 — does not apply here.
+
 ## Performance notes
 
 Worth knowing before changing the look, all learned by measuring:
