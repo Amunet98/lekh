@@ -179,10 +179,13 @@ export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
             A userAgent test is the right tool here: what decides this is the
             OS, not the screen.
 
-            hasApp is the other half: this row kept offering the download from
-            inside the installed app, and from a browser tab on a phone that
-            already had it. Both are the same mistake — advertising something
-            the visitor already owns. */}
+            hasApp is the other half, and it covers exactly one case: this
+            row kept offering the download from inside the installed app.
+            It does NOT catch a browser tab on a phone that already has the
+            APK — see the note on the same guard in InstallButton.tsx, which
+            this row deliberately mirrors: same policy, same conditions, so
+            the header button and this row can never disagree about what
+            Android is offered. */}
         {android && !hasApp && (
           <a className="about__apk" href={APK_URL} target="_blank" rel="noopener noreferrer">
             <span className="about__apk-main">Get the Android app (.apk)</span>

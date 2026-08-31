@@ -37,18 +37,35 @@ function DownloadIcon() {
  * behind the About sheet. The obvious button gave you the lesser thing,
  * which is exactly what the owner hit.
  *
- * Nothing is lost by not offering the PWA prompt on Android: Chrome keeps its
- * own "Install app" entry in the overflow menu for anyone who would rather not
- * sideload. Everywhere else — desktop, and any browser that fires
- * beforeinstallprompt — the prompt is still the right and only option.
+ * Nothing is lost by not offering the PWA prompt on Android, and that is now
+ * measured rather than assumed: every Android browser keeps its own install
+ * entry for anyone who would rather not sideload. Chrome 151 lists "Install
+ * and create shortcut" and Firefox lists "Add app to Home screen" under More,
+ * both checked on a real device — neither can be removed from the site side
+ * (see the manifest comment in vite.config.ts for why). Everywhere else —
+ * desktop, and any browser that fires beforeinstallprompt — the prompt is
+ * still the right and only option.
+ *
+ * Someone who takes one of those routes lands in the widget-less web app, and
+ * WebAppNotice is what tells them so.
  */
 export function InstallButton() {
   const { canInstall, promptInstall } = useInstallPrompt()
   const hasApp = useHasAndroidApp()
 
-  /* Nothing left to offer: either we are inside the installed app, or we are in
-     a browser tab on a device that already has the APK. The second case is the
-     one that used to slip through — display-mode is not standalone there. */
+  /* Nothing left to offer: we are inside the installed app.
+   *
+   * This used to also claim it covered a browser tab on a phone that already
+   * had the APK. It does not, and has not since the Capacitor migration —
+   * useHasAndroidApp is now just isNativeApp(). The old version asked
+   * navigator.getInstalledRelatedApps(), which no longer answers: measured on
+   * a real device with the APK actually installed, it returns [] from a Chrome
+   * tab, because the Capacitor app ships no asset_statements — that was the
+   * TWA's Digital Asset Links, dropped with the TWA. Getting the claim back
+   * means declaring the relationship on both ends again, not a hook change.
+   *
+   * Offering the download to someone who already has it is a small, harmless
+   * mistake; claiming in a comment that we prevent it is the expensive one. */
   if (hasApp) return null
 
   if (isAndroid()) {
