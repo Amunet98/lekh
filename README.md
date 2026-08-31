@@ -156,6 +156,18 @@ and `lekh-play.md` for where the release stands.
 
 ## Installing and updating
 
+**Which one you want:**
+
+| You are on | Install | Why |
+|---|---|---|
+| **Android** | the [`.apk`](https://github.com/Amunet98/lekh/releases/latest) | Home-screen widgets. A PWA cannot provide them — the `widgets` manifest member is Microsoft's Windows 11 feature, not the Android home screen — so the Android build is a real app, not an installed web page. |
+| **iPhone / iPad** | the PWA — Share → Add to Home Screen | There is no Android-style install prompt on iOS, and no App Store build. |
+| **Desktop** | the PWA — install button in the header | Works in any Chromium browser. |
+
+Everything else is identical between them: same typing engine, same OCR, same
+calendar, same offline behaviour. The Android app is a Capacitor WebView
+pointed at the live site, so a web fix reaches it without a new download.
+
 Lekh Patro is an installable PWA with a real service worker — the typing engine,
 dictionary, and cheat sheet work offline. Details worth knowing:
 
@@ -178,9 +190,9 @@ dictionary, and cheat sheet work offline. Details worth knowing:
 
 ### Installing the Android app on a phone with Advanced Protection
 
-The PWA needs none of this — open the site and use the install button in the
-header. This section is only for the `.apk` on the
-[releases page](https://github.com/Amunet98/lekh/releases).
+This is the Android route — the current `.apk` is on the
+[releases page](https://github.com/Amunet98/lekh/releases/latest). On iOS or
+desktop you want the PWA instead, and none of this applies.
 
 **If Android's Advanced Protection is switched on, the install will fail and
 the phone will not really tell you why.** Advanced Protection is a single
