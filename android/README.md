@@ -59,17 +59,19 @@ Android App Links.
   permission at the `<application>` level. The widget itself is unaffected:
   it still draws only from the bundled JSON assets (see "No network" below)
   and holds no permission of its own.
-- **All six widget providers carried over unchanged.** Same Kotlin, same
-  layouts, same manifest entries, byte-for-byte at the point of migration —
-  confirmed by `git show --stat 5933620`. Nothing about the widget system
-  described below is new; it predates the migration.
+- **All six widget providers of the time carried over unchanged.** Same
+  Kotlin, same layouts, same manifest entries, byte-for-byte at the point of
+  migration — confirmed by `git show --stat 5933620`. Nothing about the widget
+  system described below is new; it predates the migration. (There are four
+  providers now — 4×2 and 5×2 were dropped on 2026-08-29, after and unrelated
+  to the migration. See "The widget" below.)
 - **The long-press app shortcuts had to be re-added** (`3f3f0fd`) — they were
   dropped in the initial migration and restored to mirror the widget's
   explicit-intent pattern exactly.
 
 ## The widget
 
-Six sizes, six separate `AppWidgetProvider` subclasses (`widget/LekhWidget*.kt`,
+Four sizes, four separate `AppWidgetProvider` subclasses (`widget/LekhWidget*.kt`,
 all extending `BaseLekhWidgetProvider`), each with its own `res/xml/widget_info*.xml`
 and `res/layout/widget_patro_*.xml`:
 
@@ -78,40 +80,48 @@ and `res/layout/widget_patro_*.xml`:
 | `LekhWidgetSmallProvider` | 2×1 | `widget_info_small.xml` |
 | `LekhWidgetProvider` | 2×2 | `widget_info.xml` |
 | `LekhWidgetWideProvider` | 4×1 | `widget_info_wide.xml` |
-| `LekhWidgetLargeProvider` | 4×2 | `widget_info_large.xml` |
 | `LekhWidgetXlProvider` | 5×1 | `widget_info_xl.xml` |
-| `LekhWidgetXlLargeProvider` | 5×2 | `widget_info_xl_large.xml` |
 
-Six providers rather than one resizable widget so each shows as its own
+Separate providers rather than one resizable widget so each shows as its own
 entry in the launcher's widget picker — most people never think to drag a
-corner on a placed widget. The 5-wide pair is offered on four-column
-launchers too (measured on one: it lists and clamps them to four cells
-rather than hiding them); 4×1/4×2 stay because they're the exact fit on that
-grid.
+corner on a placed widget. The 5-wide is offered on four-column launchers too
+(measured on one: it lists and clamps it to four cells rather than hiding it);
+4×1 stays because it is the exact fit on that grid.
 
-**`WidgetRenderer.build()` populates all six from one function.** Every
+**There were six until 2026-08-29**, when the 4×2 and 5×2 providers were
+dropped. Their job is done by one provider that grows instead: the 5×1 sets
+`expandedLayoutRes`, and `layoutFor()` swaps in the taller layout — the one
+carrying the week strip — once the host reports at least
+`EXPAND_MIN_HEIGHT_DP` (110dp) of height. That reads the host's
+`OPTION_APPWIDGET_MAX_HEIGHT` rather than `MIN_HEIGHT`, because min is the
+height the content was laid out at rather than the room the widget has.
+
+**`WidgetRenderer.build()` populates all four from one function.** Every
 layout declares the same view ids and hides whichever ones its shape has no
 room for with `visibility="gone"` — a RemoteViews action that targets a
 missing id just returns quietly, so writing to a hidden view is harmless.
-The 5×2 week strip is the one exception, since its ids only exist in that
-one layout.
+The week strip is the one exception, since its ids only exist in the expanded
+xl layout; that is why it is written last, in its own block.
 
-**Nepali or English is one setting for the whole app**, not per widget id —
-chosen from `LekhWidgetConfigActivity`, reached automatically on placement
-below Android 12 (`configure` is mandatory pre-API-31) or via long-press →
-settings on 12+ (`configuration_optional|reconfigurable`). It defaults to
-Nepali and must keep defaulting to Nepali: that's what every already-placed
-widget shows. `Roman.kt` covers months, weekdays, tithi, and digits — closed
-vocabularies it gets exactly right.
+**The widget is Nepali only.** There was a Nepali/English toggle, backed by a
+`Roman.kt` transliteration table and chosen from `LekhWidgetConfigActivity`;
+both were removed on 2026-08-29 and `Roman.kt` is deleted. It went in stages,
+which is the useful part of the story: festival names were pinned back to
+Devanagari first (`a1fe474`) because a diacritic-free letter-by-letter mapping
+cannot know that the final vowel in तीज is silent, and lesser-known
+Newar/Tamang/Sherpa names came out unrecognisable to a Nepali reader. Once the
+festival line — the thing people actually read on the widget — no longer
+switched script, a toggle that moved only the tithi was not worth a
+configuration screen. The app's own Translate tab is where to ask for English;
+this just shows the calendar.
 
-**Festival names stay in Devanagari even in English mode** (`a1fe474`). The
-Roman table is a plain, diacritic-free transliteration meant to be skimmed,
-not a translation — तीज becomes "teeja" because no letter-by-letter mapping
-knows the final vowel is silent, and lesser-known Newar/Tamang/Sherpa
-festival names came out unrecognisable to a Nepali reader. `Roman.festival()`
-still exists (exact table → component substitution → transliteration
-fallback) but nothing in `WidgetRenderer` calls it for the festival line
-anymore; only tithi still switches script with the toggle.
+**`LekhWidgetConfigActivity` still exists, with nothing to ask.** Android 11
+and below require a declared `configure` activity before a widget can be
+placed at all — `widgetFeatures`, which lets newer Android skip that screen,
+does not exist before API 31. So it returns `RESULT_OK` carrying the same
+`appWidgetId` it was handed and finishes immediately. Returning anything else,
+including the default `RESULT_CANCELED`, makes the launcher throw the widget
+away.
 
 **RemoteViews forbids plain `<View>`.** It only inflates an allowlisted set
 of widget classes, and `android.view.View` isn't one of them — every layout

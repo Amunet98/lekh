@@ -15,7 +15,7 @@ right in the browser.
 
 ## What it does
 
-- **Type** — a phonetic transliteration engine backed by a 630+ word
+- **Type** — a phonetic transliteration engine backed by a 763-word
   dictionary shows suggestion chips (with spelling variants) as you type;
   a searchable Devanagari cheat sheet covers the long tail. Works with
   mobile keyboards/IMEs (Gboard-style commit flow).
@@ -58,7 +58,7 @@ to the same floors `src/index.css` records for the hand-picked ones.
 The chrome is one strip: brand, section nav and actions in a single app bar
 on a wide screen, with the same nav detaching to a bottom dock on a phone.
 The editor is the whole Type page — the cheat sheet is a searchable panel
-behind one button rather than a permanently-expanded wall of 76 cells.
+behind one button rather than a permanently-expanded wall of 73 cells.
 
 The first launch of a session opens on a **boot screen** instead of a landing
 page, so the app announces itself once and then gets out of the way — later
@@ -142,13 +142,17 @@ the only route.
 
 It shares the web app's calendar data rather than duplicating it
 (`npm run android:assets`), and its date algorithm was validated against
-`nepali-date-converter` over 3,970 conversions. It ships in six sizes — 2x1,
-2x2, 4x1, 4x2, 5x1 and 5x2 — and draws in either Devanagari or Latin, chosen
-from the widget's own settings screen. It ships as part of the Capacitor
-Android app that wraps the web app (`capacitor.config.ts`'s `server.url`
-points at the live site, so most web fixes ship without a new build), and is
-published on Google Play. See `android/README.md` for the build, widget, and
-release details.
+`nepali-date-converter` over 3,970 conversions. It ships in four sizes — 2x1,
+2x2, 4x1 and 5x1 — and draws in Devanagari only; there was a Latin toggle and
+it was removed, because the transliteration table could not keep up with the
+festival list and a widget is not where anyone wants to find that out. The
+5-wide grows a week strip when you make it taller, which is what replaced the
+separate 4x2 and 5x2 sizes. It ships as part of the Capacitor Android app that
+wraps the web app (`capacitor.config.ts`'s `server.url` points at the live
+site, so most web fixes ship without a new build), and is **on Play's internal
+testing track, not publicly released** — Play requires a closed test before
+production access. See `android/README.md` for the build and widget details
+and `lekh-play.md` for where the release stands.
 
 ## Installing and updating
 
