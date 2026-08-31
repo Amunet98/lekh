@@ -187,9 +187,8 @@ export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
           <a className="about__apk" href={APK_URL} target="_blank" rel="noopener noreferrer">
             <span className="about__apk-main">Get the Android app (.apk)</span>
             <span className="about__apk-sub">
-              Downloads a ~1&nbsp;MB .apk file directly — the only version with the{' '}
-              <span className="dev">पात्रो</span> home-screen widget. Installing from Chrome&rsquo;s
-              own menu instead skips the download and gives you the app without the widget.
+              Downloads a ~23&nbsp;MB .apk file directly — the only version with the{' '}
+              <span className="dev">पात्रो</span> home-screen widget.
             </span>
           </a>
         )}
