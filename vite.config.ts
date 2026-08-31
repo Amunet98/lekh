@@ -37,23 +37,41 @@ export default defineConfig({
         name: 'Lekh Patro — नेपाली Typing',
         short_name: 'Lekh Patro',
         id: '/',
-        /* These two exist to switch OFF the PWA install route on Android.
-           Android's install is the .apk, because a PWA cannot carry the Patro
-           home-screen widget — the whole reason a native build exists. Our own
-           InstallButton already offers only the APK there, but Chrome offered
-           its own "Install app" entry alongside it, and a visitor taking that
-           one silently got the version without the widget.
+        /* These two switch off Chrome's *automatic* PWA install offer on
+           Android. Android's install is the .apk, because a PWA cannot carry
+           the Patro home-screen widget — the whole reason a native build
+           exists — and a visitor who took Chrome's offer instead silently got
+           the version without it.
 
-           `prefer_related_applications: true` stops `beforeinstallprompt`
-           firing on Chrome Android, which removes that entry. It does NOT
-           suppress it on Chrome desktop, where the event still fires — so
-           desktop install keeps working, and iOS is unaffected either way
-           since Add to Home Screen is manual and never used this event.
+           Measured on a real Nothing Phone (A024, Android 17, Chrome 151) by
+           serving this manifest and a copy with both fields deleted, over
+           `adb reverse`, and listening for the event:
+
+             with the fields    beforeinstallprompt  did NOT fire
+             without them       beforeinstallprompt  DID fire
+
+           So the suppression is real and these fields are what cause it: no
+           mini-infobar, and nothing fires the prompt our own code could show.
+           Verified separately in a desktop Chromium that the event still
+           fires there with the fields present, so desktop install is
+           untouched; iOS never used the event at all, as Add to Home Screen
+           is manual.
+
+           What this does NOT do — and cannot — is remove Chrome's ⋮ menu
+           entry. Chrome 151 shows "Install and create shortcut" on every
+           page: verified that example.com, which serves no manifest at all,
+           offers the identical entry. That is Chrome's universal-install
+           affordance, a property of the browser like bookmarking, and no
+           manifest field opts out of it. On a site with a manifest it still
+           opens a real "Install app" dialog. Treat the menu route as out of
+           our hands; do not add manifest hacks trying to defeat it.
 
            Note the Play listing is internal-testing only for now, so the `url`
            below 404s for anyone who is not a tester. That is tolerable because
            what we want here is the suppression, not the store redirect, and
-           the field becomes fully correct the day the listing goes public. */
+           the field becomes fully correct the day the listing goes public.
+           Do not "simplify" by deleting the entry — that re-enables the
+           automatic prompt, which is the half that does work. */
         related_applications: [
           {
             platform: 'play',
