@@ -241,12 +241,22 @@ The script expects the AAB already built at
 doesn't rebuild — and defaults to the `internal` track
 (`npm run play:publish -- closed` for another one).
 
-**Play Store, not GitHub Releases, is the live distribution channel now.**
-The `android-v*` GitHub releases (`android-v1.0.0` through `android-v1.5.2`,
-asset `lekh-patro.apk`) predate both the version-unification with
-`package.json` and the Play automation — they're the pre-Play-Store history,
-not a channel still being updated. Don't add a new one for a routine release;
-`npm run play:publish` is the current path.
+**Both channels are live, and they are for different people.** Play carries
+the app for anyone who can install from Play; the `android-v*` GitHub releases
+(asset `lekh-patro.apk`) carry it for everyone else, and are what the site's
+own "Get app (.apk)" button downloads via `releases/latest/download`.
+
+`android-v1.0.0` through `android-v1.5.2` are TWA-era history and predate both
+the version-unification with `package.json` and the Play automation. From
+**`android-v1.8.72` (2026-09-01)** the GitHub release is a current Capacitor
+build again, cut from the same APK as the Play upload.
+
+Routine releases still go to Play with `npm run play:publish`. Cut a GitHub
+release when the sideload copy has drifted far enough to matter — it sat 67
+patch versions behind before this one, which made the README's own install
+instructions point at a build from before the Capacitor migration. The asset
+filename must stay `lekh-patro.apk` or `releases/latest/download` stops
+resolving and the in-app button 404s.
 
 ## Deliberate choices worth not undoing
 
