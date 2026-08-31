@@ -12,6 +12,7 @@ import { BootScreen } from './components/BootScreen'
 import { AboutSheet } from './components/AboutSheet'
 import { AboutButton } from './components/AboutButton'
 import { UpdatePrompt } from './components/UpdatePrompt'
+import { WebAppNotice } from './components/WebAppNotice'
 import { warmOcrCacheInBackground } from './lib/ocr/prefetch'
 import { refreshDynamicColor } from './lib/dynamicColor'
 import './App.css'
@@ -237,6 +238,12 @@ function App() {
           The toast rendered dimmed behind the sheet with both buttons dead —
           exactly the failure this prop was added for. */}
       <UpdatePrompt suppressed={booting || aboutOpen} />
+      {/* Renders only inside an installed Android *web* app — the one thing
+          Chrome's ⋮ menu can still produce and the manifest cannot prevent.
+          Suppressed by booting/aboutOpen for exactly the reasons given above;
+          the About sheet's top layer would strand this card's buttons the same
+          way it stranded the update toast's. */}
+      <WebAppNotice suppressed={booting || aboutOpen} />
     </>
   )
 }

@@ -1,0 +1,138 @@
+/* Same card as the update toast, and deliberately so: both are the app saying
+   something about itself rather than about the reader's text, and a second
+   visual language for that would be noise. See UpdatePrompt.css for why this
+   shape — offer, not modal; corner, not centre.
+
+   z-index sits with the update toast: over the mobile dock (4) and the app bar
+   (3), under the boot screen (10). The two can never be on screen together —
+   this one only renders in an installed Android web app on its first launch
+   after the manifest change, and the update toast is suppressed for the first
+   10s of any load — but they would stack rather than overlap if they were. */
+.web-app-notice {
+  position: fixed;
+  z-index: 5;
+  left: clamp(0.75rem, 3vw, 1.5rem);
+  bottom: clamp(0.75rem, 3vw, 1.5rem);
+  width: min(22rem, calc(100vw - 1.5rem));
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-pop);
+  animation: web-app-notice-in var(--dur-slow) var(--ease-expo) backwards;
+}
+
+@keyframes web-app-notice-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+}
+
+.web-app-notice__text {
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+/* लेख / पात्रो in the app's own two colours, matching the app bar, boot screen,
+   About sheet and update toast. Noto Sans Devanagari rather than --display-dev
+   for the same reason given in BootScreen.css. */
+.web-app-notice__mark {
+  font-family: 'Noto Sans Devanagari', var(--display-dev);
+  font-weight: 700;
+  color: var(--flag-blue);
+}
+.web-app-notice__slash {
+  margin: 0 0.05em;
+  color: var(--muted);
+}
+.web-app-notice__patro {
+  font-family: 'Noto Sans Devanagari', var(--display-dev);
+  font-weight: 700;
+  color: var(--accent-text);
+}
+
+/* No accent dot, unlike the update toast. That dot means "something changed";
+   nothing changed here — this is a standing fact about their install, and
+   dressing it as an event would overstate it. */
+.web-app-notice__note {
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.web-app-notice__actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+.web-app-notice__btn {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 0.82rem;
+  border-radius: var(--radius-pill);
+  padding: 0 1rem;
+  min-height: 44px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease),
+    transform var(--dur-fast) var(--ease-expo);
+}
+.web-app-notice__btn:active {
+  transform: scale(0.97);
+}
+.web-app-notice__btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+/* "Keep this" is a genuine answer, not a nudge to step around. The web app is
+   a working install; someone who is happy without the widget is not making a
+   mistake, so this reads as an equal option rather than a greyed-out one. */
+.web-app-notice__btn--ghost {
+  border: 1px solid var(--border-field);
+  background: transparent;
+  color: var(--text-h);
+}
+@media (hover: hover) {
+  .web-app-notice__btn--ghost:hover {
+    border-color: var(--accent-border);
+    background: var(--accent-bg);
+  }
+}
+.web-app-notice__btn--primary {
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: var(--shadow-accent);
+}
+@media (hover: hover) {
+  .web-app-notice__btn--primary:hover {
+    opacity: 0.92;
+  }
+}
+
+/* Above the fixed dock, not behind it — same measurement as the update toast:
+   the dock is 4.75rem plus the gesture inset. This notice only ever renders on
+   a phone, so this is the real layout rather than the narrow-screen fallback. */
+@media (max-width: 767px) {
+  .web-app-notice {
+    left: 0.75rem;
+    right: 0.75rem;
+    width: auto;
+    bottom: calc(5.25rem + env(safe-area-inset-bottom));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .web-app-notice {
+    animation: none;
+  }
+}

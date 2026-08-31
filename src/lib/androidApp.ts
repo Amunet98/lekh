@@ -65,3 +65,20 @@ export function isNativeApp(): boolean {
   }
 }
 
+/**
+ * Running as the *web app* on Android: installed to the home screen, but not
+ * the APK. This is the case Chrome's ⋮ menu can still produce and the site
+ * cannot prevent — see the manifest comment in `vite.config.ts` for the
+ * measurements. `prefer_related_applications` kills Chrome's automatic offer,
+ * but its "Install and create shortcut" entry is universal-install and
+ * appears even on sites with no manifest at all, so someone can always end up
+ * here deliberately.
+ *
+ * The point of naming the state is that it is invisible from the inside: this
+ * build looks identical to the APK, minus the one thing the APK exists for —
+ * the Patro home-screen widget. WebAppNotice says so rather than leaving it to
+ * be discovered by the widget not being in the picker.
+ */
+export function isAndroidWebApp(): boolean {
+  return isAndroid() && isStandalone() && !isNativeApp()
+}
