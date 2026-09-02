@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import type { Tab } from '../components/TabSwitcher'
+import { getPref, setPref } from '../lib/prefs'
 
 /* Back, behaving the way Back behaves in an app.
  *
@@ -37,7 +38,7 @@ import type { Tab } from '../components/TabSwitcher'
  * the old behaviour.
  */
 
-export type Sheet = 'about' | 'cheatsheet'
+export type Sheet = 'about' | 'settings' | 'cheatsheet'
 
 export const TAB_ORDER: Tab[] = ['type', 'translate', 'calendar']
 
@@ -60,6 +61,15 @@ export function tabFromUrl(): Tab {
   } catch {
     return HOME
   }
+}
+
+/* Where a cold launch lands. An explicit ?tab= always wins — that is a widget
+   deep link or a launcher shortcut, which is someone asking for a specific
+   screen right now and outranks a standing preference. */
+function landingTab(): Tab {
+  const fromUrl = tabFromUrl()
+  if (fromUrl !== HOME) return fromUrl
+  return getPref('restoreLastTab') ? getPref('lastTab') : HOME
 }
 
 function urlForTab(tab: Tab): string {
@@ -112,7 +122,7 @@ function prefersReducedMotion(): boolean {
 }
 
 export function useAppNavigation() {
-  const [tab, setTab] = useState<Tab>(tabFromUrl)
+  const [tab, setTab] = useState<Tab>(landingTab)
   const [sheet, setSheet] = useState<Sheet | null>(null)
   /* A tab change asked for while a sheet is open cannot be done in one step:
      the sheet's entry has to come off first, and history.back() only reports
@@ -127,10 +137,17 @@ export function useAppNavigation() {
      to be on first. Android synthesises a parent stack for exactly this case;
      this is the same courtesy, two lines of it. */
   useEffect(() => {
-    const landed = tabFromUrl()
+    const landed = landingTab()
     write({ tab: HOME, sheet: null }, 'replace')
     if (landed !== HOME) write({ tab: landed, sheet: null }, 'push')
   }, [])
+
+  /* Recorded unconditionally, whether or not "open where I left off" is on —
+     otherwise switching the setting on only starts working after the next
+     section change, which reads as the setting being broken. */
+  useEffect(() => {
+    setPref('lastTab', tab)
+  }, [tab])
 
   /* One door for every tab change — the dock, Alt+digit, the About sheet's
      section buttons, and a hardware Back all arrive here. */

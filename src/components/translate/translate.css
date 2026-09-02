@@ -163,7 +163,7 @@
   border: 1px solid var(--border-field);
   border-radius: var(--radius-card);
   padding: var(--sp-4);
-  font-size: 1.1rem;
+  font-size: calc(1.1rem * var(--text-scale));
   line-height: 1.75;
   min-height: 11rem;
   transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);

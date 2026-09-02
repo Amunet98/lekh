@@ -27,6 +27,18 @@ export function resolveTheme(theme: Theme): ResolvedTheme {
   return theme
 }
 
+/* Two controls set the theme now — the app-bar toggle and the Settings sheet
+   — so it needs somewhere for one to hear about the other. A listener set
+   rather than lifting the state into App: the FOUC bootstrap in index.html
+   has already applied a theme before React exists, and this file stays the
+   single owner of that fact. */
+const listeners = new Set<() => void>()
+
+export function subscribeTheme(fn: () => void): () => void {
+  listeners.add(fn)
+  return () => listeners.delete(fn)
+}
+
 export function applyTheme(theme: Theme): void {
   const resolved = resolveTheme(theme)
   document.documentElement.dataset.theme = resolved
@@ -51,4 +63,5 @@ export function applyTheme(theme: Theme): void {
   } catch {
     // theme still applies this visit, just won't be remembered
   }
+  listeners.forEach((fn) => fn())
 }

@@ -12,8 +12,11 @@ import { InstallButton } from './components/InstallButton'
 import { BootScreen } from './components/BootScreen'
 import { AboutSheet } from './components/AboutSheet'
 import { AboutButton } from './components/AboutButton'
+import { SettingsSheet } from './components/SettingsSheet'
+import { SettingsButton } from './components/SettingsButton'
 import { UpdatePrompt } from './components/UpdatePrompt'
 import { WebAppNotice } from './components/WebAppNotice'
+import { usePref } from './hooks/usePref'
 import { warmOcrCacheInBackground } from './lib/ocr/prefetch'
 import { refreshDynamicColor } from './lib/dynamicColor'
 import './App.css'
@@ -49,6 +52,15 @@ function App() {
   // and Upload, each calling useTranslateState() themselves) so it survives
   // the tab unmounting/remounting rather than resetting on every visit.
   const translateState = useTranslateState()
+  const [editorSize] = usePref('editorSize')
+
+  /* On :root rather than on the editor, because two components read it — the
+     Type editor and both translation panes — and a custom property is how one
+     setting reaches both without either of them knowing the setting exists. */
+  useEffect(() => {
+    const scale = editorSize === 'xl' ? '1.3' : editorSize === 'lg' ? '1.15' : '1'
+    document.documentElement.style.setProperty('--text-scale', scale)
+  }, [editorSize])
 
   /* Alt+1..3 switch tabs, matching TAB_ORDER's left-to-right order. Alt-digit isn't
      text any browser inserts into a focused field, and useEditorState's own
@@ -164,6 +176,7 @@ function App() {
           <div className="app-bar__actions">
             <InstallButton />
             <ThemeToggle />
+            <SettingsButton onClick={() => openSheet('settings')} />
             <AboutButton onClick={() => openSheet('about')} />
           </div>
         </div>
@@ -183,6 +196,7 @@ function App() {
       </div>
 
       <AboutSheet open={sheet === 'about'} onClose={closeSheet} onGoTo={goToTab} />
+      <SettingsSheet open={sheet === 'settings'} onClose={closeSheet} />
 
       {/* Always mounted — the hook inside it is what registers the service
           worker. It renders nothing until an update is waiting, and nothing at

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { convert, suggest } from '../lib/engine'
 import type { Chip } from '../lib/engine/types'
 import { confirm, tick } from '../lib/haptics'
+import { getPref } from '../lib/prefs'
 import { shareText } from '../lib/share'
 
 const TEXT_KEY = 'lekh:editor-text'
@@ -36,7 +37,10 @@ function isTrigger(ch: string): boolean {
 
 export function useEditorState() {
   const [text, setText] = useState(getInitialText)
-  const [nepali, setNepali] = useState(true)
+  /* Read once, at mount, rather than subscribed: this is what the editor
+     *starts* as, and having a settings change silently flip the mode under
+     someone mid-sentence would be worse than making them tap EN/नेपाली. */
+  const [nepali, setNepali] = useState(() => getPref('startNepali'))
   const [copied, setCopied] = useState(false)
   const [flashing, setFlashing] = useState(false)
   const [lastCleared, setLastCleared] = useState<string | null>(null)

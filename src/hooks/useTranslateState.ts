@@ -15,6 +15,7 @@ import { memoryTier } from '../lib/translation/deviceMemory'
 import type { ModelLoadProgress } from '../lib/translation/provider'
 import { shareText } from '../lib/share'
 import { warn } from '../lib/haptics'
+import { getPref, setPref } from '../lib/prefs'
 
 export type TranslateMode = 'online' | 'ondevice'
 export type Direction = 'ne-en' | 'en-ne'
@@ -43,10 +44,19 @@ function romanizedHint(text: string, direction: Direction): string | null {
 }
 
 export function useTranslateState() {
-  const [direction, setDirection] = useState<Direction>('en-ne')
+  /* Both of these used to reset to their defaults on every single launch,
+     which meant someone who mostly translates Nepali into English re-set the
+     direction every time they opened the app. Persisted through prefs, and
+     kept as booleans there so the stored value cannot go stale if these union
+     types are ever renamed. */
+  const [direction, setDirection] = useState<Direction>(() =>
+    getPref('translateReversed') ? 'ne-en' : 'en-ne',
+  )
   const [sourceText, setSourceText] = useState(getInitialSourceText)
   const [translated, setTranslated] = useState('')
-  const [mode, setMode] = useState<TranslateMode>('online')
+  const [mode, setMode] = useState<TranslateMode>(() =>
+    getPref('translateOnDevice') ? 'ondevice' : 'online',
+  )
   const [status, setStatus] = useState<Status>('idle')
   const [error, setError] = useState<string | null>(null)
   const [modelLoad, setModelLoad] = useState<ModelLoadProgress | null>(null)
@@ -78,6 +88,17 @@ export function useTranslateState() {
       // localStorage unavailable — source text still works this visit, just won't survive a reload
     }
   }, [sourceText])
+
+  /* Written wherever they change rather than at every setter call site —
+     mode is set from five places (the toggle, the confirm dialog, the
+     out-of-memory fallback) and one of them would eventually be missed. */
+  useEffect(() => {
+    setPref('translateReversed', direction === 'ne-en')
+  }, [direction])
+
+  useEffect(() => {
+    setPref('translateOnDevice', mode === 'ondevice')
+  }, [mode])
 
   const sourceLang: Language = direction === 'ne-en' ? NEPALI : ENGLISH
   const targetLang: Language = direction === 'ne-en' ? ENGLISH : NEPALI

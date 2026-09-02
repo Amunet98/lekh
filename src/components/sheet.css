@@ -1,0 +1,310 @@
+/* The sheet shell, shared by every bottom sheet in the app.
+ *
+ * These rules were the About sheet's and they are unchanged — the file exists
+ * because there is now more than one sheet, and a second copy of a tuned
+ * bottom-sheet conversion is how two sheets start behaving differently on the
+ * same phone. Every comment below is the original one and still explains why
+ * its rule is the way it is.
+ *
+ * .sheet is the <dialog> frame only: transparent and unpadded, because styling
+ * the dialog itself fights the UA's centring and max-width defaults.
+ * .sheet__panel is the visible card. .sheet-row is the shared list-item
+ * language both sheets speak — an icon, a title, a subtitle, and either a
+ * chevron or a switch on the right.
+ */
+
+/* Browsers that know <dialog> hide a closed one via their UA stylesheet.
+   Browsers that do not (Safari below 15.4, which the build still targets) have
+   no rule for the element at all, so the entire panel rendered inline and
+   permanently at the bottom of every page. Stating it here costs nothing where
+   the UA already agrees, and is the whole fix where it does not. */
+.sheet:not([open]) {
+  display: none;
+}
+.sheet {
+  border: 0;
+  padding: 0;
+  /* margin: auto is what centres a modal <dialog> in the top layer, and it
+     comes from the UA stylesheet — where Tailwind's preflight promptly
+     zeroes it. Without this the sheet pins itself to the top-left corner. */
+  margin: auto;
+  background: transparent;
+  max-width: min(34rem, calc(100vw - 2rem));
+  width: 100%;
+  max-height: calc(100dvh - 2rem);
+  overflow: visible;
+  color: var(--text);
+}
+.sheet::-webkit-scrollbar {
+  display: none;
+}
+/* A plain scrim. It used to blur the page behind it as well, which was the
+   one blur in the app that was genuinely decorative — the dim alone already
+   says the thing behind is suspended, and the sheet is opaque so there is
+   nothing to see through it anyway. */
+.sheet::backdrop {
+  background: rgba(6, 8, 16, 0.55);
+  animation: sheet-backdrop-in var(--dur) var(--ease) backwards;
+}
+@keyframes sheet-backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+.sheet[open] .sheet__panel {
+  animation: sheet-panel-in var(--dur-slow) var(--ease-expo) backwards;
+}
+@keyframes sheet-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+}
+.sheet__panel {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-pop);
+  padding: clamp(1.5rem, 5vw, 2.25rem);
+  /* The panel scrolls, not the dialog — so the rounded corners stay put while
+     long content moves inside them. */
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  text-align: center;
+  /* Drives the drag-to-dismiss glide on the mobile bottom-sheet layout below
+     (snap-back, or fling the rest of the way off-screen before actually
+     closing) — see useSheetDrag. Inert on desktop: the grabber that drives
+     it is hidden there, so this transform never moves off 0. Off while a
+     pointer is actively dragging it, so the sheet tracks 1:1 with no lag. */
+  transition: transform var(--dur-slow) var(--ease-expo);
+}
+.sheet__panel--dragging {
+  transition: none;
+}
+/* The grabber's look lives in SheetGrabber.css (shared with CheatSheetPanel)
+   — this file only positions it and decides when it shows. Absolutely
+   positioned like .sheet__close below, for the same reason: the panel's own
+   padding and centred text-align would otherwise fight a full-width bar
+   flush with the top edge. Hidden by default (the desktop centred card has
+   no drag gesture) and shown only once the panel becomes a bottom sheet,
+   at the same breakpoint as the shape switch further down this file. */
+.sheet__grabber {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+@media (max-width: 560px) {
+  .sheet__grabber {
+    display: flex;
+  }
+}
+/* Hidden once the grabber above takes over on the mobile bottom sheet —
+   see the same breakpoint further down this file. */
+.sheet__close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease);
+}
+@media (hover: hover) {
+  .sheet__close:hover {
+    color: var(--text-h);
+    background: color-mix(in srgb, var(--text) 8%, transparent);
+  }
+}
+.sheet__close:focus-visible {
+  color: var(--text-h);
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+}
+/* One per row, left-aligned. The old landing centred these as pills, which
+   put the label on line one and half the description on line two — three
+   chips, three different silhouettes, ragged around a centred axis. */
+.sheet-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1.75rem;
+  text-align: left;
+}
+.sheet-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 52px;
+  padding: 0.6rem 0.9rem;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  /* Explicit, and it has to be. The panel is text-align: center and the row
+     sets left on the container — but a <button> gets text-align: center from
+     the UA stylesheet, which beats inheritance. Without this the label sits
+     centred over its own description instead of ranging left off the icon. */
+  text-align: left;
+  color: var(--text);
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-field);
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease),
+    background-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease-expo);
+}
+@media (hover: hover) {
+  /* :not(--stack) here and on the two rules below: a stacked row is a
+     container for its own control, not a control itself, so it must not tint
+     under the pointer or press when the thing inside it is pressed. */
+  .sheet-row:not(.sheet-row--stack):hover {
+    border-color: var(--accent-border);
+    background: var(--accent-bg);
+  }
+}
+.sheet-row:not(.sheet-row--stack):focus-visible {
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+}
+.sheet-row:not(.sheet-row--stack):active {
+  transform: scale(0.985);
+}
+.sheet-row__icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  color: var(--accent-text);
+}
+.sheet-row__text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+.sheet-row__text b {
+  color: var(--text-h);
+  font-weight: 600;
+}
+.sheet-row__rest {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.sheet-row__go {
+  margin-left: auto;
+  color: var(--muted);
+  transition: transform var(--dur-fast) var(--ease-expo), color var(--dur-fast) var(--ease);
+}
+@media (hover: hover) {
+  .sheet-row:not(.sheet-row--stack):hover .sheet-row__go {
+    color: var(--accent-text);
+    transform: translateX(3px);
+  }
+}
+/* Same row as the four above it, deliberately set apart.
+
+   Those four are navigation — they change which tab you are on. This one
+   leaves the app for a document, so it gets air above it and a muted icon
+   instead of the accent, which is enough to stop it reading as a fifth tab
+   without inventing a second row style to maintain. */
+.sheet-row--aside {
+  margin-top: 1.5rem;
+  text-decoration: none;
+}
+.sheet-row--aside .sheet-row__icon {
+  color: var(--muted);
+}
+@media (hover: hover) {
+  .sheet-row--aside:hover .sheet-row__icon {
+    color: var(--accent-text);
+  }
+}
+@media (max-width: 560px) {
+  .sheet {
+    max-width: 100vw;
+    max-height: 100dvh;
+    margin: auto 0 0;
+    /* The UA default centres a dialog in both axes; this pins it to the
+       bottom edge so the sheet rises from where the thumb is. */
+    top: auto;
+    bottom: 0;
+  }
+  /* The grabber above replaces this here. */
+  .sheet__close {
+    display: none;
+  }
+  .sheet__panel {
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
+    max-height: 88dvh;
+    /* A bit more than the clamped default (up to 2.25rem elsewhere) so the
+       absolutely-positioned grabber has clearance above the wordmark instead
+       of sitting flush against it. */
+    padding-top: 2.75rem;
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
+  }
+  .sheet[open] .sheet__panel {
+    animation-name: sheet-bottom-in;
+  }
+}
+@keyframes sheet-bottom-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+/* The Material You switch row.
+
+   It borrows .sheet-row wholesale — same height, border, hover and press
+   as the navigation rows above it — because it sits in that stack and a
+   settings row that styled itself differently would just look like a mistake.
+   The only difference is what occupies the right-hand slot: a track instead of
+   the → arrow, since this row changes something in place rather than going
+   somewhere.
+
+   role="switch" on the <button> carries the state to a screen reader, so the
+   track below is aria-hidden: it is the same fact drawn twice, and announcing
+   it twice is worse than not drawing it. */
+.sheet-row--switch {
+  /* The rows above are links and this one is a control; without this the
+     stack loses its rhythm where the aside row's own margin starts. */
+  margin-top: 0.5rem;
+}
+.sheet-switch {
+  margin-left: auto;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 20px;
+  padding: 2px;
+  border-radius: var(--radius-pill);
+  /* --border-field, not --border: this is a control the user has to find in
+     order to operate it, which is the 3:1 case index.css sets that token
+     aside for. */
+  border: 1px solid var(--border-field);
+  background: var(--surface-2);
+  transition: background-color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease);
+}
+.sheet-switch-thumb {
+  display: block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: transform var(--dur) var(--ease-expo),
+    background-color var(--dur-fast) var(--ease);
+}
+[aria-checked='true'] .sheet-switch {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+[aria-checked='true'] .sheet-switch-thumb {
+  background: var(--on-accent);
+  transform: translateX(16px);
+}

@@ -1,15 +1,11 @@
-import { useEffect, useRef } from 'react'
 import type { Tab } from './TabSwitcher'
 import { SectionIcon } from './SectionIcons'
 import { LekhMark } from './LekhMark'
 import { KEYWORDS } from '../data/keywords'
 import { useHasAndroidApp } from '../hooks/useHasAndroidApp'
-import { useDynamicColor } from '../hooks/useDynamicColor'
-import { setDynamicColorEnabled } from '../lib/dynamicColor'
 import { APK_URL, isAndroid } from '../lib/androidApp'
-import { useSheetDrag } from '../hooks/useSheetDrag'
+import { Sheet } from './Sheet'
 
-import './SheetGrabber.css'
 import './AboutSheet.css'
 
 interface AboutSheetProps {
@@ -32,92 +28,11 @@ const SECTIONS: { id: Tab; label: string; rest: string; icon: Tab }[] = [
 
 
 export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
-  const ref = useRef<HTMLDialogElement>(null)
-  const panelRef = useRef<HTMLDivElement>(null)
   const android = isAndroid()
   const hasApp = useHasAndroidApp()
-  const dynamicColor = useDynamicColor()
-
-  // Drag-to-dismiss — only engages on the mobile bottom-sheet layout (see
-  // .about__grabber's own media query below at the same 560px breakpoint the
-  // bottom-sheet conversion already uses); the desktop centered card keeps
-  // the plain X, since dragging isn't a natural gesture for a floating card.
-  const drag = useSheetDrag(ref, panelRef, onClose)
-
-  /* showModal() rather than the open attribute. It is what buys the focus
-     trap, the inert background, the top-layer stacking (so the sheet clears
-     the app bar and the mobile tab bar without a z-index argument) and
-     Escape-to-close — none of which we then have to write or test. The
-     attribute form gives you a non-modal box and none of that. */
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    /* Feature-checked because the build targets safari14 (see vite.config.ts)
-       and <dialog> did not land until Safari 15.4. On an older iPhone this
-       threw straight out of an effect with no error boundary above it, which
-       React answers by unmounting the tree — so tapping the wordmark blanked
-       the whole app. Nothing opens on those browsers now; the CSS keeps the
-       panel out of the page in the meantime. */
-    if (typeof el.showModal !== 'function' || typeof el.close !== 'function') return
-    if (open && !el.open) el.showModal()
-    if (!open && el.open) el.close()
-  }, [open])
 
   return (
-    <dialog
-      ref={ref}
-      className="about"
-      aria-labelledby="about-title"
-      /* Fires for Escape and for close() alike, so the parent's state can
-         never drift out of sync with the element's own open flag. */
-      onClose={() => {
-        drag.reset()
-        onClose()
-      }}
-      /* Backdrop click. The ::backdrop pseudo-element is not an event target,
-         so the click lands on the <dialog> itself — anything inside the panel
-         stops at the panel, which is why the check is against currentTarget. */
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose()
-      }}
-    >
-      <div
-        ref={panelRef}
-        className={`about__panel${drag.isDragging ? ' about__panel--dragging' : ''}`}
-        style={{ transform: `translateY(${drag.dragY}px)` }}
-        onTransitionEnd={drag.handlePanelTransitionEnd}
-      >
-        {/* Mobile bottom-sheet only (see .about__grabber's media query) — a
-            plain click closes it like any button, keeping this operable for
-            keyboard/AT users who can't drag; dragging or flinging it down
-            closes it too, which is the whole point of a grabber over an X. */}
-        <button
-          type="button"
-          className={`sheet-grabber about__grabber${drag.isDragging ? ' sheet-grabber--dragging' : ''}`}
-          aria-label="Close"
-          onClick={drag.handleGrabberClick}
-          onPointerDown={drag.handleGrabberPointerDown}
-          onPointerMove={drag.handleGrabberPointerMove}
-          onPointerUp={drag.handleGrabberPointerEnd}
-          onPointerCancel={drag.handleGrabberPointerEnd}
-        >
-          <span className="sheet-grabber-bar" aria-hidden="true" />
-        </button>
-        <button type="button" className="about__close" aria-label="Close" onClick={onClose}>
-          <svg
-            viewBox="0 0 24 24"
-            width="18"
-            height="18"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            aria-hidden="true"
-          >
-            <path d="M6 6l12 12M18 6 6 18" />
-          </svg>
-        </button>
-
+    <Sheet open={open} onClose={onClose} labelledBy="about-title">
         {/* The mark is wrapped in its own span so it is a single flex item.
             Left as a bare text node it became an anonymous flex item of its
             own, which cuts the शिरोरेखा — see LekhMark. */}
@@ -147,17 +62,17 @@ export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
           </span>
         </div>
 
-        <div className="about__sections">
+        <div className="sheet-rows">
           {SECTIONS.map(({ id, icon, label, rest }) => (
-            <button key={id} type="button" className="about__section" onClick={() => onGoTo(id)}>
-              <span className="about__section-icon">
+            <button key={id} type="button" className="sheet-row" onClick={() => onGoTo(id)}>
+              <span className="sheet-row__icon">
                 <SectionIcon name={icon} size={18} />
               </span>
-              <span className="about__section-text">
+              <span className="sheet-row__text">
                 <b>{label}</b>
-                <span className="about__section-rest">{rest}</span>
+                <span className="sheet-row__rest">{rest}</span>
               </span>
-              <span className="about__section-go" aria-hidden="true">
+              <span className="sheet-row__go" aria-hidden="true">
                 →
               </span>
             </button>
@@ -196,61 +111,6 @@ export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
           </a>
         )}
 
-        {/* Material You. Rendered only where the OS actually hands over a
-            palette — the Android app on Android 12 and up. A switch offering
-            to turn off something that was never on is worse than no switch,
-            so on the web, on the plain PWA and on Android 11 and below this
-            row does not exist at all.
-
-            It is an opt-*out*. On a phone that has the colours, the app wears
-            them by default; this is here for the person who wants the flag
-            crimson back, which is still the app's identity everywhere else.
-
-            The home-screen widgets are not covered by it. They follow the
-            wallpaper unconditionally, because their neighbours on that screen
-            do too — a widget is a citizen of the launcher before it is part of
-            this app, and the only widgets that ignore the wallpaper are the
-            ones that look out of place. */}
-        {dynamicColor.supported && (
-          <button
-            type="button"
-            className="about__section about__section--switch"
-            role="switch"
-            aria-checked={dynamicColor.enabled}
-            onClick={() => setDynamicColorEnabled(!dynamicColor.enabled)}
-          >
-            <span className="about__section-icon">
-              <svg
-                viewBox="0 0 24 24"
-                width="18"
-                height="18"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M12 3a9 9 0 1 0 0 18c1 0 1.7-.8 1.7-1.7 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.1 0-.9.8-1.7 1.7-1.7H16a5 5 0 0 0 5-5c0-4-4-7.3-9-7.3Z" />
-                <circle cx="7.5" cy="11" r="1.1" fill="currentColor" stroke="none" />
-                <circle cx="10.5" cy="7" r="1.1" fill="currentColor" stroke="none" />
-                <circle cx="15" cy="7.5" r="1.1" fill="currentColor" stroke="none" />
-              </svg>
-            </span>
-            <span className="about__section-text">
-              <b>Wallpaper colours</b>
-              {/* Same length as the rows above, so the block keeps one
-                  rhythm at 390px. */}
-              <span className="about__section-rest">
-                {dynamicColor.enabled ? 'following your Material You theme' : 'off — using Lekh\u2019s own crimson'}
-              </span>
-            </span>
-            <span className="about__switch" aria-hidden="true">
-              <span className="about__switch-thumb" />
-            </span>
-          </button>
-        )}
-
         {/* A row, not a footer link.
             
             This lived in a footer for exactly one version. A footer is a
@@ -262,8 +122,8 @@ export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
             you type is ever sent anywhere", which online translation makes
             false; typing, OCR and the calendar genuinely are local, and the
             page one tap away lists the four things that are not. */}
-        <a className="about__section about__section--aside" href="/privacy.html">
-          <span className="about__section-icon">
+        <a className="sheet-row sheet-row--aside" href="/privacy.html">
+          <span className="sheet-row__icon">
             <svg
               viewBox="0 0 24 24"
               width="18"
@@ -278,14 +138,14 @@ export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
               <path d="M12 3.5 5 6.2v5c0 4.2 2.8 7.5 7 9.3 4.2-1.8 7-5.1 7-9.3v-5Z" />
             </svg>
           </span>
-          <span className="about__section-text">
+          <span className="sheet-row__text">
             <b>Privacy</b>
             {/* Kept to the length of the four rows above ("Bikram Sambat,
                 festivals & holidays") so it sits on one line at 390px and the
                 block keeps one rhythm. */}
-            <span className="about__section-rest">typing, OCR and calendar stay local</span>
+            <span className="sheet-row__rest">typing, OCR and calendar stay local</span>
           </span>
-          <span className="about__section-go" aria-hidden="true">
+          <span className="sheet-row__go" aria-hidden="true">
             →
           </span>
         </a>
@@ -313,7 +173,6 @@ export function AboutSheet({ open, onClose, onGoTo }: AboutSheetProps) {
           <span className="dev">लेख</span> Lekh Patro · web build {__APP_VERSION__} · ©{' '}
           {new Date().getFullYear()}
         </p>
-      </div>
-    </dialog>
+    </Sheet>
   )
 }

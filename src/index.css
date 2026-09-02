@@ -117,6 +117,11 @@
   --sp-6: 2rem;
   --sp-7: 3rem;
 
+  /* Editor and translation text size, set from the Settings sheet (App.tsx
+     writes it on :root). 1 is the designed size; the control only scales up,
+     because the designed size is already at the iOS zoom-on-focus floor. */
+  --text-scale: 1;
+
   --dur: 200ms;
   --dur-fast: 140ms;
   --dur-slow: 420ms;

@@ -124,8 +124,9 @@
   color: var(--text-h);
   /* 1.05rem, and never below 1rem: iOS zooms the page when a field under
      16px takes focus, which on a typing app means every session starts by
-     jerking the layout sideways. */
-  font-size: 1.05rem;
+     jerking the layout sideways. --text-scale (the Settings sheet's text-size
+     control) only ever multiplies up, for that reason. */
+  font-size: calc(1.05rem * var(--text-scale));
   line-height: 1.85;
 }
 .editor textarea:focus {
@@ -318,7 +319,7 @@
 @media (max-width: 480px) {
   .editor textarea {
     padding: var(--sp-3);
-    font-size: 1rem;
+    font-size: calc(1rem * var(--text-scale));
   }
   .actions {
     gap: var(--sp-1);

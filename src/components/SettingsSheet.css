@@ -1,0 +1,123 @@
+/* Settings. The frame, the panel and the rows come from sheet.css — this file
+   is only what About does not also need: a title, group headings, the
+   segmented controls, and the one destructive button in the app. */
+
+.settings__title {
+  font-family: var(--sans);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-h);
+  /* The panel centres its text for About's wordmark; a settings screen is a
+     list and reads left. */
+  text-align: left;
+  margin-bottom: var(--sp-4);
+}
+
+.settings__group {
+  text-align: left;
+  margin-top: var(--sp-5);
+}
+.settings__group:first-of-type {
+  margin-top: 0;
+}
+.settings__group-title {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: var(--sp-2);
+}
+/* The row language is shared, but a settings row stacks its control under its
+   label rather than putting a chevron beside it — a segmented control is too
+   wide to sit on the same line as its own description at 390px. */
+.sheet-row--stack {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.6rem;
+  padding: 0.75rem 0.9rem;
+  /* Not a button; nothing to press about the row itself. */
+  cursor: default;
+}
+.settings__group .sheet-row + .sheet-row {
+  margin-top: 0.5rem;
+}
+
+.settings__seg {
+  display: flex;
+  gap: var(--sp-1);
+  padding: 0.2rem;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  /* The same segmented control the section nav is, at the same radius and
+     padding — one idea, expressed once. */
+  border: 1px solid var(--border);
+}
+.settings__seg-btn {
+  flex: 1;
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-pill);
+  /* 40px rather than the dock's 48: this is inside a scrolling sheet, where a
+     taller control pushes the rows below it off the screen, and it is not a
+     control anyone hits repeatedly. */
+  min-height: 40px;
+  padding: 0 0.5rem;
+  cursor: pointer;
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease),
+    transform var(--dur-fast) var(--ease-expo);
+}
+@media (hover: hover) {
+  .settings__seg-btn:hover:not(.settings__seg-btn--active) {
+    color: var(--text-h);
+    background: color-mix(in srgb, var(--text) 7%, transparent);
+  }
+}
+.settings__seg-btn:active {
+  transform: scale(0.96);
+}
+.settings__seg-btn--active {
+  color: var(--on-accent);
+  background: var(--accent);
+  font-weight: 600;
+  box-shadow: var(--shadow-accent);
+}
+
+/* The only destructive control in the app, and it is deliberately quiet: an
+   outline in --danger rather than a filled red block, because it sits in a
+   list of ordinary settings and a solid red button there reads as a warning
+   about the whole screen. */
+.settings__danger {
+  align-self: flex-start;
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--danger);
+  background: transparent;
+  border: 1px solid var(--danger);
+  border-radius: var(--radius-pill);
+  min-height: 40px;
+  padding: 0 1.1rem;
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease), opacity var(--dur-fast) var(--ease),
+    transform var(--dur-fast) var(--ease-expo);
+}
+@media (hover: hover) {
+  .settings__danger:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--danger) 10%, transparent);
+  }
+}
+.settings__danger:active:not(:disabled) {
+  transform: scale(0.96);
+}
+.settings__danger:disabled {
+  opacity: 0.5;
+  cursor: default;
+  color: var(--muted);
+  border-color: var(--border-field);
+}

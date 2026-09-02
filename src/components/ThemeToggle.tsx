@@ -1,5 +1,7 @@
-import { useEffect, useState, type ReactNode } from 'react'
-import { applyTheme, getInitialTheme, type Theme } from '../lib/theme'
+import { useEffect, type ReactNode } from 'react'
+import { applyTheme, type Theme } from '../lib/theme'
+import { useTheme } from '../hooks/useTheme'
+import { tick } from '../lib/haptics'
 import './ThemeToggle.css'
 
 function AutoIcon() {
@@ -77,11 +79,10 @@ const META: Record<Theme, { label: string; icon: ReactNode }> = {
 }
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>(getInitialTheme)
-
-  useEffect(() => {
-    applyTheme(theme)
-  }, [theme])
+  /* Shared with the Settings sheet, which offers the same three states as a
+     segmented control — see useTheme. Setting it applies it, so the effect
+     that used to do that on mount is gone with the local state. */
+  const [theme, setTheme] = useTheme()
 
   useEffect(() => {
     if (theme !== 'auto') return
@@ -102,7 +103,10 @@ export function ThemeToggle() {
          no way to tell which of the three modes was live. */
       aria-label={`Theme: ${META[theme].label}. Switch to ${META[next].label}.`}
       title={`Theme: ${META[theme].label}`}
-      onClick={() => setTheme(next)}
+      onClick={() => {
+        tick()
+        setTheme(next)
+      }}
     >
       {META[theme].icon}
     </button>
