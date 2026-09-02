@@ -4,6 +4,7 @@ import './index.css'
 import { bootDynamicColor } from './lib/dynamicColor'
 import { applyTheme, getInitialTheme, watchSystemTheme } from './lib/theme'
 import { setHapticsEnabled } from './lib/haptics'
+import { installNativeBackHandler } from './lib/nativeBack'
 import { getPref } from './lib/prefs'
 import { ToastProvider } from './components/Toast'
 import App from './App.tsx'
@@ -30,6 +31,9 @@ bootDynamicColor()
 applyTheme(getInitialTheme())
 watchSystemTheme()
 setHapticsEnabled(getPref('haptics'))
+/* Android only, and the thing that makes useAppNavigation's history model
+   reachable at all inside the app — see nativeBack.ts. */
+installNativeBackHandler()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

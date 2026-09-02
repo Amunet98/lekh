@@ -54,6 +54,16 @@ android {
         }
     }
     buildTypes {
+        /* A debug build installs *alongside* the Play build rather than
+           refusing to (different signing key) or replacing it. Verifying a
+           native change on a real phone otherwise means uninstalling the
+           store version first, which takes the user's draft, their settings
+           and their place in the app with it. Two package names, two
+           installs, nothing lost. */
+        debug {
+            applicationIdSuffix ".dev"
+            versionNameSuffix "-dev"
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
