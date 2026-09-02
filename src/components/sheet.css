@@ -43,7 +43,7 @@
    says the thing behind is suspended, and the sheet is opaque so there is
    nothing to see through it anyway. */
 .sheet::backdrop {
-  background: rgba(6, 8, 16, 0.55);
+  background: rgb(var(--scrim) / 0.55);
   animation: sheet-backdrop-in var(--dur) var(--ease) backwards;
 }
 @keyframes sheet-backdrop-in {

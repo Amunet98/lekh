@@ -23,7 +23,7 @@
   /* 45%: enough to push the app behind the panel without hiding it. A sheet
      you can still see the editor through reads as "on top of my work"
      rather than "a different screen". */
-  background: rgba(6, 8, 16, 0.45);
+  background: rgb(var(--scrim) / 0.45);
   /* Without this the dim snaps in instantly while the panel below eases in
      over --dur-slow, and the mismatch is what reads as janky rather than
      smooth. backwards holds the from-frame until the animation starts,
