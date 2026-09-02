@@ -21,6 +21,7 @@ import {
 import { COVERAGE } from '../../lib/calendar/panchang'
 import { useMonthPanchang } from '../../hooks/useMonthPanchang'
 import { DateConverter } from './DateConverter'
+import { saveFile } from '../../lib/download'
 import './CalendarPage.css'
 
 function ChevronIcon({ dir }: { dir: 'left' | 'right' }) {
@@ -81,12 +82,9 @@ function downloadIcs(names: string[], date: Date) {
     'END:VCALENDAR',
   ]
   const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = 'lekh-patro-holiday.ics'
-  a.click()
-  URL.revokeObjectURL(url)
+  // saveFile, not an <a download>: that click is dropped silently by the
+  // Android WebView, so this button did nothing at all inside the app.
+  void saveFile(blob, 'lekh-patro-holiday.ics')
 }
 
 export function CalendarPage() {

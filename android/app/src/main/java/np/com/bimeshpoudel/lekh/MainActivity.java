@@ -20,6 +20,7 @@ public class MainActivity extends BridgeActivity {
         /* Before super.onCreate — that is where the Bridge is built, and it
          * only picks up plugins registered ahead of it. */
         registerPlugin(DynamicColorPlugin.class);
+        registerPlugin(PrintPlugin.class);
         super.onCreate(savedInstanceState);
         handleIntent(getIntent());
         /* activity_main.xml's android:scrollbars="none" is not enough — the

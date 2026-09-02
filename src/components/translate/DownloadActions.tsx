@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { TranslateState } from '../../hooks/useTranslateState'
+import { saveFile } from '../../lib/download'
+import { printPage } from '../../lib/print'
 import './DownloadActions.css'
 
 type Format = 'txt' | 'docx' | 'pdf'
@@ -10,22 +12,16 @@ const FORMATS: { id: Format; label: string; hint: string }[] = [
   { id: 'pdf', label: 'PDF', hint: 'Via your device’s print dialog' },
 ]
 
-function downloadBlob(blob: Blob, filename: string) {
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = filename
-  a.click()
-  URL.revokeObjectURL(url)
-}
-
 export function DownloadActions({ t }: { t: TranslateState }) {
   const printSheetRef = useRef<HTMLDivElement>(null)
   const [busy, setBusy] = useState(false)
   const enabled = t.translated.trim().length > 0
 
-  const downloadTxt = () => {
-    downloadBlob(new Blob([t.translated], { type: 'text/plain' }), 'lekh-translation.txt')
+  const downloadTxt = async () => {
+    await saveFile(
+      new Blob([t.translated], { type: 'text/plain' }),
+      'lekh-translation.txt',
+    )
   }
 
   const downloadDocx = async () => {
@@ -38,7 +34,7 @@ export function DownloadActions({ t }: { t: TranslateState }) {
       const doc = new Document({
         sections: [{ children: t.translated.split('\n').map((line) => new Paragraph(line)) }],
       })
-      downloadBlob(await Packer.toBlob(doc), 'lekh-translation.docx')
+      await saveFile(await Packer.toBlob(doc), 'lekh-translation.docx')
     } finally {
       setBusy(false)
     }
@@ -49,7 +45,8 @@ export function DownloadActions({ t }: { t: TranslateState }) {
     // engine is the only correct client-side path, so "Save as PDF" hands
     // off to window.print() with a print-only sheet (see @media print CSS).
     if (printSheetRef.current) printSheetRef.current.textContent = t.translated
-    window.print()
+    // Not window.print() directly — the Android WebView has none. See print.ts.
+    printPage('lekh-translation')
   }
 
   // A menu, not a <select>. The native control was the one thing on the page
@@ -82,7 +79,7 @@ export function DownloadActions({ t }: { t: TranslateState }) {
   // array constructed *during render* held a function that reads
   // printSheetRef — which react-hooks/refs correctly rejects.
   const run = (id: Format) => {
-    if (id === 'txt') downloadTxt()
+    if (id === 'txt') void downloadTxt()
     else if (id === 'docx') void downloadDocx()
     else printPdf()
   }
