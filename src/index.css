@@ -130,6 +130,20 @@
      curve that makes a panel feel like it was thrown rather than dragged. Used
      for anything that enters or presses; --ease stays for colour crossfades. */
   --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  /* For a surface that travels the width or height of the screen, which in
+     this app is the cheat-sheet panel and nothing else.
+   *
+     --ease-expo is wrong at that distance and it is worth saying why, because
+     it is right everywhere else. It spends 49% of the distance in its first
+     42ms and then drifts the last 10% over 281ms — imperceptible on the
+     About/Settings card, which moves 14px on desktop and 24px as a bottom
+     sheet, and very visible on a panel that moves 760px, where that tail is
+     76px of the panel still creeping after the movement has apparently
+     finished. It reads as a bounce rather than an arrival.
+
+     This curve keeps the velocity even instead: 16/50/69/80/88/93/96/98/100
+     across the duration, against expo's 49/75/88/94/97/99/100. */
+  --ease-slide: cubic-bezier(0.2, 0, 0, 1);
 
   /* Anek Devanagari covers Devanagari *and* Latin, so display type does not
      need a second face for the two scripts. */

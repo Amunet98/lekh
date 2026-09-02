@@ -46,7 +46,10 @@
   /* Drives the drag-to-dismiss glide (snap-back, or fling the rest of the way
      off-screen before actually closing) — see CheatSheetPanel.tsx. Off while
      a pointer is actively dragging it, so the sheet tracks 1:1 with no lag. */
-  transition: transform var(--dur-slow) var(--ease-expo);
+  /* --ease-slide, not --ease-expo: this panel moves the height of the screen
+     (or the width of one, on desktop), and the drag snap-back covers the same
+     ground. See the token's note in index.css. */
+  transition: transform var(--dur-slow) var(--ease-slide);
 }
 /* Only while it is open, which is the only time it moves.
  *
@@ -75,7 +78,7 @@
   border-radius: var(--radius-card) var(--radius-card) 0 0;
   border-top: 1px solid var(--border);
   padding-bottom: env(safe-area-inset-bottom);
-  animation: cheat-sheet-up var(--dur-slow) var(--ease-expo) backwards;
+  animation: cheat-sheet-up var(--dur-slow) var(--ease-slide) backwards;
 }
 @keyframes cheat-sheet-up {
   from {
@@ -98,7 +101,7 @@
     border-top: 0;
     border-left: 1px solid var(--border);
     padding-bottom: 0;
-    animation: cheat-sheet-in var(--dur-slow) var(--ease-expo) backwards;
+    animation: cheat-sheet-in var(--dur-slow) var(--ease-slide) backwards;
   }
   @keyframes cheat-sheet-in {
     from {
