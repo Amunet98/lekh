@@ -190,6 +190,12 @@ export function useAppNavigation() {
 
   const transitionToTab = useCallback(
     (next: Tab) => {
+      /* Nothing is moving, so nothing should animate. popstate fires for sheet
+         opens and closes too, and those arrive here with the tab unchanged —
+         applyTab correctly did nothing, but the transition had already been
+         started, so the whole page was snapshotted and slid 16px against an
+         identical copy of itself. That is the flicker on closing a sheet. */
+      if (next === tabRef.current) return
       const start = document.startViewTransition?.bind(document)
       if (!start || prefersReducedMotion()) {
         /* flushSync here too, and it is not decoration: restoreScroll has to
@@ -250,13 +256,31 @@ export function useAppNavigation() {
     setSheet(name)
   }, [])
 
+  /* Ask history to go back and let popstate clear the state — deliberately
+     NOT setSheet(null) here as well.
+   *
+   * Doing both was a real bug, reported in Brave and Firefox and reproducible
+   * in Chromium at phone width. Clearing the state re-rendered the tree, the
+   * effect in Sheet called <dialog>.close(), the element fired its own close
+   * event, and that calls straight back into here — while history.back(), which
+   * is asynchronous, had not landed yet. So the guard below still saw the sheet
+   * entry and popped a SECOND time. Two pops from a sheet on a non-home tab
+   * land on Type ("it goes back to Type instead of the tab I'm on"); two pops
+   * from a sheet on Type leave the app entirely ("it closes the whole
+   * website"). Which of the two you got depended on engine timing, which is
+   * why it looked like two different bugs.
+   *
+   * With state changing only on popstate, every re-entry — the close event,
+   * Escape, the backdrop, the grabber's fling, Android's Back — finds history
+   * and state already in agreement, and the guard does what it was written
+   * for rather than being outrun. */
   const closeSheet = useCallback(() => {
+    if (readState().sheet !== null) {
+      history.back()
+      return
+    }
+    // Already popped (a hardware Back, or the second call described above).
     setSheet(null)
-    /* Only pop if the entry is still ours to pop. A hardware Back has already
-       consumed it before <dialog> fires its own close event, and closing that
-       way would otherwise pop a second time and take the tab entry with it —
-       one press, two screens, which is the bug this guard exists for. */
-    if (readState().sheet !== null) history.back()
   }, [])
 
   useEffect(() => {
