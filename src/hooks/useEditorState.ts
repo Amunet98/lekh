@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { convert, suggest } from '../lib/engine'
 import type { Chip } from '../lib/engine/types'
-import { tick } from '../lib/haptics'
+import { confirm, tick } from '../lib/haptics'
 import { shareText } from '../lib/share'
 
 const TEXT_KEY = 'lekh:editor-text'
@@ -169,6 +169,9 @@ export function useEditorState() {
     setText(committed)
     if (!committed) return
     await navigator.clipboard.writeText(committed)
+    /* The label already flips to "copied" — this is the same acknowledgement
+       for a thumb that is covering the button it just pressed. */
+    confirm()
     setCopied(true)
     setTimeout(() => setCopied(false), 1600)
   }, [text])

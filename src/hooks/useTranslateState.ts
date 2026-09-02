@@ -14,6 +14,7 @@ import { romanizedToDevanagari } from '../lib/engine/romanize'
 import { memoryTier } from '../lib/translation/deviceMemory'
 import type { ModelLoadProgress } from '../lib/translation/provider'
 import { shareText } from '../lib/share'
+import { warn } from '../lib/haptics'
 
 export type TranslateMode = 'online' | 'ondevice'
 export type Direction = 'ne-en' | 'en-ne'
@@ -120,6 +121,7 @@ export function useTranslateState() {
     } catch {
       if (requestId !== requestIdRef.current) return
       setStatus('error')
+      warn()
       setError(
         chunks.length > 1
           ? 'Translation service is unavailable right now — part of this document translated before the connection dropped.'
@@ -167,6 +169,7 @@ export function useTranslateState() {
       setModelDownloaded(hasDownloadedModel())
     } catch {
       setStatus('error')
+      warn()
       setError(
         chunks.length > 1
           ? 'On-device translation failed partway through this document — switched back to online.'
@@ -196,6 +199,7 @@ export function useTranslateState() {
       setStatus('idle')
     } catch {
       setStatus('error')
+      warn()
       setError('Could not download the on-device model — check your connection and try again.')
     } finally {
       downloadingRef.current = false

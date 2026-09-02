@@ -2,6 +2,8 @@ import type { RefObject } from 'react'
 import type { EditorState } from '../hooks/useEditorState'
 import { SAMPLES } from '../data/samples'
 import { SHARE_AVAILABLE } from '../lib/share'
+import { tick } from '../lib/haptics'
+import { useToast } from '../hooks/useToast'
 import './Editor.css'
 
 /* Exported so App can hand the caret over when the boot screen leaves without
@@ -25,6 +27,7 @@ interface EditorProps {
 }
 
 export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
+  const toast = useToast()
   const isEmpty = editor.text.length === 0
   const wordCount = editor.text.trim() === '' ? 0 : editor.text.trim().split(/\s+/).length
 
@@ -95,7 +98,10 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
               aria-pressed={!editor.nepali}
               title="Type plain English — no conversion"
               onClick={() => {
-                if (editor.nepali) editor.toggleMode()
+                if (editor.nepali) {
+                  tick()
+                  editor.toggleMode()
+                }
                 textareaRef.current?.focus()
               }}
             >
@@ -107,7 +113,10 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
               aria-pressed={editor.nepali}
               title="Convert romanized Nepali to Devanagari"
               onClick={() => {
-                if (!editor.nepali) editor.toggleMode()
+                if (!editor.nepali) {
+                  tick()
+                  editor.toggleMode()
+                }
                 textareaRef.current?.focus()
               }}
             >
@@ -142,7 +151,17 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
               itself shouldn't exist there rather than existing and erroring
               on every tap. */}
           {SHARE_AVAILABLE && (
-            <button type="button" className="btn" disabled={isEmpty} onClick={() => void editor.share()}>
+            <button
+              type="button"
+              className="btn"
+              disabled={isEmpty}
+              /* A share that fails has nowhere to say so — the sheet simply
+                 never appears and the tap looks ignored. Dismissing it is not
+                 a failure and never reaches here (see share.ts). */
+              onClick={() => {
+                void editor.share().catch(() => toast.problem('Could not open the share sheet'))
+              }}
+            >
               share
             </button>
           )}

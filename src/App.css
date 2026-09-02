@@ -246,3 +246,93 @@
 .page--is-booting {
   visibility: hidden;
 }
+
+/* ── Section transitions ──────────────────────────────────────────────────
+ *
+ * Tab switching was a bare ternary in App.tsx: the whole screen replaced
+ * between two frames with nothing in between. It is the loudest "this is a
+ * web page" tell in the interface, and it is the one thing every native
+ * bottom-nav does differently — sections move, they do not teleport.
+ *
+ * The chrome is named, and that is what makes this work. An element with a
+ * view-transition-name is captured as its own layer and is *not* painted into
+ * its ancestor's snapshot, so naming the bar and the dock leaves `root`
+ * holding the page content alone — which can then slide as one piece while
+ * the bar and the dock stay exactly where they are. Their own contents (the
+ * active pill moving between segments) cross-fade in place, which is the
+ * right amount of movement for a control that did not go anywhere.
+ *
+ * The fixed asides are named for the same reason: a toast or the update card
+ * is anchored to the viewport, and a section change is no reason for it to
+ * fly sideways.
+ *
+ * Direction comes from data-nav-dir, set on <html> before the snapshot is
+ * taken — see useAppNavigation. Reduced motion never reaches here: the hook
+ * skips startViewTransition entirely and the swap stays instant. */
+.app-bar {
+  view-transition-name: app-bar;
+}
+.tab-switcher {
+  view-transition-name: section-nav;
+}
+.toast-region {
+  view-transition-name: toast-region;
+}
+.update-prompt {
+  view-transition-name: update-prompt;
+}
+.web-app-notice {
+  view-transition-name: web-app-notice;
+}
+
+/* mix-blend-mode: normal replaces the default plus-lighter blending, which is
+   tuned for a cross-fade of two identical-looking layers and turns a slide
+   into a bright smear where the two halves overlap. */
+::view-transition-old(root) {
+  mix-blend-mode: normal;
+  animation: section-exit var(--dur) var(--ease-expo) both;
+}
+::view-transition-new(root) {
+  mix-blend-mode: normal;
+  animation: section-enter var(--dur) var(--ease-expo) both;
+}
+
+/* Moving rightward through the dock looks like moving rightward. */
+@keyframes section-exit {
+  to {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+}
+@keyframes section-enter {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+}
+@keyframes section-exit-back {
+  to {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+}
+@keyframes section-enter-back {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+}
+:root[data-nav-dir='back']::view-transition-old(root) {
+  animation-name: section-exit-back;
+}
+:root[data-nav-dir='back']::view-transition-new(root) {
+  animation-name: section-enter-back;
+}
+
+/* Belt and braces — the hook already refuses to start a transition here. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}

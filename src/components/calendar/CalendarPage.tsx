@@ -22,6 +22,9 @@ import { COVERAGE } from '../../lib/calendar/panchang'
 import { useMonthPanchang } from '../../hooks/useMonthPanchang'
 import { DateConverter } from './DateConverter'
 import { saveFile } from '../../lib/download'
+import { isNativeApp } from '../../lib/androidApp'
+import { tick } from '../../lib/haptics'
+import { useToast } from '../../hooks/useToast'
 import './CalendarPage.css'
 
 function ChevronIcon({ dir }: { dir: 'left' | 'right' }) {
@@ -84,10 +87,11 @@ function downloadIcs(names: string[], date: Date) {
   const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' })
   // saveFile, not an <a download>: that click is dropped silently by the
   // Android WebView, so this button did nothing at all inside the app.
-  void saveFile(blob, 'lekh-patro-holiday.ics')
+  return saveFile(blob, 'lekh-patro-holiday.ics')
 }
 
 export function CalendarPage() {
+  const toast = useToast()
   const today = useMemo(() => todayBs(), [])
   const [view, setView] = useState({ year: today.year, month: today.month })
   const [selected, setSelected] = useState<BsDate>(today)
@@ -225,7 +229,10 @@ export function CalendarPage() {
                   (isToday ? ' cal__cell--today' : '') +
                   (isSelected ? ' cal__cell--selected' : '')
                 }
-                onClick={() => setSelected({ year: view.year, month: view.month, day })}
+                onClick={() => {
+                tick()
+                setSelected({ year: view.year, month: view.month, day })
+              }}
               >
                 <span className="cal__bs dev">{toDevanagari(day)}</span>
                 <span className="cal__ad">{ad.getDate()}</span>
@@ -261,7 +268,15 @@ export function CalendarPage() {
             <button
               type="button"
               className="btn cal__detail-add"
-              onClick={() => downloadIcs(selectedInfo.festivals, selectedAd)}
+              /* Same split as the translation exports: the app's share sheet
+                 announces itself, a web download does not. */
+              onClick={() =>
+                void downloadIcs(selectedInfo.festivals, selectedAd)
+                  .then(() => {
+                    if (!isNativeApp()) toast.done('Saved lekh-patro-holiday.ics')
+                  })
+                  .catch(() => toast.problem('Could not save the calendar file'))
+              }
             >
               add to calendar
             </button>
@@ -310,7 +325,10 @@ export function CalendarPage() {
                     <button
                       type="button"
                       className="cal__holiday-row"
-                      onClick={() => setSelected({ year: view.year, month: view.month, day })}
+                      onClick={() => {
+                tick()
+                setSelected({ year: view.year, month: view.month, day })
+              }}
                     >
                       <span className="cal__holiday-day dev">{toDevanagari(day)}</span>
                       <span className="cal__holiday-name dev">{names.join(', ')}</span>

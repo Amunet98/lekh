@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import { bootDynamicColor } from './lib/dynamicColor'
+import { ToastProvider } from './components/Toast'
 import App from './App.tsx'
 
 /* Before the first render, and deliberately not inside a component. This
@@ -12,6 +13,9 @@ bootDynamicColor()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    {/* Outside App so anything in the tree, App included, can reach it. */}
+    <ToastProvider>
+      <App />
+    </ToastProvider>
   </StrictMode>,
 )

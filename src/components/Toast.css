@@ -1,0 +1,64 @@
+/* Transient acknowledgement. Bottom-centre, above the dock on a phone and
+   clear of the update toast's bottom-left corner on desktop, so the two can
+   never collide.
+
+   Not a card like UpdatePrompt: that one is an offer with buttons and has to
+   look like something you act on. This is a receipt — a single dark pill that
+   says one thing and goes away. */
+.toast-region {
+  position: fixed;
+  z-index: 6; /* over the update toast (5), the dock (4) and the bar (3) */
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: clamp(0.75rem, 3vw, 1.5rem);
+  width: max-content;
+  max-width: min(28rem, calc(100vw - 2rem));
+  /* Empty most of the time, and an empty fixed box must not eat taps meant
+     for the page underneath it. */
+  pointer-events: none;
+}
+
+@media (max-width: 767px) {
+  .toast-region {
+    /* Above the dock, matching UpdatePrompt's own clearance. */
+    bottom: calc(5.25rem + env(safe-area-inset-bottom));
+  }
+}
+
+.toast {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: center;
+  padding: 0.65rem 1.1rem;
+  border-radius: var(--radius-pill);
+  /* Inverted, not --surface. A receipt should read as a layer over the app
+     rather than another card in it, and the inversion is what separates it
+     from the update card at a glance without spending the accent on it. */
+  background: var(--text-h);
+  color: var(--bg);
+  box-shadow: var(--shadow-pop);
+  animation: toast-in var(--dur) var(--ease-expo) backwards;
+}
+
+/* Failure gets the danger colour, because "it didn't work" and "it worked"
+   must not look identical for the second and a half they are on screen.
+   --danger carries --on-accent-weight text in both themes. */
+.toast--problem {
+  background: var(--danger);
+  color: #ffffff;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation: none;
+  }
+}

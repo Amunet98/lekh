@@ -1,5 +1,6 @@
 import { useCallback, useRef } from 'react'
 import { useEditorState } from '../hooks/useEditorState'
+import { tick } from '../lib/haptics'
 import { Editor } from './Editor'
 import { CheatSheetPanel } from './CheatSheetPanel'
 import './TypePage.css'
@@ -35,6 +36,7 @@ export function TypePage({ cheatOpen, onOpenCheatSheet, onCloseCheatSheet }: Typ
   const { insertAtCursor } = editor
   const handleInsert = useCallback(
     (ch: string) => {
+      tick()
       insertAtCursor(ch)
       textareaRef.current?.focus()
     },

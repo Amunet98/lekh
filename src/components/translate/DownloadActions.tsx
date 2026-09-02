@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import type { TranslateState } from '../../hooks/useTranslateState'
 import { saveFile } from '../../lib/download'
 import { printPage } from '../../lib/print'
+import { isNativeApp } from '../../lib/androidApp'
+import { useToast } from '../../hooks/useToast'
 import './DownloadActions.css'
 
 type Format = 'txt' | 'docx' | 'pdf'
@@ -13,6 +15,7 @@ const FORMATS: { id: Format; label: string; hint: string }[] = [
 ]
 
 export function DownloadActions({ t }: { t: TranslateState }) {
+  const toast = useToast()
   const printSheetRef = useRef<HTMLDivElement>(null)
   const [busy, setBusy] = useState(false)
   const enabled = t.translated.trim().length > 0
@@ -78,10 +81,22 @@ export function DownloadActions({ t }: { t: TranslateState }) {
   // module-level, inert data; building it here with `run:` closures meant an
   // array constructed *during render* held a function that reads
   // printSheetRef — which react-hooks/refs correctly rejects.
+  /* Success is only worth announcing on the web, where a download can finish
+     entirely out of sight — in a standalone PWA window there is no download
+     bar to notice. In the app the system share sheet has already appeared over
+     the page, and a toast confirming what the user can see is noise. Failure
+     is announced in both, because in both it is otherwise silent. */
   const run = (id: Format) => {
-    if (id === 'txt') void downloadTxt()
-    else if (id === 'docx') void downloadDocx()
-    else printPdf()
+    if (id === 'pdf') {
+      printPdf()
+      return
+    }
+    const filename = id === 'txt' ? 'lekh-translation.txt' : 'lekh-translation.docx'
+    void (id === 'txt' ? downloadTxt() : downloadDocx())
+      .then(() => {
+        if (!isNativeApp()) toast.done(`Saved ${filename}`)
+      })
+      .catch(() => toast.problem(`Could not save ${filename}`))
   }
 
   return (

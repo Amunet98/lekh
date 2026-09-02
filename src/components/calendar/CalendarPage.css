@@ -130,7 +130,15 @@
   background: var(--surface);
   font: inherit;
   cursor: pointer;
-  transition: background-color var(--dur) var(--ease);
+  transition: background-color var(--dur) var(--ease),
+    transform var(--dur-fast) var(--ease-expo);
+}
+/* The one control on this screen with no press feedback at all — and on a
+   phone, where the finger covers the cell, the tint arriving under a thumb is
+   not something you see. Same 0.96 every other button in the app presses to.
+   :not(--blank) because the padding cells are not buttons. */
+.cal__cell:active:not(.cal__cell--blank) {
+  transform: scale(0.96);
 }
 .cal__cell--blank {
   background: var(--surface-2);

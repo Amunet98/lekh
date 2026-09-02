@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import type { Tab } from '../components/TabSwitcher'
 
 /* Back, behaving the way Back behaves in an app.
@@ -26,6 +27,14 @@ import type { Tab } from '../components/TabSwitcher'
  * ?tab= stays exactly as it was — a real, linkable URL per section, which the
  * manifest shortcuts, the native long-press shortcuts and the widget's deep
  * link all depend on.
+ *
+ * Every tab change is also routed through the View Transitions API, in one
+ * place, which is the reason this hook owns the setState rather than handing
+ * it out: the section swap used to be an instant ternary in App, and an
+ * instant swap is the single loudest "this is a web page" tell in the whole
+ * interface. See the ::view-transition rules in App.css for what actually
+ * moves. Unsupported engines and reduced-motion users fall through to exactly
+ * the old behaviour.
  */
 
 export type Sheet = 'about' | 'cheatsheet'
@@ -85,6 +94,23 @@ function write(next: NavState, mode: 'push' | 'replace') {
   }
 }
 
+/* Direction is the whole point of doing this by hand rather than letting the
+   default cross-fade run: moving right through the dock should look like
+   moving right. The attribute is read by the ::view-transition keyframes and
+   set before the snapshot is taken. */
+function setDirection(from: Tab, to: Tab) {
+  const forward = TAB_ORDER.indexOf(to) > TAB_ORDER.indexOf(from)
+  document.documentElement.dataset.navDir = forward ? 'forward' : 'back'
+}
+
+function prefersReducedMotion(): boolean {
+  try {
+    return matchMedia('(prefers-reduced-motion: reduce)').matches
+  } catch {
+    return false
+  }
+}
+
 export function useAppNavigation() {
   const [tab, setTab] = useState<Tab>(tabFromUrl)
   const [sheet, setSheet] = useState<Sheet | null>(null)
@@ -106,6 +132,35 @@ export function useAppNavigation() {
     if (landed !== HOME) write({ tab: landed, sheet: null }, 'push')
   }, [])
 
+  /* One door for every tab change — the dock, Alt+digit, the About sheet's
+     section buttons, and a hardware Back all arrive here. */
+  const applyTab = useCallback((next: Tab) => {
+    setTab((current) => {
+      if (current === next) return current
+      setDirection(current, next)
+      return next
+    })
+  }, [])
+
+  const transitionToTab = useCallback(
+    (next: Tab) => {
+      const start = document.startViewTransition?.bind(document)
+      if (!start || prefersReducedMotion()) {
+        applyTab(next)
+        return
+      }
+      /* startViewTransition takes the "before" snapshot synchronously, runs
+         the callback, then takes the "after" one — so the state change has to
+         happen inside it and React has to have flushed by the time it
+         returns. flushSync is what guarantees that; without it the callback
+         resolves before the re-render and both snapshots are the old screen. */
+      start(() => {
+        flushSync(() => applyTab(next))
+      })
+    },
+    [applyTab],
+  )
+
   const goToTab = useCallback((next: Tab) => {
     const current = readState()
 
@@ -125,8 +180,8 @@ export function useAppNavigation() {
       return
     }
     write({ tab: next, sheet: null }, current.tab === HOME ? 'push' : 'replace')
-    setTab(next)
-  }, [])
+    transitionToTab(next)
+  }, [transitionToTab])
 
   const openSheet = useCallback((name: Sheet) => {
     const current = readState()
@@ -147,7 +202,7 @@ export function useAppNavigation() {
     const onPopState = () => {
       const state = readState()
       setSheet(state.sheet)
-      setTab(state.tab)
+      transitionToTab(state.tab)
       const wanted = pendingTab.current
       if (wanted !== null) {
         pendingTab.current = null
@@ -156,7 +211,7 @@ export function useAppNavigation() {
     }
     window.addEventListener('popstate', onPopState)
     return () => window.removeEventListener('popstate', onPopState)
-  }, [goToTab])
+  }, [goToTab, transitionToTab])
 
   return { tab, goToTab, sheet, openSheet, closeSheet }
 }
