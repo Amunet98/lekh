@@ -1,6 +1,8 @@
-/* Same 44px icon-button shape as .theme-toggle, and deliberately the same
-   quiet weight: this sits next to the theme control, and two adjacent icon
-   buttons that disagree about their resting state look like a mistake. */
+/* The app bar's icon-button shape, 44px, shared with the settings button
+   beside it — SettingsButton.tsx imports this file rather than restating it,
+   because two adjacent icon buttons that disagree about their resting state
+   look like a mistake. Deliberately quiet: neither of them is the thing you
+   came to the app to press. */
 .about-btn {
   display: inline-flex;
   align-items: center;

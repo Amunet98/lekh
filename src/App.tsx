@@ -7,7 +7,6 @@ import { TypePage } from './components/TypePage'
 import { EDITOR_ID } from './components/Editor'
 import { TranslatePage } from './components/TranslatePage'
 import { CalendarPage } from './components/calendar/CalendarPage'
-import { ThemeToggle } from './components/ThemeToggle'
 import { InstallButton } from './components/InstallButton'
 import { BootScreen } from './components/BootScreen'
 import { AboutSheet } from './components/AboutSheet'
@@ -191,7 +190,6 @@ function App() {
           <TabSwitcher active={tab} onChange={goToTab} />
           <div className="app-bar__actions">
             <InstallButton />
-            <ThemeToggle />
             <SettingsButton onClick={() => openSheet('settings')} />
             <AboutButton onClick={() => openSheet('about')} />
           </div>

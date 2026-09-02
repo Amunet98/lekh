@@ -183,7 +183,7 @@
   }
 }
 
-/* Manual override — set by ThemeToggle (and the index.html bootstrap script
+/* Manual override — set by applyTheme (and the index.html bootstrap script
    pre-paint). data-theme='light' opts out of the OS-dark rule above. */
 :root[data-theme='dark'] {
   --text: var(--dark-text);

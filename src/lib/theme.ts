@@ -69,3 +69,27 @@ export function applyTheme(theme: Theme): void {
   }
   listeners.forEach((fn) => fn())
 }
+
+/* Keeps 'auto' actually automatic while the app is open.
+ *
+ * This was an effect inside ThemeToggle, which meant it only existed because
+ * that button happened to be mounted — and when the button was removed (the
+ * theme lives in the Settings sheet now, which is not mounted most of the
+ * time) 'auto' would have stopped following the OS mid-session: switch the
+ * phone to dark at sunset and the app stays light until it is relaunched.
+ *
+ * Module-level, started once from main.tsx, and it re-reads the stored theme
+ * on every change rather than closing over it, so it does the right thing
+ * without needing to be torn down and re-created when the setting moves off
+ * 'auto'.
+ */
+export function watchSystemTheme(): void {
+  try {
+    const query = matchMedia('(prefers-color-scheme: dark)')
+    query.addEventListener('change', () => {
+      if (getInitialTheme() === 'auto') applyTheme('auto')
+    })
+  } catch {
+    // No matchMedia — 'auto' resolves once at boot and stays there.
+  }
+}
