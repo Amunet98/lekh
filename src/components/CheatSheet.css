@@ -36,7 +36,28 @@
   color: var(--muted);
 }
 
+/* Only the grids you can actually see get laid out.
+ *
+ * Opening the panel used to lay out and rasterize every one of these at once —
+ * seven tables, ~270 nodes, about 2000px of grid — inside the frame that starts
+ * the slide. On a mid-range phone that blocked the animation for up to 233ms
+ * (measured on an SM-A075F through the WebView's own devtools): the panel
+ * appeared, froze, then slid. That freeze is what reads as a bounce, and it is
+ * why the phone felt worse than the desktop, where the same work fits in a
+ * frame.
+ *
+ * content-visibility: auto skips layout and paint for the grids below the fold
+ * until they scroll into view. `contain-intrinsic-size: auto <fallback>` makes
+ * the browser remember each one's real height after it has been rendered once,
+ * so the scrollbar only guesses on the very first open. Engines without it
+ * ignore both properties and get exactly today's behaviour.
+ *
+ * Not applied to .cons-group, which wraps a label plus one of these — the grid
+ * is where the cost is, and containing the wrapper as well would only make the
+ * height guesses coarser. */
 .cells {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 220px;
   display: grid;
   gap: 1px;
   background: var(--border);
