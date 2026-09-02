@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Sheet } from './Sheet'
 import { useTheme } from '../hooks/useTheme'
+import { applyAmoled, resolveTheme } from '../lib/theme'
 import { usePref } from '../hooks/usePref'
 import { useDynamicColor } from '../hooks/useDynamicColor'
 import { setDynamicColorEnabled } from '../lib/dynamicColor'
@@ -128,7 +129,16 @@ export function SettingsSheet({ open, onClose, onOpenAbout }: SettingsSheetProps
   const [haptics, setHaptics] = usePref('haptics')
   const [restoreLastTab, setRestoreLastTab] = usePref('restoreLastTab')
   const [startNepali, setStartNepali] = usePref('startNepali')
+  /* Read here, written through applyAmoled — which calls setPref itself and so
+     notifies this hook. Writing it both ways would store the same value twice
+     and fire the listeners twice for one tap. */
+  const [amoled] = usePref('amoled')
   const dynamicColor = useDynamicColor()
+
+  /* Recomputed on render rather than stored: 'auto' resolves against the OS,
+     and watchSystemTheme re-applies the theme when that changes, which lands
+     here through useTheme. */
+  const resolvedDark = resolveTheme(theme) === 'dark'
 
   /* Measured while the sheet is open, not on mount: walking three caches to
      add up Content-Length is real work, and nobody is owed the number until
@@ -188,6 +198,25 @@ export function SettingsSheet({ open, onClose, onOpenAbout }: SettingsSheetProps
             onChange={setEditorSize}
           />
         </div>
+
+        {/* A modifier on the dark theme, not a fourth theme — so it sits under
+            Theme rather than inside it. As a fourth segment beside Auto it
+            would have had to stop following the phone to be chosen at all.
+            Shown whatever the theme currently is: somebody on Auto is setting
+            what happens tonight, and a row that appeared and vanished with the
+            sun would be worse than one that says plainly when it applies. */}
+        <SwitchRow
+          title="Deep black"
+          rest={
+            resolvedDark
+              ? amoled
+                ? 'true black — saves power on OLED screens'
+                : 'for OLED screens, where a black pixel is off'
+              : 'for OLED screens — applies to the dark theme'
+          }
+          checked={amoled}
+          onChange={(next) => applyAmoled(next)}
+        />
 
         {/* Android 12 and up, in the app only — the same condition, and the
             same opt-out framing, this row had in the About sheet before it

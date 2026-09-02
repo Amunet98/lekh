@@ -19,8 +19,14 @@
            fallback as well — that used to take the whole block down and leave
            a dark-mode phone painting the light colour. */
         var stored = null
+        var amoled = false
         try {
           stored = localStorage.getItem('theme')
+          /* The deep-black switch, read pre-paint for the same reason the
+             theme is: applied a frame later it is a visible navy-to-black
+             flash on every launch. Written by setPref as JSON, hence the
+             string compare against 'true' rather than a truthiness test. */
+          amoled = localStorage.getItem('lekh:pref:amoled') === 'true'
         } catch (e) {}
         try {
           var resolved =
@@ -30,10 +36,19 @@
                 ? 'dark'
                 : 'light'
           document.documentElement.dataset.theme = resolved
+          /* Stamped whatever the theme resolved to, exactly as applyAmoled
+             does — the CSS is what gates it to dark, so the two writers never
+             have to agree about anything but the pref. */
+          if (amoled) document.documentElement.dataset.amoled = ''
           /* Kept in sync with applyTheme() in src/lib/theme.ts — same id, same
-             two colours, which must match --bg per theme in index.css. */
+             colours, which must match --bg per theme in index.css. */
           var meta = document.getElementById('theme-color')
-          if (meta) meta.setAttribute('content', resolved === 'dark' ? '#0E1220' : '#FAFAFB')
+          if (meta) {
+            meta.setAttribute(
+              'content',
+              resolved === 'dark' ? (amoled ? '#000000' : '#0E1220') : '#FAFAFB',
+            )
+          }
         } catch (e) {}
       })()
     </script>

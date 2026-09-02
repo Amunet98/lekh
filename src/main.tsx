@@ -2,7 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import { bootDynamicColor } from './lib/dynamicColor'
-import { applyTheme, getInitialTheme, watchSystemTheme } from './lib/theme'
+import { applyAmoled, applyTheme, getAmoled, getInitialTheme, watchSystemTheme } from './lib/theme'
 import { setHapticsEnabled } from './lib/haptics'
 import { installNativeBackHandler } from './lib/nativeBack'
 import { getPref } from './lib/prefs'
@@ -29,6 +29,9 @@ bootDynamicColor()
  * Haptics are read once, here, because the setting is a device property and
  * every caller wants the same answer; the Settings sheet pushes changes in. */
 applyTheme(getInitialTheme())
+/* After applyTheme, because it re-syncs the theme-color tag and the native
+   status bar off a --bg that this can move. */
+applyAmoled(getAmoled())
 watchSystemTheme()
 setHapticsEnabled(getPref('haptics'))
 /* Android only, and the thing that makes useAppNavigation's history model

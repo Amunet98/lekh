@@ -1,5 +1,6 @@
 import { syncThemeColor } from './dynamicColor'
 import { syncStatusBar } from './statusBar'
+import { getPref, setPref } from './prefs'
 
 export type Theme = 'light' | 'dark' | 'auto'
 type ResolvedTheme = 'light' | 'dark'
@@ -68,6 +69,29 @@ export function applyTheme(theme: Theme): void {
     // theme still applies this visit, just won't be remembered
   }
   listeners.forEach((fn) => fn())
+}
+
+/* Deep blacks for OLED screens.
+ *
+ * Kept here, beside applyTheme, rather than being an ordinary preference the
+ * Settings sheet writes and forgets: it changes what --bg computes to, and two
+ * things downstream are copies of that value rather than readers of it — the
+ * theme-color meta tag and the native status bar. A setPref on its own would
+ * repaint the page and leave the phone's own chrome on the old colour.
+ *
+ * The attribute is stamped pre-paint by the bootstrap in index.html too. This
+ * is the same write, so a boot where the bootstrap threw (blocked storage)
+ * still converges, and a boot where it did not is a no-op. */
+export function applyAmoled(on: boolean): void {
+  if (on) document.documentElement.dataset.amoled = ''
+  else delete document.documentElement.dataset.amoled
+  setPref('amoled', on)
+  syncThemeColor()
+  syncStatusBar(resolveTheme(getInitialTheme()))
+}
+
+export function getAmoled(): boolean {
+  return getPref('amoled')
 }
 
 /* Keeps 'auto' actually automatic while the app is open.

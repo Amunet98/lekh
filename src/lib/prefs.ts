@@ -32,6 +32,9 @@ export interface Prefs {
   lastTab: Tab
   /** Start the Type tab converting, rather than in plain English. */
   startNepali: boolean
+  /** Deep blacks for OLED screens. A modifier on the dark theme, not a theme
+   *  of its own — see the block it drives in index.css. */
+  amoled: boolean
   /** Remember Online vs on-device between launches. */
   translateOnDevice: boolean
   /** Remember which way the translation was pointing. */
@@ -44,6 +47,7 @@ const DEFAULTS: Prefs = {
   restoreLastTab: false,
   lastTab: 'type',
   startNepali: true,
+  amoled: false,
   translateOnDevice: false,
   translateReversed: false,
 }
@@ -56,6 +60,7 @@ const VALIDATORS: { [K in keyof Prefs]: (raw: unknown) => Prefs[K] | undefined }
   restoreLastTab: (raw) => (typeof raw === 'boolean' ? raw : undefined),
   lastTab: (raw) => (raw === 'type' || raw === 'translate' || raw === 'calendar' ? raw : undefined),
   startNepali: (raw) => (typeof raw === 'boolean' ? raw : undefined),
+  amoled: (raw) => (typeof raw === 'boolean' ? raw : undefined),
   translateOnDevice: (raw) => (typeof raw === 'boolean' ? raw : undefined),
   translateReversed: (raw) => (typeof raw === 'boolean' ? raw : undefined),
 }
