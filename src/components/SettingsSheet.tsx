@@ -29,6 +29,13 @@ import './SettingsSheet.css'
 interface SettingsSheetProps {
   open: boolean
   onClose: () => void
+  /* About is reached from the last row of this sheet rather than from its own
+     icon in the app bar. Two icons was a lot of chrome for a phone, and of the
+     two the ⓘ was the one nobody needed twice — About is read once. It stays
+     its own sheet: a headline, a demo and a byline do not belong among
+     switches, and the version string is easier to find at the end of a short
+     list than buried under toggles. */
+  onOpenAbout: () => void
 }
 
 const THEMES: { id: Theme; label: string }[] = [
@@ -114,7 +121,7 @@ function SwitchRow({
   )
 }
 
-export function SettingsSheet({ open, onClose }: SettingsSheetProps) {
+export function SettingsSheet({ open, onClose, onOpenAbout }: SettingsSheetProps) {
   const toast = useToast()
   const [theme, setTheme] = useTheme()
   const [editorSize, setEditorSize] = usePref('editorSize')
@@ -257,6 +264,37 @@ export function SettingsSheet({ open, onClose }: SettingsSheetProps) {
           </button>
         </div>
       </section>
+
+      {/* Last, and outside the groups above, because it is the one row here
+          that is not a setting. The version rides along as the row's subtitle:
+          it is the thing people are asked for when something looks wrong, and
+          it used to take opening a second sheet to find. */}
+      <button type="button" className="sheet-row sheet-row--aside" onClick={onOpenAbout}>
+        <span className="sheet-row__icon">
+          <svg
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 11v5" />
+            <path d="M12 7.75h.01" />
+          </svg>
+        </span>
+        <span className="sheet-row__text">
+          <b>About Lekh Patro</b>
+          <span className="sheet-row__rest">web build {__APP_VERSION__}</span>
+        </span>
+        <span className="sheet-row__go" aria-hidden="true">
+          →
+        </span>
+      </button>
     </Sheet>
   )
 }

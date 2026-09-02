@@ -1,17 +1,18 @@
-import './AboutButton.css'
+import './IconButton.css'
 
 interface SettingsButtonProps {
   onClick: () => void
 }
 
-/* The same 44px icon-button as About and the theme toggle beside it —
-   .about-btn is imported rather than copied, because three adjacent icon
-   buttons that disagree about their resting state look like a mistake. */
+/* The 44px icon-button shape from IconButton.css, kept in its own file rather
+   than inlined here: it outlived the About and theme buttons that used to sit
+   beside it, and the next thing added to the bar should match it rather than
+   guess. */
 export function SettingsButton({ onClick }: SettingsButtonProps) {
   return (
     <button
       type="button"
-      className="about-btn"
+      className="icon-btn"
       aria-label="Settings"
       aria-haspopup="dialog"
       onClick={onClick}

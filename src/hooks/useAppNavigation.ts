@@ -14,16 +14,19 @@ import { getPref, setPref } from '../lib/prefs'
  *
  * The original comment against pushState — that Back would then walk through
  * every tab the user had ever touched — was right about that scheme, and this
- * one is not that scheme. The stack is bounded at three entries and the shape
+ * one is not that scheme. The stack is bounded at four entries and the shape
  * is an invariant, not an accident:
  *
- *     [ home (Type) ]  [ a non-home tab ]?  [ an open sheet ]?
+ *     [ home (Type) ]  [ a non-home tab ]?  [ an open sheet ]?  [ About ]?
  *
  * A tab is not a place you accumulate. Moving between two non-home tabs
  * replaces rather than pushes, and returning to Type pops rather than pushes,
- * so the stack can never grow past those three no matter how long someone
- * plays with the dock. What Back therefore does, in order: close the sheet,
- * return to Type, leave. Which is the whole point.
+ * so the stack can never grow past those no matter how long someone plays with
+ * the dock. The last slot is the single exception, and it is one deep: About
+ * is a row at the bottom of Settings, so it stacks on top of it rather than
+ * replacing it — see openSheet's `stack`. Every other sheet-to-sheet move is
+ * still a replace. What Back therefore does, in order: leave About for
+ * Settings, close the sheet, return to Type, leave. Which is the whole point.
  *
  * ?tab= stays exactly as it was — a real, linkable URL per section, which the
  * manifest shortcuts, the native long-press shortcuts and the widget's deep
@@ -250,9 +253,18 @@ export function useAppNavigation() {
     transitionToTab(next)
   }, [transitionToTab])
 
-  const openSheet = useCallback((name: Sheet) => {
+  /* `stack` is for one caller: the About row at the bottom of Settings.
+   *
+   * Sheet-to-sheet is a replace by default, which is right for two peers —
+   * nobody wants Back to walk them through every sheet they glanced at. But a
+   * row that opens a subpage has to come back to the page it was a row on, or
+   * it reads as having thrown the user out. Pushing gives popstate a
+   * {sheet:'settings'} entry to land on, and closeSheet's single history.back()
+   * then returns to Settings without needing to know anything about it. */
+  const openSheet = useCallback((name: Sheet, { stack = false } = {}) => {
     const current = readState()
-    write({ tab: current.tab, sheet: name }, current.sheet === null ? 'push' : 'replace')
+    const push = current.sheet === null || stack
+    write({ tab: current.tab, sheet: name }, push ? 'push' : 'replace')
     setSheet(name)
   }, [])
 

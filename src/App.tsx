@@ -11,7 +11,6 @@ import { CalendarPage } from './components/calendar/CalendarPage'
 import { InstallButton } from './components/InstallButton'
 import { BootScreen } from './components/BootScreen'
 import { AboutSheet } from './components/AboutSheet'
-import { AboutButton } from './components/AboutButton'
 import { SettingsSheet } from './components/SettingsSheet'
 import { SettingsButton } from './components/SettingsButton'
 import { UpdatePrompt } from './components/UpdatePrompt'
@@ -220,8 +219,10 @@ function App() {
           {!dockDetached && <TabSwitcher active={tab} onChange={goToTab} />}
           <div className="app-bar__actions">
             <InstallButton />
+            {/* One icon, not two. About moved to a row at the bottom of
+                Settings — it is read once, and a phone bar carrying a gear and
+                an ⓘ side by side spends a lot of chrome saying so. */}
             <SettingsButton onClick={() => openSheet('settings')} />
-            <AboutButton onClick={() => openSheet('about')} />
           </div>
         </div>
       </header>
@@ -250,7 +251,11 @@ function App() {
         )}
 
       <AboutSheet open={sheet === 'about'} onClose={closeSheet} onGoTo={goToTab} />
-      <SettingsSheet open={sheet === 'settings'} onClose={closeSheet} />
+      <SettingsSheet
+        open={sheet === 'settings'}
+        onClose={closeSheet}
+        onOpenAbout={() => openSheet('about', { stack: true })}
+      />
 
       {/* Always mounted — the hook inside it is what registers the service
           worker. It renders nothing until an update is waiting, and nothing at

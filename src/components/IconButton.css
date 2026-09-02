@@ -1,9 +1,10 @@
-/* The app bar's icon-button shape, 44px, shared with the settings button
-   beside it — SettingsButton.tsx imports this file rather than restating it,
-   because two adjacent icon buttons that disagree about their resting state
-   look like a mistake. Deliberately quiet: neither of them is the thing you
-   came to the app to press. */
-.about-btn {
+/* The app bar's icon-button shape, 44px.
+   Named for the shape rather than for a button, because the buttons come and
+   go: this was AboutButton.css until About moved to a row inside Settings and
+   the ⓘ left the bar, leaving the file named after the one caller it no longer
+   had. Deliberately quiet — nothing wearing it is the thing you came to the
+   app to press. */
+.icon-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -19,11 +20,11 @@
     transform var(--dur-fast) var(--ease-expo);
 }
 @media (hover: hover) {
-  .about-btn:hover {
+  .icon-btn:hover {
     color: var(--text-h);
     background: color-mix(in srgb, var(--text) 8%, transparent);
   }
 }
-.about-btn:active {
+.icon-btn:active {
   transform: scale(0.92);
 }

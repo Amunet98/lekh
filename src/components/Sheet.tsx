@@ -26,6 +26,8 @@ interface SheetProps {
 export function Sheet({ open, onClose, labelledBy, children }: SheetProps) {
   const ref = useRef<HTMLDialogElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
+  /* Set while the effect below closes the element because `open` went false. */
+  const closingFromProp = useRef(false)
 
   // Drag-to-dismiss — only engages on the mobile bottom-sheet layout (see
   // .sheet__grabber's own media query in sheet.css, at the same 560px
@@ -57,7 +59,12 @@ export function Sheet({ open, onClose, labelledBy, children }: SheetProps) {
        panel out of the page in the meantime. */
     if (typeof el.showModal !== 'function' || typeof el.close !== 'function') return
     if (open && !el.open) el.showModal()
-    if (!open && el.open) el.close()
+    if (!open && el.open) {
+      /* The parent asked for this one, so it must not be told about it —
+         see the onClose handler below. */
+      closingFromProp.current = true
+      el.close()
+    }
   }, [open])
 
   return (
@@ -66,9 +73,24 @@ export function Sheet({ open, onClose, labelledBy, children }: SheetProps) {
       className="sheet"
       aria-labelledby={labelledBy}
       /* Fires for Escape and for close() alike, so the parent's state can
-         never drift out of sync with the element's own open flag. */
+         never drift out of sync with the element's own open flag — but only
+         for closes the parent did not already ask for.
+       *
+         The distinction did not matter while `open` could only go false as a
+         result of onClose: the second call landed on closeSheet's
+         already-popped branch and did nothing. It matters now that one sheet
+         can replace another. Opening About from the row at the bottom of
+         Settings pushes an entry and sets the state to 'about', which takes
+         `open` off Settings; Settings' element then closed, fired this, and
+         closeSheet — seeing a sheet in the state, correctly — popped the entry
+         straight back off. Both sheets ended up shut and the row did nothing.
+         A close the parent initiated is already reflected in the parent. */
       onClose={() => {
         drag.reset()
+        if (closingFromProp.current) {
+          closingFromProp.current = false
+          return
+        }
         onClose()
       }}
       /* Backdrop click. The ::backdrop pseudo-element is not an event target,
