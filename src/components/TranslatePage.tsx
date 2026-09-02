@@ -4,7 +4,8 @@ import { useUploadState, FILE_ACCEPT } from '../hooks/useUploadState'
 import { DirectionToggle, TranslateControls } from './translate/TranslateControls'
 import { TranslationOutput } from './translate/TranslationOutput'
 import { TranslateActions } from './translate/TranslateActions'
-import { DownloadActions } from './translate/DownloadActions'
+import { DownloadActions } from './DownloadActions'
+import { useOnline } from '../hooks/useOnline'
 import { SectionIcon } from './SectionIcons'
 import './TranslatePage.css'
 
@@ -47,6 +48,7 @@ export function TranslatePage({ t }: TranslatePageProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
   const upload = useUploadState(t, fileInputRef)
+  const online = useOnline()
   const isEmpty = t.sourceText.length === 0
 
   return (
@@ -71,6 +73,25 @@ export function TranslatePage({ t }: TranslatePageProps) {
           phone screen doesn't show the bottom of the page without scrolling
           — buried there, the tap looked like it did nothing, not like it was
           refused. */}
+      {/* Said before the attempt, not after it. Online mode's debounced
+          request would otherwise fail on its own and report a service being
+          unavailable, which names the wrong problem — the service is fine,
+          the device is not on a network. On-device mode is unaffected and
+          says so, because that is the entire reason it exists. */}
+      {!online && t.mode === 'online' && (
+        <div className="error-banner" role="status">
+          <span>
+            You’re offline — online translation needs a connection. Typing and{' '}
+            <span className="dev">पात्रो</span> still work.
+          </span>
+          {t.deviceMemoryTier !== 'low' && (
+            <button type="button" className="btn" onClick={t.requestOnDevice}>
+              Switch to on-device
+            </button>
+          )}
+        </div>
+      )}
+
       {t.error && (
         <div className="error-banner" role="alert">
           <span>{t.error}</span>
@@ -123,11 +144,18 @@ export function TranslatePage({ t }: TranslatePageProps) {
               {/* Hidden once a file's uploaded — the "remove" button on its
                   filename chip below does the exact same thing, and showing
                   both reads as two controls where there's only one action. */}
-              {!upload.currentFile && (
-                <button type="button" className="btn" disabled={isEmpty} onClick={upload.clearUpload}>
-                  clear
-                </button>
-              )}
+              {/* Same swap the editor's toolbar does: for six seconds after a
+                  clear, the button in the same place offers it back. */}
+              {!upload.currentFile &&
+                (t.lastClearedSource !== null ? (
+                  <button type="button" className="btn" onClick={t.undoClearSource}>
+                    undo clear
+                  </button>
+                ) : (
+                  <button type="button" className="btn" disabled={isEmpty} onClick={upload.clearUpload}>
+                    clear
+                  </button>
+                ))}
             </div>
           </div>
           <input
@@ -265,7 +293,7 @@ export function TranslatePage({ t }: TranslatePageProps) {
       </div>
 
       <TranslateActions t={t} />
-      <DownloadActions t={t} />
+      <DownloadActions text={t.translated} filenameBase="lekh-translation" label="translation" />
     </section>
   )
 }

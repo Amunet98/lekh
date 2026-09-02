@@ -7,10 +7,51 @@
 .download-menu {
   position: relative;
 }
+/* The button styles itself rather than borrowing .mode-btn from translate.css
+   or .btn from Editor.css. It used to borrow the first, which was fine while
+   this component only ever rendered inside Translate — and would have shipped
+   an unstyled pill the moment it appeared on the Type tab, whose stylesheet
+   has never heard of .mode-btn.
+
+   Two sizes, because it stands in two different rows and has to look like it
+   belongs in each: beside Translate's mode pills (44px, --border-field, the
+   quieter --muted label) and beside the editor's own smaller actions (36px,
+   --border, --text). */
 .download-menu__btn {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 0.8rem;
+  min-height: 44px;
+  padding: 0.34rem 0.9rem;
+  border: 1px solid var(--border-field);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  transition: border-color var(--dur) var(--ease), background-color var(--dur) var(--ease),
+    color var(--dur) var(--ease), transform var(--dur-fast) var(--ease-expo);
+}
+.download-menu__btn--compact {
+  min-height: 36px;
+  padding: 0 var(--sp-3);
+  font-size: 0.82rem;
+  border-color: var(--border);
+  color: var(--text);
+}
+@media (hover: hover) {
+  .download-menu__btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--text-h);
+  }
+  .download-menu__btn--compact:hover:not(:disabled) {
+    border-color: var(--border-field);
+  }
+}
+.download-menu__btn:active:not(:disabled) {
+  transform: scale(0.96);
 }
 .download-menu__btn:disabled {
   opacity: 0.5;

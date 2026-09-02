@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslateState } from './hooks/useTranslateState'
 import { TAB_ORDER, useAppNavigation } from './hooks/useAppNavigation'
 import { TabSwitcher } from './components/TabSwitcher'
@@ -17,6 +17,8 @@ import { SettingsButton } from './components/SettingsButton'
 import { UpdatePrompt } from './components/UpdatePrompt'
 import { WebAppNotice } from './components/WebAppNotice'
 import { usePref } from './hooks/usePref'
+import { useOnline } from './hooks/useOnline'
+import { useToast } from './hooks/useToast'
 import { warmOcrCacheInBackground } from './lib/ocr/prefetch'
 import { refreshDynamicColor } from './lib/dynamicColor'
 import './App.css'
@@ -53,6 +55,8 @@ function App() {
   // the tab unmounting/remounting rather than resetting on every visit.
   const translateState = useTranslateState()
   const [editorSize] = usePref('editorSize')
+  const online = useOnline()
+  const toast = useToast()
 
   /* On :root rather than on the editor, because two components read it — the
      Type editor and both translation panes — and a custom property is how one
@@ -77,6 +81,18 @@ function App() {
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [goToTab])
+
+  /* Announced on the change, never on arrival. Opening the app while already
+     offline is not news — most of it works offline by design, and a warning
+     toast on launch would be the first thing a perfectly functional typing
+     app said about itself. Losing the connection mid-session is news. */
+  const wasOnline = useRef(online)
+  useEffect(() => {
+    if (wasOnline.current === online) return
+    wasOnline.current = online
+    if (online) toast.done('Back online')
+    else toast.problem('Offline — typing and Patro still work')
+  }, [online, toast])
 
   /* Stable identity — BootScreen takes it as an effect dependency, and a fresh
      closure every render would restart the boot timer on every render. */

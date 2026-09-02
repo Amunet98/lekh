@@ -1,10 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
-import type { TranslateState } from '../../hooks/useTranslateState'
-import { saveFile } from '../../lib/download'
-import { printPage } from '../../lib/print'
-import { isNativeApp } from '../../lib/androidApp'
-import { useToast } from '../../hooks/useToast'
+import { saveFile } from '../lib/download'
+import { printPage } from '../lib/print'
+import { isNativeApp } from '../lib/androidApp'
+import { useToast } from '../hooks/useToast'
 import './DownloadActions.css'
+
+/* Shared by Translate and Type.
+ *
+ * It was Translate's alone, and the asymmetry showed: one screen could give
+ * you a .docx of its output and the other could only put its text on the
+ * clipboard. Typing is the app's main job — it is the thing named on the
+ * front of the box — and it was the screen you could not get a file out of. */
 
 type Format = 'txt' | 'docx' | 'pdf'
 
@@ -14,17 +20,25 @@ const FORMATS: { id: Format; label: string; hint: string }[] = [
   { id: 'pdf', label: 'PDF', hint: 'Via your device’s print dialog' },
 ]
 
-export function DownloadActions({ t }: { t: TranslateState }) {
+interface DownloadActionsProps {
+  /** What to write out. */
+  text: string
+  /** Filename without an extension, e.g. 'lekh-translation'. */
+  filenameBase: string
+  /** Names the menu for assistive tech: "Download <this> as". */
+  label: string
+  /** The smaller pill, for the editor's actions row. */
+  compact?: boolean
+}
+
+export function DownloadActions({ text, filenameBase, label, compact = false }: DownloadActionsProps) {
   const toast = useToast()
   const printSheetRef = useRef<HTMLDivElement>(null)
   const [busy, setBusy] = useState(false)
-  const enabled = t.translated.trim().length > 0
+  const enabled = text.trim().length > 0
 
   const downloadTxt = async () => {
-    await saveFile(
-      new Blob([t.translated], { type: 'text/plain' }),
-      'lekh-translation.txt',
-    )
+    await saveFile(new Blob([text], { type: 'text/plain' }), `${filenameBase}.txt`)
   }
 
   const downloadDocx = async () => {
@@ -35,9 +49,9 @@ export function DownloadActions({ t }: { t: TranslateState }) {
       // render time, unlike client-side PDF libs — see printPdf below.
       const { Document, Packer, Paragraph } = await import('docx')
       const doc = new Document({
-        sections: [{ children: t.translated.split('\n').map((line) => new Paragraph(line)) }],
+        sections: [{ children: text.split('\n').map((line) => new Paragraph(line)) }],
       })
-      await saveFile(await Packer.toBlob(doc), 'lekh-translation.docx')
+      await saveFile(await Packer.toBlob(doc), `${filenameBase}.docx`)
     } finally {
       setBusy(false)
     }
@@ -47,9 +61,9 @@ export function DownloadActions({ t }: { t: TranslateState }) {
     // jsPDF/pdf-lib can't shape Devanagari text — the browser's own print
     // engine is the only correct client-side path, so "Save as PDF" hands
     // off to window.print() with a print-only sheet (see @media print CSS).
-    if (printSheetRef.current) printSheetRef.current.textContent = t.translated
+    if (printSheetRef.current) printSheetRef.current.textContent = text
     // Not window.print() directly — the Android WebView has none. See print.ts.
-    printPage('lekh-translation')
+    printPage(filenameBase)
   }
 
   // A menu, not a <select>. The native control was the one thing on the page
@@ -91,7 +105,7 @@ export function DownloadActions({ t }: { t: TranslateState }) {
       printPdf()
       return
     }
-    const filename = id === 'txt' ? 'lekh-translation.txt' : 'lekh-translation.docx'
+    const filename = `${filenameBase}.${id}`
     void (id === 'txt' ? downloadTxt() : downloadDocx())
       .then(() => {
         if (!isNativeApp()) toast.done(`Saved ${filename}`)
@@ -104,7 +118,7 @@ export function DownloadActions({ t }: { t: TranslateState }) {
       <div className="download-menu">
         <button
           type="button"
-          className="mode-btn download-menu__btn"
+          className={`download-menu__btn${compact ? ' download-menu__btn--compact' : ''}`}
           aria-haspopup="menu"
           aria-expanded={open}
           disabled={!enabled || busy}
@@ -117,7 +131,7 @@ export function DownloadActions({ t }: { t: TranslateState }) {
           </svg>
         </button>
         {open && (
-          <div className="download-menu__menu" role="menu" aria-label="Download translation as">
+          <div className="download-menu__menu" role="menu" aria-label={`Download ${label} as`}>
             {FORMATS.map((f) => (
               <button
                 key={f.id}

@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { convert, suggest } from '../lib/engine'
 import type { Chip } from '../lib/engine/types'
 import { confirm, tick } from '../lib/haptics'
 import { getPref } from '../lib/prefs'
+import { useUndoableClear } from './useUndoableClear'
 import { shareText } from '../lib/share'
 
 const TEXT_KEY = 'lekh:editor-text'
@@ -43,8 +44,8 @@ export function useEditorState() {
   const [nepali, setNepali] = useState(() => getPref('startNepali'))
   const [copied, setCopied] = useState(false)
   const [flashing, setFlashing] = useState(false)
-  const [lastCleared, setLastCleared] = useState<string | null>(null)
-  const undoTimeoutRef = useRef<number | undefined>(undefined)
+  // Shared with Translate, which had no undo at all — see useUndoableClear.
+  const undoable = useUndoableClear()
 
   useEffect(() => {
     try {
@@ -130,25 +131,15 @@ export function useEditorState() {
 
   const toggleMode = useCallback(() => setNepali((n) => !n), [])
 
-  // 6s undo window — long enough to notice and act, distinct from the
-  // 1.6s/350ms copy/flash feedback timers above so it doesn't read as either.
   const clear = useCallback(() => {
-    setText((t) => {
-      setLastCleared(t)
-      return ''
-    })
-    window.clearTimeout(undoTimeoutRef.current)
-    undoTimeoutRef.current = window.setTimeout(() => setLastCleared(null), 6000)
-  }, [])
+    undoable.remember(text)
+    setText('')
+  }, [text, undoable])
 
   const undoClear = useCallback(() => {
-    setLastCleared((cleared) => {
-      if (cleared === null) return cleared
-      setText(cleared)
-      window.clearTimeout(undoTimeoutRef.current)
-      return null
-    })
-  }, [])
+    const restored = undoable.undo()
+    if (restored !== null) setText(restored)
+  }, [undoable])
 
   // Appends typed-then-committed text — used by cheat-sheet tap-to-insert
   // and the sample-phrase buttons. Deliberately end-of-text-only.
@@ -201,7 +192,7 @@ export function useEditorState() {
     keepRaw,
     toggleMode,
     clear,
-    lastCleared,
+    lastCleared: undoable.lastCleared,
     undoClear,
     copy,
     share,

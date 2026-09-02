@@ -1,4 +1,5 @@
 import { syncThemeColor } from './dynamicColor'
+import { syncStatusBar } from './statusBar'
 
 export type Theme = 'light' | 'dark' | 'auto'
 type ResolvedTheme = 'light' | 'dark'
@@ -58,6 +59,9 @@ export function applyTheme(theme: Theme): void {
   // matched that one instead, and switching to light on a dark-OS phone
   // stamped the colour into a tag the browser wasn't using.
   syncThemeColor()
+  // The meta tag above is what an installed PWA reads; the Capacitor WebView
+  // ignores it entirely and needs the plugin. See statusBar.ts.
+  syncStatusBar(resolved)
   try {
     localStorage.setItem(THEME_KEY, theme)
   } catch {

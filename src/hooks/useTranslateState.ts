@@ -16,6 +16,7 @@ import type { ModelLoadProgress } from '../lib/translation/provider'
 import { shareText } from '../lib/share'
 import { warn } from '../lib/haptics'
 import { getPref, setPref } from '../lib/prefs'
+import { useUndoableClear } from './useUndoableClear'
 
 export type TranslateMode = 'online' | 'ondevice'
 export type Direction = 'ne-en' | 'en-ne'
@@ -252,10 +253,22 @@ export function useTranslateState() {
     setStatus('idle')
   }, [])
 
+  /* The Type tab has had a six-second undo on clear since it shipped; this
+     screen had the same button doing the same irreversible thing with no way
+     back. Only the text returns — a cleared upload's thumbnail does not,
+     because the recognized text is the part worth six seconds. */
+  const undoable = useUndoableClear()
+
   const clearSource = useCallback(() => {
+    undoable.remember(sourceText)
     setSourceText('')
     clearTranslation()
-  }, [clearTranslation])
+  }, [sourceText, clearTranslation, undoable])
+
+  const undoClearSource = useCallback(() => {
+    const restored = undoable.undo()
+    if (restored !== null) setSourceText(restored)
+  }, [undoable])
 
   const copy = useCallback(async () => {
     if (!translated) return
@@ -337,6 +350,8 @@ export function useTranslateState() {
     setDirectionOnly,
     clearTranslation,
     clearSource,
+    lastClearedSource: undoable.lastCleared,
+    undoClearSource,
     switchToOnDevice,
     switchToOnline,
     requestOnDevice,

@@ -123,6 +123,14 @@ function prefersReducedMotion(): boolean {
 
 export function useAppNavigation() {
   const [tab, setTab] = useState<Tab>(landingTab)
+  /* Where each section was left. The document scrolls (not .page), and
+     switching away and back used to dump you at whatever offset the previous
+     section happened to be at — halfway down the calendar after coming back
+     from Type, or at the top of a translation you were reading the end of.
+     Sections keeping their place is one of the quieter things that separates
+     an app from a page. */
+  const scrollByTab = useRef<Partial<Record<Tab, number>>>({})
+  const tabRef = useRef(tab)
   const [sheet, setSheet] = useState<Sheet | null>(null)
   /* A tab change asked for while a sheet is open cannot be done in one step:
      the sheet's entry has to come off first, and history.back() only reports
@@ -137,6 +145,19 @@ export function useAppNavigation() {
      to be on first. Android synthesises a parent stack for exactly this case;
      this is the same courtesy, two lines of it. */
   useEffect(() => {
+    /* The browser restores the scroll position of the entry it navigates back
+       to, and it does so *before* popstate fires — so tapping Type in the dock
+       (which is a history.back()) scrolled the page to the home entry's
+       remembered offset, and the handler then recorded that as where the user
+       had left Patro. Every section's saved position quietly became ~0.
+       Sections keep their own scroll here, per tab and not per history entry,
+       which is the app behaviour; the browser's version is the page one. */
+    try {
+      history.scrollRestoration = 'manual'
+    } catch {
+      // Not supported — the per-tab map still works going forward, and the
+      // browser's own restoration is a reasonable thing to be stuck with.
+    }
     const landed = landingTab()
     write({ tab: HOME, sheet: null }, 'replace')
     if (landed !== HOME) write({ tab: landed, sheet: null }, 'push')
@@ -152,18 +173,32 @@ export function useAppNavigation() {
   /* One door for every tab change — the dock, Alt+digit, the About sheet's
      section buttons, and a hardware Back all arrive here. */
   const applyTab = useCallback((next: Tab) => {
-    setTab((current) => {
-      if (current === next) return current
-      setDirection(current, next)
-      return next
-    })
+    const current = tabRef.current
+    if (current === next) return
+    scrollByTab.current[current] = window.scrollY
+    setDirection(current, next)
+    tabRef.current = next
+    setTab(next)
+  }, [])
+
+  /* Straight after the DOM has the new section in it — inside the view
+     transition's callback, where the old frame is still on screen, so the
+     jump is never seen. */
+  const restoreScroll = useCallback((next: Tab) => {
+    window.scrollTo(0, scrollByTab.current[next] ?? 0)
   }, [])
 
   const transitionToTab = useCallback(
     (next: Tab) => {
       const start = document.startViewTransition?.bind(document)
       if (!start || prefersReducedMotion()) {
-        applyTab(next)
+        /* flushSync here too, and it is not decoration: restoreScroll has to
+           run against the section it is restoring. Without it setTab was
+           still pending, the scroll landed on the *outgoing* screen, and a
+           short one clamped it to nearly zero — so the saved offset was
+           thrown away every time by the very code meant to honour it. */
+        flushSync(() => applyTab(next))
+        restoreScroll(next)
         return
       }
       /* startViewTransition takes the "before" snapshot synchronously, runs
@@ -171,11 +206,20 @@ export function useAppNavigation() {
          happen inside it and React has to have flushed by the time it
          returns. flushSync is what guarantees that; without it the callback
          resolves before the re-render and both snapshots are the old screen. */
-      start(() => {
+      const transition = start(() => {
         flushSync(() => applyTab(next))
+        restoreScroll(next)
       })
+      /* A transition started while another is still running is *skipped*, and
+         the browser reports that by rejecting these promises. Tapping through
+         the dock quickly is an ordinary thing to do and the DOM update still
+         happened — the animation is the only casualty — so this is swallowed
+         rather than surfaced. Unhandled, it reached window.onerror as
+         "Transition was skipped". */
+      void transition.ready.catch(() => {})
+      void transition.finished.catch(() => {})
     },
-    [applyTab],
+    [applyTab, restoreScroll],
   )
 
   const goToTab = useCallback((next: Tab) => {

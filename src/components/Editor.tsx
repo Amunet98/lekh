@@ -4,6 +4,7 @@ import { SAMPLES } from '../data/samples'
 import { SHARE_AVAILABLE } from '../lib/share'
 import { tick } from '../lib/haptics'
 import { useToast } from '../hooks/useToast'
+import { DownloadActions } from './DownloadActions'
 import './Editor.css'
 
 /* Exported so App can hand the caret over when the boot screen leaves without
@@ -165,6 +166,15 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
               share
             </button>
           )}
+          {/* Typing is the app's main job and it was the one screen you could
+              not get a file out of — copy and share only, while Translate
+              beside it could hand you a .docx. Same component, smaller pill. */}
+          <DownloadActions
+            text={editor.text}
+            filenameBase="lekh-nepali"
+            label="your text"
+            compact
+          />
           {editor.lastCleared !== null ? (
             <button type="button" className="btn" onClick={editor.undoClear}>
               undo clear
