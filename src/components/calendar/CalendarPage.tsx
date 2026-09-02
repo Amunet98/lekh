@@ -275,7 +275,13 @@ export function CalendarPage() {
                   .then(() => {
                     if (!isNativeApp()) toast.done('Saved lekh-patro-holiday.ics')
                   })
-                  .catch(() => toast.problem('Could not save the calendar file'))
+                  .catch((err: unknown) =>
+                    toast.problem(
+                      err instanceof Error && err.message.includes('update it')
+                        ? err.message
+                        : 'Could not save the calendar file',
+                    ),
+                  )
               }
             >
               add to calendar

@@ -1,3 +1,4 @@
+import { Capacitor } from '@capacitor/core'
 import { Share } from '@capacitor/share'
 import { isNativeApp } from './androidApp'
 
@@ -8,12 +9,21 @@ import { isNativeApp } from './androidApp'
  * The installed app could not do the one thing the website could. Capacitor's
  * Share plugin is the native intent underneath the same idea.
  *
- * Computed once at module load rather than per-render: neither navigator.share
- * support nor "is this the native app" changes over the life of a page, and
- * both answers are synchronous, so every call site can treat this as the
- * constant it always was. */
+ * isPluginAvailable, and not merely isNativePlatform: capacitor.config.ts
+ * points the WebView at the live site, so THIS code runs inside APKs that
+ * were built before the plugin existed. Checking only "is this the app" put a
+ * share button in front of every Play user on the old build and had it fail
+ * on tap — caught on a real SM-A075F, and invisible in every browser. Where
+ * the plugin is missing the button simply does not exist, which is exactly
+ * where it stood before any of this.
+ *
+ * Computed once at module load rather than per-render: none of these three
+ * answers changes over the life of a page, and all three are synchronous, so
+ * every call site can treat this as the constant it always was. */
+const NATIVE_SHARE = isNativeApp() && Capacitor.isPluginAvailable('Share')
+
 export const SHARE_AVAILABLE =
-  (typeof navigator !== 'undefined' && typeof navigator.share === 'function') || isNativeApp()
+  (typeof navigator !== 'undefined' && typeof navigator.share === 'function') || NATIVE_SHARE
 
 /* The user dismissing the sheet is not a failure worth surfacing, unlike every
  * other rejection here. The web API says so with AbortError; the native plugin
@@ -27,7 +37,7 @@ function isDismissal(err: unknown): boolean {
 
 export async function shareText(text: string): Promise<void> {
   try {
-    if (isNativeApp()) await Share.share({ text })
+    if (NATIVE_SHARE) await Share.share({ text })
     else await navigator.share({ text })
   } catch (err) {
     if (isDismissal(err)) return

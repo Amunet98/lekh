@@ -1,3 +1,4 @@
+import { Capacitor } from '@capacitor/core'
 import { Directory, Filesystem } from '@capacitor/filesystem'
 import { isNativeApp } from './androidApp'
 import { shareFile } from './share'
@@ -52,6 +53,13 @@ export async function saveFile(blob: Blob, filename: string): Promise<void> {
   if (!isNativeApp()) {
     downloadBlob(blob, filename)
     return
+  }
+  /* An APK older than these plugins is running this code — server.url means
+     the web layer updates without it. Say so rather than calling into a
+     bridge that isn't there, whose own error names a plugin the user has
+     never heard of. */
+  if (!Capacitor.isPluginAvailable('Filesystem') || !Capacitor.isPluginAvailable('Share')) {
+    throw new Error('This build of the app cannot save files yet — update it from the Play Store.')
   }
   const { uri } = await Filesystem.writeFile({
     path: filename,

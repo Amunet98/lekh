@@ -110,7 +110,13 @@ export function DownloadActions({ text, filenameBase, label, compact = false }: 
       .then(() => {
         if (!isNativeApp()) toast.done(`Saved ${filename}`)
       })
-      .catch(() => toast.problem(`Could not save ${filename}`))
+      .catch((err: unknown) =>
+        /* An outdated-app message says something the generic one cannot, and
+           is the only case where the failure is actionable. */
+        toast.problem(err instanceof Error && err.message.includes('update it')
+          ? err.message
+          : `Could not save ${filename}`),
+      )
   }
 
   return (
