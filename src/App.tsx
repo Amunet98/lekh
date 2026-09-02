@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslateState } from './hooks/useTranslateState'
-import { TabSwitcher, type Tab } from './components/TabSwitcher'
+import { TAB_ORDER, useAppNavigation } from './hooks/useAppNavigation'
+import { TabSwitcher } from './components/TabSwitcher'
 import { LekhMark } from './components/LekhMark'
 import { TypePage } from './components/TypePage'
 import { EDITOR_ID } from './components/Editor'
@@ -16,25 +17,6 @@ import { WebAppNotice } from './components/WebAppNotice'
 import { warmOcrCacheInBackground } from './lib/ocr/prefetch'
 import { refreshDynamicColor } from './lib/dynamicColor'
 import './App.css'
-
-const TABS: Tab[] = ['type', 'translate', 'calendar']
-
-function isTab(value: string | null): value is Tab {
-  return value !== null && (TABS as string[]).includes(value)
-}
-
-/* Every section used to live at '/', so a section could not be linked, shared,
- * or opened from a PWA shortcut — and the manifest shortcuts added in
- * vite.config.ts need real targets. ?tab= is the whole routing story: three
- * screens, no nesting, no router dependency. */
-function tabFromUrl(): Tab {
-  try {
-    const value = new URLSearchParams(location.search).get('tab')
-    return isTab(value) ? value : 'type'
-  } catch {
-    return 'type'
-  }
-}
 
 const BOOT_KEY = 'lekh-booted'
 
@@ -59,44 +41,16 @@ function bootedThisSession(): boolean {
 }
 
 function App() {
-  const [tab, setTab] = useState<Tab>(tabFromUrl)
+  /* Tabs and sheets are both history, not just state — see useAppNavigation
+     for the stack shape and for what Back is supposed to do at each level. */
+  const { tab, goToTab, sheet, openSheet, closeSheet } = useAppNavigation()
   const [booting, setBooting] = useState(() => !bootedThisSession())
-  const [aboutOpen, setAboutOpen] = useState(false)
   // Lifted out of TranslatePage (which used to be two components, Translate
   // and Upload, each calling useTranslateState() themselves) so it survives
   // the tab unmounting/remounting rather than resetting on every visit.
   const translateState = useTranslateState()
 
-  /* replaceState, not pushState: the tab bar is a view switch, not navigation,
-     and pushing would make the browser Back button walk through every tab a
-     user had touched before it left the app. */
-  useEffect(() => {
-    try {
-      const url = new URL(location.href)
-      if (tab === 'type') url.searchParams.delete('tab')
-      else url.searchParams.set('tab', tab)
-      if (url.href !== location.href) history.replaceState(null, '', url)
-    } catch {
-      // Non-browser or restricted context — the tab still switches, the URL
-      // just doesn't follow. Never worth throwing over.
-    }
-  }, [tab])
-
-  /* popstate keeps the app honest if something else edits the URL (a manifest
-     shortcut opened into an existing client, or the user editing ?tab= by
-     hand). Without it the address bar and the visible section can disagree. */
-  useEffect(() => {
-    const sync = () => setTab(tabFromUrl())
-    window.addEventListener('popstate', sync)
-    return () => window.removeEventListener('popstate', sync)
-  }, [])
-
-  const goToSection = (next: Tab) => {
-    setTab(next)
-    setAboutOpen(false)
-  }
-
-  /* Alt+1..3 switch tabs, matching TABS' left-to-right order. Alt-digit isn't
+  /* Alt+1..3 switch tabs, matching TAB_ORDER's left-to-right order. Alt-digit isn't
      text any browser inserts into a focused field, and useEditorState's own
      keydown handler already bails out on e.altKey — so no focus guard is
      needed here. */
@@ -104,13 +58,13 @@ function App() {
     const onKeyDown = (e: KeyboardEvent) => {
       if (!e.altKey || e.metaKey || e.ctrlKey || e.shiftKey) return
       const index = Number(e.key) - 1
-      if (index < 0 || index >= TABS.length) return
+      if (index < 0 || index >= TAB_ORDER.length) return
       e.preventDefault()
-      goToSection(TABS[index])
+      goToTab(TAB_ORDER[index])
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [])
+  }, [goToTab])
 
   /* Stable identity — BootScreen takes it as an effect dependency, and a fresh
      closure every render would restart the boot timer on every render. */
@@ -206,17 +160,21 @@ function App() {
               <span className="app-bar__brand-patro">पात्रो</span>
             </span>
           </span>
-          <TabSwitcher active={tab} onChange={setTab} />
+          <TabSwitcher active={tab} onChange={goToTab} />
           <div className="app-bar__actions">
             <InstallButton />
             <ThemeToggle />
-            <AboutButton onClick={() => setAboutOpen(true)} />
+            <AboutButton onClick={() => openSheet('about')} />
           </div>
         </div>
       </header>
       <div className={`page${booting ? ' page--is-booting' : ''}`}>
         {tab === 'type' ? (
-          <TypePage />
+          <TypePage
+            cheatOpen={sheet === 'cheatsheet'}
+            onOpenCheatSheet={() => openSheet('cheatsheet')}
+            onCloseCheatSheet={closeSheet}
+          />
         ) : tab === 'translate' ? (
           <TranslatePage t={translateState} />
         ) : (
@@ -224,7 +182,7 @@ function App() {
         )}
       </div>
 
-      <AboutSheet open={aboutOpen} onClose={() => setAboutOpen(false)} onGoTo={goToSection} />
+      <AboutSheet open={sheet === 'about'} onClose={closeSheet} onGoTo={goToTab} />
 
       {/* Always mounted — the hook inside it is what registers the service
           worker. It renders nothing until an update is waiting, and nothing at
@@ -232,18 +190,18 @@ function App() {
           doesn't touch it, and last in the tree so it lands late in the reading
           order: it is an aside, not content.
 
-          aboutOpen suppresses it for the same reason booting does, one layer
+          An open sheet suppresses it for the same reason booting does, one layer
           up: showModal() puts the sheet in the top layer, above every z-index
           this stylesheet could name, and marks the rest of the document inert.
           The toast rendered dimmed behind the sheet with both buttons dead —
           exactly the failure this prop was added for. */}
-      <UpdatePrompt suppressed={booting || aboutOpen} />
+      <UpdatePrompt suppressed={booting || sheet !== null} />
       {/* Renders only inside an installed Android *web* app — the one thing
           Chrome's ⋮ menu can still produce and the manifest cannot prevent.
-          Suppressed by booting/aboutOpen for exactly the reasons given above;
+          Suppressed by booting/an open sheet for exactly the reasons above;
           the About sheet's top layer would strand this card's buttons the same
           way it stranded the update toast's. */}
-      <WebAppNotice suppressed={booting || aboutOpen} />
+      <WebAppNotice suppressed={booting || sheet !== null} />
     </>
   )
 }

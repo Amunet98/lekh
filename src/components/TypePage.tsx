@@ -1,13 +1,21 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useRef } from 'react'
 import { useEditorState } from '../hooks/useEditorState'
 import { Editor } from './Editor'
 import { CheatSheetPanel } from './CheatSheetPanel'
 import './TypePage.css'
 
-export function TypePage() {
+interface TypePageProps {
+  /* The cheat sheet's open state lives in App, not here, because it is a
+     history entry now and not just a boolean — Back has to be able to close
+     it. See useAppNavigation. */
+  cheatOpen: boolean
+  onOpenCheatSheet: () => void
+  onCloseCheatSheet: () => void
+}
+
+export function TypePage({ cheatOpen, onOpenCheatSheet, onCloseCheatSheet }: TypePageProps) {
   const editor = useEditorState()
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const [cheatOpen, setCheatOpen] = useState(false)
 
   /* Stable identity, and CheatSheet is memo'd — the two go together and neither
      works alone. Every keystroke updates editor state and re-renders this
@@ -39,14 +47,14 @@ export function TypePage() {
      summons the on-screen keyboard back over the app the instant the sheet
      has finished visually closing — worse than just leaving focus alone. */
   const closeCheat = useCallback(() => {
-    setCheatOpen(false)
+    onCloseCheatSheet()
     try {
       if (!matchMedia('(pointer: fine)').matches) return
     } catch {
       return
     }
     textareaRef.current?.focus()
-  }, [])
+  }, [onCloseCheatSheet])
 
   return (
     <>
@@ -59,7 +67,7 @@ export function TypePage() {
         <Editor
           editor={editor}
           textareaRef={textareaRef}
-          onOpenCheatSheet={() => setCheatOpen(true)}
+          onOpenCheatSheet={onOpenCheatSheet}
         />
       </div>
 
