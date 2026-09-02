@@ -80,9 +80,31 @@
   padding-bottom: env(safe-area-inset-bottom);
   animation: cheat-sheet-up var(--dur-slow) var(--ease-slide) backwards;
 }
+/* 24px and a fade, not the panel's full height.
+ *
+ * Measured on an SM-A075F through the WebView's own devtools: the first modal
+ * <dialog> opened in a session freezes that WebView for 220-300ms, and it is
+ * nothing to do with this panel. The Settings sheet stalls for 217ms in the
+ * same place, and the freeze survives removing the backdrop, the shadow,
+ * will-change, content-visibility, a pre-warm — and even removing the
+ * animation entirely (300ms with nothing animating at all). It is the cost of
+ * promoting the first top-layer element, it happens once per session, and it
+ * cannot be fixed from here.
+ *
+ * What can be fixed is how much of it you see. A 220ms freeze in the middle of
+ * a 768px slide is a panel that visibly stops halfway and lurches — which is
+ * what "bouncing" was. The same freeze inside a 24px rise is a slightly late
+ * sheet. So the bottom sheet now enters exactly the way the About and Settings
+ * sheets do (sheet-bottom-in, 24px and a fade), which is also the thing the
+ * owner compared it to and called smooth.
+ *
+ * The desktop slide-over below keeps its full slide: it comes from the edge of
+ * a wide window where that reads as a panel arriving rather than a sheet
+ * rising, and Brave measures zero dropped frames there. */
 @keyframes cheat-sheet-up {
   from {
-    transform: translateY(100%);
+    opacity: 0;
+    transform: translateY(24px);
   }
 }
 
