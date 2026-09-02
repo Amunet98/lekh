@@ -247,6 +247,18 @@
   visibility: hidden;
 }
 
+/* While a modal sheet is open. See the effect in App.tsx for why.
+ *
+ * The dock keeps its own background here rather than falling through to
+ * transparent — .tab-switcher paints --bar-bg, which is translucent and was
+ * relying on the blur behind it to read as a surface. Behind the scrim that no
+ * longer matters, but it must not become a see-through strip either. */
+.has-sheet .app-bar::before,
+.has-sheet .tab-switcher {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
 /* ── Section transitions ──────────────────────────────────────────────────
  *
  * Tab switching was a bare ternary in App.tsx: the whole screen replaced

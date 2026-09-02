@@ -57,6 +57,16 @@ function App() {
   const online = useOnline()
   const toast = useToast()
 
+  /* The two blurred bars are the most expensive thing on the page per frame,
+     and while a sheet is open they sit behind a 55%-opaque scrim where the
+     blur cannot be seen at all — but is still recomputed on every frame of a
+     panel sliding 420px across them, or of a finger dragging one. Dropping it
+     for the duration costs nothing visible and takes real work out of exactly
+     the frames that were stuttering. */
+  useEffect(() => {
+    document.documentElement.classList.toggle('has-sheet', sheet !== null)
+  }, [sheet])
+
   /* On :root rather than on the editor, because two components read it — the
      Type editor and both translation panes — and a custom property is how one
      setting reaches both without either of them knowing the setting exists. */

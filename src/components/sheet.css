@@ -80,6 +80,13 @@
      pointer is actively dragging it, so the sheet tracks 1:1 with no lag. */
   transition: transform var(--dur-slow) var(--ease-expo);
 }
+/* Same reasoning as the cheat panel's — see CheatSheetPanel.css. This card
+   travels much less, so it has much less to gain, but the drag-to-dismiss
+   gesture tracks a finger 1:1 and that is the case that cannot afford a
+   re-raster per frame. */
+.sheet[open] .sheet__panel {
+  will-change: transform;
+}
 .sheet__panel--dragging {
   transition: none;
 }

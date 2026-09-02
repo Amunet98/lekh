@@ -48,6 +48,18 @@
      a pointer is actively dragging it, so the sheet tracks 1:1 with no lag. */
   transition: transform var(--dur-slow) var(--ease-expo);
 }
+/* Only while it is open, which is the only time it moves.
+ *
+ * This panel is ~270 nodes and about 2000px of grid, and it slides the full
+ * width of the screen (or the full height of a phone). Without a layer of its
+ * own the engine can re-rasterize that subtree on every frame of the slide,
+ * which is what the stutter on opening was — and it shows up worst where the
+ * travel is longest, which is why this panel and not the About card. Left on
+ * permanently it would just be memory spent on something standing still, so it
+ * is scoped to [open]. */
+.cheat-panel[open] .cheat-panel__inner {
+  will-change: transform;
+}
 .cheat-panel__inner--dragging {
   transition: none;
 }
