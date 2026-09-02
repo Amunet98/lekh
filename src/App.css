@@ -11,32 +11,36 @@
 
 /* App bar — one strip carrying brand, section nav and actions.
  *
- * THE BLUR IS ON ::before AND THAT IS LOAD-BEARING.
+ * The blur sits on .app-bar itself, and that is only safe because the phone
+ * dock is no longer inside it.
  *
- * A non-`none` backdrop-filter makes an element a containing block for its
- * position: fixed descendants — the same rule that transform and filter carry.
- * TabSwitcher is a child of this bar, and below 768px it becomes
- * `position: fixed; bottom: 0` to dock at the bottom of the screen. With the
- * blur declared on .app-bar itself, that dock anchors to the *bar* instead of
- * the viewport and lands at the top of the page — a full-width bar of tabs
- * pinned under the header, which looks like a rendering fault rather than a
- * layout bug and is fiddly to trace back to a filter property.
+ * It used to live on a ::before, for a good reason: a non-`none`
+ * backdrop-filter makes an element a containing block for its position: fixed
+ * descendants — the same rule transform and filter carry — and TabSwitcher was
+ * a child of this bar that became `position: fixed; bottom: 0` below 768px. A
+ * blur here anchored that dock to the *bar* and parked it under the header.
  *
- * position: sticky does not create a containing block, so with the blur moved
- * to an absolutely-positioned pseudo-element the bar still frosts, the dock
- * still escapes to the viewport, and TabSwitcher stays a single DOM node with
- * a single role="tablist". Do not "simplify" this back onto the parent. */
+ * The pseudo-element dodged that, but only that. When .app-bar took a
+ * view-transition-name for section transitions it became a *backdrop root*,
+ * and a backdrop root flattens backdrop-filter for everything inside it — the
+ * ::before included. Both bars quietly stopped frosting: text scrolled under
+ * the bar and behind the dock stayed sharp and perfectly readable, and no
+ * property on either element looked wrong, because none of them were.
+ *
+ * The dock now portals to <body> (see useDockDetached), so this bar has no
+ * fixed descendants left to re-anchor and no descendant that needs to blur.
+ * An element's own view-transition-name does not flatten its own
+ * backdrop-filter — only an ancestor's does — so declaring it here works
+ * where declaring it on a child cannot.
+ *
+ * Before adding a filter, opacity, transform or view-transition-name to any
+ * ancestor of something that blurs, check that it still blurs. Computed style
+ * will keep reporting the filter either way; only the pixels tell you. */
 .app-bar {
   position: sticky;
   top: 0;
   z-index: 3;
   border-bottom: 1px solid var(--border);
-}
-.app-bar::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
   background: var(--bar-bg);
   -webkit-backdrop-filter: blur(var(--blur-chrome)) saturate(1.6);
   backdrop-filter: blur(var(--blur-chrome)) saturate(1.6);
@@ -44,7 +48,7 @@
 /* Without backdrop-filter an 82%-opaque fill leaves body text showing through
    the bar as it scrolls under. Same fallback the previous design carried. */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .app-bar::before {
+  .app-bar {
     background: var(--bg);
   }
 }
@@ -55,9 +59,8 @@
   /* Top only needs the inset in the Capacitor shell: the old TWA's Chrome
      chrome always reserved status-bar space above the WebView, but the
      native WebView here draws edge-to-edge, so without this the status bar
-     sits directly on top of the wordmark. .app-bar::before's background
-     still covers the extra height since it insets to this element's parent,
-     not to this box. */
+     sits directly on top of the wordmark. The bar's own background covers
+     the extra height, since this padding grows the parent it paints. */
   padding: env(safe-area-inset-top, 0px) clamp(var(--sp-4), 4vw, var(--sp-6)) 0;
   min-height: 3.5rem;
   display: flex;
@@ -212,16 +215,17 @@
    could change tabs behind the splash. Invisible UI must not be operable.
  *
  * margin-top, not transform: translateY. This is the same containing-block
- * hazard the file already warns about for backdrop-filter and for .page,
- * just missed here — transform on .app-bar would make it (rather than the
- * viewport) the containing block for position: fixed descendants, and
- * TabSwitcher's mobile dock is exactly that, two levels down inside this bar
- * (.app-bar > .app-bar__inner > TabSwitcher). It surfaced as the dock
- * rendering pinned under the header for the ~1.1s the boot screen is up, then
- * snapping down to the viewport bottom the instant --is-booting comes off —
- * looked like a rendering glitch, was a CSS spec rule. margin-top produces
- * the same visual "eased up 8px while fading" motion without establishing a
- * containing block. Do not put transform back here. */
+ * hazard the file already warns about for backdrop-filter and for .page —
+ * transform on .app-bar would make it, rather than the viewport, the
+ * containing block for any position: fixed descendant. It surfaced as the
+ * mobile dock rendering pinned under the header for the ~1.1s the boot screen
+ * is up, then snapping down to the viewport bottom the instant --is-booting
+ * came off: looked like a rendering glitch, was a CSS spec rule. The dock has
+ * since moved out of this bar, so nothing here is fixed today — but the bar
+ * carries a backdrop-filter that a transform would interact with, and the
+ * next fixed child put in here would hit this again silently. margin-top
+ * produces the same "eased up 8px while fading" motion and establishes
+ * nothing. Do not put transform back here. */
 .app-bar--is-booting {
   opacity: 0;
   margin-top: -8px;
@@ -253,7 +257,7 @@
  * transparent — .tab-switcher paints --bar-bg, which is translucent and was
  * relying on the blur behind it to read as a surface. Behind the scrim that no
  * longer matters, but it must not become a see-through strip either. */
-.has-sheet .app-bar::before,
+.has-sheet .app-bar,
 .has-sheet .tab-switcher {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;

@@ -5,9 +5,12 @@
  * bottom of the viewport — the strongest "installed app" signal there is, and
  * where a thumb already rests.
  *
- * The dock is position: fixed while its DOM parent is the app bar. That works
- * only because the bar's backdrop-filter lives on a pseudo-element rather than
- * on the bar itself — see the long comment in App.css. */
+ * Below 768px the dock is not a descendant of the app bar at all — App.tsx
+ * portals it to <body> (see useDockDetached). It is `position: fixed`, and a
+ * fixed element inside the bar was re-anchored by any of transform, filter or
+ * backdrop-filter there, and had its own frost flattened by the bar's
+ * view-transition-name. If you change the 767px in the media queries below,
+ * change DOCK_QUERY in useDockDetached.ts to match. */
 
 /* Desktop: segmented control, in the bar */
 .tab-switcher {
@@ -127,6 +130,52 @@
   .tab-switcher__label {
     font-size: 0.7rem;
     font-weight: 500;
+  }
+
+  /* Out of the way while the keyboard is up.
+   *
+   * The dock is fixed to the bottom of the screen, which is exactly where the
+   * keyboard arrives, so it ends up pinned between the keys and the text —
+   * covering the suggestion chips on the Type page and offering to leave the
+   * section at the one moment nobody means to. See useKeyboardOpen for how
+   * the state is worked out; it deliberately takes both a viewport shrink and
+   * an editable focus, so a mis-read leaves the dock visible rather than
+   * stranding it off-screen.
+   *
+   * It slides rather than disappearing: the keyboard is itself an animation
+   * moving the same direction, and a control that vanishes between two frames
+   * next to one that slides reads as a glitch. visibility comes off the
+   * transition end so nothing is left tappable at the bottom of the screen,
+   * and takes the dock out of the tab order with it. */
+  .tab-switcher {
+    transition:
+      transform var(--dur) var(--ease-expo),
+      opacity var(--dur) var(--ease-expo),
+      visibility 0s linear 0s;
+  }
+  .has-keyboard .tab-switcher {
+    transform: translateY(100%);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      transform var(--dur) var(--ease-expo),
+      opacity var(--dur) var(--ease-expo),
+      visibility 0s linear var(--dur);
+  }
+  /* The splash covers the dock but sets pointer-events: none on itself, so
+     without this the dock is invisible and still tappable — it used to
+     inherit this from .app-bar--is-booting, before it left the bar. */
+  .tab-switcher--is-booting {
+    opacity: 0;
+    pointer-events: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tab-switcher {
+      transition: none;
+    }
+    .has-keyboard .tab-switcher {
+      transition: none;
+    }
   }
 }
 

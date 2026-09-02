@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslateState } from './hooks/useTranslateState'
 import { TAB_ORDER, useAppNavigation } from './hooks/useAppNavigation'
 import { TabSwitcher } from './components/TabSwitcher'
@@ -17,6 +18,8 @@ import { UpdatePrompt } from './components/UpdatePrompt'
 import { WebAppNotice } from './components/WebAppNotice'
 import { usePref } from './hooks/usePref'
 import { useOnline } from './hooks/useOnline'
+import { useKeyboardOpen } from './hooks/useKeyboardOpen'
+import { useDockDetached } from './hooks/useDockDetached'
 import { useToast } from './hooks/useToast'
 import { warmOcrCacheInBackground } from './lib/ocr/prefetch'
 import { refreshDynamicColor } from './lib/dynamicColor'
@@ -66,6 +69,21 @@ function App() {
   useEffect(() => {
     document.documentElement.classList.toggle('has-sheet', sheet !== null)
   }, [sheet])
+
+  /* The dock is the one piece of chrome the keyboard actually fights over.
+     It is fixed to the bottom of the screen, which is where the keyboard
+     arrives, so it ends up wedged between the keys and the text being typed —
+     covering the suggestion chips, and offering to leave the section at the
+     one moment nobody wants to. Hiding it while the keyboard is up also gives
+     the editor back two rows of screen. */
+  const keyboardOpen = useKeyboardOpen()
+  useEffect(() => {
+    document.documentElement.classList.toggle('has-keyboard', keyboardOpen)
+  }, [keyboardOpen])
+
+  /* Below 768px the nav detaches from the bar and docks at the bottom. It has
+     to leave the bar's subtree to do it — see useDockDetached. */
+  const dockDetached = useDockDetached()
 
   /* On :root rather than on the editor, because two components read it — the
      Type editor and both translation panes — and a custom property is how one
@@ -176,12 +194,14 @@ function App() {
           column of the bar itself — and on a phone the same element detaches
           to the bottom of the viewport as a dock (see TabSwitcher.css).
 
-          That detaching is the reason .app-bar must not carry the
-          backdrop-filter itself; the blur lives on .app-bar::before. Same
-          reason .app-bar--is-booting animates margin-top, not transform —
-          both create a containing block for position: fixed descendants, and
-          this bar has one two levels down. See the comments in App.css, and
-          do not move either back. */}
+          On a phone it detaches in the DOM as well, into the portal below.
+          A dock that is `position: fixed` inside this bar is a standing trap:
+          any of backdrop-filter, transform or filter on the bar re-anchors it
+          to the header, and .app-bar's view-transition-name made the bar a
+          backdrop root, which silently flattened the dock's frost. Keeping
+          the two apart is what stops the next property from doing it again.
+          .app-bar--is-booting still animates margin-top rather than transform
+          for the desktop case, where the nav really is a child of this bar. */}
       <header className={`app-bar${booting ? ' app-bar--is-booting' : ''}`}>
         <div className="app-bar__inner">
           {/* Not a button any more. It opened the About sheet, which was the
@@ -197,7 +217,7 @@ function App() {
               <span className="app-bar__brand-patro">पात्रो</span>
             </span>
           </span>
-          <TabSwitcher active={tab} onChange={goToTab} />
+          {!dockDetached && <TabSwitcher active={tab} onChange={goToTab} />}
           <div className="app-bar__actions">
             <InstallButton />
             <SettingsButton onClick={() => openSheet('settings')} />
@@ -218,6 +238,16 @@ function App() {
           <CalendarPage />
         )}
       </div>
+
+      {/* The phone dock, parented to <body> rather than to the bar. Rendered
+          through a portal so it stays the same element and the same single
+          role="tablist" as the desktop segmented control — see
+          useDockDetached for why it cannot simply stay where it is. */}
+      {dockDetached &&
+        createPortal(
+          <TabSwitcher active={tab} onChange={goToTab} booting={booting} />,
+          document.body,
+        )}
 
       <AboutSheet open={sheet === 'about'} onClose={closeSheet} onGoTo={goToTab} />
       <SettingsSheet open={sheet === 'settings'} onClose={closeSheet} />
