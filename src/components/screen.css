@@ -48,13 +48,18 @@
    * should be quicker than arriving. The entry pair is on [open] below. */
   opacity: 0;
   transform: translateY(1.25rem);
-  transition: opacity 220ms var(--ease), transform 260ms var(--ease-slide),
+  /* --ease-expo, not --ease-slide, and the distinction is the one index.css
+     spells out: expo is for the 14-24px arrivals, slide is for a surface that
+     crosses the screen. This rises 20-28px — the same small entrance the two
+     sheets it replaces used — so it takes the same curve they did. The panes
+     inside it are the other case and keep --ease-slide. */
+  transition: opacity 220ms var(--ease), transform 260ms var(--ease-expo),
     overlay 260ms allow-discrete, display 260ms allow-discrete;
 }
 .screen[open] {
   opacity: 1;
   transform: none;
-  transition: opacity 240ms var(--ease), transform var(--dur-slow) var(--ease-slide);
+  transition: opacity 240ms var(--ease), transform var(--dur-slow) var(--ease-expo);
 }
 @starting-style {
   .screen[open] {

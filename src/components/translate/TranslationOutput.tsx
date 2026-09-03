@@ -1,5 +1,6 @@
 import type { TranslateState } from '../../hooks/useTranslateState'
 import { SHARE_AVAILABLE } from '../../lib/share'
+import { fill } from './progressFill'
 import './translate.css'
 
 const formatMB = (bytes: number) => `${Math.round(bytes / 1e6)} MB`
@@ -26,9 +27,7 @@ export function TranslationOutput({ t }: { t: TranslateState }) {
               >
                 <div
                   className="model-progress-fill"
-                  style={{
-                    width: `${(t.modelLoad.loadedBytes / t.modelLoad.totalBytes) * 100}%`,
-                  }}
+                  style={fill(t.modelLoad.loadedBytes / t.modelLoad.totalBytes)}
                 />
               </div>
               <span className="model-progress-label">
@@ -63,7 +62,7 @@ export function TranslationOutput({ t }: { t: TranslateState }) {
               >
                 <div
                   className="model-progress-fill"
-                  style={{ width: `${(t.chunkProgress.current / t.chunkProgress.total) * 100}%` }}
+                  style={fill(t.chunkProgress.current / t.chunkProgress.total)}
                 />
               </div>
               <span className="model-progress-label">

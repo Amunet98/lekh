@@ -3,6 +3,7 @@ import type { TranslateState } from '../hooks/useTranslateState'
 import { useUploadState, FILE_ACCEPT } from '../hooks/useUploadState'
 import { DirectionToggle, TranslateControls } from './translate/TranslateControls'
 import { TranslationOutput } from './translate/TranslationOutput'
+import { fill } from './translate/progressFill'
 import { TranslateActions } from './translate/TranslateActions'
 import { DownloadActions } from './DownloadActions'
 import { useOnline } from '../hooks/useOnline'
@@ -203,11 +204,7 @@ export function TranslatePage({ t }: TranslatePageProps) {
               <div className="model-progress-track">
                 <div
                   className={`model-progress-fill${upload.readProgress === null ? ' model-progress-fill--indeterminate' : ''}`}
-                  style={
-                    upload.readProgress !== null
-                      ? { width: `${Math.round(upload.readProgress * 100)}%` }
-                      : undefined
-                  }
+                  style={upload.readProgress !== null ? fill(upload.readProgress) : undefined}
                 />
               </div>
             </div>

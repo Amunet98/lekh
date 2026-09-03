@@ -138,33 +138,61 @@
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
-/* A sweep across the textarea itself while OCR/extraction runs, layered on
-   top of its own background rather than a separate overlay element — the
-   progress bar below already carries the percentage, this just makes the
-   pane read as "busy" at a glance instead of looking idle underneath it. */
-.translate-pane--reading .translate-input {
-  background-image: linear-gradient(
+/* A sweep across the textarea while OCR/extraction runs — the progress bar
+   below already carries the percentage, this just makes the pane read as
+   "busy" at a glance instead of looking idle underneath it.
+ *
+ * A band that travels, not a background-position that scrolls. It was the
+ * latter, on the textarea's own background, which is a repaint of the whole
+ * field on the main thread every frame — during OCR, which is the busiest the
+ * main thread ever gets in this app. The one animation whose entire job is to
+ * say "something is still happening" was the one most likely to stutter while
+ * it happened. As a transform on an overlay it runs on the compositor and
+ * keeps its rate whatever the thread is doing.
+ *
+ * The wrapper is already position: relative for the empty-state hint, so this
+ * costs no markup; it takes the clip only while reading, so the textarea's
+ * resize handle is never boxed in by it. */
+.translate-pane--reading .translate-input-wrap {
+  overflow: hidden;
+  border-radius: var(--radius-card);
+}
+.translate-pane--reading .translate-input-wrap::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 60%;
+  pointer-events: none;
+  background: linear-gradient(
     100deg,
-    transparent 30%,
-    color-mix(in srgb, var(--accent) 14%, transparent) 50%,
-    transparent 70%
+    transparent,
+    color-mix(in srgb, var(--accent) 14%, transparent),
+    transparent
   );
-  background-size: 200% 100%;
   animation: upload-shimmer 1.6s ease-in-out infinite;
 }
+/* -100% clears the left edge, 266.7% (100/60 of the band) clears the right. */
 @keyframes upload-shimmer {
-  0% {
-    background-position: 200% 0;
+  from {
+    transform: translateX(-100%);
   }
-  100% {
-    background-position: -200% 0;
+  to {
+    transform: translateX(266.7%);
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .translate-pane--reading .translate-input {
+  .translate-pane--reading .translate-input-wrap::after {
     animation: none;
-    background-image: none;
-    background-color: var(--accent-bg);
+    /* Not hidden — the pane still has to look busy, it just holds still.
+       Spread over the whole field rather than parked as a band at one end,
+       and at the band's own strength rather than --accent-bg: this is an
+       overlay now, and --accent-bg is opaque, so borrowing it here would
+       paint a solid block over the text the field is showing. */
+    width: 100%;
+    transform: none;
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
   }
 }
 

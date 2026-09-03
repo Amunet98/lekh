@@ -30,7 +30,15 @@
   height: 4px;
   border-radius: var(--radius-pill);
   background: var(--border-field);
-  transition: background-color var(--dur) var(--ease), width var(--dur) var(--ease);
+  /* scaleX, not width. The widening is the feedback for a *drag*, so it fires
+     at the exact moment the panel behind it starts tracking a finger 1:1 —
+     the one frame budget in the app with nothing to spare. A width change is
+     a layout property and puts that relayout on the main thread, in the same
+     frames as the gesture; a transform is composited and costs the drag
+     nothing. The 2px cap stretches to 2.4px with it, which at 4px tall is not
+     a thing anyone can see. */
+  transform: scaleX(var(--grab, 1));
+  transition: background-color var(--dur) var(--ease), transform var(--dur) var(--ease);
 }
 @media (hover: hover) {
   .sheet-grabber:hover .sheet-grabber-bar {
@@ -41,6 +49,7 @@
   cursor: grabbing;
 }
 .sheet-grabber--dragging .sheet-grabber-bar {
-  width: 44px;
+  /* 44px of the 36 it is drawn at. */
+  --grab: 1.222;
   background: var(--accent);
 }

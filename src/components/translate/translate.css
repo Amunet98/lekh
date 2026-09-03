@@ -233,23 +233,48 @@
   overflow: hidden;
   position: relative;
 }
+/* Scaled, not resized.
+ *
+ * Both bars used to move by changing box geometry — the determinate one
+ * transitioned `width` on every progress event, the indeterminate one animated
+ * `left` forever — and both of those are layout properties, so every frame of
+ * a bar that exists precisely because something expensive is already happening
+ * went back through layout on the main thread. A transform is composited: the
+ * bar keeps moving at the same rate whether or not the thread is busy, which
+ * for a 900MB model download or a CPU translation is the whole point of having
+ * a progress bar at all.
+ *
+ * The fill is full-width and squeezed from the left; the fraction arrives as
+ * --p (0-1) rather than a width string. The round right-hand cap flattens as
+ * it squeezes, which is invisible: the track is a pill with overflow: hidden,
+ * so it is the track's shape that is read, not the fill's. */
 .model-progress-fill {
   height: 100%;
+  width: 100%;
   border-radius: 999px;
   background: var(--accent);
-  transition: width 0.2s;
+  transform-origin: left center;
+  transform: scaleX(var(--p, 0));
+  transition: transform var(--dur) var(--ease);
 }
 .model-progress-fill--indeterminate {
   width: 35%;
   position: absolute;
+  left: 0;
+  /* Its own travel, not the fraction above. */
+  transform: none;
+  transition: none;
   animation: model-progress-slide 1.4s ease-in-out infinite;
 }
+/* -100% is the bar's own width, so it starts fully clear of the left edge;
+   285.7% is 100/35 of it, which lands its left edge on the right edge of the
+   track. Same sweep the `left` version described, on the compositor. */
 @keyframes model-progress-slide {
-  0% {
-    left: -35%;
+  from {
+    transform: translateX(-100%);
   }
-  100% {
-    left: 100%;
+  to {
+    transform: translateX(285.7%);
   }
 }
 /* The global reduced-motion rule caps iteration count, which for a looping
@@ -260,6 +285,7 @@
     animation: none;
     left: 0;
     width: 100%;
+    transform: none;
     opacity: 0.4;
   }
 }

@@ -117,6 +117,13 @@
     animation: about-blink 1s steps(1) infinite;
   }
 }
+/* Both panes stay mounted for the whole visit (see Screen.tsx), so without
+   this the caret goes on blinking off-screen behind Settings — an infinite
+   animation nobody can see, keeping the compositor awake for as long as the
+   screen is open. inert already marks the pane that is not the current one. */
+.screen__pane[inert] .about__caret {
+  animation-play-state: paused;
+}
 @keyframes about-blink {
   50% {
     opacity: 0;
