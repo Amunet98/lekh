@@ -17,10 +17,17 @@ export function SettingsButton({ onClick }: SettingsButtonProps) {
       aria-haspopup="dialog"
       onClick={onClick}
     >
+      {/* 22, where the dock's section icons are 20 and this was 19.
+          A gear is a denser glyph than a pencil or a calendar — the toothed
+          ring spends its outer ring on detail rather than on silhouette, so
+          at a matching box it reads smaller than the icons it shares a bar
+          with. Two extra pixels put its apparent size back on their level
+          without making it the loudest thing in the bar. The 44px target is
+          unchanged. */}
       <svg
         viewBox="0 0 24 24"
-        width="19"
-        height="19"
+        width="22"
+        height="22"
         fill="none"
         stroke="currentColor"
         strokeWidth="2"
