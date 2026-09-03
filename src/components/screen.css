@@ -1,0 +1,242 @@
+/* The full-screen shell Settings and About share. See Screen.tsx for why they
+   stopped being two bottom sheets; this file is the frame, the pane track and
+   the bar. The list-row language both panes speak still lives in sheet.css. */
+
+/* Browsers that know <dialog> hide a closed one via their UA stylesheet.
+   Browsers that do not (Safari below 15.4, which the build still targets) have
+   no rule for the element at all, so the whole screen rendered inline and
+   permanently at the bottom of every page. Stating it here costs nothing where
+   the UA already agrees, and is the whole fix where it does not. */
+.screen:not([open]) {
+  display: none;
+}
+
+/* A page, so: the viewport, edge to edge, opaque.
+ *
+ * inset:0 with auto width and height rather than 100vw/100dvh — 100vw counts
+ * a desktop scrollbar and would push the screen 15px wide of the window, and a
+ * fixed element stretched by its insets already tracks the visible viewport as
+ * the mobile toolbars come and go, which is exactly the height wanted. The
+ * max-* resets are needed because the UA gives every dialog a calc() cap that
+ * would otherwise leave a margin around a "full" screen. */
+.screen {
+  position: fixed;
+  inset: 0;
+  width: auto;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+
+  /* Enter and exit, in one property and no JavaScript.
+   *
+   * A modal <dialog> is display:none the instant close() runs, which is why
+   * the sheets this replaces had an entry animation and no exit at all: there
+   * was nothing left on screen to animate. Transitioning `display` and
+   * `overlay` with allow-discrete is what holds the element in the top layer
+   * for the length of the transition, and @starting-style below is the
+   * matching half for the way in. The engines that matter here — the app's
+   * own WebView is current Chrome — all have it; older ones ignore all four
+   * lines and get today's behaviour, an instant show and an instant hide.
+   *
+   * These values are the *exit*: 260ms and a shorter travel, because leaving
+   * should be quicker than arriving. The entry pair is on [open] below. */
+  opacity: 0;
+  transform: translateY(1.25rem);
+  transition: opacity 220ms var(--ease), transform 260ms var(--ease-slide),
+    overlay 260ms allow-discrete, display 260ms allow-discrete;
+}
+.screen[open] {
+  opacity: 1;
+  transform: none;
+  transition: opacity 240ms var(--ease), transform var(--dur-slow) var(--ease-slide);
+}
+@starting-style {
+  .screen[open] {
+    opacity: 0;
+    transform: translateY(1.75rem);
+  }
+}
+/* Only ever seen through the gap the rise leaves at the top and under the
+   corner radius of the phone — but a screen that lifts off a page still in
+   full daylight looks like two pages arguing. */
+.screen::backdrop {
+  background: rgb(var(--scrim) / 0.55);
+  opacity: 0;
+  transition: opacity 220ms var(--ease), overlay 260ms allow-discrete,
+    display 260ms allow-discrete;
+}
+.screen[open]::backdrop {
+  opacity: 1;
+}
+@starting-style {
+  .screen[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+.screen__panes {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+/* Absolutely stacked, not a flex track. Each pane is the whole screen and
+   carries its own opaque background, so the one that is on top covers the one
+   below without either of them having to know the other's width — and DOM
+   order alone gives the push its stacking, no z-index. */
+.screen__pane {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  transform: translateX(calc(var(--shift, 0) * 1%));
+  opacity: var(--dim, 1);
+}
+/* Scoped to [open] on purpose. While the screen is closing there is no pane
+   movement to draw, and an un-scoped transition would animate the parked
+   depth back to zero underneath the fade — see the `held` note in Screen.tsx
+   for the other half of the same guard. */
+.screen[open] .screen__pane {
+  transition: transform var(--dur-slow) var(--ease-slide), opacity var(--dur-slow) var(--ease);
+}
+.screen__pane:focus {
+  /* It is only focusable so focus has somewhere to land after a push; it is
+     not a control and must not be ringed like one. The pane's own contents
+     keep their focus-visible styles. */
+  outline: none;
+}
+/* The pushed pane's leading edge, which is the only thing that says a surface
+   is passing over another rather than beside it — drawn on the pane above
+   rather than the pane below so it travels with the edge that casts it.
+ *
+   Only while the panes are moving, and that is not a nicety. A shadow points
+   *inwards* from the edge that casts it: a pane parked at 100% is off-screen,
+   but its shadow reaches back across the boundary and greys the last 34px of
+   the pane you are actually reading — measured at 253 → 214 down the right
+   side of Settings, a dirty edge on a screen with nothing beside it. The
+   class is added for the length of the transition; see Screen.tsx. */
+.screen--moving .screen__pane {
+  will-change: transform;
+}
+.screen--moving .screen__pane + .screen__pane {
+  box-shadow: -14px 0 34px rgb(var(--scrim) / 0.18);
+}
+
+/* The bar. Solid rather than blurred: it is a sibling of the scrolling body,
+   not a layer over it, so there is nothing behind it to frost — and the two
+   bars that do blur are switched off while this is open anyway (.has-sheet). */
+.screen__bar {
+  /* Top inset only matters in the Capacitor shell, where the WebView draws
+     edge to edge and the status bar would otherwise sit on the title — the
+     same reason and the same rule as .app-bar__inner. Added to the row height
+     rather than eating into it, so a notched phone gets a full-height bar. */
+  padding: env(safe-area-inset-top, 0px) clamp(var(--sp-4), 4vw, var(--sp-6)) 0;
+  flex: 0 0 auto;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+/* The rule spans the screen, the row inside it spans the column — same
+   max-width and the same side padding as .screen__body/.screen__content
+   below, so the leading button starts exactly where the rows do rather than
+   in the corner of a desktop window with 300px of nothing between it and the
+   list it belongs to. See the note in Screen.tsx. */
+.screen__bar-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  max-width: 34rem;
+  margin: 0 auto;
+  min-height: 3.5rem;
+}
+.screen__lead {
+  /* Half the padding the 44px target adds around a 20px glyph, pulled back
+     off the left. The touch target keeps its full size; the *icon* is what
+     lands on the column's edge, in line with the group headings below it
+     rather than a button's worth of air to their right. */
+  margin-left: -12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease),
+    transform var(--dur-fast) var(--ease-expo);
+}
+@media (hover: hover) {
+  .screen__lead:hover {
+    color: var(--text-h);
+    background: color-mix(in srgb, var(--text) 8%, transparent);
+  }
+}
+.screen__lead:focus-visible {
+  color: var(--text-h);
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+}
+.screen__lead:active {
+  transform: scale(0.92);
+}
+.screen__title {
+  font-family: var(--sans);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-h);
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.screen__body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: var(--sp-5) clamp(var(--sp-4), 4vw, var(--sp-6))
+    calc(var(--sp-7) + env(safe-area-inset-bottom, 0px));
+}
+/* The screen is as wide as the phone; the reading column is not. 34rem is the
+   width the sheet these panes came from was capped at, and a settings row
+   stretched across a laptop is a list nobody can scan. */
+.screen__content {
+  max-width: 34rem;
+  margin: 0 auto;
+}
+
+/* Distance is the thing here, and reduced motion means no distance. The
+   opacity fade stays — something has to mark the change of screen, and a
+   cross-fade is the standard substitute rather than an instant cut. */
+@media (prefers-reduced-motion: reduce) {
+  .screen,
+  .screen[open] {
+    transform: none;
+    transition: opacity var(--dur) var(--ease), overlay var(--dur) allow-discrete,
+      display var(--dur) allow-discrete;
+  }
+  @starting-style {
+    .screen[open] {
+      transform: none;
+    }
+  }
+  .screen__pane {
+    /* Still moved, because the panes have to be somewhere — just not
+       animated between the two places. */
+    transition: opacity var(--dur) var(--ease);
+  }
+  .screen[open] .screen__pane {
+    transition: opacity var(--dur) var(--ease);
+  }
+}

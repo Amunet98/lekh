@@ -132,7 +132,7 @@
   }
 }
 
-/* The grabber's look lives in SheetGrabber.css (shared with AboutSheet) —
+/* The grabber's look lives in SheetGrabber.css —
    this file only decides when it shows. Desktop's slide-over keeps a plain
    close button instead, at the same breakpoint the panel-shape switch above
    already uses. */

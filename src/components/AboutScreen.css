@@ -1,9 +1,18 @@
-/* The About sheet. Everything the first-visit Landing page used to say, moved
-   behind the app-bar wordmark — so the pitch is still one tap away, but it is
+/* The About pane. Everything the first-visit Landing page used to say, moved
+   one level under Settings — so the pitch is still two taps away, but it is
    no longer standing between a returning user and the editor.
 
-   The frame, the panel and the row language live in sheet.css, shared with
-   Settings. What is left here is only what is About's own. */
+   The screen, the pane track and the bar live in screen.css; the row language
+   in sheet.css, shared with Settings. What is left here is only what is
+   About's own. */
+
+/* The one pane in the app that centres its text. It is a masthead — a
+   wordmark, a headline, a demo — where Settings is a list, and a centred axis
+   is what tells them apart at a glance while they slide past each other. The
+   row stacks inside it range left again on their own (see sheet.css). */
+.about {
+  text-align: center;
+}
 .about__wordmark {
   display: flex;
   align-items: baseline;

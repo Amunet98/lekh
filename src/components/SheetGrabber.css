@@ -1,7 +1,9 @@
-/* The bottom-sheet grabber, shared by CheatSheetPanel and AboutSheet's mobile
-   layout (see useSheetDrag for the gesture itself; each caller supplies its
-   own component-scoped class for the show/hide breakpoint, since the two
-   panels switch to a bottom sheet at different widths).
+/* The bottom-sheet grabber. CheatSheetPanel is the only caller left — the
+   About and Settings sheets that shared it are one full screen now, with a
+   back arrow instead of a gesture (see Screen.tsx). It stays a file of its
+   own: the panel supplies its own component-scoped class for the show/hide
+   breakpoint, and a second panel that wants a grabber should get this one
+   rather than a second copy of it. See useSheetDrag for the gesture itself.
  *
  * A real <button>, not a decorative bar, so it stays keyboard/AT-operable — a
  * plain click/Enter closes it, same as an X would. The drag/fling gesture is

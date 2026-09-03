@@ -1,20 +1,9 @@
-/* Settings. The frame, the panel and the rows come from sheet.css — this file
-   is only what About does not also need: a title, group headings, the
-   segmented controls, and the one destructive button in the app. */
-
-.settings__title {
-  font-family: var(--sans);
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--text-h);
-  /* The panel centres its text for About's wordmark; a settings screen is a
-     list and reads left. */
-  text-align: left;
-  margin-bottom: var(--sp-4);
-}
+/* Settings. The screen, the pane track and the bar come from screen.css and
+   the rows from sheet.css — this file is only what About does not also need:
+   group headings, the segmented controls, and the one destructive button in
+   the app. (The title is the bar's now, not a heading inside the list.) */
 
 .settings__group {
-  text-align: left;
   margin-top: var(--sp-5);
 }
 .settings__group:first-of-type {
@@ -63,7 +52,7 @@
   background: transparent;
   border: 0;
   border-radius: var(--radius-pill);
-  /* 40px rather than the dock's 48: this is inside a scrolling sheet, where a
+  /* 40px rather than the dock's 48: this is inside a scrolling list, where a
      taller control pushes the rows below it off the screen, and it is not a
      control anyone hits repeatedly. */
   min-height: 40px;

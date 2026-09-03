@@ -28,6 +28,11 @@ import { getPref, setPref } from '../lib/prefs'
  * still a replace. What Back therefore does, in order: leave About for
  * Settings, close the sheet, return to Type, leave. Which is the whole point.
  *
+ * 'about' and 'settings' are two panes of one full screen rather than two
+ * dialogs (see Screen.tsx), and that changes nothing here: the stack is what
+ * decides which pane is on top, and popping from About is what slides Settings
+ * back. The history shape came first and the screen was built to match it.
+ *
  * ?tab= stays exactly as it was — a real, linkable URL per section, which the
  * manifest shortcuts, the native long-press shortcuts and the widget's deep
  * link all depend on.
@@ -136,10 +141,12 @@ export function useAppNavigation() {
   const tabRef = useRef(tab)
   const [sheet, setSheet] = useState<Sheet | null>(null)
   /* A tab change asked for while a sheet is open cannot be done in one step:
-     the sheet's entry has to come off first, and history.back() only reports
-     back asynchronously through popstate. This is the "and then go here" note
-     the popstate handler picks up. Only the About sheet's section buttons can
-     reach it — the dock itself is inert behind a modal dialog. */
+     the sheet's entries have to come off first, and history.back() only
+     reports back asynchronously through popstate. This is the "and then go
+     here" note the popstate handler picks up. Only the About pane's section
+     buttons can reach it — the dock itself is inert behind a modal dialog,
+     and About is two entries deep, so this note has to survive more than one
+     pop. */
   const pendingTab = useRef<Tab | null>(null)
 
   /* Seed the stack so home is always underneath. Without this, an app opened
@@ -298,9 +305,24 @@ export function useAppNavigation() {
   useEffect(() => {
     const onPopState = () => {
       const state = readState()
+      const wanted = pendingTab.current
+      /* Still unwinding, so do not paint the floor we are passing.
+       *
+         Tapping "Translate" from inside About has two entries to give back,
+         About's and Settings'. Applying the state at each stop meant the
+         screen slid all the way back to Settings and *then* closed — half a
+         second of a screen the user had already left, for a tap that was
+         plainly a request to leave it. Going straight on to the next pop keeps
+         the screen showing About until it goes, which is what a dismissal
+         looks like. Single-step backs throughout: history.go(-2) would do it
+         in one, but engines disagree about how many popstates that fires and
+         over-popping here exits the app. */
+      if (wanted !== null && state.sheet !== null) {
+        history.back()
+        return
+      }
       setSheet(state.sheet)
       transitionToTab(state.tab)
-      const wanted = pendingTab.current
       if (wanted !== null) {
         pendingTab.current = null
         goToTab(wanted)

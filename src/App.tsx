@@ -10,8 +10,9 @@ import { TranslatePage } from './components/TranslatePage'
 import { CalendarPage } from './components/calendar/CalendarPage'
 import { InstallButton } from './components/InstallButton'
 import { BootScreen } from './components/BootScreen'
-import { AboutSheet } from './components/AboutSheet'
-import { SettingsSheet } from './components/SettingsSheet'
+import { Screen } from './components/Screen'
+import { AboutScreen } from './components/AboutScreen'
+import { SettingsScreen } from './components/SettingsScreen'
 import { SettingsButton } from './components/SettingsButton'
 import { UpdatePrompt } from './components/UpdatePrompt'
 import { WebAppNotice } from './components/WebAppNotice'
@@ -250,12 +251,24 @@ function App() {
           document.body,
         )}
 
-      <AboutSheet open={sheet === 'about'} onClose={closeSheet} onGoTo={goToTab} />
-      <SettingsSheet
-        open={sheet === 'settings'}
-        onClose={closeSheet}
-        onOpenAbout={() => openSheet('about', { stack: true })}
-      />
+      {/* One screen, two panes, and About is the second one — not a second
+          dialog. Both stay mounted for the whole visit, so going back from
+          About is a slide rather than a teardown and a rebuild: see Screen.tsx.
+          The order here is the order of the stack, and `depth` is just where
+          history says the user currently is in it. */}
+      <Screen
+        open={sheet === 'settings' || sheet === 'about'}
+        depth={sheet === 'about' ? 1 : 0}
+        labelledBy={sheet === 'about' ? 'about-title' : 'settings-title'}
+        onDismiss={closeSheet}
+      >
+        <SettingsScreen
+          open={sheet === 'settings' || sheet === 'about'}
+          onDismiss={closeSheet}
+          onOpenAbout={() => openSheet('about', { stack: true })}
+        />
+        <AboutScreen onDismiss={closeSheet} onGoTo={goToTab} />
+      </Screen>
 
       {/* Always mounted — the hook inside it is what registers the service
           worker. It renders nothing until an update is waiting, and nothing at
