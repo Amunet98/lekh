@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslateState } from './hooks/useTranslateState'
 import { TAB_ORDER, useAppNavigation } from './hooks/useAppNavigation'
+import type { Tab } from './components/TabSwitcher'
 import { TabSwitcher } from './components/TabSwitcher'
 import { LekhMark } from './components/LekhMark'
 import { TypePage } from './components/TypePage'
@@ -47,11 +48,54 @@ function bootedThisSession(): boolean {
   }
 }
 
+/* A section, kept.
+ *
+ * Switching used to unmount one section and mount the next, inside the
+ * flushSync inside the view transition — so the browser sat on the outgoing
+ * frame while React built a whole screen, and only then started the animation
+ * it was supposed to be playing. Measured with long-animation-frame at 4x
+ * throttle, arriving at Patro was a 202ms frame: 85ms of script building the
+ * month grid and the converter, then layout and paint on top. That is not a
+ * slow animation, it is an animation that has not started yet, and it was the
+ * one thing in the app that still felt like a page load.
+ *
+ * So a section is built once and then kept. The cost moves to the first visit
+ * of a session and every visit after it is a class change.
+ *
+ * display: none is the floor — universal, and it is what browsers without the
+ * property below fall back to. content-visibility: hidden is the same idea
+ * done properly: it collapses the box exactly as display: none does and drops
+ * it from paint, hit-testing and the accessibility tree, but it *keeps the
+ * rendering state* rather than throwing it away, which is the whole difference
+ * between showing a section again and laying it out again. Both are wrapped in
+ * @supports rather than assumed, because the build still targets safari14 and
+ * an unknown property there would leave all three sections stacked on screen
+ * at once.
+ *
+ * inert as well, and not as decoration: it is the one guarantee that does not
+ * depend on either property being implemented the way the spec describes. An
+ * off-screen section must not hold a tab stop or answer a screen reader. */
+function Section({ active, children }: { active: boolean; children: ReactNode }) {
+  return (
+    <div className={`section${active ? '' : ' section--idle'}`} inert={!active}>
+      {children}
+    </div>
+  )
+}
+
 function App() {
   /* Tabs and sheets are both history, not just state — see useAppNavigation
      for the stack shape and for what Back is supposed to do at each level. */
   const { tab, goToTab, sheet, openSheet, closeSheet } = useAppNavigation()
   const [booting, setBooting] = useState(() => !bootedThisSession())
+  /* Which sections exist yet. Lazily, so a launch still only builds the screen
+     it lands on — the point is not to pay for Patro up front, it is to pay for
+     it once. Adjusted during render rather than in an effect: the tab change
+     happens inside a flushSync (see useAppNavigation), and a section that
+     appeared a render later would be a section the view transition snapshotted
+     as empty. */
+  const [visited, setVisited] = useState<Tab[]>(() => [tab])
+  if (!visited.includes(tab)) setVisited([...visited, tab])
   // Lifted out of TranslatePage (which used to be two components, Translate
   // and Upload, each calling useTranslateState() themselves) so it survives
   // the tab unmounting/remounting rather than resetting on every visit.
@@ -166,6 +210,35 @@ function App() {
     warmOcrCacheInBackground()
   }, [booting])
 
+  /* Build the sections nobody has opened yet, once the thread has nothing
+     better to do.
+   *
+     Keeping sections alive fixes every visit but the first, and the first is
+     still the one that costs — 183ms of it at 4x throttle for Patro. Doing
+     that work in an idle callback moves it out of the frame where it is being
+     waited on and into one where nothing is happening; the sections mount
+     hidden, so it is the React and DOM half only, with layout still deferred
+     to whenever they are actually shown.
+   *
+     Deliberately no timeout on the callback. A timeout is a promise to run
+     the work whether the thread is idle or not, which is exactly the thing
+     this is avoiding — better to leave a section un-warmed than to build one
+     over somebody's typing. Engines without requestIdleCallback (Safari below
+     17) simply keep the lazy behaviour.
+   *
+     saveData is honoured for the same reason prefetch.ts honours it: mounting
+     Patro starts its month fetch, and someone who has asked their phone to
+     spend less data has not asked for a screen they may never open. */
+  useEffect(() => {
+    if (booting || visited.length === TAB_ORDER.length) return
+    const idle = window.requestIdleCallback
+    if (!idle) return
+    const conn = (navigator as { connection?: { saveData?: boolean } }).connection
+    if (conn?.saveData) return
+    const id = idle(() => setVisited([...TAB_ORDER]))
+    return () => window.cancelIdleCallback?.(id)
+  }, [booting, visited])
+
   /* Material You. Not gated on `booting` like the two above: this one is a
      single bridge call that decides what colour the app is, and the boot
      screen is exactly the moment it should land — main.tsx has already
@@ -228,16 +301,24 @@ function App() {
         </div>
       </header>
       <div className={`page${booting ? ' page--is-booting' : ''}`}>
-        {tab === 'type' ? (
-          <TypePage
-            cheatOpen={sheet === 'cheatsheet'}
-            onOpenCheatSheet={() => openSheet('cheatsheet')}
-            onCloseCheatSheet={closeSheet}
-          />
-        ) : tab === 'translate' ? (
-          <TranslatePage t={translateState} />
-        ) : (
-          <CalendarPage />
+        {visited.includes('type') && (
+          <Section active={tab === 'type'}>
+            <TypePage
+              cheatOpen={sheet === 'cheatsheet'}
+              onOpenCheatSheet={() => openSheet('cheatsheet')}
+              onCloseCheatSheet={closeSheet}
+            />
+          </Section>
+        )}
+        {visited.includes('translate') && (
+          <Section active={tab === 'translate'}>
+            <TranslatePage t={translateState} />
+          </Section>
+        )}
+        {visited.includes('calendar') && (
+          <Section active={tab === 'calendar'}>
+            <CalendarPage />
+          </Section>
         )}
       </div>
 

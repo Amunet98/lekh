@@ -251,6 +251,25 @@
   visibility: hidden;
 }
 
+/* The section that is not the current one. See the Section component in
+   App.tsx for why every section stays mounted at all.
+ *
+ * display: none is the base and the fallback. The @supports block then swaps
+ * it for content-visibility, which collapses the box the same way but keeps
+ * the rendering state instead of discarding it — so coming back to Patro is a
+ * paint rather than a fresh layout of a month grid. Anything that does not
+ * know the property keeps display: none, which is correct, just slower; what
+ * it must never do is leave three sections visible at once. */
+.section--idle {
+  display: none;
+}
+@supports (content-visibility: hidden) {
+  .section--idle {
+    display: block;
+    content-visibility: hidden;
+  }
+}
+
 /* While a modal sheet is open. See the effect in App.tsx for why.
  *
  * The dock keeps its own background here rather than falling through to
