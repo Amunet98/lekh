@@ -66,7 +66,24 @@
      sits directly on top of the wordmark. The bar's own background covers
      the extra height, since this padding grows the parent it paints. */
   padding: env(safe-area-inset-top, 0px) clamp(var(--sp-4), 4vw, var(--sp-6)) 0;
-  min-height: 3.5rem;
+  /* The inset is in the min-height too, and leaving it out was a real bug.
+   *
+   * Everything here is border-box (index.css sets it on *), so a bare
+   * `min-height: 3.5rem` *includes* the padding above rather than sitting
+   * below it — the bar is then max(3.5rem, inset + content), where content is
+   * the wordmark at its own 44px. On a phone reporting a 35px inset that is
+   * 79px, not the 91px the padding was meant to add up to, so the status bar
+   * ate 12px of the bar instead of being reserved clear of it. Invisible on
+   * a desktop, where the inset is 0 and the 3.5rem floor wins anyway.
+   *
+   * It surfaced as a gap: --bar-h (index.css) is what a sticky child sets its
+   * top to, it says 3.5rem + inset, and it was telling the truth about the
+   * intent while the bar was 12px shorter than that. The Patro month bar
+   * stuck 11px below the header with the page scrolling through the slot.
+   * Fix the bar rather than the token — the token is the honest one, and
+   * teaching it the wordmark's 44px would just hide this coupling somewhere
+   * harder to find. */
+  min-height: calc(3.5rem + env(safe-area-inset-top, 0px));
   display: flex;
   align-items: center;
   justify-content: space-between;
