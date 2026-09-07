@@ -21,6 +21,7 @@ import {
 import { COVERAGE } from '../../lib/calendar/panchang'
 import { useMonthPanchang } from '../../hooks/useMonthPanchang'
 import { DateConverter } from './DateConverter'
+import { ActionSheet } from '../ActionSheet'
 import { saveFile } from '../../lib/download'
 import { isNativeApp } from '../../lib/androidApp'
 import { tick } from '../../lib/haptics'
@@ -32,6 +33,16 @@ function ChevronIcon({ dir }: { dir: 'left' | 'right' }) {
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
          strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d={dir === 'left' ? 'm15 18-6-6 6-6' : 'm9 18 6-6-6-6'} />
+    </svg>
+  )
+}
+
+function ConvertIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+         strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 8h13M17 8l-3-3M17 8l-3 3" />
+      <path d="M20 16H7M7 16l3-3M7 16l3 3" />
     </svg>
   )
 }
@@ -90,7 +101,16 @@ function downloadIcs(names: string[], date: Date) {
   return saveFile(blob, 'lekh-patro-holiday.ics')
 }
 
-export function CalendarPage() {
+interface CalendarPageProps {
+  /* The date converter is a sheet off the month bar rather than the last
+     block of the page — see the Sheet union in useAppNavigation for why it is
+     history and not local state. */
+  converterOpen: boolean
+  onOpenConverter: () => void
+  onCloseConverter: () => void
+}
+
+export function CalendarPage({ converterOpen, onOpenConverter, onCloseConverter }: CalendarPageProps) {
   const toast = useToast()
   const today = useMemo(() => todayBs(), [])
   const [view, setView] = useState({ year: today.year, month: today.month })
@@ -146,9 +166,24 @@ export function CalendarPage() {
           </p>
         </div>
 
-        <button type="button" className="cal__arrow" aria-label="Next month" onClick={() => goto(1)}>
-          <ChevronIcon dir="right" />
-        </button>
+        {/* Two controls on this side and one on the other, which is why the
+            bar is a three-column grid with equal outer tracks (see the CSS):
+            the month stays optically centred whatever hangs off the ends. */}
+        <div className="cal__nav-end">
+          <button type="button" className="cal__arrow" aria-label="Next month" onClick={() => goto(1)}>
+            <ChevronIcon dir="right" />
+          </button>
+          <button
+            type="button"
+            className="cal__arrow cal__arrow--convert"
+            aria-haspopup="dialog"
+            aria-label="Date converter"
+            title="Date converter"
+            onClick={onOpenConverter}
+          >
+            <ConvertIcon />
+          </button>
+        </div>
       </div>
 
       {/* Only offered when it would do something — on the current month it is
@@ -396,7 +431,17 @@ export function CalendarPage() {
         </p>
       </details>
 
-      <DateConverter />
+      {/* Was the last block of this page, five blocks below the grid. The
+          month bar it now hangs off is pinned, so it is reachable from
+          anywhere on the screen instead of only from the bottom of it. */}
+      <ActionSheet
+        open={converterOpen}
+        onClose={onCloseConverter}
+        label="Date converter"
+        hideTitle
+      >
+        <DateConverter bare />
+      </ActionSheet>
     </section>
   )
 }

@@ -34,13 +34,35 @@
   position: sticky;
   top: var(--bar-h);
   z-index: 1;
-  display: flex;
+  /* Grid, not space-between, and the outer tracks are deliberately equal.
+     There is one control on the left and two on the right (next month, and
+     the date converter), so a flex row would push the month off centre by
+     half a button. Equal 1fr tracks keep it optically centred whatever ends
+     up hanging off either end. */
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--sp-3);
+  gap: var(--sp-2);
   padding: var(--sp-2) 0;
   background: var(--bg);
   border-bottom: 1px solid var(--border);
+}
+.cal__nav > .cal__arrow {
+  justify-self: start;
+}
+.cal__nav-end {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  justify-self: end;
+}
+/* The converter is a tool, not navigation, so it does not borrow the month
+   arrows' colour on press — it takes the accent tint the app uses for
+   anything that opens a surface. */
+.cal__arrow--convert {
+  color: var(--accent-text);
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
 }
 .cal__title {
   display: flex;

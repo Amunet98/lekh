@@ -1,10 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { saveFile } from '../lib/download'
-import { printPage } from '../lib/print'
-import { isNativeApp } from '../lib/androidApp'
-import { useToast } from '../hooks/useToast'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import { DOCK_QUERY } from '../hooks/useDockDetached'
+import { DOWNLOAD_FORMATS, useDownloadActions } from '../hooks/useDownloadActions'
 import { ActionSheet } from './ActionSheet'
 import './DownloadActions.css'
 
@@ -13,15 +10,12 @@ import './DownloadActions.css'
  * It was Translate's alone, and the asymmetry showed: one screen could give
  * you a .docx of its output and the other could only put its text on the
  * clipboard. Typing is the app's main job — it is the thing named on the
- * front of the box — and it was the screen you could not get a file out of. */
-
-type Format = 'txt' | 'docx' | 'pdf'
-
-const FORMATS: { id: Format; label: string; hint: string }[] = [
-  { id: 'txt', label: '.txt', hint: 'Plain text' },
-  { id: 'docx', label: '.docx', hint: 'Word document' },
-  { id: 'pdf', label: 'PDF', hint: 'Via your device’s print dialog' },
-]
+ * front of the box — and it was the screen you could not get a file out of.
+ *
+ * The formats and the writing live in useDownloadActions now, because the
+ * Type toolbar's phone overflow needs the same list without this button
+ * around it. This file is the button.
+ */
 
 interface DownloadActionsProps {
   /** What to write out. */
@@ -35,39 +29,8 @@ interface DownloadActionsProps {
 }
 
 export function DownloadActions({ text, filenameBase, label, compact = false }: DownloadActionsProps) {
-  const toast = useToast()
-  const printSheetRef = useRef<HTMLDivElement>(null)
-  const [busy, setBusy] = useState(false)
+  const { busy, run, printSheetRef } = useDownloadActions({ text, filenameBase })
   const enabled = text.trim().length > 0
-
-  const downloadTxt = async () => {
-    await saveFile(new Blob([text], { type: 'text/plain' }), `${filenameBase}.txt`)
-  }
-
-  const downloadDocx = async () => {
-    setBusy(true)
-    try {
-      // Lazy-imported — this ~500KB lib only loads when a .docx is actually
-      // requested. Word (and thus this lib) shapes Devanagari correctly at
-      // render time, unlike client-side PDF libs — see printPdf below.
-      const { Document, Packer, Paragraph } = await import('docx')
-      const doc = new Document({
-        sections: [{ children: text.split('\n').map((line) => new Paragraph(line)) }],
-      })
-      await saveFile(await Packer.toBlob(doc), `${filenameBase}.docx`)
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  const printPdf = () => {
-    // jsPDF/pdf-lib can't shape Devanagari text — the browser's own print
-    // engine is the only correct client-side path, so "Save as PDF" hands
-    // off to window.print() with a print-only sheet (see @media print CSS).
-    if (printSheetRef.current) printSheetRef.current.textContent = text
-    // Not window.print() directly — the Android WebView has none. See print.ts.
-    printPage(filenameBase)
-  }
 
   // A menu, not a <select>. The native control was the one thing on the page
   // the browser drew for us — it ignored the pill language every other control
@@ -104,34 +67,6 @@ export function DownloadActions({ text, filenameBase, label, compact = false }: 
     }
   }, [open, asSheet])
 
-  // Dispatch by id rather than storing the handlers in the list. FORMATS is
-  // module-level, inert data; building it here with `run:` closures meant an
-  // array constructed *during render* held a function that reads
-  // printSheetRef — which react-hooks/refs correctly rejects.
-  /* Success is only worth announcing on the web, where a download can finish
-     entirely out of sight — in a standalone PWA window there is no download
-     bar to notice. In the app the system share sheet has already appeared over
-     the page, and a toast confirming what the user can see is noise. Failure
-     is announced in both, because in both it is otherwise silent. */
-  const run = (id: Format) => {
-    if (id === 'pdf') {
-      printPdf()
-      return
-    }
-    const filename = `${filenameBase}.${id}`
-    void (id === 'txt' ? downloadTxt() : downloadDocx())
-      .then(() => {
-        if (!isNativeApp()) toast.done(`Saved ${filename}`)
-      })
-      .catch((err: unknown) =>
-        /* An outdated-app message says something the generic one cannot, and
-           is the only case where the failure is actionable. */
-        toast.problem(err instanceof Error && err.message.includes('update it')
-          ? err.message
-          : `Could not save ${filename}`),
-      )
-  }
-
   return (
     <div className="download-actions" ref={wrapRef}>
       <div className="download-menu">
@@ -154,7 +89,7 @@ export function DownloadActions({ text, filenameBase, label, compact = false }: 
             a format still means editing one array. */}
         {open && !asSheet && (
           <div className="download-menu__menu" role="menu" aria-label={`Download ${label} as`}>
-            {FORMATS.map((f) => (
+            {DOWNLOAD_FORMATS.map((f) => (
               <button
                 key={f.id}
                 type="button"
@@ -177,7 +112,7 @@ export function DownloadActions({ text, filenameBase, label, compact = false }: 
           open={open}
           onClose={() => setOpen(false)}
           label={`Download ${label} as`}
-          options={FORMATS.map((f) => ({
+          options={DOWNLOAD_FORMATS.map((f) => ({
             id: f.id,
             label: f.label,
             hint: f.hint,

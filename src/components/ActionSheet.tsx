@@ -11,6 +11,8 @@ export interface ActionSheetOption {
   hint?: string
   /** Drawn as chosen. For a set of mutually exclusive values. */
   selected?: boolean
+  /** Throws something away. Drawn in --danger, and last in the list. */
+  danger?: boolean
   onSelect: () => void
 }
 
@@ -19,7 +21,9 @@ interface ActionSheetProps {
   onClose: () => void
   /** Names the list for assistive tech, and titles the sheet. */
   label: string
-  options: ActionSheetOption[]
+  /* Optional, because a sheet is not always a list — the date converter is a
+     sheet of controls with no options at all. */
+  options?: ActionSheetOption[]
   /**
    * How the options behave as a set. 'menu' is a list of things to do;
    * 'radio' is a list of values one of which is current — which is the
@@ -29,6 +33,10 @@ interface ActionSheetProps {
   kind?: 'menu' | 'radio'
   /** Anything to put above the options. */
   children?: ReactNode
+  /* Drop the eyebrow. For content that already carries its own heading —
+     `label` still names the dialog for assistive tech, it just is not drawn
+     twice. */
+  hideTitle?: boolean
 }
 
 /* A bottom sheet of choices, for a phone.
@@ -57,9 +65,10 @@ export function ActionSheet({
   open,
   onClose,
   label,
-  options,
+  options = [],
   kind = 'menu',
   children,
+  hideTitle = false,
 }: ActionSheetProps) {
   const ref = useRef<HTMLDialogElement>(null)
   const innerRef = useRef<HTMLDivElement>(null)
@@ -122,9 +131,10 @@ export function ActionSheet({
           <span className="sheet-grabber-bar" />
         </button>
 
-        <p className="action-sheet__title">{label}</p>
+        {!hideTitle && <p className="action-sheet__title">{label}</p>}
         {children}
 
+        {options.length > 0 && (
         <div className="action-sheet__options" role={kind === 'radio' ? 'radiogroup' : 'menu'}>
           {options.map((option) => (
             <button
@@ -132,7 +142,7 @@ export function ActionSheet({
               type="button"
               role={kind === 'radio' ? 'menuitemradio' : 'menuitem'}
               {...(kind === 'radio' ? { 'aria-checked': !!option.selected } : {})}
-              className={`action-sheet__option${option.selected ? ' action-sheet__option--selected' : ''}`}
+              className={`action-sheet__option${option.selected ? ' action-sheet__option--selected' : ''}${option.danger ? ' action-sheet__option--danger' : ''}`}
               onClick={() => {
                 /* Close first, then act. Some of these handlers open a
                    system dialog of their own — the print sheet, the Android
@@ -148,6 +158,7 @@ export function ActionSheet({
             </button>
           ))}
         </div>
+        )}
       </div>
     </dialog>
   )

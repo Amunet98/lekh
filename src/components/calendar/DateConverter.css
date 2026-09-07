@@ -112,3 +112,27 @@
   color: var(--muted);
   font-size: 0.85rem;
 }
+
+/* Inside the converter sheet. The sheet already supplies the surface, the
+   rounded top corners and the elevation, so the card here would only draw a
+   second box around the first — see the `bare` prop in DateConverter.tsx.
+   Horizontal padding stays: the sheet gives its rows their own, and these are
+   controls rather than rows. */
+.conv--bare {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 0 var(--sp-4) var(--sp-4);
+}
+/* One column, always, in the sheet.
+ *
+ * .conv__row goes two-up above 560px, and that breakpoint asks the viewport
+ * how wide it is — which was the right question while this was a block of the
+ * Patro page and is the wrong one now that it is 480px of sheet in the middle
+ * of a 1691px window. Two columns inside 480px squeezed the three BS selects
+ * into ~224px and clipped them to २०८: and २:. A container query is what this
+ * really wants; a sheet that is never wide enough for two columns does not
+ * need one. */
+.conv--bare .conv__row {
+  grid-template-columns: 1fr;
+}

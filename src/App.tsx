@@ -21,9 +21,11 @@ import { usePref } from './hooks/usePref'
 import { useOnline } from './hooks/useOnline'
 import { useKeyboardOpen } from './hooks/useKeyboardOpen'
 import { useDockDetached } from './hooks/useDockDetached'
+import { useTabSwipe } from './hooks/useTabSwipe'
 import { useToast } from './hooks/useToast'
 import { warmOcrCacheInBackground } from './lib/ocr/prefetch'
 import { refreshDynamicColor } from './lib/dynamicColor'
+import { tick } from './lib/haptics'
 import './App.css'
 
 const BOOT_KEY = 'lekh-booted'
@@ -128,6 +130,32 @@ function App() {
   /* Below 768px the nav detaches from the bar and docks at the bottom. It has
      to leave the bar's subtree to do it — see useDockDetached. */
   const dockDetached = useDockDetached()
+
+  /* Swipe sideways to change section — the same goToTab the dock calls, so it
+     inherits the history behaviour and the directional transition rather than
+     inventing either. Clamped at both ends: TAB_ORDER is a row of three, not a
+     carousel, and a phone that jumps from Patro back to Type on an overshoot
+     is a phone that has lost your place.
+   *
+     tick() here because the dock taps its own haptic inside TabSwitcher, and a
+     swipe that changes screens without one feels like the screen changed on
+     its own. Suppressed while the boot screen is up for the same reason the
+     shell is not hit-testable there: nothing invisible should be operable. */
+  const swipe = useTabSwipe({
+    enabled: !booting,
+    onPrev: () => {
+      const index = TAB_ORDER.indexOf(tab)
+      if (index <= 0) return
+      tick()
+      goToTab(TAB_ORDER[index - 1])
+    },
+    onNext: () => {
+      const index = TAB_ORDER.indexOf(tab)
+      if (index < 0 || index >= TAB_ORDER.length - 1) return
+      tick()
+      goToTab(TAB_ORDER[index + 1])
+    },
+  })
 
   /* On :root rather than on the editor, because two components read it — the
      Type editor and both translation panes — and a custom property is how one
@@ -300,7 +328,7 @@ function App() {
           </div>
         </div>
       </header>
-      <div className={`page${booting ? ' page--is-booting' : ''}`}>
+      <div className={`page${booting ? ' page--is-booting' : ''}`} {...swipe}>
         {visited.includes('type') && (
           <Section active={tab === 'type'}>
             <TypePage
@@ -317,7 +345,11 @@ function App() {
         )}
         {visited.includes('calendar') && (
           <Section active={tab === 'calendar'}>
-            <CalendarPage />
+            <CalendarPage
+              converterOpen={sheet === 'converter'}
+              onOpenConverter={() => openSheet('converter')}
+              onCloseConverter={closeSheet}
+            />
           </Section>
         )}
       </div>

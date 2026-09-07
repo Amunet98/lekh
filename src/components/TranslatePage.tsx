@@ -262,10 +262,26 @@ export function TranslatePage({ t }: TranslatePageProps) {
                   <p className="upload-hint__type">
                     Type English or Nepali — romanized works too, like &lsquo;mero naam&rsquo;
                   </p>
+                  {/* Two wordings, the same split the editor hint uses (see
+                      Editor.tsx) and for the same reason: "drop" and "paste"
+                      name gestures a touch device does not have, and on a
+                      phone the upload button this sentence is describing is
+                      already on screen two rows above it. Pointing at it beats
+                      listing three ways in. */}
                   <div className="upload-hint__or">
                     <SectionIcon name="upload" size={18} />
-                    <span>or drop, paste, or upload a photo or document</span>
+                    <span className="upload-hint__fine">
+                      or drop, paste, or upload a photo or document
+                    </span>
+                    <span className="upload-hint__coarse">
+                      or <b>upload</b> a photo, PDF or document
+                    </span>
                   </div>
+                  {/* Desktop only. It belongs to the dropzone framing above —
+                      what you may drag in here — and a phone is not dragging
+                      anything: the file picker already filters to exactly
+                      these, so on touch it is four filenames to read before
+                      tapping a button that would have told you anyway. */}
                   <div className="upload-hint__formats">
                     <span>image</span>
                     <span>.pdf</span>

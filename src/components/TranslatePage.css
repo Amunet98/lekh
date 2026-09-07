@@ -252,6 +252,27 @@
   border-radius: var(--radius-pill);
   color: var(--muted);
 }
+/* The touch wording, and what it replaces. Same mechanism as the editor hint
+   in Editor.css — the wording turns on the input device, not the window
+   width, because "drop" is a statement about what the pointer can do. */
+.upload-hint__coarse {
+  display: none;
+}
+.upload-hint__coarse b {
+  color: var(--accent-text);
+  font-weight: 600;
+}
+@media (pointer: coarse) {
+  .upload-hint__fine {
+    display: none;
+  }
+  .upload-hint__coarse {
+    display: inline;
+  }
+  .upload-hint__formats {
+    display: none;
+  }
+}
 
 /* Uploaded/dropped filename, with a way to remove it without retyping
    everything. Ported from the old standalone Upload tab. */

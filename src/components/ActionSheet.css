@@ -138,3 +138,30 @@
   font-weight: 400;
   color: var(--muted);
 }
+/* Throws something away. Colour only, and it is not the whole row: the label
+   carries it, the hint stays muted, and there is no fill — the same restraint
+   .settings__danger uses for the one destructive control on the Settings
+   screen. A solid red band in a list of ordinary actions reads as a warning
+   about the list. */
+.action-sheet__option--danger {
+  color: var(--danger);
+}
+
+/* A sheet that spans a 1600px window is not a sheet, it is a bar.
+ *
+ * Download and the language pickers only ever render as sheets below 768px —
+ * above it they are still their own anchored popovers — so they never meet a
+ * wide window. The Patro date converter does: it is a sheet at every width,
+ * because it replaced a block of the page rather than a menu. Measured at
+ * 1681px before this.
+ *
+ * Centred with margin rather than translateX(-50%), and that is not a
+ * preference: the drag gesture writes transform: translateY() as an inline
+ * style on this element, and an inline transform would drop a centring one
+ * declared here the moment a finger touched the grabber. */
+@media (min-width: 768px) {
+  .action-sheet__inner {
+    width: min(480px, 92vw);
+    margin-inline: auto;
+  }
+}
