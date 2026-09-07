@@ -39,6 +39,17 @@
   border-radius: var(--radius-pill);
 }
 .mode-seg__opt {
+  /* Equal halves, the same way .settings__seg-btn is flex: 1.
+   *
+     Below 640px the translate toolbar stops being a container at all
+     (display: contents, see TranslatePage.css) and this becomes a row of its
+     own in a column flex, so it takes the full width. Left to size on their
+     labels the two options then huddled at one end of a track running the
+     width of the phone. Splitting it is both what a full-width segmented
+     control does natively and what the Theme and Text size controls in
+     Settings already do. Where the track IS content-width — the desktop
+     toolbar — this just makes the two halves match each other. */
+  flex: 1;
   min-height: 38px;
   padding: 0 var(--sp-4);
   border: 0;
