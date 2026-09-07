@@ -173,10 +173,23 @@
   color: var(--text-h);
   font-family: var(--devanagari);
 }
+/* No drag grip on touch — see the same rule and the same reasoning on the
+   Type editor (Editor.css). */
+@media (pointer: coarse) {
+  .translate-input {
+    resize: none;
+  }
+}
 .translate-input:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+/* Same reason the editor drops its ring on a phone — see Editor.css. */
+@media (max-width: 767px) {
+  .translate-input:focus {
+    box-shadow: none;
+  }
 }
 /* The output is not editable, and it should not look like it is. A dashed
    edge and the page tint distinguish read-only from disabled — a disabled
@@ -342,31 +355,12 @@
 }
 
 /* The privacy disclosure. It reads as one quiet line until opened — the dot
-   carries the state, the text names it, so it is not colour alone. */
-.privacy-note {
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-.privacy-note summary {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  width: fit-content;
-  min-height: 32px;
-  padding: 0 0.15rem;
-  cursor: pointer;
-  list-style: none;
-  color: var(--muted);
-  transition: color var(--dur) var(--ease);
-}
-.privacy-note summary::-webkit-details-marker {
-  display: none;
-}
-@media (hover: hover) {
-  .privacy-note summary:hover {
-    color: var(--text-h);
-  }
-}
+   carries the state, the text names it, so it is not colour alone.
+ *
+ * The disclosure itself is .disclosure in App.css now; this pattern started
+ * here and two more screens wanted it, so it moved somewhere they can all
+ * reach. What is left below is the only part that is actually about privacy:
+ * the status dot. */
 .privacy-note__dot {
   width: 7px;
   height: 7px;
@@ -378,9 +372,4 @@
 }
 .privacy-note__dot--ondevice {
   background: var(--ok);
-}
-.privacy-note p {
-  padding: var(--sp-2) 0 0 1.2rem;
-  max-width: 62ch;
-  line-height: 1.7;
 }

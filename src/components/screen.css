@@ -210,8 +210,25 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  padding: var(--sp-5) clamp(var(--sp-4), 4vw, var(--sp-6))
-    calc(var(--sp-7) + env(safe-area-inset-bottom, 0px));
+  padding: var(--sp-5) var(--gutter) calc(var(--sp-7) + env(safe-area-inset-bottom, 0px));
+}
+/* The same edge-to-edge rule the three main screens follow below 768px, and
+   the same mechanism — the list pulls out of the gutter rather than the pane
+   giving its padding up. See the phone block in App.css for why that way
+   round. This pane could not be named there: a <dialog> opened with
+   showModal() lives in the top layer, a sibling of .page rather than a
+   descendant of it.
+
+   Only the list bleeds. The group heading above each list stays where it was,
+   so an uppercase label sits over the rows it names rather than over the
+   screen edge — the same relationship the eyebrow labels have to the surfaces
+   they head on every other screen. */
+@media (max-width: 767px) {
+  .screen__body .row-group {
+    margin-inline: calc(-1 * var(--gutter));
+    border-inline: 0;
+    border-radius: 0;
+  }
 }
 /* The screen is as wide as the phone; the reading column is not. 34rem is the
    width the sheet these panes came from was capped at, and a settings row

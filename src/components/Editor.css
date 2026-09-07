@@ -29,6 +29,18 @@
   border-color: var(--accent);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
 }
+/* Edge to edge below 768px (see the phone block in App.css), which takes the
+   ring's left and right thirds off the side of the display — a glow that
+   stops dead at the bezel looks like a clipping bug, not a focus state. The
+   accent on the two hairlines it still has is enough here: on a phone the
+   keyboard has just come up over half the screen and the caret is blinking in
+   this exact box, so nothing about what has focus is in doubt. The desktop
+   ring, where a field really can be one of several, is untouched. */
+@media (max-width: 767px) {
+  .editor:focus-within {
+    box-shadow: none;
+  }
+}
 
 /* Fired by useEditorState when a conversion lands, as confirmation that the
    space bar did something. Colour only — no transform, because the card is a
@@ -128,6 +140,20 @@
      control) only ever multiplies up, for that reason. */
   font-size: calc(1.05rem * var(--text-scale));
   line-height: 1.85;
+}
+/* The resize grip is a browser affordance, and on a phone it is only that.
+ * Nothing native has a diagonal hatch in the corner of a text field, there is
+ * no mouse to drag it with, and it sits exactly where a thumb rests — so the
+ * one thing it reliably does on touch is announce which browser you are in.
+ * A mouse has a real use for it, so it stays on fine pointers.
+ *
+ * Same (pointer: coarse) split index.css uses to take the styled scrollbar
+ * away from phones and leave it on desktops, and for the same reason: this is
+ * about what the input device can do, not how wide the window is. */
+@media (pointer: coarse) {
+  .editor textarea {
+    resize: none;
+  }
 }
 .editor textarea:focus {
   outline: none;

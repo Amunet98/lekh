@@ -29,9 +29,6 @@
   /* Not a button; nothing to press about the row itself. */
   cursor: default;
 }
-.settings__group .sheet-row + .sheet-row {
-  margin-top: 0.5rem;
-}
 
 .settings__seg {
   display: flex;

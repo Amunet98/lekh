@@ -302,18 +302,36 @@ export function CalendarPage() {
           rendering it as a month that simply has no festivals in it would be a
           lie the user has no way to detect. */}
       {!covered ? (
-        <p className="cal__coverage cal__coverage--warn" role="note">
-          {loading
-            ? 'Looking for festival data for this month…'
-            : <>
-                Dates convert for any year, but festivals could not be loaded for this month.
-                Built-in data covers{' '}
-                <b>BS {toDevanagari(COVERAGE.from)}–{toDevanagari(COVERAGE.to)}</b>; anything
-                outside that needs a connection the first time. Most Nepali festivals fall on a
-                lunar tithi and cannot be derived from the date alone, so they are tabulated
-                rather than calculated.
-              </>}
-        </p>
+        <div className="cal__coverage cal__coverage--warn" role="note">
+          {loading ? (
+            'Looking for festival data for this month…'
+          ) : (
+            <>
+              {/* The claim itself stays in the open. A month with no festivals
+                  in it and a month whose festivals could not be loaded look
+                  identical, so saying so is not documentation — it is the only
+                  thing standing between the user and a silent lie. Why it
+                  works that way is documentation, and goes behind the
+                  summary. */}
+              Dates convert for any year, but festivals could not be loaded for this month.
+              Built-in data covers{' '}
+              <b>BS {toDevanagari(COVERAGE.from)}–{toDevanagari(COVERAGE.to)}</b>; anything
+              outside that needs a connection the first time.
+              <details className="disclosure cal__coverage-why">
+                <summary>
+                  <span className="disclosure__caret">
+                    <ChevronIcon dir="right" />
+                  </span>
+                  Why festivals need loading at all
+                </summary>
+                <p>
+                  Most Nepali festivals fall on a lunar tithi and cannot be derived from the date
+                  alone, so they are tabulated rather than calculated.
+                </p>
+              </details>
+            </>
+          )}
+        </div>
       ) : (
         panchang && (
           <div className="cal__holidays">
@@ -352,20 +370,31 @@ export function CalendarPage() {
           screen does reach the network — a plain GET for a public file, no
           data about you attached, but a fetch nonetheless. It says which
           source the month on screen came from so that is never a secret. */}
-      <p className="cal__source">
-        {source === 'live'
-          ? 'Festivals updated from the live almanac'
-          : source === 'bundled'
-            ? 'Festivals from the built-in table — checking for updates when online'
-            : 'Festivals unavailable for this month'}
-        {' · '}
-        <a href="https://github.com/S4NKALP/nepali-calendar-api" target="_blank" rel="noopener noreferrer">
-          source
-        </a>
-        {'. '}
-        Nepal publishes holidays in the Gazette, which has no machine-readable feed, so this is a
-        community almanac rather than an official notice.
-      </p>
+      <details className="disclosure cal__source">
+        {/* The status is the part that has to stay visible — it changes, and
+            it is the only thing on this screen that says whether what you are
+            looking at came off the network or out of the bundle. The reason
+            it works that way does not change and is read once, so it goes
+            behind the summary. */}
+        <summary>
+          <span className="disclosure__caret">
+            <ChevronIcon dir="right" />
+          </span>
+          {source === 'live'
+            ? 'Festivals updated from the live almanac'
+            : source === 'bundled'
+              ? 'Festivals from the built-in table — checking for updates when online'
+              : 'Festivals unavailable for this month'}
+        </summary>
+        <p>
+          Nepal publishes holidays in the Gazette, which has no machine-readable feed, so this is a
+          community almanac rather than an official notice.{' '}
+          <a href="https://github.com/S4NKALP/nepali-calendar-api" target="_blank" rel="noopener noreferrer">
+            Almanac source
+          </a>
+          .
+        </p>
+      </details>
 
       <DateConverter />
     </section>

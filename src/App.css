@@ -6,7 +6,11 @@
   z-index: 1;
   max-width: 1100px;
   margin: 0 auto;
-  padding: var(--sp-5) clamp(var(--sp-4), 4vw, var(--sp-6)) clamp(var(--sp-5), 4vw, var(--sp-7));
+  /* --gutter rather than the clamp written out, because below 768px this
+     padding moves off .page and onto the individual pieces of content that
+     still want it — and the two have to be the same number or a full-bleed
+     grid and the caption under it stop sharing a left edge. */
+  padding: var(--sp-5) var(--gutter) clamp(var(--sp-5), 4vw, var(--sp-7));
 }
 
 /* App bar — one strip carrying brand, section nav and actions.
@@ -158,13 +162,64 @@
   gap: var(--sp-2);
 }
 
-/* Below the dock breakpoint the nav leaves the bar for the bottom of the
-   screen, so the bar's middle column is empty and brand/actions can spread. */
+/* ── The phone layout ─────────────────────────────────────────────────────
+ *
+ * Below the dock breakpoint the nav leaves the bar for the bottom of the
+ * screen, so the bar's middle column is empty and brand/actions can spread.
+ *
+ * And the content stops being cards on a page. On a phone the old layout
+ * charged three nested insets before the first glyph — .page's side padding,
+ * then a card border, then the card's own padding — for a card that had
+ * nothing beside it to be distinguished from. Edge to edge is what a phone
+ * app does with its one column, and it is worth ~32px of measure on a 390px
+ * screen.
+ *
+ * Deliberately one block rather than a media query in each component file.
+ * The rule is not "the editor is different on a phone", it is "on a phone the
+ * primary surface *is* the screen" — one idea, and it is only legible as one
+ * if the list of what obeys it can be read in one place.
+ *
+ * The surfaces reach the edge by pulling *out* of the gutter, rather than by
+ * .page giving its padding up. Both produce the same picture, and only this
+ * one is safe to add to: with .page's padding gone, every caption, eyebrow
+ * label, banner and toolbar in the app would have had to be listed somewhere
+ * and re-padded by hand, and the failure mode of forgetting one is a line of
+ * text flush against the edge of the glass. This way an unlisted element is
+ * simply left where it already was, and only the handful of surfaces that opt
+ * in have to be named at all. --gutter is what makes the two agree. */
 @media (max-width: 767px) {
   /* Clears the fixed bottom dock (see TabSwitcher.css) so the last of the
      content — including the footer — isn't hidden behind it. */
   .page {
     padding-bottom: calc(4.75rem + env(safe-area-inset-bottom));
+  }
+
+  /* Surfaces that become the screen. They keep their top and bottom hairline
+     — that is what still separates them from what is above and below — and
+     lose the side border and the radius, because a rounded corner tucked
+     against the edge of the display reads as a rendering fault rather than a
+     card.
+
+     The Settings/About list obeys the same rule but cannot be named here:
+     those panes live in a <dialog> in the top layer, which is a sibling of
+     .page and not a descendant. Its half of this is in screen.css.
+
+     Name the element that actually draws the border, not the wrapper around
+     it. `.cal__holidays ul` rather than `.cal__holidays`: that wrapper is
+     bare, and it also holds the heading above the list — so bleeding the
+     wrapper dragged the heading out to the edge with it and clipped the first
+     glyph of यो महिनाका बिदा, while doing nothing at all about the border,
+     which was never on the wrapper to remove.
+
+     (Watch the apostrophes in comments here. Tailwind lexes one as the start
+     of a CSS string, so an apostrophe with no partner on the same line runs
+     into the newline and fails the build with an unterminated-string error
+     that points at the prose rather than at any rule.) */
+  .page :is(.editor, .translate-input, .translate-output, .cal__grid, .cal__detail,
+      .cal__holidays ul, .conv) {
+    margin-inline: calc(-1 * var(--gutter));
+    border-inline: 0;
+    border-radius: 0;
   }
 }
 
@@ -192,6 +247,68 @@
   background: var(--accent-bg);
   border-radius: var(--radius-pill);
   padding: 0.22rem 0.75rem;
+}
+
+/* A disclosure — one quiet line that opens into an explanation.
+ *
+ * Lekh has to explain itself in a few places: which service a translation
+ * went to, where a month's festivals came from, why a month has none. All of
+ * it is true and worth saying, and none of it is worth a paragraph sitting
+ * permanently in the content flow — that is a documentation habit, and three
+ * of them stacked down a screen is how an app starts reading like a page
+ * about an app. The summary keeps the one glanceable fact; the rest is one
+ * tap away.
+ *
+ * Lifted out of Translate's .privacy-note, which is where the pattern was
+ * first worked out and which now just adds its status dot on top of this.
+ *
+ * <details> rather than state, for the reasons that file already gives: it
+ * works before hydration, it is keyboard-operable for free, and there is
+ * nothing here worth a re-render. */
+.disclosure {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.disclosure > summary {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: fit-content;
+  /* Not 44px. This is a line of small print that happens to open, not a
+     control anyone is hunting for, and a 44px band of empty space under every
+     one of them costs more than the easier tap is worth. */
+  min-height: 32px;
+  padding: 0 0.15rem;
+  cursor: pointer;
+  /* The UA triangle, removed twice over: `list-style` is what standards-mode
+     browsers honour, the ::-webkit- pseudo below is what Safari needs. */
+  list-style: none;
+  color: var(--muted);
+  transition: color var(--dur) var(--ease);
+}
+.disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+@media (hover: hover) {
+  .disclosure > summary:hover {
+    color: var(--text-h);
+  }
+}
+/* Indented to clear whatever marker the summary carries — a dot, a caret —
+   so the body ranges with the words above it rather than with the glyph. */
+.disclosure > p {
+  padding: var(--sp-2) 0 0 1.2rem;
+  max-width: 62ch;
+  line-height: 1.7;
+}
+/* Drawn by us, since the UA's is gone. Rotates rather than swaps, so opening
+   is a movement and not a substitution. */
+.disclosure__caret {
+  flex: 0 0 auto;
+  transition: transform var(--dur) var(--ease-expo);
+}
+.disclosure[open] > summary .disclosure__caret {
+  transform: rotate(90deg);
 }
 
 /* The app content is revealed by the boot screen fading off it, not by fading

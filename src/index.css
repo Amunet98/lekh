@@ -122,6 +122,18 @@
   --sp-6: 2rem;
   --sp-7: 3rem;
 
+  /* The page's side inset, given a name because below 768px the content
+     surfaces stop paying it and the things *between* them start paying it
+     instead. See the phone block in App.css: .page drops its inline padding,
+     the editor/panes/grid/lists run edge to edge, and everything that is
+     still inset content re-applies this. One value, so a full-bleed surface
+     and the caption under it stay on the same left edge. */
+  --gutter: clamp(var(--sp-4), 4vw, var(--sp-6));
+  /* The app bar's height, so something inside .page can stick underneath it.
+     Mirrors .app-bar__inner: min-height plus the safe-area padding it takes
+     on top in the Capacitor shell. If that min-height changes, change this. */
+  --bar-h: calc(3.5rem + env(safe-area-inset-top, 0px));
+
   /* Editor and translation text size, set from the Settings sheet (App.tsx
      writes it on :root). 1 is the designed size; the control only scales up,
      because the designed size is already at the iOS zoom-on-focus floor. */

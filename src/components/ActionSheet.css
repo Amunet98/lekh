@@ -1,0 +1,140 @@
+/* The frame for a bottom sheet of choices. See ActionSheet.tsx for what this
+   replaces and why it is not built out of CheatSheetPanel.
+
+   Same construction as that panel: the <dialog> is the full-viewport layer,
+   and a child inside it is the thing that actually moves. Sizing the dialog
+   to the sheet and animating the dialog directly does not work — a dialog
+   opened with showModal() is display: none until it opens, so a transition on
+   it has no start frame to run from and the sheet simply appears. */
+.action-sheet {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  max-width: none;
+  max-height: none;
+  width: 100%;
+  height: 100%;
+  /* Filling the viewport is what makes the empty area above the sheet a
+     dismiss target — see the currentTarget check in the TSX. */
+  margin: 0;
+  overflow: hidden;
+}
+.action-sheet::backdrop {
+  /* The same 45% the cheat sheet uses. A sheet you can still see the page
+     through reads as "on top of my work" rather than "a different screen",
+     which for a three-item menu is exactly the right claim. */
+  background: rgb(var(--scrim) / 0.45);
+  /* backwards holds the from-frame until the animation starts; without it the
+     dim snaps in while the sheet below eases up, and the mismatch is the part
+     that reads as janky. */
+  animation: action-sheet-backdrop-in var(--dur) var(--ease) backwards;
+}
+@keyframes action-sheet-backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.action-sheet__inner {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  /* svh, not vh: on iOS Safari vh counts the collapsed toolbar, so a sheet
+     capped in vh can be taller than the visible area. */
+  max-height: 85svh;
+  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+  box-shadow: var(--shadow-pop);
+  /* Drives the drag-to-dismiss glide — the snap-back, or the fling the rest
+     of the way off-screen before the dialog actually closes. Turned off while
+     a pointer is dragging so the sheet tracks the finger 1:1 with no lag. */
+  transition: transform var(--dur-slow) var(--ease-slide);
+  /* 24px and a fade rather than the sheet's full height, the same as the
+     cheat sheet and both screens. The first modal <dialog> of a session
+     freezes the Android WebView for 220-300ms — measured, once per session,
+     and not fixable from here — and a freeze in the middle of a full-height
+     slide is a sheet that visibly stops halfway. Inside a 24px rise it is a
+     slightly late sheet. */
+  animation: action-sheet-up var(--dur-slow) var(--ease-slide) backwards;
+}
+@keyframes action-sheet-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+.action-sheet__inner--dragging {
+  transition: none;
+}
+
+/* Not a heading. The <dialog> already carries the same string as its
+   aria-label, and marking this up as an <h2> would have a screen reader
+   announce the name of the sheet twice in a row on open. */
+.action-sheet__title {
+  padding: 0 var(--sp-4) var(--sp-2);
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  /* The eyebrow label every grouped list in the app uses over its rows. */
+  color: var(--muted);
+}
+
+.action-sheet__options {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: var(--sp-2);
+}
+
+/* A row of the list, drawn like every other row in the app: full width, no
+   border of its own, a hairline between. See .row-group in sheet.css — the
+   same idea, one layer up, and deliberately not that class: these live in the
+   top layer with no group container around them, and their divider has to
+   come from the rows themselves. */
+.action-sheet__option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  width: 100%;
+  /* 52px, matching .sheet-row — this is the same furniture. */
+  min-height: 52px;
+  padding: var(--sp-2) var(--sp-4);
+  border: 0;
+  background: transparent;
+  color: var(--text-h);
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease);
+}
+.action-sheet__option + .action-sheet__option {
+  border-top: 1px solid var(--border);
+}
+@media (hover: hover) {
+  .action-sheet__option:hover {
+    background: var(--surface-2);
+  }
+}
+/* A flash, not a scale. These rows sit flush against each other, and a
+   shrinking row pulls its own edges away from the dividers above and below —
+   the list flickers open at the seams. Same call, same reason, as .row-group. */
+.action-sheet__option:active {
+  background: var(--surface-2);
+}
+.action-sheet__option--selected {
+  color: var(--accent-text);
+  font-weight: 600;
+}
+.action-sheet__hint {
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--muted);
+}

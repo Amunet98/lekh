@@ -3,6 +3,9 @@ import { saveFile } from '../lib/download'
 import { printPage } from '../lib/print'
 import { isNativeApp } from '../lib/androidApp'
 import { useToast } from '../hooks/useToast'
+import { useMediaQuery } from '../hooks/useMediaQuery'
+import { DOCK_QUERY } from '../hooks/useDockDetached'
+import { ActionSheet } from './ActionSheet'
 import './DownloadActions.css'
 
 /* Shared by Translate and Type.
@@ -74,9 +77,19 @@ export function DownloadActions({ text, filenameBase, label, compact = false }: 
   // TranslateControls: outside-click and Escape both close it.
   const [open, setOpen] = useState(false)
   const wrapRef = useRef<HTMLDivElement>(null)
+  /* Below the dock breakpoint this list is a bottom sheet instead — see
+     ActionSheet. The same query the section nav uses, imported rather than
+     retyped, because it is the same judgement: this is a phone. */
+  const asSheet = useMediaQuery(DOCK_QUERY)
 
+  /* Popover only. A <dialog> opened with showModal() already closes on
+     Escape and already makes the rest of the document inert, so on the sheet
+     path these two listeners would be a second, redundant implementation of
+     behaviour the element gives for free — and the mousedown one would be
+     actively wrong, since a press on the sheet's own backdrop is not "outside
+     the wrapper" in any sense this ref can see. */
   useEffect(() => {
-    if (!open) return
+    if (!open || asSheet) return
     const onPointer = (e: MouseEvent) => {
       if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false)
     }
@@ -89,7 +102,7 @@ export function DownloadActions({ text, filenameBase, label, compact = false }: 
       document.removeEventListener('mousedown', onPointer)
       document.removeEventListener('keydown', onKey)
     }
-  }, [open])
+  }, [open, asSheet])
 
   // Dispatch by id rather than storing the handlers in the list. FORMATS is
   // module-level, inert data; building it here with `run:` closures meant an
@@ -136,7 +149,10 @@ export function DownloadActions({ text, filenameBase, label, compact = false }: 
             <path d="M6 9l6 6 6-6" />
           </svg>
         </button>
-        {open && (
+        {/* One list, two shapes. FORMATS is module-level data and run() is a
+            plain dispatch on an id, so neither path owns the options — adding
+            a format still means editing one array. */}
+        {open && !asSheet && (
           <div className="download-menu__menu" role="menu" aria-label={`Download ${label} as`}>
             {FORMATS.map((f) => (
               <button
@@ -156,6 +172,19 @@ export function DownloadActions({ text, filenameBase, label, compact = false }: 
           </div>
         )}
       </div>
+      {asSheet && (
+        <ActionSheet
+          open={open}
+          onClose={() => setOpen(false)}
+          label={`Download ${label} as`}
+          options={FORMATS.map((f) => ({
+            id: f.id,
+            label: f.label,
+            hint: f.hint,
+            onSelect: () => run(f.id),
+          }))}
+        />
+      )}
       <div id="print-sheet" ref={printSheetRef} className="print-sheet" />
     </div>
   )

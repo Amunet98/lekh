@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useMediaQuery } from './useMediaQuery'
 
 /* Is the section nav a bottom dock rather than a segment in the app bar?
  *
@@ -18,21 +18,14 @@ import { useEffect, useState } from 'react'
  * actions. It is the same element and the same single role="tablist" either
  * way — it changes parents, it is not rendered twice.
  *
- * If you change this number, change it in TabSwitcher.css too. */
+ * If you change this number, change it in TabSwitcher.css too.
+ *
+ * It is also the width at which anchored dropdown menus become bottom sheets
+ * (see ActionSheet), which is not a coincidence and not a second decision:
+ * both are "this is a phone, lay it out like one". Anything else that needs
+ * to ask should import this constant rather than retype the number. */
 export const DOCK_QUERY = '(max-width: 767px)'
 
 export function useDockDetached(): boolean {
-  const [detached, setDetached] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia(DOCK_QUERY).matches,
-  )
-
-  useEffect(() => {
-    const mq = window.matchMedia(DOCK_QUERY)
-    const update = () => setDetached(mq.matches)
-    update()
-    mq.addEventListener('change', update)
-    return () => mq.removeEventListener('change', update)
-  }, [])
-
-  return detached
+  return useMediaQuery(DOCK_QUERY)
 }

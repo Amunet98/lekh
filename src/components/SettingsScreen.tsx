@@ -184,121 +184,127 @@ export function SettingsScreen({ open, onDismiss, onOpenAbout }: SettingsScreenP
         <div className="screen__content">
           <section className="settings__group">
             <h3 className="settings__group-title">Appearance</h3>
-            <div className="sheet-row sheet-row--stack">
-              <span className="sheet-row__text">
-                <b>Theme</b>
-                <span className="sheet-row__rest">
-                  {theme === 'auto' ? 'following your device' : `always ${theme}`}
+            <div className="row-group">
+              <div className="sheet-row sheet-row--stack">
+                <span className="sheet-row__text">
+                  <b>Theme</b>
+                  <span className="sheet-row__rest">
+                    {theme === 'auto' ? 'following your device' : `always ${theme}`}
+                  </span>
                 </span>
-              </span>
-              <Segmented label="Theme" value={theme} options={THEMES} onChange={setTheme} />
-            </div>
+                <Segmented label="Theme" value={theme} options={THEMES} onChange={setTheme} />
+              </div>
 
-            <div className="sheet-row sheet-row--stack">
-              <span className="sheet-row__text">
-                <b>Text size</b>
-                <span className="sheet-row__rest">in the editor and the translation panes</span>
-              </span>
-              <Segmented
-                label="Text size"
-                value={editorSize}
-                options={SIZES}
-                onChange={setEditorSize}
-              />
-            </div>
+              <div className="sheet-row sheet-row--stack">
+                <span className="sheet-row__text">
+                  <b>Text size</b>
+                  <span className="sheet-row__rest">in the editor and the translation panes</span>
+                </span>
+                <Segmented
+                  label="Text size"
+                  value={editorSize}
+                  options={SIZES}
+                  onChange={setEditorSize}
+                />
+              </div>
 
-            {/* A modifier on the dark theme, not a fourth theme — so it sits under
-                Theme rather than inside it. As a fourth segment beside Auto it
-                would have had to stop following the phone to be chosen at all.
-                Shown whatever the theme currently is: somebody on Auto is setting
-                what happens tonight, and a row that appeared and vanished with the
-                sun would be worse than one that says plainly when it applies. */}
-            <SwitchRow
-              title="Deep black"
-              rest={
-                resolvedDark
-                  ? amoled
-                    ? 'true black — saves power on OLED screens'
-                    : 'for OLED screens, where a black pixel is off'
-                  : 'for OLED screens — applies to the dark theme'
-              }
-              checked={amoled}
-              onChange={(next) => applyAmoled(next)}
-            />
-
-            {/* Android 12 and up, in the app only — the same condition, and the
-                same opt-out framing, this row had in the About sheet before it
-                moved here. A switch offering to turn off something that was never
-                on is worse than no switch, so everywhere else it does not exist.
-                The home-screen widgets are deliberately not covered by it: a
-                widget is a citizen of the launcher before it is part of this app,
-                and the only widgets that look wrong are the ones that ignore the
-                wallpaper. */}
-            {dynamicColor.supported && (
+              {/* A modifier on the dark theme, not a fourth theme — so it sits under
+                  Theme rather than inside it. As a fourth segment beside Auto it
+                  would have had to stop following the phone to be chosen at all.
+                  Shown whatever the theme currently is: somebody on Auto is setting
+                  what happens tonight, and a row that appeared and vanished with the
+                  sun would be worse than one that says plainly when it applies. */}
               <SwitchRow
-                title="Wallpaper colours"
+                title="Deep black"
                 rest={
-                  dynamicColor.enabled
-                    ? 'following your Material You theme'
-                    : 'off — using Lekh’s own crimson'
+                  resolvedDark
+                    ? amoled
+                      ? 'true black — saves power on OLED screens'
+                      : 'for OLED screens, where a black pixel is off'
+                    : 'for OLED screens — applies to the dark theme'
                 }
-                checked={dynamicColor.enabled}
-                onChange={(next) => setDynamicColorEnabled(next)}
+                checked={amoled}
+                onChange={(next) => applyAmoled(next)}
               />
-            )}
+
+              {/* Android 12 and up, in the app only — the same condition, and the
+                  same opt-out framing, this row had in the About sheet before it
+                  moved here. A switch offering to turn off something that was never
+                  on is worse than no switch, so everywhere else it does not exist.
+                  The home-screen widgets are deliberately not covered by it: a
+                  widget is a citizen of the launcher before it is part of this app,
+                  and the only widgets that look wrong are the ones that ignore the
+                  wallpaper. */}
+              {dynamicColor.supported && (
+                <SwitchRow
+                  title="Wallpaper colours"
+                  rest={
+                    dynamicColor.enabled
+                      ? 'following your Material You theme'
+                      : 'off — using Lekh’s own crimson'
+                  }
+                  checked={dynamicColor.enabled}
+                  onChange={(next) => setDynamicColorEnabled(next)}
+                />
+              )}
+            </div>
           </section>
 
           <section className="settings__group">
             <h3 className="settings__group-title">Behaviour</h3>
-            <SwitchRow
-              title="Vibration"
-              rest="a tap when something is selected or finished"
-              checked={haptics}
-              onChange={(next) => {
-                setHaptics(next)
-                setHapticsEnabled(next)
-              }}
-            />
-            <SwitchRow
-              title="Open where I left off"
-              rest={restoreLastTab ? 'reopens your last section' : 'always opens on Type'}
-              checked={restoreLastTab}
-              onChange={setRestoreLastTab}
-            />
-            <SwitchRow
-              title="Start in Nepali"
-              rest={startNepali ? 'the editor converts as you type' : 'the editor starts in plain English'}
-              checked={startNepali}
-              onChange={setStartNepali}
-            />
+            <div className="row-group">
+              <SwitchRow
+                title="Vibration"
+                rest="a tap when something is selected or finished"
+                checked={haptics}
+                onChange={(next) => {
+                  setHaptics(next)
+                  setHapticsEnabled(next)
+                }}
+              />
+              <SwitchRow
+                title="Open where I left off"
+                rest={restoreLastTab ? 'reopens your last section' : 'always opens on Type'}
+                checked={restoreLastTab}
+                onChange={setRestoreLastTab}
+              />
+              <SwitchRow
+                title="Start in Nepali"
+                rest={startNepali ? 'the editor converts as you type' : 'the editor starts in plain English'}
+                checked={startNepali}
+                onChange={setStartNepali}
+              />
+            </div>
           </section>
 
           <section className="settings__group">
             <h3 className="settings__group-title">Storage</h3>
-            {/* The on-device translation model is ~900MB and the OCR and PDF
-                engines another ~19MB, all downloaded silently on first use and
-                kept forever. Until now the only way to get that space back was to
-                clear site data for the whole app — which also takes the draft, the
-                theme and every setting on this screen with it. */}
-            <div className="sheet-row sheet-row--stack">
-              <span className="sheet-row__text">
-                <b>Downloaded extras</b>
-                <span className="sheet-row__rest">
-                  {cacheBytes === null
-                    ? 'the on-device model, OCR and PDF engines'
-                    : cacheBytes === 0
-                      ? 'nothing downloaded yet'
-                      : `${formatBytes(cacheBytes)} — the on-device model, OCR and PDF engines`}
+            <div className="row-group">
+              {/* The on-device translation model is ~900MB and the OCR and PDF
+                  engines another ~19MB, all downloaded silently on first use and
+                  kept forever. Until now the only way to get that space back was to
+                  clear site data for the whole app — which also takes the draft, the
+                  theme and every setting on this screen with it. */}
+              <div className="sheet-row sheet-row--stack">
+                <span className="sheet-row__text">
+                  <b>Downloaded extras</b>
+                  <span className="sheet-row__rest">
+                    {cacheBytes === null
+                      ? 'the on-device model, OCR and PDF engines'
+                      : cacheBytes === 0
+                        ? 'nothing downloaded yet'
+                        : `${formatBytes(cacheBytes)} — the on-device model, OCR and PDF engines`}
+                  </span>
                 </span>
-              </span>
-              <button
-                type="button"
-                className="settings__danger"
-                disabled={clearing || cacheBytes === 0}
-                onClick={() => void clear()}
-              >
-                {clearing ? 'clearing…' : 'clear'}
-              </button>
+                <button
+                  type="button"
+                  className="settings__danger"
+                  disabled={clearing || cacheBytes === 0}
+                  onClick={() => void clear()}
+                >
+                  {clearing ? 'clearing…' : 'clear'}
+                </button>
+              </div>
             </div>
           </section>
 

@@ -6,29 +6,67 @@
   gap: var(--sp-4);
 }
 
-/* Month navigation */
+/* Month navigation, and it is chrome now rather than a title.
+ *
+ * It used to be an ordinary block at the top of a long single-scroll page: a
+ * big centred भदौ २०८३ with the Gregorian span stacked under it. That is a
+ * page heading, and it behaved like one — it scrolled away. This screen keeps
+ * going well past the grid, through the holiday list and into the date
+ * converter, so by the time anyone was reading a row the one thing that said
+ * *which month those dates belong to* had left the screen. On a calendar that
+ * is not a small loss.
+ *
+ * So it sticks under the app bar, which is what --bar-h in index.css exists
+ * for. Two things follow from that and neither is optional:
+ *
+ * - It has to paint a background. Sticky means content passes underneath, and
+ *   a transparent bar would have the month sitting on top of the day grid.
+ * - It has to get smaller. At clamp(1.4rem, 5vw, 1.8rem) stacked over a
+ *   subtitle this was ~64px tall, which is a lot of a phone screen to spend
+ *   permanently on a label — and a title's size is a claim about importance
+ *   that persistent chrome should not keep making. The two halves go on one
+ *   line instead, at about the weight of the app bar's own wordmark.
+ *
+ * No z-index fight with .app-bar: this sits inside .page, which is itself a
+ * stacking context at z-index 1, so nothing in here can paint over a bar at
+ * z-index 3 whatever number it claims. */
 .cal__nav {
+  position: sticky;
+  top: var(--bar-h);
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--sp-3);
+  padding: var(--sp-2) 0;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
 }
 .cal__title {
-  text-align: center;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.4rem;
   min-width: 0;
 }
 .cal__month {
   font-family: var(--display-dev);
-  font-size: clamp(1.4rem, 5vw, 1.8rem);
+  font-size: 1.15rem;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.3;
   color: var(--text-h);
+  white-space: nowrap;
 }
+/* The half that goes when there isn't room. भदौ २०८३ alone still answers the
+   question the bar is there to answer; "Bhadra · Aug/Sep 2026" is the gloss. */
 .cal__sub {
-  margin-top: 0.15rem;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   color: var(--muted);
   font-family: var(--sans);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .cal__arrow {
   display: inline-flex;
@@ -345,9 +383,26 @@
   color: var(--text-h);
 }
 
+/* The month bar bleeds to the edges with everything else below 768px (see the
+   phone block in App.css), but it cannot use the shared rule there: that one
+   only strips a border and a radius, and a bar that carries content needs the
+   gutter it just pulled out of handed back as padding. Above 768px .cal is
+   already exactly as wide as the grid it covers, so there is nothing to
+   bleed. */
+@media (max-width: 767px) {
+  .cal__nav {
+    margin-inline: calc(-1 * var(--gutter));
+    padding-inline: var(--gutter);
+  }
+}
+
 @media (max-width: 420px) {
   .cal__cell {
     padding: 0.1rem;
+  }
+  /* The gloss is the first thing to go — see .cal__sub. */
+  .cal__sub {
+    display: none;
   }
   .cal__ad {
     font-size: 0.55rem;
@@ -357,15 +412,23 @@
   }
 }
 
-/* Where this month's festivals came from. Small, but never hidden — the
-   calendar is the one screen in Lekh that touches the network. */
-.cal__source {
-  font-size: 0.72rem;
-  line-height: 1.7;
-  color: var(--muted);
-}
+/* Where this month's festivals came from. A disclosure (.disclosure in
+   App.css) rather than the paragraph it used to be: the calendar is the one
+   screen in Lekh that touches the network, so the *status* is never hidden —
+   it is the summary — but the explanation of why a community almanac is the
+   only available source was three permanent lines of small print at the foot
+   of every month. */
 .cal__source a {
   color: var(--accent-text);
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+/* Nested inside the coverage warning, so it must not restate its own box —
+   it sits on --surface-2 (or the warn tint) rather than on the page. */
+.cal__coverage-why {
+  margin-top: var(--sp-2);
+  font-size: 0.78rem;
+}
+.cal__coverage-why > p {
+  color: var(--muted);
 }

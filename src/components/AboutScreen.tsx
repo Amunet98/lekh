@@ -69,7 +69,7 @@ export function AboutScreen({ onDismiss, onGoTo }: AboutScreenProps) {
             </span>
           </div>
 
-          <div className="sheet-rows">
+          <div className="sheet-rows row-group">
             {SECTIONS.map(({ id, icon, label, rest }) => (
               <button key={id} type="button" className="sheet-row" onClick={() => onGoTo(id)}>
                 <span className="sheet-row__icon">

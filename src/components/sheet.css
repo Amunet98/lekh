@@ -14,11 +14,70 @@
    put the label on line one and half the description on line two — three
    chips, three different silhouettes, ragged around a centred axis. */
 .sheet-rows {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
   margin-top: 1.75rem;
   text-align: left;
+}
+
+/* A group of rows, drawn as one thing.
+ *
+ * The rows used to be a column of separately bordered, separately rounded
+ * cards 8px apart — four silhouettes where there is one list. Every native
+ * settings screen draws this the other way: one container, continuous rows,
+ * a hairline between them and nothing around each one. So does this app
+ * already, on the Patro screen: .cal__holidays (CalendarPage.css) has been
+ * one bordered box of full-width rows all along. Two shapes for one idea, and
+ * this is the one that was wrong.
+ *
+ * overflow: hidden is what lets the rows stay square while the container is
+ * round — the first and last row get their corners clipped by it instead of
+ * each having to know where it sits in the list. */
+.row-group {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+/* Inside a group a row is not a card: no border of its own, no radius, and no
+   fill — the container paints the surface. The divider is a top border on
+   every row but the first, so it never doubles up against the container's own
+   edge and never leaves a stray line under the last row. */
+.row-group > .sheet-row {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+.row-group > .sheet-row + .sheet-row {
+  border-top: 1px solid var(--border);
+}
+/* Margins the standalone rows use to space themselves out. Inside a group the
+   spacing is the divider, and a margin here would open a gap in the fill and
+   show the page through the middle of the list. */
+.row-group > .sheet-row--switch,
+.row-group > .sheet-row--aside {
+  margin-top: 0;
+}
+/* Press feedback has to change with the shape. scale(0.985) is what a card
+   does — it is already almost invisible on a full-width row, and inside
+   `overflow: hidden` a shrinking row pulls its own edges away from the
+   dividers above and below it, so the list flickers open at the seams. A
+   background flash is both what a native list row does and the one thing that
+   cannot disturb a neighbour. */
+.row-group > .sheet-row:not(.sheet-row--stack):active {
+  transform: none;
+  background: var(--surface-2);
+}
+@media (hover: hover) {
+  /* The accent tint the standalone card uses reads as a selection here — it
+     fills a full-bleed band edge to edge. A neutral lift says "under the
+     pointer" without saying "chosen". */
+  .row-group > .sheet-row:not(.sheet-row--stack):hover {
+    background: var(--surface-2);
+  }
+}
+.row-group > .sheet-row:not(.sheet-row--stack):focus-visible {
+  background: var(--surface-2);
 }
 .sheet-row {
   display: flex;

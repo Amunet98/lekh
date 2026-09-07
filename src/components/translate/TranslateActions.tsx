@@ -31,7 +31,7 @@ export function TranslateActions({ t }: TranslateActionsProps) {
           <details> and not state: it works before hydration, is
           keyboard-operable for free, and there is nothing here worth a
           re-render. */}
-      <details className="privacy-note">
+      <details className="disclosure privacy-note">
         <summary>
           <span className={`privacy-note__dot privacy-note__dot--${t.mode}`} aria-hidden="true" />
           {t.mode === 'online' ? 'Online translation' : 'On-device translation'}
