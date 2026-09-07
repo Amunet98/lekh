@@ -232,8 +232,15 @@
      of a CSS string, so an apostrophe with no partner on the same line runs
      into the newline and fails the build with an unterminated-string error
      that points at the prose rather than at any rule.) */
+     .conv is deliberately NOT here any more. The date converter was a block of
+     the Patro page when this list was written and it is a sheet now — but the
+     <dialog> it lives in is still a DOM descendant of .page, top layer or not,
+     so the selector kept matching and kept pulling it 16px out of a sheet that
+     is not paying a gutter. The content started hard against the left edge and
+     overran the right by the same 16px. A surface that has moved into the top
+     layer has to leave this list. */
   .page :is(.editor, .translate-input, .translate-output, .cal__grid, .cal__detail,
-      .cal__holidays ul, .conv) {
+      .cal__holidays ul) {
     margin-inline: calc(-1 * var(--gutter));
     border-inline: 0;
     border-radius: 0;
