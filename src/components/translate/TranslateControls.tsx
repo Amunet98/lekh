@@ -4,6 +4,7 @@ import { ENGLISH, NEPALI, type Language } from '../../lib/translation/languages'
 import { useMediaQuery } from '../../hooks/useMediaQuery'
 import { DOCK_QUERY } from '../../hooks/useDockDetached'
 import { ActionSheet } from '../ActionSheet'
+import { tick } from '../../lib/haptics'
 import './translate.css'
 
 const LANGUAGES: Language[] = [NEPALI, ENGLISH]
@@ -186,18 +187,40 @@ export function DirectionToggle({ t }: { t: TranslateState }) {
 export function TranslateControls({ t }: { t: TranslateState }) {
   return (
     <>
-      <div className="translate-mode">
+      {/* A segmented control, like every other pick-one-of-N in the app: the
+          editor's EN/नेपाली, and Theme and Text size in Settings. These two
+          were loose pills, which said "two independent buttons" about a
+          setting that has exactly one live value at a time — and made this the
+          only such control in the app not speaking the shared shape.
+
+          aria-pressed rather than a --active class doing double duty: the
+          state is then something assistive tech is told rather than something
+          only the fill implies, and the fill can key off the attribute (see
+          .mode-seg__opt[aria-pressed='true']). Same as .lang-seg. */}
+      <div className="translate-mode mode-seg" role="group" aria-label="Translation engine">
         <button
           type="button"
-          className={`mode-btn${t.mode === 'online' ? ' mode-btn--active' : ''}`}
-          onClick={t.switchToOnline}
+          className="mode-seg__opt"
+          aria-pressed={t.mode === 'online'}
+          onClick={() => {
+            // Pressing the live option is a deliberate no-op, matching
+            // .lang-seg and the Settings segmented control.
+            if (t.mode === 'online') return
+            tick()
+            t.switchToOnline()
+          }}
         >
           Online
         </button>
         <button
           type="button"
-          className={`mode-btn${t.mode === 'ondevice' ? ' mode-btn--active' : ''}`}
-          onClick={t.requestOnDevice}
+          className="mode-seg__opt"
+          aria-pressed={t.mode === 'ondevice'}
+          onClick={() => {
+            if (t.mode === 'ondevice') return
+            tick()
+            t.requestOnDevice()
+          }}
         >
           On-device
         </button>

@@ -1,11 +1,71 @@
-.direction-toggle,
-.translate-mode {
+.direction-toggle {
   display: flex;
   gap: var(--sp-2);
   flex-wrap: wrap;
-}
-.direction-toggle {
   align-items: center;
+}
+
+/* The engine picker: one of two values, so a segmented control.
+ *
+ * It used to be two loose .mode-btn pills with a gap between them, which is
+ * the shape for two independent actions and the wrong one for a setting that
+ * always has exactly one live value. Every other pick-one-of-N in the app is
+ * already a segment track — the editor's EN/नेपाली (.lang-seg), Theme and Text
+ * size (.settings__seg), the section dock — and this was the only one that was
+ * not, sitting two rows above one of them.
+ *
+ * Same construction as .lang-seg in Editor.css: a bordered track with a small
+ * inset, options that carry no border of their own, and the live one filled.
+ *
+ * The option is 38px so the TRACK is 44px — 38 of option, 2+2 of the inset
+ * padding below, 1+1 of border. That is the height the swap button and both
+ * language pickers already are, and this control stands in a row with all
+ * three. Sizing the option to 44 instead would make the track 50 and leave it
+ * standing a head above its neighbours; .lang-seg gets away with 36 because
+ * the editor toolbar around it is 36 too.
+ *
+ * .mode-btn is deliberately left alone. It reads as this control's class and
+ * is not: .lang-picker__btn borrows it for the two language buttons, so
+ * restyling it here would have quietly restyled those too. */
+.translate-mode {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+.mode-seg {
+  gap: 2px;
+  padding: 2px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+}
+.mode-seg__opt {
+  min-height: 38px;
+  padding: 0 var(--sp-4);
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease),
+    transform var(--dur-fast) var(--ease-expo);
+}
+@media (hover: hover) {
+  .mode-seg__opt:not([aria-pressed='true']):hover {
+    color: var(--text-h);
+    background: color-mix(in srgb, var(--text) 7%, transparent);
+  }
+}
+.mode-seg__opt:active {
+  transform: scale(0.96);
+}
+.mode-seg__opt[aria-pressed='true'] {
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: var(--shadow-accent);
 }
 
 .lang-picker {
