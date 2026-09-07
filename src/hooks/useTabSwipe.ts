@@ -1,4 +1,4 @@
-import { useRef, type PointerEvent as ReactPointerEvent } from 'react'
+import { useRef, type TouchEvent as ReactTouchEvent } from 'react'
 
 /* How far a finger travels before the gesture commits to an axis. Below this
    nothing is decided, which is what lets a lazy diagonal still become a
@@ -64,9 +64,24 @@ interface TabSwipeOptions {
  * it would re-anchor any fixed descendant to .page instead of the viewport.
  * Detect, then let the existing transition play.
  *
- * Touch only, by pointerType rather than by a media query. A mouse drag
- * across a page is a selection, and no width tells you whether the pointer
- * doing the dragging is a finger.
+ * Touch events rather than pointer events, and that is not a style choice —
+ * the pointer version did not work on a phone at all.
+ *
+ * Chrome's compositor arbitrates a touch before the main thread sees much of
+ * it: once it claims the gesture for panning it fires pointercancel and stops
+ * sending pointermove, so a horizontal drag arrived as a down and a cancel
+ * with nothing in between. The documented cure is touch-action: pan-y on the
+ * scroller, which tells the browser the horizontal axis is ours — and that
+ * cure is unavailable here. touch-action intersects down the ancestor chain:
+ * a descendant cannot re-enable an axis an ancestor gave away, so pan-y on
+ * .page would take horizontal scrolling off the suggestion strip inside it,
+ * which is a real control with a real gesture.
+ *
+ * Touch events are not arbitrated that way. touchmove keeps firing while the
+ * page scrolls, touchend always arrives, and nothing here ever calls
+ * preventDefault — so vertical scrolling is untouched and the strip keeps its
+ * own pan. It also gives the touch-only gate for free: a mouse drag across a
+ * page is a selection, and touch events simply do not fire for one.
  */
 export function useTabSwipe({ enabled, onPrev, onNext }: TabSwipeOptions) {
   const start = useRef<{ x: number; y: number } | null>(null)
@@ -77,29 +92,42 @@ export function useTabSwipe({ enabled, onPrev, onNext }: TabSwipeOptions) {
     axis.current = 'none'
   }
 
-  const onPointerDown = (e: ReactPointerEvent) => {
+  const onTouchStart = (e: ReactTouchEvent) => {
     reset()
-    if (!enabled || e.pointerType !== 'touch') return
+    if (!enabled) return
+    // A second finger means a pinch or a two-finger scroll, neither of which
+    // is a request to change section.
+    if (e.touches.length !== 1) return
     if (ownsHorizontalDrag(e.target)) return
-    start.current = { x: e.clientX, y: e.clientY }
+    const touch = e.touches[0]
+    start.current = { x: touch.clientX, y: touch.clientY }
   }
 
-  const onPointerMove = (e: ReactPointerEvent) => {
+  const onTouchMove = (e: ReactTouchEvent) => {
     const from = start.current
     if (!from) return
-    const dx = e.clientX - from.x
-    const dy = e.clientY - from.y
+    if (e.touches.length !== 1) {
+      reset()
+      return
+    }
     if (axis.current !== 'none') return
+    const touch = e.touches[0]
+    const dx = touch.clientX - from.x
+    const dy = touch.clientY - from.y
     if (Math.abs(dx) < AXIS_LOCK && Math.abs(dy) < AXIS_LOCK) return
     axis.current = Math.abs(dx) > Math.abs(dy) * DOMINANCE ? 'x' : 'y'
   }
 
-  const onPointerUp = (e: ReactPointerEvent) => {
+  const onTouchEnd = (e: ReactTouchEvent) => {
     const from = start.current
     const decided = axis.current
     reset()
     if (!from || decided !== 'x') return
-    const dx = e.clientX - from.x
+    // changedTouches, not touches: by touchend the finger is gone from the
+    // live list and only the one that left is reported.
+    const touch = e.changedTouches[0]
+    if (!touch) return
+    const dx = touch.clientX - from.x
     if (Math.abs(dx) < COMMIT) return
     // Dragging leftward pulls the next section in from the right, which is the
     // direction the dock reads in and the direction the transition animates.
@@ -107,10 +135,7 @@ export function useTabSwipe({ enabled, onPrev, onNext }: TabSwipeOptions) {
     else onPrev()
   }
 
-  /* Fired when the browser takes the gesture over — which on a phone means
-     the page has started scrolling vertically. That is the single most common
-     way this gesture ends, and it must end as a no-op. */
-  const onPointerCancel = reset
+  const onTouchCancel = reset
 
-  return { onPointerDown, onPointerMove, onPointerUp, onPointerCancel }
+  return { onTouchStart, onTouchMove, onTouchEnd, onTouchCancel }
 }
