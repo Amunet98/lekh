@@ -231,7 +231,8 @@
      (Watch the apostrophes in comments here. Tailwind lexes one as the start
      of a CSS string, so an apostrophe with no partner on the same line runs
      into the newline and fails the build with an unterminated-string error
-     that points at the prose rather than at any rule.) */
+     that points at the prose rather than at any rule.)
+
      .conv is deliberately NOT here any more. The date converter was a block of
      the Patro page when this list was written and it is a sheet now — but the
      <dialog> it lives in is still a DOM descendant of .page, top layer or not,
