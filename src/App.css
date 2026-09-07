@@ -221,6 +221,15 @@
     border-inline: 0;
     border-radius: 0;
   }
+
+  /* A bled list keeps its heading where it was, so the rows have to come to
+     the heading rather than the other way round: the row pays the gutter as
+     its own padding, and the two labels share a left edge. Without this the
+     holiday rows sat 0.75rem in under a heading 1rem in — four device pixels
+     of drift that reads as a list slightly loose in its box. */
+  .page .cal__holiday-row {
+    padding-inline: var(--gutter);
+  }
 }
 
 /* At the narrowest sizes पात्रो is the first thing that can go: लेख alone

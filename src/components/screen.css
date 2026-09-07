@@ -229,6 +229,13 @@
     border-inline: 0;
     border-radius: 0;
   }
+  /* The rows come to the heading, which stayed put. 0.9rem of row padding
+     under a heading sitting at a 1rem gutter left the two labels a couple of
+     device pixels out of line — invisible as a measurement and quite visible
+     as a list that does not quite sit square in its section. */
+  .screen__body .row-group > .sheet-row {
+    padding-inline: var(--gutter);
+  }
 }
 /* The screen is as wide as the phone; the reading column is not. 34rem is the
    width the sheet these panes came from was capped at, and a settings row
