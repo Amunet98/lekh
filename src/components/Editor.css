@@ -230,6 +230,41 @@
     border-color: var(--border-field);
   }
 }
+/* The tappable area, taken to the 44px touch floor without changing the 36px
+ * the button draws.
+ *
+ * TabSwitcher.css already argues this floor twice — 48px for a dock item
+ * ("the Material floor, not the Apple one") and 44px for the tablet segment
+ * ("44px, not 40") — and then every pill in the app shipped at 36. Measured on
+ * a phone: copy, clear, share, undo clear, add to calendar, upload and the
+ * camera button all came out 36 tall, and the camera button 36 square.
+ *
+ * A pseudo-element rather than a taller min-height, because the 36px is the
+ * design and a row of 44px pills in the editor toolbar is a different, heavier
+ * toolbar. Clicks on it are attributed to the button that owns it.
+ *
+ * Vertical only, deliberately. The rows these sit in use an 8px gap, so 4px
+ * either side means two neighbours' areas meet exactly and never overlap —
+ * where widening them would make adjacent targets fight over the same pixels,
+ * and a near-miss that hits the wrong button is worse than one that misses.
+ * .btn--icon starts at 40 and lands at 48. The camera button stays 36 wide;
+ * its width is bounded by the button beside it rather than by dead space.
+ *
+ * Not applied to the segmented controls or the disclosures, and neither is an
+ * oversight: .mode-seg__opt is 38 so that its track is 44, and
+ * .disclosure > summary says in App.css why a line of small print that happens
+ * to open should not reserve a 44px band. */
+.btn,
+.starter {
+  position: relative;
+}
+.btn::after,
+.starter::after {
+  content: '';
+  position: absolute;
+  inset: -4px 0;
+}
+
 .btn:active:not(:disabled) {
   transform: scale(0.96);
 }
