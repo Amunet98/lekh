@@ -392,3 +392,22 @@
     padding: 0 var(--sp-2);
   }
 }
+
+/* Spelled out, or absent. See the count in Editor.tsx: a bare number with no
+   unit is not worth the ~117px it takes to label it, and the toolbar wraps if
+   it tries.
+
+   Measured rather than picked, and not at the point where it merely fits. The
+   full form wraps the row at 444px and first fits at 460px — but with only
+   15px of slack there, which a longer document eats: the count grows with the
+   numbers in it, and "400 words · 3089 characters" is 30px wider than
+   "6 words · 35 characters". At 560px that same 400-word count still leaves
+   34px, so the row cannot wrap on content. */
+.count__chars {
+  display: none;
+}
+@media (min-width: 560px) {
+  .count__chars {
+    display: inline;
+  }
+}

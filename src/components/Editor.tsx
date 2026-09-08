@@ -282,8 +282,17 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
               )}
             </>
           )}
+          {/* The character count carries its unit or it does not appear. As a
+              bare trailing number — "5 words · 26" — it said nothing, and hard
+              against the toolbar's right edge on a phone it read as a label
+              that had been cut off rather than as a count. There is no room to
+              spell it out at 390px without wrapping the row (the width this
+              toolbar was rebuilt to stop wrapping), so below that it is simply
+              the words, which is the number a writing app is asked for
+              anyway. */}
           <span className="count">
-            {wordCount} {wordCount === 1 ? 'word' : 'words'} · {editor.text.length}
+            {wordCount} {wordCount === 1 ? 'word' : 'words'}
+            <span className="count__chars"> · {editor.text.length} characters</span>
           </span>
         </div>
       </div>
