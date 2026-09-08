@@ -2,6 +2,7 @@ import { useState, type RefObject } from 'react'
 import type { EditorState } from '../hooks/useEditorState'
 import { SAMPLES } from '../data/samples'
 import { SHARE_AVAILABLE } from '../lib/share'
+import { isNativeApp } from '../lib/androidApp'
 import { tick } from '../lib/haptics'
 import { useToast } from '../hooks/useToast'
 import { useMediaQuery } from '../hooks/useMediaQuery'
@@ -91,16 +92,23 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
      sheet of dead rows is worse than a shorter sheet. Undo is the exception
      and the reason the button is not simply disabled when empty: clearing
      leaves the editor empty and the undo is the one thing you might want. */
+  const native = isNativeApp()
   const moreOptions: ActionSheetOption[] = []
   if (!isEmpty) {
     if (SHARE_AVAILABLE) {
       moreOptions.push({ id: 'share', label: 'Share', hint: 'Send to another app', onSelect: share })
     }
+    /* "Save as" is the web's verb, and only the web's. Inside the app
+       saveFile hands the file to the system share sheet (see download.ts —
+       a WebView drops an <a download> silently), so a row promising to save
+       a .txt opened a list of chat apps instead. The sheet is still the right
+       mechanism; the label just has to say which mechanism it is, the way the
+       PDF row already names the print dialog. */
     for (const f of DOWNLOAD_FORMATS) {
       moreOptions.push({
         id: f.id,
-        label: `Save as ${f.label}`,
-        hint: f.hint,
+        label: native ? `Export ${f.label}` : `Save as ${f.label}`,
+        hint: native && f.id !== 'pdf' ? `${f.hint} · via the share sheet` : f.hint,
         onSelect: () => run(f.id),
       })
     }
@@ -341,15 +349,30 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
         and a device that changes pointer type (a tablet gaining a keyboard)
         updates live instead of needing a re-render.
       */}
+      {/* The mode *is* branched in JS, unlike the pointer variants above.
+          With conversion off, every clause here but the last one described
+          something the editor was no longer doing — space did not convert,
+          there was no English to keep, and a full stop stayed a full stop —
+          directly under a suggestion bar already saying conversion was off.
+          What someone in that state needs is the way back. */}
       <p className="editor-hint">
-        <kbd>space</kbd> converts ·{' '}
-        <span className="editor-hint__fine">
-          <kbd>esc</kbd> keeps English
-        </span>
-        <span className="editor-hint__coarse">
-          tap <b>(keep)</b> for English
-        </span>{' '}
-        · <kbd>.</kbd> becomes । · runs entirely on your device
+        {editor.nepali ? (
+          <>
+            <kbd>space</kbd> converts ·{' '}
+            <span className="editor-hint__fine">
+              <kbd>esc</kbd> keeps English
+            </span>
+            <span className="editor-hint__coarse">
+              tap <b>(keep)</b> for English
+            </span>{' '}
+            · <kbd>.</kbd> becomes । · runs entirely on your device
+          </>
+        ) : (
+          <>
+            Tap <b className="dev">नेपाली</b> to convert as you type · runs entirely on your
+            device
+          </>
+        )}
       </p>
     </div>
   )

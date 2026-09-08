@@ -190,7 +190,17 @@
   border-radius: var(--radius-pill);
 }
 .lang-seg__opt {
-  min-height: 36px;
+  /* 38, not 36, for exactly the reason .mode-seg__opt is 38: 2px of track
+     padding and a 1px border either side put the track itself at 44. This one
+     was left at 36 and so came out two short.
+
+     min-width because "EN" is two narrow letters — it measured 32 wide on a
+     phone, the smallest target in the app, on the control that switches the
+     one thing the app is named for. The ::after trick .btn uses is no help
+     here: these two sit 2px apart inside a shared track, so growing their
+     areas sideways would only make them fight each other. */
+  min-height: 38px;
+  min-width: 44px;
   padding: 0 var(--sp-3);
   border: 0;
   background: transparent;

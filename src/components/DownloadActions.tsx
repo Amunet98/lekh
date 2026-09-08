@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import { DOCK_QUERY } from '../hooks/useDockDetached'
 import { DOWNLOAD_FORMATS, useDownloadActions } from '../hooks/useDownloadActions'
+import { isNativeApp } from '../lib/androidApp'
 import { ActionSheet } from './ActionSheet'
 import './DownloadActions.css'
 
@@ -78,7 +79,10 @@ export function DownloadActions({ text, filenameBase, label, compact = false }: 
           disabled={!enabled || busy}
           onClick={() => setOpen((v) => !v)}
         >
-          {busy ? 'Preparing…' : 'Download'}
+          {/* "Download" is the web's word for this. In the app saveFile goes
+              to the share sheet instead, so the trigger says what the rows it
+              opens now say — see the same split in Editor's overflow. */}
+          {busy ? 'Preparing…' : isNativeApp() ? 'Export' : 'Download'}
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M6 9l6 6 6-6" />
