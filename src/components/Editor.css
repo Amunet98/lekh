@@ -231,7 +231,10 @@
   }
 }
 /* The tappable area, taken to the 44px touch floor without changing the 36px
- * the button draws.
+ * the button draws. 44 in layout terms — 36 plus 4 either side — and 43 when
+ * measured through elementFromPoint, which is sub-pixel rounding rather than
+ * slack to reclaim: 4px is already the most the 8px row gap allows before two
+ * neighbours start overlapping.
  *
  * TabSwitcher.css already argues this floor twice — 48px for a dock item
  * ("the Material floor, not the Apple one") and 44px for the tablet segment
