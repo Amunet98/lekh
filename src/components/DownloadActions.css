@@ -113,6 +113,26 @@
    visibility (not display) keeps layout stable regardless of where
    #print-sheet sits in the tree. */
 @media print {
+  /* Paper is a third theme, and it has to be stated. `visibility: hidden` on
+     the children of body never touches the background that the root and body
+     paint themselves, and that background is a theme token — #181c20 under
+     the dark theme. Desktop browsers hide the problem by dropping backgrounds
+     from print by default; Android PrintManager does not, so a PDF exported
+     from the dark theme came out white for the 12% the sheet covers and dark
+     for the rest of the page. Theme is Auto by default, so that was most of
+     an evening.
+
+     :root rather than html, because the token block in index.css sets
+     `background: var(--bg)` on :root and (0,1,0) beats a bare element
+     selector however late it comes. Written as `html, body` this rule turned
+     body white and left the root as dark as before — which reads as fixed
+     and is not, since the root is the element whose background reaches the
+     paper. */
+  :root,
+  body {
+    background: #fff;
+    color-scheme: light;
+  }
   body * {
     visibility: hidden;
   }
