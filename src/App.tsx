@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslateState } from './hooks/useTranslateState'
 import { TAB_ORDER, useAppNavigation } from './hooks/useAppNavigation'
@@ -11,6 +18,7 @@ import { TranslatePage } from './components/TranslatePage'
 import { CalendarPage } from './components/calendar/CalendarPage'
 import { InstallButton } from './components/InstallButton'
 import { BootScreen } from './components/BootScreen'
+import { getPrintText, subscribePrintText } from './lib/printSheet'
 import { Screen } from './components/Screen'
 import { AboutScreen } from './components/AboutScreen'
 import { SettingsScreen } from './components/SettingsScreen'
@@ -90,6 +98,10 @@ function App() {
      for the stack shape and for what Back is supposed to do at each level. */
   const { tab, goToTab, sheet, openSheet, closeSheet } = useAppNavigation()
   const [booting, setBooting] = useState(() => !bootedThisSession())
+  /* Whatever Save-as-PDF last asked to print. Subscribed rather than lifted
+     into state that App owns, so a toolbar deep in the tree can fill the
+     sheet without App having to know either toolbar exists. */
+  const printText = useSyncExternalStore(subscribePrintText, getPrintText)
   /* Which sections exist yet. Lazily, so a launch still only builds the screen
      it lands on — the point is not to pay for Patro up front, it is to pay for
      it once. Adjusted during render rather than in an effect: the tab change
@@ -369,6 +381,15 @@ function App() {
             />
           </Section>
         )}
+      </div>
+
+      {/* The one sheet Save-as-PDF prints from, for the whole app. It lives
+          here rather than in either toolbar because both of them are mounted
+          at the same time — the sections are keep-alive — and two elements
+          sharing #print-sheet meant the empty one painted over the full one.
+          See lib/printSheet.ts for the other half of that story. */}
+      <div id="print-sheet" className="print-sheet">
+        {printText}
       </div>
 
       {/* The phone dock, parented to <body> rather than to the bar. Rendered

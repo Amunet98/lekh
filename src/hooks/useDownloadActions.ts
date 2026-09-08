@@ -1,5 +1,7 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
+import { flushSync } from 'react-dom'
 import { saveFile } from '../lib/download'
+import { setPrintText } from '../lib/printSheet'
 import { printPage } from '../lib/print'
 import { isNativeApp } from '../lib/androidApp'
 import { useToast } from './useToast'
@@ -22,11 +24,9 @@ export const DOWNLOAD_FORMATS: { id: DownloadFormat; label: string; hint: string
  * dispatch — the alternative was a sheet whose only job was to open another
  * sheet.
  *
- * printSheetRef is returned rather than owned here because a hook cannot
- * render: whoever uses this has to put the <div id="print-sheet"> on the page
- * itself. Exactly one caller may do so at a time (the id is in the print
- * stylesheet), which is why the Type toolbar renders either the compact
- * DownloadActions or the overflow, never both.
+ * The sheet the PDF is rendered from is no longer this hook's problem, or its
+ * caller's: it lives in one place now (lib/printSheet.ts, rendered by App),
+ * because two toolbars rendering the same id at once is exactly what broke it.
  */
 export function useDownloadActions({
   text,
@@ -36,7 +36,6 @@ export function useDownloadActions({
   filenameBase: string
 }) {
   const toast = useToast()
-  const printSheetRef = useRef<HTMLDivElement>(null)
   const [busy, setBusy] = useState(false)
 
   const downloadTxt = async () => {
@@ -63,7 +62,12 @@ export function useDownloadActions({
     // jsPDF/pdf-lib can't shape Devanagari text — the browser's own print
     // engine is the only correct client-side path, so "Save as PDF" hands
     // off to window.print() with a print-only sheet (see @media print CSS).
-    if (printSheetRef.current) printSheetRef.current.textContent = text
+    /* flushSync so the sheet is in the DOM before the print begins. React
+       would otherwise batch this update and hand Android an empty page —
+       and unlike the browser's own print(), which lays out synchronously
+       inside the call, the native path snapshots later and gets whatever is
+       there then. */
+    flushSync(() => setPrintText(text))
     // Not window.print() directly — the Android WebView has none. See print.ts.
     printPage(filenameBase)
   }
@@ -71,7 +75,7 @@ export function useDownloadActions({
   /* Dispatch by id rather than storing the handlers in the list.
      DOWNLOAD_FORMATS is module-level, inert data; building it with `run:`
      closures meant an array constructed *during render* held a function that
-     reads printSheetRef, which react-hooks/refs correctly rejects.
+     read a ref, which react-hooks/refs correctly rejects.
 
      Success is only worth announcing on the web, where a download can finish
      entirely out of sight — in a standalone PWA window there is no download
@@ -99,5 +103,5 @@ export function useDownloadActions({
       )
   }
 
-  return { busy, run, printSheetRef }
+  return { busy, run }
 }

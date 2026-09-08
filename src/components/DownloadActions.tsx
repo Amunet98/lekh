@@ -30,7 +30,7 @@ interface DownloadActionsProps {
 }
 
 export function DownloadActions({ text, filenameBase, label, compact = false }: DownloadActionsProps) {
-  const { busy, run, printSheetRef } = useDownloadActions({ text, filenameBase })
+  const { busy, run } = useDownloadActions({ text, filenameBase })
   const enabled = text.trim().length > 0
 
   // A menu, not a <select>. The native control was the one thing on the page
@@ -124,7 +124,6 @@ export function DownloadActions({ text, filenameBase, label, compact = false }: 
           }))}
         />
       )}
-      <div id="print-sheet" ref={printSheetRef} className="print-sheet" />
     </div>
   )
 }

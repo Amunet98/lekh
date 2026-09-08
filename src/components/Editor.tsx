@@ -63,7 +63,7 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
    * rows, and both dispatch through the same run(). */
   const compactActions = useMediaQuery(DOCK_QUERY)
   const [moreOpen, setMoreOpen] = useState(false)
-  const { busy, run, printSheetRef } = useDownloadActions({
+  const { busy, run } = useDownloadActions({
     text: editor.text,
     filenameBase: 'lekh-nepali',
   })
@@ -253,11 +253,6 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
                 label="Text actions"
                 options={moreOptions}
               />
-              {/* The print target for "Save as PDF". Rendered here rather than
-                  by DownloadActions because on this path DownloadActions is
-                  not on the page at all — and exactly one of them may exist,
-                  since #print-sheet is an id the print stylesheet reaches for. */}
-              <div id="print-sheet" ref={printSheetRef} className="print-sheet" />
             </>
           ) : (
             <>
