@@ -230,7 +230,7 @@ export function TranslateControls({ t }: { t: TranslateState }) {
         <div className="model-status">
           <p className="sugg-hint">
             {t.modelDownloaded
-              ? 'Model downloaded — the first translation after opening the app takes a moment while it loads.'
+              ? 'Model downloaded — the first translation after opening the app spends about a minute loading it into memory.'
               : t.status === 'loading'
                 ? 'Downloading the model — you can leave this tab open.'
                 : 'Model not downloaded yet — ~900MB one-time download.'}

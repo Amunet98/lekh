@@ -90,6 +90,42 @@ interface ProgressEvent {
   total?: number
 }
 
+/* How long the byte counter waits for another progress event before deciding
+ * the download is over.
+ *
+ * It has to be able to leave on its own. emit() only ever runs from
+ * transformers.js's progress_callback, and the old exit from 'downloading' was
+ * gated on allDone — every file having reported a done event. Measured on a
+ * phone against a warm cache: the last event the UI ever received said 908 of
+ * 912 MB. Four short. One file never reported its final chunk, allDone never
+ * became true, nothing arrived to re-run emit(), and the bar sat pinned at 99%
+ * for the whole ~75s of ONNX session init until 'done' fired after the
+ * pipeline resolved. A frozen bar for over a minute reads as a hang, and the
+ * reasonable thing to do with a hung phone app is force-quit it.
+ *
+ * So a stall ends the download now, rather than a completion signal that may
+ * never come. If nothing has arrived for this long the bytes are as finished
+ * as they are going to look, and whatever is still running has no measurable
+ * progress — which is what 'preparing' means. It also covers the cache hit
+ * that fires no progress events at all, which the emit() comment below has
+ * always known about. */
+const STALL_MS = 1200
+
+/* Below this, byte counts are not worth showing and this stays in 'preparing'.
+ *
+ * It was 1MB, to dodge "0 MB / 0 MB" on the first tick. That is the right idea
+ * and the wrong number. transformers.js initiates config and tokenizer before
+ * the weights, so with a 1MB floor the first thing a phone actually showed was
+ * "Loading model from cache… 15 MB / 17 MB" — a total wrong by fifty times,
+ * nearly full — and then the weights initiated, the total became 912MB and the
+ * bar dropped to almost nothing before climbing again. Watching a bar fill,
+ * reset, and fill again is worse than watching it start late.
+ *
+ * 100MB is not tuned to this model so much as to the gap: the metadata is tens
+ * of MB and any weights file worth drawing a progress bar for is hundreds. A
+ * translation model small enough to fall below this would not need the bar. */
+const MIN_REPORTABLE_TOTAL = 100e6
+
 async function loadPipeline(): Promise<TranslationPipeline> {
   // Files fire per-file initiate/progress/done events; aggregate them into one
   // honest overall byte count. totalBytes grows as later files initiate, so
@@ -97,29 +133,26 @@ async function loadPipeline(): Promise<TranslationPipeline> {
   const files = new Map<string, { loaded: number; total: number; done: boolean }>()
   let lastPercent = -1
   let lastLoadedMB = -1
+  let stallTimer: ReturnType<typeof setTimeout> | undefined
+  /* Armed on every progress event rather than only on the ones that get
+     through the throttle below: events still arriving is exactly what "not
+     stalled" means, whether or not they moved a whole percent. */
+  const armStall = () => {
+    clearTimeout(stallTimer)
+    stallTimer = setTimeout(() => broadcastProgress({ phase: 'preparing' }), STALL_MS)
+  }
 
   const emit = () => {
     if (progressListeners.size === 0) return
     let loadedBytes = 0
     let totalBytes = 0
-    let allDone = files.size > 0
     for (const f of files.values()) {
       loadedBytes += f.loaded
       totalBytes += f.total
-      if (!f.done) allDone = false
     }
-    /* The threshold is 1MB rather than 0, and that is not fussiness.
-     *
-     * transformers.js initiates the small metadata files (config, tokenizer)
-     * before the ~900MB weights, so the first tick has a real but tiny total
-     * — which the MB formatter renders as the memorably useless
-     * "Downloading model… 0 MB / 0 MB". On a slow link that is the first thing
-     * anyone sees, and it reads as stuck rather than starting. Below 1MB there
-     * is nothing worth reporting, so it stays in 'preparing'. */
-    if (allDone || totalBytes < 1e6) {
-      // Every fetched file is complete (or nothing is streaming, e.g. a
-      // Firefox cache hit fires no progress events) — the remaining wait is
-      // ONNX session init, which has no measurable progress.
+    // Nothing worth counting yet — see MIN_REPORTABLE_TOTAL. What is running
+    // is real work with no measurable progress, which is 'preparing'.
+    if (totalBytes < MIN_REPORTABLE_TOTAL) {
       broadcastProgress({ phase: 'preparing' })
       return
     }
@@ -161,8 +194,13 @@ async function loadPipeline(): Promise<TranslationPipeline> {
       } else {
         return
       }
+      armStall()
       emit()
     },
+  }).finally(() => {
+    // Whatever happens next, nothing more is loading — a stall broadcast
+    // after this point would put a progress bar back on a finished screen.
+    clearTimeout(stallTimer)
   })
   broadcastProgress({ phase: 'done' })
   setDownloadedModel()

@@ -40,9 +40,14 @@ export function TranslationOutput({ t }: { t: TranslateState }) {
               <div className="model-progress-track" role="progressbar" aria-label="Model load">
                 <div className="model-progress-fill model-progress-fill--indeterminate" />
               </div>
-              <span className="model-progress-label">
-                {t.modelDownloaded ? 'Loading model from cache…' : 'Preparing model…'}
-              </span>
+              {/* Not "Loading model from cache…" when the model is cached. The
+                  bytes are already in hand by the time this branch is
+                  reached — what is running is the ONNX session coming up, and
+                  on a phone that is the longest single wait in the app
+                  (~75s measured). Describing it as reading a file the app has
+                  already read was the reason a frozen byte count looked like
+                  a hang rather than like work. */}
+              <span className="model-progress-label">Preparing the model…</span>
             </div>
           )
         ) : t.chunkProgress !== null && t.chunkProgress.total > 1 ? (

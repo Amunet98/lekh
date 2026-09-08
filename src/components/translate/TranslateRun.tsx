@@ -26,13 +26,19 @@ export function TranslateRun({ t }: TranslateRunProps) {
   if (t.mode !== 'ondevice') return null
   return (
     <div className="translate-run">
+      {/* The label changes, because dimming is not feedback. With a page of
+          uploaded text in the pane above, the output pane and its progress bar
+          are below the fold — so a disabled button that still reads "Translate
+          on-device" was the only thing on screen after the tap, and it says
+          nothing about whether the tap registered. This says it where the
+          thumb already is. */}
       <button
         type="button"
         className="btn btn--primary"
         onClick={() => void t.runOnDevice()}
         disabled={t.status === 'loading' || !t.sourceText.trim()}
       >
-        Translate on-device
+        {t.status === 'loading' ? 'Translating…' : 'Translate on-device'}
       </button>
     </div>
   )
