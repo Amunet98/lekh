@@ -177,7 +177,7 @@ export function AboutScreen({ onDismiss, onGoTo }: AboutScreenProps) {
               still says 1.8.18 reads as a bug instead of the two intentionally
               different things they are. */}
           <p className="about__meta">
-            <span className="dev">लेख</span> Lekh Patro · web build {__APP_VERSION__} · ©{' '}
+            Lekh Patro · web build {__APP_VERSION__} · ©{' '}
             {new Date().getFullYear()}
           </p>
         </div>
