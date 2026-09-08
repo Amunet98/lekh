@@ -142,7 +142,24 @@ function App() {
      its own. Suppressed while the boot screen is up for the same reason the
      shell is not hit-testable there: nothing invisible should be operable. */
   const swipe = useTabSwipe({
-    enabled: !booting,
+    /* Not while a sheet is open, and that is a correctness fix rather than a
+       refinement. The handler is on .page, and the cheat sheet and the date
+       converter are <dialog>s rendered *inside* their section — the top layer
+       is where they paint, not where they sit in the tree, so their touches
+       bubble straight out to this. A sideways drag while reading the cheat
+       sheet therefore closed it and changed section (goToTab unwinds the
+       sheet's history entries first), losing the reader's place with nothing
+       to explain why. Found on a phone.
+
+       showModal already makes the rest of the document inert, which is what
+       stops the dock doing this — so all this does is say the same thing to
+       the one gesture that was reaching past it. Keyed on the Sheet union
+       rather than on a DOM check because every sheet has to join that union
+       anyway for Back to unwind it, so a new one cannot quietly miss this.
+
+       The Settings/About screen is unaffected either way: it renders as a
+       sibling of .page, not a descendant. */
+    enabled: !booting && sheet === null,
     onPrev: () => {
       const index = TAB_ORDER.indexOf(tab)
       if (index <= 0) return
