@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { CheatSheet } from './CheatSheet'
 import { useSheetDrag } from '../hooks/useSheetDrag'
 import './SheetGrabber.css'
@@ -8,7 +8,17 @@ interface CheatSheetPanelProps {
   open: boolean
   onClose: () => void
   onInsert: (ch: string) => void
+  /* The editor's current text, mirrored in the echo strip below. Passed down
+     rather than read from a store because there isn't one — and it costs
+     nothing that matters: CheatSheet is memo'd on `onInsert`/`query`, so a
+     keystroke re-renders this shell and stops at the 76 buttons. */
+  text: string
 }
+
+/* Enough to fill the strip twice over on the widest phone, and a bound on
+   what a long document puts into the DOM on every single tap. The fade on the
+   left edge is what says the run continues past it. */
+const ECHO_TAIL = 120
 
 /* The script reference, on demand.
  *
@@ -18,11 +28,15 @@ interface CheatSheetPanelProps {
  * right on a wide screen, a bottom sheet on a phone, with a search field
  * because scanning seven tables for one glyph was always the slow path.
  */
-export function CheatSheetPanel({ open, onClose, onInsert }: CheatSheetPanelProps) {
+export function CheatSheetPanel({ open, onClose, onInsert, text }: CheatSheetPanelProps) {
   const ref = useRef<HTMLDialogElement>(null)
   const innerRef = useRef<HTMLDivElement>(null)
   const searchRef = useRef<HTMLInputElement>(null)
   const [query, setQuery] = useState('')
+
+  /* Newlines flattened to a space: this is one line by construction, and a
+     `pre` run containing them would otherwise render the tail as a blank. */
+  const tail = useMemo(() => text.replace(/\n+/g, ' ').slice(-ECHO_TAIL), [text])
 
   // Drag-to-dismiss for the mobile bottom sheet — see useSheetDrag. Hidden on
   // the desktop slide-over (.cheat-panel__grabber's own media query), which
@@ -143,6 +157,34 @@ export function CheatSheetPanel({ open, onClose, onInsert }: CheatSheetPanelProp
             </svg>
           </button>
         </header>
+
+        {/* A one-line mirror of the end of the editor.
+         *
+         * On a phone the sheet stands over the editor at up to 90svh, so
+         * tapping a cell put a letter somewhere you could not see — no way to
+         * tell whether the tap had registered at all. Closing the sheet on
+         * every insert would answer that and cost you the sheet.
+         *
+         * The tail, not the whole text, because insertAtCursor appends to the
+         * end (see useEditorState): the end is the only place anything ever
+         * lands, so a tail is a faithful mirror rather than a summary of one.
+         *
+         * aria-hidden because it duplicates the textarea, which is the real
+         * thing and is still in the page; announcing both would read the same
+         * words twice to anyone navigating by screen reader. */}
+        <div
+          className={`cheat-panel__echo${tail ? '' : ' cheat-panel__echo--empty'}`}
+          aria-hidden="true"
+        >
+          {tail ? (
+            <div className="cheat-panel__echo-view">
+              <span className="dev">{tail}</span>
+            </div>
+          ) : (
+            <span className="cheat-panel__echo-hint">Tap a letter — it lands here</span>
+          )}
+          <span className="cheat-panel__echo-caret" />
+        </div>
 
         <div className="cheat-panel__search">
           <svg

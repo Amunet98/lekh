@@ -182,6 +182,80 @@
   }
 }
 
+/* The echo strip — see the comment on it in CheatSheetPanel.tsx for why it
+   exists at all. Phone only: past 1024px the panel is a 420px rail with the
+   editor still on screen beside it, and a mirror of visible text is just the
+   same words twice. Same breakpoint the panel's own shape switch uses. */
+.cheat-panel__echo {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  /* Right-anchored, so a run longer than the box spills off the left where it
+     is clipped and the newest glyph — the one you just tapped — is always the
+     one against the caret. */
+  justify-content: flex-end;
+  min-height: 44px;
+  margin: var(--sp-3) var(--sp-4) 0;
+  padding: 0 var(--sp-3);
+  border-radius: var(--radius-card);
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.cheat-panel__echo--empty {
+  justify-content: flex-start;
+}
+/* The mask rides this inner box rather than the strip itself: on the strip it
+   would fade the pill's own background out on the left as well, which reads
+   as a rendering fault on a short run. This box has no background of its own,
+   so the fade lands on the text and nothing else. */
+.cheat-panel__echo-view {
+  display: flex;
+  justify-content: flex-end;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 var(--sp-5));
+  mask-image: linear-gradient(to right, transparent, #000 var(--sp-5));
+}
+.cheat-panel__echo-view span {
+  flex: 0 0 auto;
+  /* pre, so a tapped space is visible as one rather than collapsing and
+     making the tap look ignored — which is the whole point of the strip. */
+  white-space: pre;
+  color: var(--text-h);
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+.cheat-panel__echo-hint {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+.cheat-panel__echo-caret {
+  flex: 0 0 auto;
+  width: 2px;
+  height: 1.15rem;
+  border-radius: 1px;
+  background: var(--accent);
+  /* opacity only — a blink on any layout property would put this on the main
+     thread once a second for the life of the panel. */
+  animation: cheat-echo-blink 1.1s steps(2, start) infinite;
+}
+@keyframes cheat-echo-blink {
+  50% {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cheat-panel__echo-caret {
+    animation: none;
+  }
+}
+@media (min-width: 1024px) {
+  .cheat-panel__echo {
+    display: none;
+  }
+}
+
 .cheat-panel__search {
   position: relative;
   display: flex;

@@ -80,7 +80,12 @@ export function TypePage({ cheatOpen, onOpenCheatSheet, onCloseCheatSheet }: Typ
         reference you consult, not a thing you read, so it is now behind one
         button in the editor toolbar, with a search field.
       */}
-      <CheatSheetPanel open={cheatOpen} onClose={closeCheat} onInsert={handleInsert} />
+      <CheatSheetPanel
+        open={cheatOpen}
+        onClose={closeCheat}
+        onInsert={handleInsert}
+        text={editor.text}
+      />
     </>
   )
 }
