@@ -159,9 +159,21 @@ export function useEditorState() {
     })
   }, [])
 
-  const copy = useCallback(async () => {
+  /* The trailing Latin run is only *pending* while conversion is on. In EN
+     mode it is the word the user is typing in English, and committing it
+     here put Devanagari they had explicitly switched off onto the clipboard
+     — `namaste` typed under EN came back as नमस्ते the moment copy was
+     pressed. Both keydown paths already open with this same guard; these
+     two were the only exports that skipped it. */
+  const commitForExport = useCallback((): string => {
+    if (!nepali) return text
     const committed = commitText(text)
     setText(committed)
+    return committed
+  }, [nepali, text])
+
+  const copy = useCallback(async () => {
+    const committed = commitForExport()
     if (!committed) return
     await navigator.clipboard.writeText(committed)
     /* The label already flips to "copied" — this is the same acknowledgement
@@ -169,14 +181,13 @@ export function useEditorState() {
     confirm()
     setCopied(true)
     setTimeout(() => setCopied(false), 1600)
-  }, [text])
+  }, [commitForExport])
 
   const share = useCallback(async () => {
-    const committed = commitText(text)
-    setText(committed)
+    const committed = commitForExport()
     if (!committed) return
     await shareText(committed)
-  }, [text])
+  }, [commitForExport])
 
   return {
     text,
