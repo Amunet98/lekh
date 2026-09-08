@@ -209,6 +209,23 @@
      content — including the footer — isn't hidden behind it. */
   .page {
     padding-bottom: calc(4.75rem + env(safe-area-inset-bottom));
+    /* The top edge, the same idea as the sides and the reason it is here
+       rather than beside them: two of the three sections open on one of the
+       surfaces below, and this padding put a strip of page background between
+       the app bar hairline and the surface hairline. A full-width empty band
+       between two rules reads as a broken toolbar, not as breathing room —
+       and on Patro the month bar visibly jumped that 24px the moment it
+       stuck, because a sticky bar and a bar at rest cannot be 24px apart.
+
+       Giving the padding up vertically is safe in a way giving up the gutter
+       is not. .page has exactly three children and only the first element of
+       one of them is affected, so the padding goes back on the one section
+       that still wants it. Translate opens on its language pickers, which are
+       pills on the page background with nothing to sit flush against. */
+    padding-block-start: 0;
+  }
+  .translate-page {
+    padding-block-start: var(--sp-5);
   }
 
   /* Surfaces that become the screen. They keep their top and bottom hairline
@@ -245,6 +262,19 @@
     margin-inline: calc(-1 * var(--gutter));
     border-inline: 0;
     border-radius: 0;
+  }
+
+  /* The one surface in that list that is now flush against the app bar. Its
+     top hairline and the bar bottom hairline would stack into a 2px rule of
+     two different colours, so the top one goes: what separates the editor
+     from what is above it is the bar, which draws its own line and is the
+     only thing up there. The bottom hairline is untouched, and so is every
+     other surface in the list — they all still have page above them.
+
+     Patro needs no equivalent. .cal__nav has never drawn a top border, since
+     it was always going to end up under the bar as soon as it stuck. */
+  .page .editor {
+    border-block-start: 0;
   }
 
   /* A bled list keeps its heading where it was, so the rows have to come to

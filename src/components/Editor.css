@@ -32,10 +32,12 @@
 /* Edge to edge below 768px (see the phone block in App.css), which takes the
    ring's left and right thirds off the side of the display — a glow that
    stops dead at the bezel looks like a clipping bug, not a focus state. The
-   accent on the two hairlines it still has is enough here: on a phone the
-   keyboard has just come up over half the screen and the caret is blinking in
-   this exact box, so nothing about what has focus is in doubt. The desktop
-   ring, where a field really can be one of several, is untouched. */
+   accent on the one hairline it still has — the bottom, the top having gone
+   with the ring once the card came flush under the app bar — is enough here:
+   on a phone the keyboard has just come up over half the screen and the caret
+   is blinking in this exact box, so nothing about what has focus is in doubt.
+   The desktop ring, where a field really can be one of several, is
+   untouched. */
 @media (max-width: 767px) {
   .editor:focus-within {
     box-shadow: none;

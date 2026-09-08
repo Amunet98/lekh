@@ -131,8 +131,16 @@
   --gutter: clamp(var(--sp-4), 4vw, var(--sp-6));
   /* The app bar's height, so something inside .page can stick underneath it.
      Mirrors .app-bar__inner: min-height plus the safe-area padding it takes
-     on top in the Capacitor shell. If that min-height changes, change this. */
-  --bar-h: calc(3.5rem + env(safe-area-inset-top, 0px));
+     on top in the Capacitor shell. If that min-height changes, change this.
+
+     Plus the hairline .app-bar draws under itself, which this used to leave
+     out. Underneath the bar means underneath all of it, border included, and
+     a bar at z-index 3 paints that border over anything from .page anyway —
+     so the top pixel of a sticky child simply disappeared when it stuck. It
+     was invisible while the child rested 24px lower and slid up to its slot;
+     now that .page pays no top padding on a phone the month bar rests exactly
+     where it sticks, and one pixel of travel is one pixel too many. */
+  --bar-h: calc(3.5rem + 1px + env(safe-area-inset-top, 0px));
 
   /* Editor and translation text size, set from the Settings sheet (App.tsx
      writes it on :root). 1 is the designed size; the control only scales up,
