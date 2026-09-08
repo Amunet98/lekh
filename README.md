@@ -17,8 +17,10 @@ right in the browser.
 
 - **Type** — a phonetic transliteration engine backed by a 763-word
   dictionary shows suggestion chips (with spelling variants) as you type;
-  a searchable Devanagari cheat sheet covers the long tail. Works with
-  mobile keyboards/IMEs (Gboard-style commit flow).
+  a searchable Devanagari cheat sheet covers the long tail, and tapping a
+  cell echoes the result inside the sheet so you can see the letter land
+  without closing it. Works with mobile keyboards/IMEs (Gboard-style
+  commit flow).
 - **Translate** — English ↔ Nepali with a Google-style language switcher.
   Type directly or drop in a photo, PDF, DOCX, or TXT file — OCR happens
   **entirely in the browser** via
@@ -30,6 +32,28 @@ right in the browser.
   phases with progress).
 - **Patro** — a Bikram Sambat calendar with festivals, public holidays and
   tithi, plus an AD ↔ BS date converter. No ads, no account, no network.
+
+## How the romanization maps
+
+The keys are the Nepali Unicode **Romanized** layout — the conventional
+scheme for romanized Nepali input, the one Madan Puraskar Pustakalaya
+publishes and most Nepali Unicode pages use — rather than a scheme invented
+here.
+
+Case is part of that layout and carries meaning. `t`/`T` is the dental and
+retroflex split (त / ट), and so are `d`/`D` and `n`/`N`; `A`, `I` and `U` are
+the long vowels (आ ई ऊ); `M` and `H` are the anusvara and visarga, typed as
+`aM` and `aH`. Aspirates are digraphs — `kh gh chh jh th dh ph bh`, plus `Th`,
+`Dh` and `Sh`.
+
+That is eight single capitals with a meaning of their own. **Every other
+capital is simply its lowercase letter**, so a capitalised name types the way
+you would expect it to: `Bimesh` → बिमेश, `Mohan` → मोहन. A word never opens
+with a bare combining mark, either — `M` and `H` are signs that ride a vowel,
+and word-initially they fall back to म and ह.
+
+`src/lib/engine/engine.test.ts` pins all three of those rules, and
+`src/lib/engine/maps.ts` is the table itself.
 
 ## Design
 
