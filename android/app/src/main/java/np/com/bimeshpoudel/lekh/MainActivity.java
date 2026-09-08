@@ -21,6 +21,7 @@ public class MainActivity extends BridgeActivity {
          * only picks up plugins registered ahead of it. */
         registerPlugin(DynamicColorPlugin.class);
         registerPlugin(PrintPlugin.class);
+        registerPlugin(CalendarIntentPlugin.class);
         super.onCreate(savedInstanceState);
         handleIntent(getIntent());
         /* activity_main.xml's android:scrollbars="none" is not enough — the

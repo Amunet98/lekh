@@ -23,6 +23,7 @@ import { useMonthPanchang } from '../../hooks/useMonthPanchang'
 import { DateConverter } from './DateConverter'
 import { ActionSheet } from '../ActionSheet'
 import { saveFile } from '../../lib/download'
+import { openCalendarEvent } from '../../lib/calendarEvent'
 import { isNativeApp } from '../../lib/androidApp'
 import { tick } from '../../lib/haptics'
 import { useToast } from '../../hooks/useToast'
@@ -303,12 +304,18 @@ export function CalendarPage({ converterOpen, onOpenConverter, onCloseConverter 
             <button
               type="button"
               className="btn cal__detail-add"
-              /* Same split as the translation exports: the app's share sheet
-                 announces itself, a web download does not. */
+              /* In the app this opens the calendar's own new-event screen
+                 (CalendarIntentPlugin). The .ics is the fallback for the web,
+                 for an APK too old to carry that plugin, and for a phone with
+                 no calendar app — and there the split is the usual one: the
+                 app's share sheet announces itself, a web download does not. */
               onClick={() =>
-                void downloadIcs(selectedInfo.festivals, selectedAd)
-                  .then(() => {
-                    if (!isNativeApp()) toast.done('Saved lekh-patro-holiday.ics')
+                void openCalendarEvent(selectedInfo.festivals.join(', '), selectedAd)
+                  .then((opened) => {
+                    if (opened) return
+                    return downloadIcs(selectedInfo.festivals, selectedAd).then(() => {
+                      if (!isNativeApp()) toast.done('Saved lekh-patro-holiday.ics')
+                    })
                   })
                   .catch((err: unknown) =>
                     toast.problem(
