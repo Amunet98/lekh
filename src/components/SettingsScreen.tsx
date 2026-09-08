@@ -155,9 +155,26 @@ export function SettingsScreen({ open, onDismiss, onOpenAbout }: SettingsScreenP
      after a model download or a clear. */
   const [cacheBytes, setCacheBytes] = useState<number | null>(null)
   const [clearing, setClearing] = useState(false)
+  /* The one destructive thing on this screen, and until now the only one-tap
+     one anywhere in the app. Everything else here is a toggle you undo by
+     tapping it again; this threw away most of a gigabyte that has to come back
+     over a phone connection, from a button sitting a thumb's width from the
+     switches. The same download is already gated by a confirm on the Translate
+     screen, which is the asymmetry this closes: expensive enough to ask before
+     fetching is expensive enough to ask before deleting. Retired in measure()
+     rather than on close, so the question can never outlive the byte count it
+     quotes. */
+  const [confirmingClear, setConfirmingClear] = useState(false)
 
   const measure = useCallback(() => {
-    void estimateHeavyCaches().then(setCacheBytes)
+    void estimateHeavyCaches().then((bytes) => {
+      setCacheBytes(bytes)
+      /* A fresh measurement retires the question, which is also what closes it
+         when Settings is reopened. The confirm quotes a byte count, and a
+         quoted number that has just been re-measured is not the one that was
+         asked about — so leaving the screen mid-question answers no. */
+      setConfirmingClear(false)
+    })
   }, [])
 
   useEffect(() => {
@@ -165,6 +182,7 @@ export function SettingsScreen({ open, onDismiss, onOpenAbout }: SettingsScreenP
   }, [open, measure])
 
   const clear = async () => {
+    setConfirmingClear(false)
     setClearing(true)
     try {
       await clearHeavyCaches()
@@ -300,11 +318,39 @@ export function SettingsScreen({ open, onDismiss, onOpenAbout }: SettingsScreenP
                   type="button"
                   className="settings__danger"
                   disabled={clearing || cacheBytes === 0}
-                  onClick={() => void clear()}
+                  onClick={() => setConfirmingClear(true)}
                 >
                   {clearing ? 'clearing…' : 'clear'}
                 </button>
               </div>
+              {/* In the row group rather than floating over it, so the question
+                  appears where the number it is about already is — and so
+                  nothing moves under the thumb that just pressed clear. */}
+              {confirmingClear && (
+                <div className="settings__confirm" role="dialog" aria-label="Clear downloaded extras">
+                  <p>
+                    Frees {cacheBytes === null ? 'the downloaded extras' : formatBytes(cacheBytes)}.
+                    The on-device model, OCR and PDF engines download again the next time you use
+                    them — on WiFi, ideally.
+                  </p>
+                  <div className="settings__confirm-actions">
+                    <button
+                      type="button"
+                      className="settings__danger"
+                      onClick={() => void clear()}
+                    >
+                      clear{cacheBytes ? ` ${formatBytes(cacheBytes)}` : ''}
+                    </button>
+                    <button
+                      type="button"
+                      className="settings__confirm-cancel"
+                      onClick={() => setConfirmingClear(false)}
+                    >
+                      cancel
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </section>
 

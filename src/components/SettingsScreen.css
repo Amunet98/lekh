@@ -107,3 +107,43 @@
   color: var(--muted);
   border-color: var(--border-field);
 }
+
+/* The clear confirmation. Tinted with --danger rather than borrowing
+   .confirm-banner from translate.css: that one is accent-tinted because it
+   asks before *fetching* the model, and the two questions should not look
+   alike when only one of them throws something away. */
+.settings__confirm {
+  padding: var(--sp-3) var(--gutter) var(--sp-4);
+  border-top: 1px solid var(--border);
+  background: color-mix(in srgb, var(--danger) 6%, var(--surface));
+  font-size: 0.85rem;
+  color: var(--text);
+  line-height: 1.6;
+}
+.settings__confirm-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+}
+.settings__confirm-cancel {
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-h);
+  background: transparent;
+  border: 1px solid var(--border-field);
+  border-radius: var(--radius-pill);
+  min-height: 40px;
+  padding: 0 1.1rem;
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+@media (hover: hover) {
+  .settings__confirm-cancel:hover {
+    background: color-mix(in srgb, var(--text) 7%, transparent);
+  }
+}
+.settings__confirm-cancel:active {
+  transform: scale(0.96);
+}
