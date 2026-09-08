@@ -229,8 +229,14 @@ export function TranslateControls({ t }: { t: TranslateState }) {
       {t.mode === 'ondevice' && (
         <div className="model-status">
           <p className="sugg-hint">
+            {/* "A few seconds", measured, not "about a minute", guessed.
+                Timed twice on an A024 from a cold force-stop: 912MB out of
+                the cache in ~11s and the finished translation on screen at
+                11.5s, with the progress bar counting MB the whole way. The
+                old line overstated it by five times and was the last thing
+                read before deciding whether to bother with the feature. */}
             {t.modelDownloaded
-              ? 'Model downloaded — the first translation after opening the app spends about a minute loading it into memory.'
+              ? 'Model downloaded — the first translation after opening the app spends a few seconds loading it into memory.'
               : t.status === 'loading'
                 ? 'Downloading the model — you can leave this tab open.'
                 : 'Model not downloaded yet — ~900MB one-time download.'}
