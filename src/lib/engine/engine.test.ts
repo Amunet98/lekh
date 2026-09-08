@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CONS, DICT, DIGITS, VARIANTS, VOW, convert, phonetic, suggest } from './index'
+import { CONS, DICT, DIGITS, SIGNS, VARIANTS, VOW, convert, phonetic, suggest } from './index'
 
 /* The engine, tested on what it produces rather than on what it documents.
  *
@@ -85,6 +85,27 @@ describe('phonetic — the rules that make typing feel right', () => {
     expect(phonetic('Th')).toBe(CONS['Th'])
     expect(phonetic('Dh')).toBe(CONS['Dh'])
     expect(phonetic('Sh')).toBe(CONS['Sh'])
+  })
+
+  it('opens a word with a letter, never with an orphan combining mark', () => {
+    /* M and H are signs, not letters: the standard types them as `aM` / `aH`,
+       a mark riding a vowel. Word-initially there is nothing under them, and
+       they used to be emitted anyway — 'Mohan' came out 'ंओहन'. They kept the
+       Latin-capital bug alive after it was fixed everywhere else, because a
+       mapping did exist for them and so nothing ever retried the lowercase. */
+    expect(phonetic('Mohan')).toBe('मोहन')
+    expect(phonetic('Hari')).toBe('हरि')
+    expect(phonetic('M')).toBe(CONS['m'])
+    expect(phonetic('H')).toBe(CONS['h'])
+    for (const sign of Object.values(SIGNS)) expect(phonetic('Mohan')).not.toContain(sign)
+  })
+
+  it('still lets a sign ride the vowel in front of it', () => {
+    // Only the opening position is refused. `aM` and `aH` are how the anusvara
+    // and visarga are typed, and they are unaffected.
+    expect(phonetic('aM')).toBe('अं')
+    expect(phonetic('aH')).toBe('अः')
+    expect(phonetic('raM')).toBe('रं')
   })
 
   it('prefers the longest romanization token', () => {

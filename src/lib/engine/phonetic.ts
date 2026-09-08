@@ -17,12 +17,19 @@ type Token =
  *
  * Hence the second pass at each length rather than only at len 1: "Bh" has to
  * find भ as a unit, or lowercasing B alone would give ब + ह ("बहिम" for
- * "Bhim"). Trying both forms longest-first keeps ठ for "Th" and भ for "Bh". */
-function matchAt(sub: string): Token | null {
+ * "Bhim"). Trying both forms longest-first keeps ठ for "Th" and भ for "Bh".
+ *
+ * M and H are the two capitals that had a mapping and still came out wrong,
+ * so the fallthrough fix above never reached them. They are combining marks —
+ * the standard types them as `aM` / `aH`, a sign riding a vowel — and word-
+ * initially there is nothing under them: "Mohan" gave "ंओहन", an orphan
+ * anusvara. There is no position in the layout where a bare ं opens a word, so
+ * at index 0 the sign is declined and the lowercase form answers instead: म. */
+function matchAt(sub: string, wordInitial: boolean): Token | null {
   for (const form of sub === sub.toLowerCase() ? [sub] : [sub, sub.toLowerCase()]) {
     if (Object.hasOwn(CONS, form)) return { kind: 'cons', value: CONS[form] }
     if (Object.hasOwn(VOW, form)) return { kind: 'vowel', value: VOW[form] }
-    if (Object.hasOwn(SIGNS, form)) return { kind: 'sign', value: SIGNS[form] }
+    if (Object.hasOwn(SIGNS, form) && !wordInitial) return { kind: 'sign', value: SIGNS[form] }
   }
   return null
 }
@@ -33,7 +40,7 @@ function tokenize(word: string): Token[] {
   while (i < word.length) {
     let matched = false
     for (let len = 3; len >= 1 && !matched; len--) {
-      const token = matchAt(word.substr(i, len))
+      const token = matchAt(word.substr(i, len), i === 0)
       if (token) {
         tokens.push(token)
         i += len
