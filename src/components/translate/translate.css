@@ -79,6 +79,39 @@
   box-shadow: var(--shadow-accent);
 }
 
+/* Full width, and therefore not a button.
+ *
+ * Below 640px this becomes a row of its own (flex: 1 above), and the fill it
+ * takes is drawn in exactly the treatment .btn--primary uses — the same
+ * --accent, the same --shadow-accent — while standing directly above the one
+ * button on the page that actually translates. Two primary-looking things,
+ * and the wider of them is the one that only reports state.
+ *
+ * The dock already settled this argument. TabSwitcher.css takes the solid
+ * chip it wears in the app bar and backs it off to --accent-bg with an
+ * --accent-text label the moment it becomes a full-bleed strip, because a
+ * full-bleed bar at thumb height reads better with a tint than with a block
+ * of crimson. This is the same shape at the same width making the same claim,
+ * so it gets the same answer — and the selected half now matches the selected
+ * dock item sitting a few hundred pixels below it.
+ *
+ * The track goes recessed with it. Against the page, --surface was reading as
+ * a raised card, and a tint only registers as "this half" when the other half
+ * is sunk rather than lit.
+ *
+ * Settings keeps the solid fill on Theme and Text size. Nothing on that screen
+ * is an action, so nothing there is competing to be the thing you press. */
+@media (max-width: 639.98px) {
+  .mode-seg {
+    background: var(--surface-2);
+  }
+  .mode-seg__opt[aria-pressed='true'] {
+    background: var(--accent-bg);
+    color: var(--accent-text);
+    box-shadow: none;
+  }
+}
+
 .lang-picker {
   position: relative;
 }
