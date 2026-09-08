@@ -104,11 +104,13 @@ interface ProgressEvent {
  * reasonable thing to do with a hung phone app is force-quit it.
  *
  * So a stall ends the download now, rather than a completion signal that may
- * never come. If nothing has arrived for this long the bytes are as finished
- * as they are going to look, and whatever is still running has no measurable
- * progress — which is what 'preparing' means. It also covers the cache hit
- * that fires no progress events at all, which the emit() comment below has
- * always known about. */
+ * never come. If the numbers have not moved for this long the bytes are as
+ * finished as they are going to look, and whatever is still running has no
+ * measurable progress — which is what 'preparing' means. Measured on the
+ * numbers rather than on the callbacks, deliberately: see armStall() below,
+ * where the events keep coming long after they stop saying anything. It also
+ * covers the cache hit that fires no progress events at all, which the emit()
+ * comment has always known about. */
 const STALL_MS = 1200
 
 /* Below this, byte counts are not worth showing and this stays in 'preparing'.
@@ -163,6 +165,16 @@ async function loadPipeline(): Promise<TranslationPipeline> {
     if (percent === lastPercent && loadedMB === lastLoadedMB) return
     lastPercent = percent
     lastLoadedMB = loadedMB
+    /* Armed here, on a change, and not on every event that arrives.
+     *
+     * The first version of this armed it in the progress_callback and it never
+     * fired once. transformers.js keeps calling back right through session
+     * init with the same numbers, so the throttle above suppressed the
+     * re-broadcast while each callback pushed the timer forward — and the
+     * display froze at 910 of 912 MB for a minute and a half, measured on a
+     * phone, exactly as it had before the timer existed. A stall is not "no
+     * events". It is "no news". */
+    armStall()
     broadcastProgress({ phase: 'downloading', loadedBytes, totalBytes })
   }
 
@@ -194,7 +206,6 @@ async function loadPipeline(): Promise<TranslationPipeline> {
       } else {
         return
       }
-      armStall()
       emit()
     },
   }).finally(() => {
