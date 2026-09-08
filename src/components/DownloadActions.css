@@ -109,9 +109,7 @@
 }
 
 /* Save-as-PDF: hide the app shell (paper-grain background, header, tabs,
-   controls) and show only the populated sheet, full-page, black-on-white.
-   visibility (not display) keeps layout stable regardless of where
-   #print-sheet sits in the tree. */
+   controls) and show only the populated sheet, full-page, black-on-white. */
 @media print {
   /* Paper is a third theme, and it has to be stated. `visibility: hidden` on
      the children of body never touches the background that the root and body
@@ -140,11 +138,30 @@
   #print-sheet * {
     visibility: visible;
   }
+  /* And out of the flow entirely, not merely invisible. `visibility: hidden`
+     keeps every box it hides, and #root carries `min-height: 100svh` — so a
+     one-line note still laid out a full viewport of empty space beneath the
+     sheet, and the export came out two pages with the second one blank.
+     Measured on the phone: the print preview read 1/2. The sheet itself was
+     `position: absolute`, so it contributed no height to offset that.
+
+     This can be stated as a parentage now, which is what makes it safe: the
+     sheet is rendered once, by App, as a child of #root, and the dock is the
+     one thing portalled out to <body>. That is the same single-sheet
+     arrangement lib/printSheet.ts describes, and until it existed there was
+     no fixed place in the tree to write a rule against. */
+  #root {
+    min-height: 0;
+  }
+  #root > *:not(#print-sheet),
+  body > *:not(#root) {
+    display: none;
+  }
   #print-sheet {
     display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
+    /* Static, so long text paginates across pages instead of being clipped to
+       the first one the way an absolutely positioned box is. */
+    position: static;
     width: 100%;
     margin: 0;
     padding: 1.5cm;
