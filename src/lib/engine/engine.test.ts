@@ -65,6 +65,28 @@ describe('phonetic — the rules that make typing feel right', () => {
     expect(phonetic('N')).toBe('ण')
   })
 
+  it('reads a capital with no meaning of its own as its lowercase letter', () => {
+    // Only ten capitals mean anything (the retroflexes and the long vowels,
+    // above). The rest used to fall through and sit in the output as Latin —
+    // 'Bimesh' came out 'Bइमेश'. Dictionary words hid it, since convert()
+    // lowercases before its lookup, so it only ever showed on the words that
+    // are not in the dictionary: names.
+    expect(phonetic('Bimesh')).toBe(phonetic('bimesh'))
+    expect(phonetic('Ram')).toBe(phonetic('ram'))
+    expect(phonetic('Bimesh')).not.toMatch(/[A-Za-z]/)
+  })
+
+  it('still matches a multi-letter token before lowercasing a capital', () => {
+    // 'Bh' has to find भ as a unit. Lowercasing the B on its own first would
+    // give ब + ह — 'बहिम' for 'Bhim' — which is a different word.
+    expect(phonetic('Bhim')).toBe(phonetic('bhim'))
+    expect(phonetic('Bh')).toBe(CONS['bh'])
+    // And the capitals that do mean something keep winning at their own length.
+    expect(phonetic('Th')).toBe(CONS['Th'])
+    expect(phonetic('Dh')).toBe(CONS['Dh'])
+    expect(phonetic('Sh')).toBe(CONS['Sh'])
+  })
+
   it('prefers the longest romanization token', () => {
     // 'chh' must not be parsed as 'ch' + 'h', and 'ksh'/'gy' are single
     // conjuncts rather than clusters. This is the property the comment at the
