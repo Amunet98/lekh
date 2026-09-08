@@ -27,6 +27,7 @@ export interface ChunkProgress {
 }
 
 const SOURCE_TEXT_KEY = 'lekh:translate-source-text'
+const RESULT_KEY = 'lekh:translate-result'
 
 function getInitialSourceText(): string {
   try {
@@ -34,6 +35,62 @@ function getInitialSourceText(): string {
   } catch {
     return ''
   }
+}
+
+/* A finished translation, stored with enough of its provenance to know
+ * whether it still describes what is on screen.
+ *
+ * The source text has survived a relaunch since it shipped and the result
+ * never did, which is the one combination that reads as a bug: the app
+ * reopens showing your sentence above an empty answer, and on-device getting
+ * it back costs a ~900MB model load and about twenty seconds for a sentence
+ * that was already translated. Verified on a phone — force-stop, relaunch,
+ * input restored, output gone.
+ *
+ * Everything a result depends on is stored beside it, because a translation is
+ * only meaningful as an answer to a specific question: the same words pointed
+ * the other way are a different answer, and the app already treats a mode
+ * switch as invalidating (see switchToOnDevice). Any mismatch and this is
+ * simply not restored.
+ */
+interface StoredResult {
+  source: string
+  direction: Direction
+  mode: TranslateMode
+  translated: string
+}
+
+function readStoredResult(): StoredResult | null {
+  try {
+    const raw = localStorage.getItem(RESULT_KEY)
+    if (!raw) return null
+    const parsed: unknown = JSON.parse(raw)
+    if (!parsed || typeof parsed !== 'object') return null
+    const r = parsed as Record<string, unknown>
+    if (typeof r.source !== 'string' || typeof r.translated !== 'string') return null
+    if (r.direction !== 'ne-en' && r.direction !== 'en-ne') return null
+    if (r.mode !== 'online' && r.mode !== 'ondevice') return null
+    return { source: r.source, direction: r.direction, mode: r.mode, translated: r.translated }
+  } catch {
+    // Blocked storage, or something older wrote a shape this version does not
+    // know. Either way there is simply no result to restore.
+    return null
+  }
+}
+
+/* Online mode is deliberately not restored, and that is not an oversight.
+ * Its debounced effect re-translates whatever source text it launches with
+ * inside 500ms, and runOnline blanks the pane before it fetches — so a
+ * restored result there would appear, vanish, and come back, which is worse
+ * than never showing it. On-device has no such loop: nothing runs until the
+ * button is pressed, which is exactly why it is the mode where the loss hurt.
+ */
+function getInitialTranslated(sourceText: string, direction: Direction, mode: TranslateMode): string {
+  if (mode !== 'ondevice') return ''
+  const stored = readStoredResult()
+  if (!stored) return ''
+  if (stored.source !== sourceText || stored.direction !== direction || stored.mode !== mode) return ''
+  return stored.translated
 }
 
 // Romanized Nepali ("mero naam") only makes sense to transliterate when
@@ -54,9 +111,14 @@ export function useTranslateState() {
     getPref('translateReversed') ? 'ne-en' : 'en-ne',
   )
   const [sourceText, setSourceText] = useState(getInitialSourceText)
-  const [translated, setTranslated] = useState('')
   const [mode, setMode] = useState<TranslateMode>(() =>
     getPref('translateOnDevice') ? 'ondevice' : 'online',
+  )
+  /* Declared after direction and mode rather than beside the other text state,
+     because a stored result is only worth restoring when it still matches
+     both — and a useState initializer can only read what is already above it. */
+  const [translated, setTranslated] = useState(() =>
+    getInitialTranslated(sourceText, direction, mode),
   )
   const [status, setStatus] = useState<Status>('idle')
   const [error, setError] = useState<string | null>(null)
@@ -89,6 +151,25 @@ export function useTranslateState() {
       // localStorage unavailable — source text still works this visit, just won't survive a reload
     }
   }, [sourceText])
+
+  /* Only while idle, which is what keeps a half-finished answer out of storage:
+     a chunked translation calls setTranslated once per chunk, and each of those
+     is a prefix of the whole thing that would be restored later looking
+     complete. Storing nothing at all mid-run also leaves the previous result
+     alone until the new one has actually landed. */
+  useEffect(() => {
+    if (status !== 'idle') return
+    try {
+      if (translated) {
+        const record: StoredResult = { source: sourceText, direction, mode, translated }
+        localStorage.setItem(RESULT_KEY, JSON.stringify(record))
+      } else {
+        localStorage.removeItem(RESULT_KEY)
+      }
+    } catch {
+      // Blocked storage — the result is still on screen for this visit.
+    }
+  }, [translated, sourceText, direction, mode, status])
 
   /* Written wherever they change rather than at every setter call site —
      mode is set from five places (the toggle, the confirm dialog, the

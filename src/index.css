@@ -56,6 +56,24 @@
   --on-accent: #ffffff;     /* 5.88 on --accent */
   --accent-bg: #fdecee;
   --accent-border: rgba(200, 16, 46, 0.4);
+  /* बिदा — the red a holiday is printed in, and the reason it is a token of
+     its own rather than another use of --accent-text.
+
+     On a Nepali patro, red is not decoration. A red date means the day is off,
+     which is what the whole grid is consulted for, and it is how every printed
+     calendar in the country says it. Material You repaints --accent and its
+     family from the wallpaper, so on a blue-wallpapered phone the Saturdays,
+     the holidays, today's ring and the active dock item all came out the same
+     blue: the one colour on the screen that carried meaning stopped carrying
+     it, while the ones that were only ever chrome were unaffected. Verified on
+     a phone with wallpaper colours on.
+
+     So dynamic colour keeps the chrome and this keeps the calendar. These two
+     are not in the token list dynamicColor.ts writes, and must not be added to
+     it. The values are the crimson theme's --accent-text and --accent-bg, so
+     with wallpaper colours off nothing about the calendar changes at all. */
+  --bida: #a80d26;          /* 7.32 on --bg, 6.69 on --bida-bg */
+  --bida-bg: #fdecee;
   /* The flag's blue, and the one place it appears literally: the ख of the
      wordmark. Not an accent — it is never a control, never a link, and never
      competes with the crimson for the eye. 10.13:1 on --bg. */
@@ -93,6 +111,11 @@
   --dark-on-accent: #2a0a10;    /* 6.61 on --dark-accent */
   --dark-accent-bg: #2a1a24;
   --dark-accent-border: rgba(248, 113, 113, 0.4);
+  /* The dark half of बिदा — see --bida above. Same values as the dark accent
+     pair for the same reason the light one matches its own: with wallpaper
+     colours off the calendar is unchanged, and with them on it stays red. */
+  --dark-bida: #f87171;
+  --dark-bida-bg: #2a1a24;
   /* Lightened well past #003893, which is unreadable on --dark-bg. */
   --dark-flag-blue: #8fb0f0;
   --dark-ok: #4ade80;
@@ -212,6 +235,8 @@
     --on-accent: var(--dark-on-accent);
     --accent-bg: var(--dark-accent-bg);
     --accent-border: var(--dark-accent-border);
+    --bida: var(--dark-bida);
+    --bida-bg: var(--dark-bida-bg);
     --flag-blue: var(--dark-flag-blue);
     --ok: var(--dark-ok);
     --warn: var(--dark-warn);
@@ -239,6 +264,8 @@
   --on-accent: var(--dark-on-accent);
   --accent-bg: var(--dark-accent-bg);
   --accent-border: var(--dark-accent-border);
+  --bida: var(--dark-bida);
+  --bida-bg: var(--dark-bida-bg);
   --flag-blue: var(--dark-flag-blue);
   --ok: var(--dark-ok);
   --warn: var(--dark-warn);

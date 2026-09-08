@@ -23,11 +23,24 @@ const DOMINANCE = 1.4
  *   sheet grid can. These are found by *measuring* rather than by naming the
  *   classes, so the next horizontally-scrolling thing anyone adds does not
  *   silently start losing its gestures to the navigation.
+ *
+ * An *empty* textarea is the exception to the first of those, and it matters
+ * more than it sounds. There is nothing in one to put a caret into and nothing
+ * to select, so the interaction being protected does not exist — while on the
+ * Type tab an empty editor is most of the launch screen. Measured on a phone:
+ * on a first run, two swipes across the untouched editor did nothing at all,
+ * and the same swipe from the strip above it or the hint below it changed
+ * section. The gesture was dead on the one screen every new user sees first.
+ *
+ * Only textarea, deliberately. The inputs in this app are a date field, a file
+ * picker and a search box, and a native control with its own drag behaviour is
+ * not worth the risk for a gesture nobody would start on top of one.
  */
 function ownsHorizontalDrag(target: EventTarget | null): boolean {
   const el = target instanceof Element ? target : null
   if (!el) return false
-  if (el.closest('textarea, input, select, [contenteditable=""], [contenteditable="true"]')) {
+  const field = el.closest('textarea, input, select, [contenteditable=""], [contenteditable="true"]')
+  if (field && !(field instanceof HTMLTextAreaElement && field.value === '')) {
     return true
   }
   for (let node: Element | null = el; node; node = node.parentElement) {

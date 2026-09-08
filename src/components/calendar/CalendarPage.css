@@ -164,7 +164,7 @@
    Chaitra 23, 2082, when the two-day weekend took effect — the class is
    applied conditionally in the TSX rather than pinned to a column here. */
 .cal__weekday--off {
-  color: var(--accent-text);
+  color: var(--bida);
 }
 
 .cal__days {
@@ -237,12 +237,17 @@
 
 /* Holidays and Saturdays. Colour is not the only signal — these days are also
    named as holidays in the list below the grid and in each cell's aria-label,
-   so the information survives without it. */
+   so the information survives without it.
+
+   --bida rather than the accent, here and on the weekday header and the day
+   numbers in the list below: on a patro a red date *means* the day is off, and
+   that is the one colour on this screen that has to survive Material You
+   repainting the accent from the wallpaper. See --bida in index.css. */
 .cal__cell--off .cal__bs {
-  color: var(--accent-text);
+  color: var(--bida);
 }
 .cal__cell--off {
-  background: color-mix(in srgb, var(--accent-bg) 55%, var(--surface));
+  background: color-mix(in srgb, var(--bida-bg) 55%, var(--surface));
 }
 
 .cal__dot {
@@ -378,7 +383,7 @@
   font-family: var(--display-dev);
   font-size: 1rem;
   font-weight: 700;
-  color: var(--accent-text);
+  color: var(--bida);
   text-align: right;
 }
 .cal__holiday-name {

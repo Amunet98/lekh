@@ -10,7 +10,16 @@
      padding moves off .page and onto the individual pieces of content that
      still want it — and the two have to be the same number or a full-bleed
      grid and the caption under it stop sharing a left edge. */
-  padding: var(--sp-5) var(--gutter) clamp(var(--sp-5), 4vw, var(--sp-7));
+  /* The bottom pays the safe-area inset as well as its own padding. Only the
+     phone block below used to, on the reasoning that the inset is a phone
+     thing — but the layout that applies above 767px is reached by a phone the
+     moment it is turned on its side, where a 933x420 viewport is wide enough
+     for the desktop rule and still has a gesture bar across the bottom of it.
+     Measured on a Nothing Phone in landscape: the editor toolbar and the last
+     row of the day grid sat underneath the pill. Zero on a desktop, where
+     env() resolves to 0px and nothing about this changes. */
+  padding: var(--sp-5) var(--gutter)
+    calc(clamp(var(--sp-5), 4vw, var(--sp-7)) + env(safe-area-inset-bottom, 0px));
 }
 
 /* App bar — one strip carrying brand, section nav and actions.
