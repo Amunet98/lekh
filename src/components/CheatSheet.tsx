@@ -13,12 +13,20 @@ import {
 import './CheatSheet.css'
 
 interface CheatSheetProps {
-  onInsert: (ch: string) => void
+  /* The romanized key rides along with the glyph purely so the panel can say
+     what was inserted out loud — see the live region in CheatSheetPanel. */
+  onInsert: (ch: string, roman: string) => void
   /** Trimmed, lower-cased search text. Empty string means "show everything". */
   query: string
 }
 
-function Cells({ group, onInsert }: { group: CheatGroup; onInsert: (ch: string) => void }) {
+function Cells({
+  group,
+  onInsert,
+}: {
+  group: CheatGroup
+  onInsert: (ch: string, roman: string) => void
+}) {
   // The grid draws its lines as a 1px gap over a border-coloured background,
   // so any slot left over in the final row showed up as a solid block —
   // thirteen vowels in a four-column grid leave three, and it reads as a
@@ -33,7 +41,7 @@ function Cells({ group, onInsert }: { group: CheatGroup; onInsert: (ch: string) 
           key={cell.romanized + cell.glyph}
           type="button"
           className="cell"
-          onClick={() => onInsert(cell.insert)}
+          onClick={() => onInsert(cell.insert, cell.romanized)}
           title={`Insert ${cell.glyph}`}
         >
           <span className="g dev">{cell.glyph}</span>

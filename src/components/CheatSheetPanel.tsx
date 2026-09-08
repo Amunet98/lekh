@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { CheatSheet } from './CheatSheet'
 import { useSheetDrag } from '../hooks/useSheetDrag'
 import './SheetGrabber.css'
@@ -20,6 +20,12 @@ interface CheatSheetPanelProps {
    left edge is what says the run continues past it. */
 const ECHO_TAIL = 120
 
+/* A cell's label can offer two spellings — "ph · f", "ksh · x", "w · v". One
+   is what you say out loud; the pair read aloud is a riddle. */
+function firstKey(roman: string): string {
+  return roman.split('·')[0].trim()
+}
+
 /* The script reference, on demand.
  *
  * It used to be a permanently-expanded right rail holding seven tables and
@@ -37,6 +43,35 @@ export function CheatSheetPanel({ open, onClose, onInsert, text }: CheatSheetPan
   /* Newlines flattened to a space: this is one line by construction, and a
      `pre` run containing them would otherwise render the tail as a blank. */
   const tail = useMemo(() => text.replace(/\n+/g, ' ').slice(-ECHO_TAIL), [text])
+
+  /* What the echo strip shows, said out loud.
+   *
+   * The strip is aria-hidden — it mirrors the textarea, and a screen reader
+   * reading both says every word twice. That left the tap itself with no
+   * spoken answer at all, which is the same gap the strip was built to close,
+   * just for a different reader. So the insert announces itself here instead.
+   *
+   * The romanized key is in it because a Devanagari glyph is silent under a
+   * voice with no Nepali in it: "क k inserted" is read as "k inserted" by an
+   * English voice and in full by a Nepali one, where a bare क would be read as
+   * nothing at all by the first. The glyph carries lang="ne" so a voice that
+   * *can* pronounce it does. */
+  const [announcement, setAnnouncement] = useState<{ glyph: string; roman: string; alt: boolean }>({
+    glyph: '',
+    roman: '',
+    alt: false,
+  })
+  const announceInsert = useCallback(
+    (ch: string, roman: string) => {
+      onInsert(ch)
+      /* Tapping the same cell twice writes the same string, and a live region
+         whose text has not changed is a live region that says nothing — so the
+         repeat would be the one insert that goes unannounced. `alt` flips a
+         zero-width space on the end: different text content, identical speech. */
+      setAnnouncement((prev) => ({ glyph: ch, roman: firstKey(roman), alt: !prev.alt }))
+    },
+    [onInsert],
+  )
 
   // Drag-to-dismiss for the mobile bottom sheet — see useSheetDrag. Hidden on
   // the desktop slide-over (.cheat-panel__grabber's own media query), which
@@ -94,6 +129,7 @@ export function CheatSheetPanel({ open, onClose, onInsert, text }: CheatSheetPan
        * had already visually closed. */
       onClose={() => {
         setQuery('')
+        setAnnouncement({ glyph: '', roman: '', alt: false })
         drag.reset()
         searchRef.current?.blur()
         onClose()
@@ -186,6 +222,18 @@ export function CheatSheetPanel({ open, onClose, onInsert, text }: CheatSheetPan
           <span className="cheat-panel__echo-caret" />
         </div>
 
+        {/* Paired with the strip above: the strip is the seen answer, this is
+            the heard one. role="status" is an implicit aria-live="polite", so
+            an insert never interrupts what is already being read. */}
+        <p className="sr-only" role="status">
+          {announcement.glyph && (
+            <>
+              <span lang="ne">{announcement.glyph}</span> {announcement.roman} inserted
+              {announcement.alt ? '\u200B' : ''}
+            </>
+          )}
+        </p>
+
         <div className="cheat-panel__search">
           <svg
             viewBox="0 0 24 24"
@@ -241,7 +289,7 @@ export function CheatSheetPanel({ open, onClose, onInsert, text }: CheatSheetPan
         </div>
 
         <div className="cheat-panel__body">
-          <CheatSheet onInsert={onInsert} query={query.trim().toLowerCase()} />
+          <CheatSheet onInsert={announceInsert} query={query.trim().toLowerCase()} />
         </div>
       </div>
     </dialog>
