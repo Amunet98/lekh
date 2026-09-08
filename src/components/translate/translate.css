@@ -379,10 +379,33 @@
   font-family: var(--sans);
 }
 
-.translate-actions {
+/* The run button, a grid item of .translate-panes. See TranslateRun.tsx.
+ *
+ * Two columns: it takes a full-width row of its own, and `order` is what puts
+ * that row *after* both panes even though it sits between them in the DOM —
+ * side by side, the button is already beside the input, and a strip between
+ * the two columns would only split the pair.
+ *
+ * One column: the order goes away and the DOM order is the reading order, so
+ * it lands directly under the text it acts on and above the box it fills. */
+.translate-run {
+  grid-column: 1 / -1;
+  order: 1;
   display: flex;
   align-items: center;
   gap: var(--sp-3);
+}
+@media (max-width: 767px) {
+  .translate-run {
+    order: 0;
+  }
+  /* Full width, because on a phone it is the only thing being asked for on
+     this row and a content-width pill in the corner does not read as the
+     answer to "now what". The desktop row keeps the pill: there it sits under
+     a 2-column grid and a button as wide as both panes is a banner. */
+  .translate-run .btn--primary {
+    flex: 1;
+  }
 }
 /* The one primary action on these screens, in the accent fill. */
 .btn--primary {

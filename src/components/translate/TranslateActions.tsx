@@ -8,19 +8,6 @@ interface TranslateActionsProps {
 export function TranslateActions({ t }: TranslateActionsProps) {
   return (
     <>
-      {t.mode === 'ondevice' && (
-        <div className="translate-actions">
-          <button
-            type="button"
-            className="btn btn--primary"
-            onClick={() => void t.runOnDevice()}
-            disabled={t.status === 'loading' || !t.sourceText.trim()}
-          >
-            Translate on-device
-          </button>
-        </div>
-      )}
-
       {/* Behind a disclosure rather than printed in full under every screen.
           It was a two-line monospace paragraph sitting permanently below the
           panes — the single largest block of text on Translate, for something

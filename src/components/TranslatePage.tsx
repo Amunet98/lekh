@@ -5,6 +5,7 @@ import { DirectionToggle, TranslateControls } from './translate/TranslateControl
 import { TranslationOutput } from './translate/TranslationOutput'
 import { fill } from './translate/progressFill'
 import { TranslateActions } from './translate/TranslateActions'
+import { TranslateRun } from './translate/TranslateRun'
 import { DownloadActions } from './DownloadActions'
 import { useOnline } from '../hooks/useOnline'
 import { SectionIcon } from './SectionIcons'
@@ -292,6 +293,7 @@ export function TranslatePage({ t }: TranslatePageProps) {
               )}
           </div>
         </div>
+        <TranslateRun t={t} />
         <div className="translate-pane">
           {/* Wrapped in the same header class as the source pane (even with
               no buttons of its own) so both headers reserve the same height
