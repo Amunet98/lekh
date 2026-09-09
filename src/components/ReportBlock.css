@@ -1,0 +1,120 @@
+.report {
+  margin-top: 8px;
+}
+
+/* The default disclosure triangle, removed both ways — WebKit still uses the
+   pseudo-element, everything else honours display on the summary itself. */
+.report__summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.report__summary::-webkit-details-marker {
+  display: none;
+}
+
+.report__chevron {
+  flex: none;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1;
+  transition: transform 160ms ease;
+}
+
+.report[open] .report__chevron {
+  transform: rotate(180deg);
+}
+
+/* Reduced motion turns the rotation off rather than slowing it: the chevron's
+   direction is the state, and arriving at it instantly is still correct. */
+@media (prefers-reduced-motion: reduce) {
+  .report__chevron {
+    transition: none;
+  }
+}
+
+/* .about centres its column, which is right for a wordmark and a tagline and
+   wrong for everything in here: a monospace report, a pair of buttons and a
+   line naming an address all read from the left. */
+.report__panel {
+  padding: 12px 2px 4px;
+  text-align: left;
+}
+
+/* rows=9 sets the box height off line-height alone, which leaves the padding
+   to clip a tenth line in half at the bottom — a report that looks truncated
+   rather than scrollable. Scrolled by the reader either way; this just ends
+   the visible part on a whole line. */
+.report__details {
+  width: 100%;
+  padding-bottom: 0;
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-field);
+  background: var(--surface-2);
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.report__actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.report__button {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--border-field);
+  border-radius: var(--radius-field);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9rem;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.report__button--primary {
+  border-color: transparent;
+  background: var(--accent);
+  color: #fff;
+}
+
+@media (hover: hover) {
+  .report__button:hover {
+    border-color: var(--text);
+  }
+  .report__button--primary:hover {
+    border-color: transparent;
+    filter: brightness(1.06);
+  }
+}
+
+.report__button:active {
+  transform: scale(0.985);
+}
+
+/* Not centred, and kept to the text column rather than the pane's full width:
+   it is a caption under the buttons, not a closing statement. */
+.report__hint {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+/* The address has to survive being read off a screen, so it does not wrap
+   mid-word the way the surrounding prose may. */
+.report__address {
+  white-space: nowrap;
+}

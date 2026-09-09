@@ -4,6 +4,9 @@ import { LekhMark } from './LekhMark'
 import { KEYWORDS } from '../data/keywords'
 import { useHasAndroidApp } from '../hooks/useHasAndroidApp'
 import { APK_URL, isAndroid } from '../lib/androidApp'
+import { versionLine } from '../lib/report'
+import { useNativeInfo } from '../hooks/useNativeInfo'
+import { ReportBlock } from './ReportBlock'
 import { ScreenBar } from './Screen'
 
 import './sheet.css'
@@ -32,6 +35,7 @@ const SECTIONS: { id: Tab; label: string; rest: string; icon: Tab }[] = [
 export function AboutScreen({ onDismiss, onGoTo }: AboutScreenProps) {
   const android = isAndroid()
   const hasApp = useHasAndroidApp()
+  const native = useNativeInfo()
 
   return (
     <>
@@ -118,6 +122,11 @@ export function AboutScreen({ onDismiss, onGoTo }: AboutScreenProps) {
             </a>
           )}
 
+          {/* Above Privacy rather than below it, because these two rows are not
+              read at the same rate: the policy is read once, if ever, and this
+              is the row a tester is looking for. */}
+          <ReportBlock />
+
           {/* A row, not a footer link.
             
               This lived in a footer for exactly one version. A footer is a
@@ -175,9 +184,15 @@ export function AboutScreen({ onDismiss, onGoTo }: AboutScreenProps) {
               numbers are correct, they're just answering different questions,
               and an unlabelled "v1.8.20" here next to a Play Store listing that
               still says 1.8.18 reads as a bug instead of the two intentionally
-              different things they are. */}
+              different things they are.
+
+              Inside the app both numbers are now shown, which is the whole
+              answer rather than half of it: the web build says what code is
+              running and the app version says what shell it is running in, and
+              a bug can be in either. In a browser there is no shell and the
+              line is unchanged. */}
           <p className="about__meta">
-            Lekh Patro · web build {__APP_VERSION__} · ©{' '}
+            Lekh Patro · {versionLine(native)} · ©{' '}
             {new Date().getFullYear()}
           </p>
         </div>

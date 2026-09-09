@@ -8,6 +8,8 @@ import { setDynamicColorEnabled } from '../lib/dynamicColor'
 import { setHapticsEnabled, tick } from '../lib/haptics'
 import { clearHeavyCaches, estimateHeavyCaches, formatBytes } from '../lib/storage'
 import { useToast } from '../hooks/useToast'
+import { useNativeInfo } from '../hooks/useNativeInfo'
+import { versionLine } from '../lib/report'
 import type { Theme } from '../lib/theme'
 import type { EditorSize } from '../lib/prefs'
 
@@ -143,6 +145,7 @@ export function SettingsScreen({ open, onDismiss, onOpenAbout }: SettingsScreenP
      and fire the listeners twice for one tap. */
   const [amoled] = usePref('amoled')
   const dynamicColor = useDynamicColor()
+  const native = useNativeInfo()
 
   /* Recomputed on render rather than stored: 'auto' resolves against the OS,
      and watchSystemTheme re-applies the theme when that changes, which lands
@@ -378,7 +381,9 @@ export function SettingsScreen({ open, onDismiss, onOpenAbout }: SettingsScreenP
             </span>
             <span className="sheet-row__text">
               <b>About Lekh Patro</b>
-              <span className="sheet-row__rest">web build {__APP_VERSION__}</span>
+              {/* Both numbers inside the app, one in a browser — see the
+                  note on the same line in AboutScreen. */}
+              <span className="sheet-row__rest">{versionLine(native)}</span>
             </span>
             <span className="sheet-row__go" aria-hidden="true">
               →

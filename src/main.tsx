@@ -5,8 +5,11 @@ import { bootDynamicColor } from './lib/dynamicColor'
 import { applyAmoled, applyTheme, getAmoled, getInitialTheme, watchSystemTheme } from './lib/theme'
 import { setHapticsEnabled } from './lib/haptics'
 import { installNativeBackHandler } from './lib/nativeBack'
+import { watchForErrors } from './lib/lastError'
+import { loadNativeInfo } from './lib/nativeInfo'
 import { getPref } from './lib/prefs'
 import { ToastProvider } from './components/Toast'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import App from './App.tsx'
 
 /* Before the first render, and deliberately not inside a component. This
@@ -14,6 +17,12 @@ import App from './App.tsx'
  * live one is fetched from the OS once App mounts. Doing it in an effect
  * instead would put a frame of flag crimson in front of every launch. */
 bootDynamicColor()
+
+/* First, and before anything else can throw. The boundary below only sees what
+   React throws during render; these two listeners are what catch the rest —
+   an OCR worker, a translation fetch, the Capacitor bridge. Both feed the one
+   buffer that About's "Report a problem" hands over. */
+watchForErrors()
 
 /* Both of these used to be a component's job and neither should have been.
  *
@@ -37,12 +46,21 @@ setHapticsEnabled(getPref('haptics'))
 /* Android only, and the thing that makes useAppNavigation's history model
    reachable at all inside the app — see nativeBack.ts. */
 installNativeBackHandler()
+/* Which shell this web code is running inside, cached so the version line can
+   render synchronously. A no-op in a browser. */
+void loadNativeInfo()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    {/* Outside App so anything in the tree, App included, can reach it. */}
-    <ToastProvider>
-      <App />
-    </ToastProvider>
+    {/* Outermost, above the provider as well as the app: server.url means a
+        render that throws takes out the installed app on every phone at once,
+        not one browser tab, so the thing that catches it cannot itself be
+        inside the tree that failed. */}
+    <ErrorBoundary>
+      {/* Outside App so anything in the tree, App included, can reach it. */}
+      <ToastProvider>
+        <App />
+      </ToastProvider>
+    </ErrorBoundary>
   </StrictMode>,
 )

@@ -1,0 +1,94 @@
+/* Deliberately self-contained: this screen renders when the app has already
+   failed, so it leans on nothing but the tokens :root already carries. */
+.crash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  overflow-y: auto;
+  background: var(--bg, #fafafb);
+  color: var(--text, #4a5162);
+}
+
+.crash__card {
+  width: 100%;
+  max-width: 44ch;
+  padding: 22px;
+  border: 1px solid var(--border, #dde1e9);
+  border-radius: var(--radius-card, 14px);
+  background: var(--surface, #fff);
+}
+
+.crash__title {
+  margin: 0 0 10px;
+  font-size: 1.15rem;
+  color: var(--text-h, #141824);
+}
+
+.crash__body {
+  margin: 0 0 16px;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.crash__details {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid var(--border, #dde1e9);
+  border-radius: var(--radius-field, 10px);
+  background: var(--surface-2, #f1f3f7);
+  color: var(--muted, #646c7e);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.crash__actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.crash__button {
+  flex: 1;
+  /* The 44px touch floor the rest of the app holds to. */
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--border-field, #7c87a0);
+  border-radius: var(--radius-field, 10px);
+  background: var(--surface, #fff);
+  color: var(--text, #4a5162);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  /* Without this a press paints a muddy grey square over the button on
+     Android — see the tap-highlight rule the rest of the app carries. */
+  -webkit-tap-highlight-color: transparent;
+}
+
+.crash__button--primary {
+  border-color: transparent;
+  background: var(--accent, #c8102e);
+  color: #fff;
+}
+
+/* Hover only where there is a real pointer: on a touchscreen a bare :hover
+   sticks after the tap and leaves the button in its pressed colour. */
+@media (hover: hover) {
+  .crash__button:hover {
+    border-color: var(--text, #4a5162);
+  }
+  .crash__button--primary:hover {
+    border-color: transparent;
+    filter: brightness(1.06);
+  }
+}
+
+.crash__button:active {
+  transform: scale(0.985);
+}
