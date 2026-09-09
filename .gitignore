@@ -25,5 +25,6 @@ dist-ssr
 .vercel
 
 # private session notes (not for the public repo)
+lekh-alpha.md
 lekh-chat.md
 lekh-play.md
