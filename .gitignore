@@ -24,7 +24,8 @@ dist-ssr
 *.sw?
 .vercel
 
-# private session notes (not for the public repo)
+# for Claude to read, not for the public repo
+CLAUDE.md
 lekh-alpha.md
 lekh-chat.md
 lekh-play.md
