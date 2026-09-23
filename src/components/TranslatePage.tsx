@@ -1,7 +1,7 @@
 import { useRef } from 'react'
 import type { TranslateState } from '../hooks/useTranslateState'
 import { useUploadState, FILE_ACCEPT } from '../hooks/useUploadState'
-import { DirectionToggle, TranslateControls } from './translate/TranslateControls'
+import { DirectionToggle } from './translate/TranslateControls'
 import { TranslationOutput } from './translate/TranslationOutput'
 import { fill } from './translate/progressFill'
 import { TranslateActions } from './translate/TranslateActions'
@@ -62,19 +62,20 @@ export function TranslatePage({ t }: TranslatePageProps) {
           above the headings inside it. */}
       <h1 className="sr-only">Translate text</h1>
 
-      {/* One toolbar. These were three stacked rows — language pickers, then
-          engine, then the panes — which pushed the actual text fields a third
-          of the way down the page for two controls most people set once. */}
+      {/* The language row, and nothing else.
+          It was three stacked rows once — pickers, then engine, then the panes
+          — then two. The engine segment has moved to Settings (see
+          EngineStatus): it is a setting set once or never, and at full width
+          on a phone it was the second-loudest thing on a screen whose job is
+          to show you a translation. What is left is the one control that
+          changes per use. */}
       <div className="translate-toolbar">
         <DirectionToggle t={t} />
-        <TranslateControls t={t} />
       </div>
 
       {/* Right under the toolbar, not at the foot of the page below both
-          panes. This fires the moment someone taps the On-device pill, and a
-          phone screen doesn't show the bottom of the page without scrolling
-          — buried there, the tap looked like it did nothing, not like it was
-          refused. */}
+          panes. A phone screen doesn't show the bottom of the page without
+          scrolling — buried there, an offline message would go unread. */}
       {/* Said before the attempt, not after it. Online mode's debounced
           request would otherwise fail on its own and report a service being
           unavailable, which names the wrong problem — the service is fine,
@@ -116,8 +117,16 @@ export function TranslatePage({ t }: TranslatePageProps) {
           onDrop={upload.onDrop}
         >
           <div className="translate-pane__header">
-            <label className="translate-pane__label" htmlFor="translate-source">
-              {t.sourceLang.label}
+            {/* The language in its own script — see `native` in
+                languages.ts. The header names the text below it, and that
+                text is Devanagari, so a Latin label on top of it was the one
+                thing on the pane written for somebody else. */}
+            <label
+              className="translate-pane__label"
+              htmlFor="translate-source"
+              lang={t.sourceLang.code}
+            >
+              {t.sourceLang.native}
             </label>
             <div className="translate-pane__header-actions">
               <button
@@ -301,7 +310,9 @@ export function TranslatePage({ t }: TranslatePageProps) {
               textarea's, since its header was only ever as tall as a bare
               label. */}
           <div className="translate-pane__header">
-            <span className="translate-pane__label">{t.targetLang.label}</span>
+            <span className="translate-pane__label" lang={t.targetLang.code}>
+              {t.targetLang.native}
+            </span>
           </div>
           <TranslationOutput t={t} />
         </div>

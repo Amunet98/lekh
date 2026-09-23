@@ -15,6 +15,7 @@ import { LekhMark } from './components/LekhMark'
 import { TypePage } from './components/TypePage'
 import { EDITOR_ID } from './components/Editor'
 import { TranslatePage } from './components/TranslatePage'
+import { ModelConfirmSheet } from './components/translate/TranslateControls'
 import { CalendarPage } from './components/calendar/CalendarPage'
 import { InstallButton } from './components/InstallButton'
 import { BootScreen } from './components/BootScreen'
@@ -186,12 +187,20 @@ function App() {
     },
   })
 
-  /* On :root rather than on the editor, because two components read it — the
-     Type editor and both translation panes — and a custom property is how one
-     setting reaches both without either of them knowing the setting exists. */
+  /* On :root, because everything reads it. The property scales the root font
+     size and every size in the app is a rem against that — see --ui-scale in
+     index.css for why the setting stopped being a multiplier on three
+     hand-picked declarations.
+
+     The attribute carries the same fact in a form a media query cannot express:
+     you cannot branch on the *value* of a custom property in a selector, and
+     one rule needs to (the editor toolbar sheds its word count at the wider
+     settings rather than wrapping — see .actions in Editor.css). Written from
+     the same effect so the two can never disagree. */
   useEffect(() => {
     const scale = editorSize === 'xl' ? '1.3' : editorSize === 'lg' ? '1.15' : '1'
-    document.documentElement.style.setProperty('--text-scale', scale)
+    document.documentElement.style.setProperty('--ui-scale', scale)
+    document.documentElement.dataset.uiScale = editorSize
   }, [editorSize])
 
   /* Alt+1..3 switch tabs, matching TAB_ORDER's left-to-right order. Alt-digit isn't
@@ -418,6 +427,8 @@ function App() {
           open={sheet === 'settings' || sheet === 'about'}
           onDismiss={closeSheet}
           onOpenAbout={() => openSheet('about', { stack: true })}
+          onGoTo={goToTab}
+          t={translateState}
         />
         <AboutScreen onDismiss={closeSheet} onGoTo={goToTab} />
       </Screen>
@@ -433,6 +444,18 @@ function App() {
           this stylesheet could name, and marks the rest of the document inert.
           The toast rendered dimmed behind the sheet with both buttons dead —
           exactly the failure this prop was added for. */}
+      {/* The ~900MB question, mounted once for the whole app because it can be
+          asked from three places — the Settings segment, the offline banner
+          and the error banner — and the answer has to appear wherever it was
+          asked. See ModelConfirmSheet for the bug that made this necessary.
+
+          Not suppressed by `sheet`, unlike the two notices below it: the
+          Settings screen is one of the callers, so suppressing it while a
+          sheet is open would break the one path that used to work. It is a
+          showModal() dialog, so it lands above the settings screen rather
+          than behind it. */}
+      <ModelConfirmSheet t={translateState} />
+
       <UpdatePrompt suppressed={booting || sheet !== null} />
       {/* Renders only inside an installed Android *web* app — the one thing
           Chrome's ⋮ menu can still produce and the manifest cannot prevent.

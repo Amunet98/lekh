@@ -62,14 +62,29 @@
   gap: var(--sp-1);
 }
 
+/* The pane's name, in the script of the pane.
+ *
+ * Was 0.7rem uppercase in --muted with 0.1em of tracking — the smallest,
+ * faintest text on the screen, doing the one job nothing else did: saying
+ * which half is which. Uppercase also cannot be applied to Devanagari, which
+ * has no cases, so `नेपाली` would have been the only label on the screen the
+ * rule did nothing to.
+ *
+ * So it is set as a name rather than as an eyebrow: a step larger, the text
+ * colour rather than the muted one, no forced case and no tracking. */
 .translate-pane__label {
-  font-family: var(--sans);
-  font-size: 0.7rem;
+  font-family: var(--display);
+  font-size: 0.92rem;
   font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
+  letter-spacing: -0.01em;
+  color: var(--text);
   padding: 0 0.15rem;
+}
+/* Devanagari sits lower in its em box and runs taller than Latin at the same
+   size, so a row holding both needs the leading or the two labels bounce
+   against their neighbours by a pixel or two as the direction is swapped. */
+.translate-pane__label:lang(ne) {
+  line-height: 1.5;
 }
 
 .translate-pane__header {
@@ -81,7 +96,7 @@
      whether or not it's actually holding any buttons — the target pane's
      header has none, and without this its box started higher than the
      source pane's, whose header carries the upload/clear buttons. */
-  min-height: 36px;
+  min-height: 2.25rem;
 }
 
 .translate-pane__header-actions {
@@ -94,13 +109,20 @@
    actually tells someone this is an upload control. A light accent tint
    (the same treatment .btn--icon uses) keeps it visually distinct from the
    plain "clear" pill beside it, just as text-and-icon rather than icon-only. */
+/* Secondary, not accent-tinted. upload and the camera beside it were the only
+   accent-filled things on this screen, which put the loudest pair of controls
+   on the page inside a label row — louder than the language pickers above them
+   and louder than the result below. They inherit .btn now (--surface-2 on a
+   --border-field edge), which is plenty findable and stops them competing with
+   copy, the one action this screen exists to produce.
+
+   Both are kept. The file picker does offer camera on most phones, so the
+   second button only saves a tap — but reading a photo is a headline feature
+   here and dropping its shortcut is a product call, not a styling one. */
 .pane-upload-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  color: var(--accent-text);
-  border-color: var(--accent-border);
-  background: var(--accent-bg);
 }
 @media (hover: hover) {
   .pane-upload-btn:hover:not(:disabled) {
@@ -110,17 +132,14 @@
   }
 }
 
-/* A second, icon-only pill next to "upload" — same accent tint, square
-   instead of padded-with-a-label since a camera glyph reads on its own. */
+/* A second, icon-only button next to "upload" — square instead of
+   padded-with-a-label, since a camera glyph reads on its own. */
 .pane-camera-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 36px;
   padding: 0;
-  color: var(--accent-text);
-  border-color: var(--accent-border);
-  background: var(--accent-bg);
 }
 @media (hover: hover) {
   .pane-camera-btn:hover:not(:disabled) {

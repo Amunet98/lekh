@@ -96,7 +96,13 @@ export function TranslationOutput({ t }: { t: TranslateState }) {
         )}
       </div>
       <div className="translate-output__actions">
-        <button type="button" className="btn" disabled={!t.translated} onClick={() => void t.copy()}>
+        {/* The primary action of this screen — see .btn--primary in Editor.css. */}
+        <button
+          type="button"
+          className="btn btn--primary"
+          disabled={!t.translated}
+          onClick={() => void t.copy()}
+        >
           {t.copied ? 'copied' : 'copy'}
         </button>
         {SHARE_AVAILABLE && (

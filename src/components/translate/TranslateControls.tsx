@@ -4,7 +4,6 @@ import { ENGLISH, NEPALI, type Language } from '../../lib/translation/languages'
 import { useMediaQuery } from '../../hooks/useMediaQuery'
 import { DOCK_QUERY } from '../../hooks/useDockDetached'
 import { ActionSheet } from '../ActionSheet'
-import { tick } from '../../lib/haptics'
 import './translate.css'
 
 const LANGUAGES: Language[] = [NEPALI, ENGLISH]
@@ -105,6 +104,15 @@ function LangPicker({ label, current, isOpen, asSheet, onToggle, onClose, onSele
           options={LANGUAGES.map((lang) => ({
             id: lang.code,
             label: lang.label,
+            /* The script, not a flag. A language is not a country — Nepali is
+               written in Devanagari whoever is speaking it, and a flag in a
+               language picker is the classic way of telling some of your users
+               this app is not for them. */
+            icon: (
+              <span className="action-sheet__script" aria-hidden="true">
+                {lang.script}
+              </span>
+            ),
             selected: lang.code === current.code,
             onSelect: () => onSelect(lang),
           }))}
@@ -184,48 +192,28 @@ export function DirectionToggle({ t }: { t: TranslateState }) {
   )
 }
 
-export function TranslateControls({ t }: { t: TranslateState }) {
+/* The on-device model's download status and the trigger for it.
+ *
+ * The ~900MB confirmation used to live here too and no longer does — see
+ * ModelConfirmSheet at the bottom of this file for why it had to leave.
+ *
+ * This used to sit in the Translate toolbar with the engine segment above it,
+ * where the segment was the second-heaviest thing on the screen and the whole
+ * page opened on three stacked rows of chrome before the text field. It is a
+ * setting people set once, or never, and it now lives in Settings beside
+ * "Downloaded extras", which is the row that measures and clears exactly the
+ * thing this downloads. The segment itself is Settings' own <Segmented>, so it
+ * matches Theme and Text size rather than being the fourth shape of
+ * pick-one-of-N in the app.
+ *
+ * The page still says which engine is live — see the status line under the
+ * output, which offers the switch as well — and the offline banner still
+ * offers it inline, because that is the one moment the choice genuinely
+ * belongs on the page.
+ */
+export function EngineStatus({ t }: { t: TranslateState }) {
   return (
     <>
-      {/* A segmented control, like every other pick-one-of-N in the app: the
-          editor's EN/नेपाली, and Theme and Text size in Settings. These two
-          were loose pills, which said "two independent buttons" about a
-          setting that has exactly one live value at a time — and made this the
-          only such control in the app not speaking the shared shape.
-
-          aria-pressed rather than a --active class doing double duty: the
-          state is then something assistive tech is told rather than something
-          only the fill implies, and the fill can key off the attribute (see
-          .mode-seg__opt[aria-pressed='true']). Same as .lang-seg. */}
-      <div className="translate-mode mode-seg" role="group" aria-label="Translation engine">
-        <button
-          type="button"
-          className="mode-seg__opt"
-          aria-pressed={t.mode === 'online'}
-          onClick={() => {
-            // Pressing the live option is a deliberate no-op, matching
-            // .lang-seg and the Settings segmented control.
-            if (t.mode === 'online') return
-            tick()
-            t.switchToOnline()
-          }}
-        >
-          Online
-        </button>
-        <button
-          type="button"
-          className="mode-seg__opt"
-          aria-pressed={t.mode === 'ondevice'}
-          onClick={() => {
-            if (t.mode === 'ondevice') return
-            tick()
-            t.requestOnDevice()
-          }}
-        >
-          On-device
-        </button>
-      </div>
-
       {t.mode === 'ondevice' && (
         <div className="model-status">
           <p className="sugg-hint">
@@ -254,29 +242,72 @@ export function TranslateControls({ t }: { t: TranslateState }) {
           )}
         </div>
       )}
-
-      {t.showConfirm && (
-        <div className="confirm-banner" role="dialog" aria-label="Download on-device model">
-          <p>
-            The on-device model is about ~900MB and downloads once (cached on your device
-            afterward). Recommended on WiFi — continue?
-          </p>
-          {t.deviceMemoryTier === 'warn' && (
-            <p>
-              Your device reports limited memory — on-device translation may run slowly or fail
-              partway through. Online mode is more reliable here.
-            </p>
-          )}
-          <div className="confirm-actions">
-            <button type="button" className="btn" onClick={t.confirmDownload}>
-              Download &amp; enable
-            </button>
-            <button type="button" className="btn" onClick={t.cancelConfirm}>
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
     </>
+  )
+}
+
+/* The ~900MB confirmation, app-level, because the question can be asked from
+ * three different places and the answer has to appear at whichever one asked.
+ *
+ * It used to be an inline block inside EngineStatus, which was fine while the
+ * engine controls lived on the Translate page. Moving them into Settings broke
+ * it in a way that only showed up on a device: requestOnDevice() is also
+ * called by the offline banner and the error banner *on the Translate page*,
+ * and those set showConfirm on state whose only renderer was now inside a
+ * closed <dialog>. Measured on a first-run profile — cleared flags, forced
+ * offline, tapped "Switch to on-device" — the banner mounted at 0x0 inside
+ * section.screen__pane, the mode stayed Online, and the tap did nothing
+ * visible at all. The button that exists precisely for being offline was a
+ * dead end.
+ *
+ * So it is a sheet owned by App, next to the other things that have to outrank
+ * whatever is on screen. showModal() puts it in the top layer, which is what
+ * lets one mount serve all three callers — including the Settings segment,
+ * where it now opens *above* the settings screen rather than inside it.
+ *
+ * ActionSheet rather than a fourth dialog shape of its own: this is a question
+ * with two answers, which is what that component already is. The prose goes in
+ * as children, above the options.
+ *
+ * (The same "two mounts of one thing, and the wrong one wins" shape as the
+ * print sheet, which App.tsx explains at #print-sheet. Worth recognising: a
+ * component that renders a response to a global request does not belong inside
+ * whichever screen happened to raise it.)
+ */
+export function ModelConfirmSheet({ t }: { t: TranslateState }) {
+  return (
+    <ActionSheet
+      open={t.showConfirm}
+      onClose={t.cancelConfirm}
+      label="Download on-device model"
+      options={[
+        {
+          id: 'download',
+          label: 'Download & enable',
+          /* No hint on this one. The size is already the second sentence of
+             the paragraph above, and repeating it inside the pill pushed the
+             button to two lines and 70px tall for a fact the reader has just
+             been given. */
+          primary: true,
+          onSelect: t.confirmDownload,
+        },
+        { id: 'cancel', label: 'Not now', onSelect: t.cancelConfirm },
+      ]}
+    >
+      {/* __text, not __hint. The hint class is the second line *inside* a row
+          and carries no padding of its own, so as a top-level child it put
+          this paragraph flush against both screen edges — visible in the first
+          build of this sheet on the phone. */}
+      <p className="action-sheet__text">
+        The on-device model is about ~900MB and downloads once (cached on your device
+        afterward). Recommended on WiFi.
+      </p>
+      {t.deviceMemoryTier === 'warn' && (
+        <p className="action-sheet__text">
+          Your device reports limited memory — on-device translation may run slowly or fail
+          partway through. Online mode is more reliable here.
+        </p>
+      )}
+    </ActionSheet>
   )
 }
