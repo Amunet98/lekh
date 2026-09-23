@@ -111,6 +111,48 @@ interface CalendarPageProps {
   onCloseConverter: () => void
 }
 
+/* Who a holiday is actually for, set as the aside it is.
+ *
+ * A third of this month's list reads like
+ * `गाईजात्रा (सापारू)(काठमाडौं उपत्यकालाई र देशभरका नेवार समुदायका लागि मात्र बिदा)`
+ * — a festival name followed by an eligibility note in parentheses, up to 94
+ * characters of it, all at one weight. On a phone that is three wrapped lines
+ * of identical grey where the part being looked for (which festival is it?)
+ * is the first two words.
+ *
+ * The note is dimmed in place rather than moved, and that restraint is the
+ * whole design. These strings are not structured: the parenthetical lands
+ * mid-name as often as at the end (`गौरा पर्व(…)काय अष्टमी, कागेश्वर मेला`),
+ * a handful of entries carry two of them, and three run off the end of the
+ * string without ever closing one — upstream truncation that splitTopLevel in
+ * panchang.ts already documents. Lifting the note out to its own line would
+ * mean deciding which text is the name, and every rule for that is wrong on
+ * some row in this file. Changing only the weight cannot be wrong on any of
+ * them: the text stays whole, in its original order, and an unclosed paren
+ * simply never matches and renders exactly as it does today.
+ *
+ * Not aria-hidden, and not a title: it is part of the holiday's name to a
+ * screen reader, and dropping it would leave "गाईजात्रा" read out as a
+ * national holiday to the people least able to check. */
+function FestivalName({ name }: { name: string }) {
+  /* Captured group, so the parentheses come back in the array rather than
+     being thrown away with the separator. */
+  const parts = name.split(/(\([^)]*\))/)
+  return (
+    <>
+      {parts.map((part, i) =>
+        part.startsWith('(') && part.endsWith(')') ? (
+          <span key={i} className="cal__holiday-note">
+            {part}
+          </span>
+        ) : (
+          part
+        ),
+      )}
+    </>
+  )
+}
+
 export function CalendarPage({ converterOpen, onOpenConverter, onCloseConverter }: CalendarPageProps) {
   const toast = useToast()
   const today = useMemo(() => todayBs(), [])
@@ -262,6 +304,22 @@ export function CalendarPage({ converterOpen, onOpenConverter, onCloseConverter 
                 className={
                   'cal__cell' +
                   (off ? ' cal__cell--off' : '') +
+                  /* Separate from --off on purpose: --off makes the numeral
+                     red, weekends included, and --holiday adds the fill. See
+                     the note on .cal__cell--holiday for why the two stopped
+                     being one.
+
+                     Named holidays only — the same filter namedHolidays uses
+                     above, and for the same reason it gives: the source flags
+                     a lot of bare weekend days as holidays, inconsistently.
+                     While every off-day was tinted identically that did not
+                     show; now that the fill means "holiday" it has to mean the
+                     same thing the list underneath means, or the month tints
+                     days the list does not explain. Measured on भदौ २०८३: ६,
+                     २० and २७ were filled with nothing to look up. */
+                  (info?.isHoliday && info.festivals.length > 0
+                    ? ' cal__cell--holiday'
+                    : '') +
                   (isToday ? ' cal__cell--today' : '') +
                   (isSelected ? ' cal__cell--selected' : '')
                 }
@@ -297,8 +355,14 @@ export function CalendarPage({ converterOpen, onOpenConverter, onCloseConverter 
         {selectedInfo && selectedInfo.festivals.length > 0 ? (
           <>
             <ul className="cal__detail-fest">
+              {/* The same treatment the month list gets — see FestivalName.
+                  It was applied there and not here, so one screen dimmed the
+                  "only for X employees" clause and the other set it in full
+                  strength two inches away. */}
               {selectedInfo.festivals.map((f) => (
-                <li key={f} className="dev">{f}</li>
+                <li key={f} className="dev">
+                  <FestivalName name={f} />
+                </li>
               ))}
             </ul>
             <button
@@ -397,7 +461,14 @@ export function CalendarPage({ converterOpen, onOpenConverter, onCloseConverter 
               }}
                     >
                       <span className="cal__holiday-day dev">{toDevanagari(day)}</span>
-                      <span className="cal__holiday-name dev">{names.join(', ')}</span>
+                      <span className="cal__holiday-name dev">
+                        {names.map((name, i) => (
+                          <span key={name}>
+                            {i > 0 && ', '}
+                            <FestivalName name={name} />
+                          </span>
+                        ))}
+                      </span>
                     </button>
                   </li>
                 ))}

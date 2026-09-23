@@ -56,13 +56,16 @@
   gap: var(--sp-2);
   justify-self: end;
 }
-/* The converter is a tool, not navigation, so it does not borrow the month
-   arrows' colour on press — it takes the accent tint the app uses for
-   anything that opens a surface. */
+/* The converter is a tool, not navigation. Drawn as a third outlined circle
+   identical to the two month arrows, the three of them together outweighed the
+   month name they stand either side of — and two of them step through the
+   calendar while the third opens something else entirely. It keeps its 44px
+   target and loses the outline, so the bar reads as: last month, THIS MONTH,
+   next month, and a tool. */
 .cal__arrow--convert {
-  color: var(--accent-text);
-  border-color: var(--accent-border);
-  background: var(--accent-bg);
+  color: var(--muted);
+  border-color: transparent;
+  background: transparent;
 }
 .cal__title {
   display: flex;
@@ -73,7 +76,10 @@
 }
 .cal__month {
   font-family: var(--display-dev);
-  font-size: 1.15rem;
+  /* The largest thing in the bar, which it was not: at 1.15rem it sat between
+     three 44px circles that each had more visual weight than the answer to the
+     question the bar exists to answer. */
+  font-size: clamp(1.3rem, 1.1rem + 1.4vw, 1.55rem);
   font-weight: 700;
   line-height: 1.3;
   color: var(--text-h);
@@ -97,7 +103,7 @@
   flex: 0 0 auto;
   width: 44px;
   height: 44px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-field);
   border-radius: var(--radius-pill);
   background: var(--surface);
   color: var(--text);
@@ -118,7 +124,7 @@
 
 .cal__today-btn {
   align-self: center;
-  min-height: 36px;
+  min-height: 2.25rem;
   padding: 0 var(--sp-4);
   border: 1px solid var(--accent-border);
   background: var(--accent-bg);
@@ -133,28 +139,62 @@
   font-family: var(--display-dev);
 }
 
-/* The grid. Same construction as the cheat sheet: a 1px gap over a
-   border-coloured container, with each cell painting the surface on top, so
-   shared edges never double up. */
+/* The grid, with no grid in it.
+ *
+ * This used to be the classic 1px-gap-over-a-border-coloured-container trick:
+ * 35 cells each boxed on all four sides. It is a faithful way to draw a table
+ * and a patro is not a table — it is a month, and what the eye is hunting for
+ * in it is *state*: today, a holiday, the day you tapped. None of those can
+ * carry when every cell already has a box around it, and the whole screen
+ * reads as a spreadsheet rather than as a calendar.
+ *
+ * So the rules come out and the cells simply touch. They all paint --surface,
+ * so the grid is one continuous surface with the marked days drawn on it —
+ * which is what the ring, the tint and the fill below were designed to do all
+ * along. */
 .cal__grid {
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
   overflow: hidden;
-  background: var(--border);
+  background: var(--surface);
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  /* Contain every z-index inside this grid, and it is load-bearing.
+   *
+   * .cal__cell is position: relative with z-index: auto, which does NOT create
+   * a stacking context — so the z-index: 1 that lifts .cal__bs, .cal__ad and
+   * .cal__dot above the cell's own ::before was not scoped to the cell at all.
+   * It escaped to the nearest real stacking context, tied with .cal__nav's
+   * z-index: 1, and lost the tiebreak to source order: the grid comes after the
+   * month bar in the DOM. Scrolled, the day numbers and the festival dots
+   * painted straight over the sticky bar while the cell backgrounds stayed
+   * correctly behind it — which reads as the bar having gone transparent, since
+   * only the text comes through.
+   *
+   * isolation rather than a z-index of its own: this element needs to *hold* a
+   * stacking context, not to take a position in its parent's ordering. Whatever
+   * the cells do internally now stays here, including .cal__cell:focus-visible,
+   * which had the same escape.
+   *
+   * The bar is opaque --bg on purpose and is not meant to frost. The only
+   * backdrop-filter in the app is on the app bar and the dock (see
+   * --blur-chrome in index.css); adding one here would also make this a
+   * containing block for fixed descendants, which App.css warns about at
+   * length. */
+  isolation: isolate;
 }
 .cal__weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 1px;
-  background: var(--border);
+  border-bottom: 1px solid var(--border);
 }
+/* No fill. A --surface-2 header band over a --surface grid is the same
+   striping the editor had at both ends of its text — and the weekday row is
+   already distinguished by being small, muted and centred. */
 .cal__weekday {
   padding: var(--sp-2) 0.15rem;
   text-align: center;
-  background: var(--surface-2);
+  background: var(--surface);
   font-family: var(--display-dev);
   font-size: 0.78rem;
   font-weight: 600;
@@ -170,8 +210,6 @@
 .cal__days {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 1px;
-  background: var(--border);
 }
 
 .cal__cell {
@@ -184,7 +222,7 @@
   /* Square-ish cells that grow with the container, so the grid fills the
      width on a phone without a media query per size. */
   aspect-ratio: 1 / 1;
-  min-height: 44px;
+  min-height: 2.75rem;
   padding: 0.2rem;
   border: 0;
   background: var(--surface);
@@ -200,10 +238,49 @@
 .cal__cell:active:not(.cal__cell--blank) {
   transform: scale(0.96);
 }
+/* Transparent, not filled. With the grid lines gone a --surface-2 blank became
+   a solid block of tone at the start and end of the month instead of the empty
+   corner of a page. */
 .cal__cell--blank {
-  background: var(--surface-2);
+  background: transparent;
   cursor: default;
 }
+/* Every cell state is painted on one inset rounded shape rather than on the
+ * square itself, and that is what makes losing the grid lines work.
+ *
+ * With the 1px rules between cells gone, a background on the cell runs into
+ * its neighbour's: two holidays side by side, or a Saturday under a Friday,
+ * fused into an L-shaped blob that marked a region of the month rather than
+ * some days in it. Measured on भदौ २०८३, where the tint came out as two
+ * irregular rectangles.
+ *
+ * Inset by 3px, so each marked day is a discrete rounded tile with paper
+ * around it — the shape every calendar app uses, and the reason it uses it.
+ * It also gives today's ring and the selected fill rounded corners instead of
+ * a hard square bleeding to the cell edge.
+ *
+ * The three states still stack without hiding each other, which is what the
+ * ring was chosen for in the first place: holiday paints the fill, today draws
+ * the ring over it, selected replaces the fill and recolours the type. */
+.cal__cell::before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 10px;
+  z-index: 0;
+  transition: background-color var(--dur) var(--ease);
+}
+/* Above the shape. .cal__dot is already absolute, so it only needs the
+   stacking; these two are in flow and need the position as well. */
+.cal__cell > .cal__bs,
+.cal__cell > .cal__ad {
+  position: relative;
+  z-index: 1;
+}
+.cal__dot {
+  z-index: 1;
+}
+
 /* hover: hover excludes touchscreens, which have no way to leave a :hover
    state once a tap triggers it — a "stuck hover" that otherwise permanently
    wins over .cal__cell--selected below (:hover + :not() outweighs one
@@ -211,7 +288,7 @@
    instead of --accent's bright one. Exactly what selecting a date on a
    phone showed. */
 @media (hover: hover) {
-  .cal__cell:hover:not(.cal__cell--blank) {
+  .cal__cell:hover:not(.cal__cell--blank)::before {
     background: var(--accent-bg);
   }
 }
@@ -230,24 +307,39 @@
 }
 .cal__ad {
   font-family: var(--mono);
-  font-size: 0.6rem;
+  /* 0.68, not 0.6. This is the number a Nepali reader cross-references
+     against a bank slip, an office form or another phone, and at 0.6rem it was
+     the smallest type in the app — 9.6px, and 8.8px under the narrow override
+     below. It is not a footnote, it is half of what a dual calendar is for. */
+  font-size: 0.68rem;
   color: var(--muted);
   line-height: 1;
 }
 
-/* Holidays and Saturdays. Colour is not the only signal — these days are also
-   named as holidays in the list below the grid and in each cell's aria-label,
-   so the information survives without it.
-
-   --bida rather than the accent, here and on the weekday header and the day
-   numbers in the list below: on a patro a red date *means* the day is off, and
-   that is the one colour on this screen that has to survive Material You
-   repainting the accent from the wallpaper. See --bida in index.css. */
+/* Holidays and weekends, and they are no longer drawn the same way.
+ *
+ * Both used to take the --bida-bg tint, which on a two-day-weekend month put
+ * roughly half the grid under it — and a tint most cells carry is not marking
+ * anything. That is exactly what the long --bida note in index.css exists to
+ * protect: on a patro red *means* the day is off, and it stops meaning it the
+ * moment it is everywhere.
+ *
+ * So the two reasons separate. A weekend gets the red numeral, which is how
+ * every printed patro in the country says it; the fill is reserved for a
+ * declared or festival holiday, which is the thing you are scanning the month
+ * for. --cell--off still covers both, so the numeral is red either way.
+ *
+ * Colour is not the only signal in either case — these days are named in the
+ * list below the grid and in each cell's aria-label.
+ *
+ * --bida rather than the accent, here and on the weekday header and the day
+ * numbers in the list below: this is the one colour on this screen that has to
+ * survive Material You repainting the accent from the wallpaper. */
 .cal__cell--off .cal__bs {
   color: var(--bida);
 }
-.cal__cell--off {
-  background: color-mix(in srgb, var(--bida-bg) 55%, var(--surface));
+.cal__cell--holiday::before {
+  background: color-mix(in srgb, var(--bida-bg) 70%, var(--surface));
 }
 
 .cal__dot {
@@ -259,13 +351,12 @@
   background: var(--accent);
 }
 
-/* Today gets an inset ring rather than a fill, so it can coexist with the
-   holiday tint and the selected state without any of the three hiding the
-   others. */
-.cal__cell--today {
+/* Today gets a ring rather than a fill, so it can coexist with the holiday
+   tint and the selected state without any of the three hiding the others. */
+.cal__cell--today::before {
   box-shadow: inset 0 0 0 2px var(--accent);
 }
-.cal__cell--selected {
+.cal__cell--selected::before {
   background: var(--accent);
 }
 .cal__cell--selected .cal__bs,
@@ -277,9 +368,17 @@
 }
 
 /* Selected-day detail */
+/* The day you are looking at.
+ *
+ * On --surface it was the same slab as everything else on the screen, which
+ * made the one block that answers "what is today" indistinguishable from the
+ * grid above it and the list below. It takes the same warm ground the
+ * translation result does — 5% of the accent — so the two screens say "this
+ * is the answer" the same way. Both tokens are repainted together on Android,
+ * so the relationship survives a wallpaper change. */
 .cal__detail {
   padding: var(--sp-4);
-  background: var(--surface);
+  background: color-mix(in srgb, var(--accent) 5%, var(--surface));
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
 }
@@ -330,6 +429,16 @@
 
 /* Month holiday list */
 .cal__holidays h2,
+/* The eligibility note inside a holiday name — see FestivalName. Smaller and
+   dimmer, so the festival reads first and the "only for X employees" clause
+   reads second, out of one run of text that cannot safely be split. --muted
+   against this row's surface is 5.14:1, so a reader who wants it can still
+   have it. */
+.cal__holiday-note {
+  font-size: 0.85em;
+  color: var(--muted);
+}
+
 .cal__holidays-title {
   font-family: var(--sans);
   font-size: 0.72rem;
@@ -363,7 +472,7 @@
   align-items: center;
   gap: var(--sp-3);
   width: 100%;
-  min-height: 44px;
+  min-height: 2.75rem;
   padding: var(--sp-2) var(--sp-3);
   border: 0;
   background: var(--surface);
@@ -377,14 +486,33 @@
     background: var(--accent-bg);
   }
 }
+/* The date, in a chip.
+ *
+ * It was a bare red numeral with 2ch reserved for it, which left every row
+ * starting on a ragged edge — २ and १२ do not occupy the same width, so the
+ * festival names beside them did not line up either. A chip fixes the column
+ * and gives the list the same shape as the sheet rows, which is now the app's
+ * way of writing a list.
+ *
+ * --bida/--bida-bg rather than the accent pair, and that is the one colour
+ * decision here that is not cosmetic: these two are the only tokens
+ * dynamicColor.ts does not overwrite, so a holiday stays red on Android 12+
+ * while the rest of the app turns whatever colour the wallpaper is. A holiday
+ * that is only red on some phones is not saying anything. */
 .cal__holiday-day {
   flex: 0 0 auto;
-  min-width: 2ch;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-field);
+  background: var(--bida-bg);
   font-family: var(--display-dev);
   font-size: 1rem;
   font-weight: 700;
   color: var(--bida);
-  text-align: right;
+  line-height: 1;
 }
 .cal__holiday-name {
   font-size: 0.9rem;
@@ -432,7 +560,7 @@
     display: none;
   }
   .cal__ad {
-    font-size: 0.55rem;
+    font-size: 0.62rem;
   }
   .cal__weekday {
     font-size: 0.68rem;
