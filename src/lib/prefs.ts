@@ -39,6 +39,12 @@ export interface Prefs {
   translateOnDevice: boolean
   /** Remember which way the translation was pointing. */
   translateReversed: boolean
+  /* Whether the one-time first-run demonstration has played (see
+     useIntroDemo). App.tsx notes that the redesign deleted the old
+     lekh-seen-landing flag and never replaced it; this is the replacement,
+     and it belongs here rather than in its own key because it is exactly what
+     this file is for — one boolean the app remembers between launches. */
+  seenIntro: boolean
 }
 
 const DEFAULTS: Prefs = {
@@ -50,6 +56,7 @@ const DEFAULTS: Prefs = {
   amoled: false,
   translateOnDevice: false,
   translateReversed: false,
+  seenIntro: false,
 }
 
 const KEY_PREFIX = 'lekh:pref:'
@@ -63,6 +70,7 @@ const VALIDATORS: { [K in keyof Prefs]: (raw: unknown) => Prefs[K] | undefined }
   amoled: (raw) => (typeof raw === 'boolean' ? raw : undefined),
   translateOnDevice: (raw) => (typeof raw === 'boolean' ? raw : undefined),
   translateReversed: (raw) => (typeof raw === 'boolean' ? raw : undefined),
+  seenIntro: (raw) => (typeof raw === 'boolean' ? raw : undefined),
 }
 
 export function getPref<K extends keyof Prefs>(key: K): Prefs[K] {

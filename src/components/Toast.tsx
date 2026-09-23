@@ -31,10 +31,18 @@ interface ToastMessage {
 
 const DURATION = 3200
 
+/* Whether this engine can put an element in the top layer without a <dialog>.
+ *
+ * Read once, at module scope, because it is a property of the browser and
+ * cannot change while the app is running. */
+const CAN_POPOVER =
+  typeof HTMLElement !== 'undefined' && typeof HTMLElement.prototype.showPopover === 'function'
+
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toast, setToast] = useState<ToastMessage | null>(null)
   const timeoutRef = useRef<number | undefined>(undefined)
   const nextId = useRef(0)
+  const regionRef = useRef<HTMLDivElement>(null)
 
   /* One at a time. A queue was the alternative and it is the wrong shape for
      this app: these are acknowledgements of things the user just did, one
@@ -51,6 +59,46 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => () => window.clearTimeout(timeoutRef.current), [])
 
+  /* Into the top layer while a message is up.
+   *
+   * z-index cannot win against a <dialog> opened with showModal(): the top
+   * layer is above every z-index in the document, so a toast fired while
+   * Settings, the cheat sheet or any bottom sheet was open rendered behind the
+   * scrim. Confirmed by screenshot, not by reading the spec — the element was
+   * in the DOM and simply nowhere on screen.
+   *
+   * It is not hypothetical. "Clear downloaded extras" lives *inside* Settings
+   * and is the one destructive action in the app; it reports both success and
+   * failure through this, so deleting ~900MB either confirmed itself to nobody
+   * or failed silently. The same applies to anything the calendar or an export
+   * reports while a sheet happens to be open.
+   *
+   * popover rather than a <dialog> of our own: a dialog would trap focus and
+   * make the rest of the page inert, which is precisely wrong for a receipt
+   * nobody is meant to interact with. `manual` so it never light-dismisses and
+   * never closes the sheet underneath it.
+   *
+   * Feature-detected because the build targets safari14 and popover did not
+   * land until 17. Without it this behaves exactly as it did before — correct
+   * everywhere except over a dialog, which is where it already was.
+   *
+   * Known and accepted: within the top layer, paint order is order of entry,
+   * so this wins only over dialogs opened *before* the toast. A toast already
+   * on screen when a sheet opens is covered by it — verified, and the reason
+   * the first attempt at this looked like it had not worked at all. That is
+   * the harmless direction: the message was already being read when the user
+   * chose to open something over it, and it clears itself in 3.2s either way.
+   * The direction that mattered is a toast raised *from inside* an open sheet,
+   * which is the one "Clear downloaded extras" actually takes. */
+  useEffect(() => {
+    const el = regionRef.current
+    if (!CAN_POPOVER || !el) return
+    /* :popover-open guards both calls: showPopover() on an open popover
+       throws, and so does hidePopover() on a closed one. */
+    if (toast && !el.matches(':popover-open')) el.showPopover()
+    if (!toast && el.matches(':popover-open')) el.hidePopover()
+  }, [toast])
+
   const api = useMemo<ToastApi>(
     () => ({
       done: (text: string) => show(text, 'done'),
@@ -66,7 +114,16 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           the region cannot come and go with the message. role="status" is
           polite by definition, so a confirmation never interrupts someone
           mid-sentence in the editor. */}
-      <div className="toast-region" role="status" aria-live="polite">
+      <div
+        ref={regionRef}
+        className="toast-region"
+        /* Only when it can be honoured. The attribute alone makes an element
+           display: none until it is shown, so setting it on an engine that
+           cannot call showPopover() would hide every toast in the app. */
+        {...(CAN_POPOVER ? { popover: 'manual' } : {})}
+        role="status"
+        aria-live="polite"
+      >
         {toast && (
           <div
             key={toast.id}

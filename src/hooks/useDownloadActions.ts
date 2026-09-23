@@ -5,13 +5,24 @@ import { setPrintText } from '../lib/printSheet'
 import { printPage } from '../lib/print'
 import { isNativeApp } from '../lib/androidApp'
 import { useToast } from './useToast'
+import type { SheetIconName } from '../components/SheetIcons'
 
 export type DownloadFormat = 'txt' | 'docx' | 'pdf'
 
-export const DOWNLOAD_FORMATS: { id: DownloadFormat; label: string; hint: string }[] = [
-  { id: 'txt', label: '.txt', hint: 'Plain text' },
-  { id: 'docx', label: '.docx', hint: 'Word document' },
-  { id: 'pdf', label: 'PDF', hint: 'Via your device’s print dialog' },
+/* The icon name travels with the format, so the two sheets that list these
+   (the Type overflow and Download's own menu) cannot end up drawing different
+   glyphs for the same file — which is exactly the drift SectionIcons was
+   written to stop. A name, not a component, to keep this module inert data
+   with no JSX in it. */
+export const DOWNLOAD_FORMATS: {
+  id: DownloadFormat
+  label: string
+  hint: string
+  icon: SheetIconName
+}[] = [
+  { id: 'txt', label: '.txt', hint: 'Plain text', icon: 'text' },
+  { id: 'docx', label: '.docx', hint: 'Word document', icon: 'doc' },
+  { id: 'pdf', label: 'PDF', hint: 'Via your device’s print dialog', icon: 'pdf' },
 ]
 
 /* Writing the editor or a translation out to a file.

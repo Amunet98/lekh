@@ -9,8 +9,20 @@ export interface ActionSheetOption {
   label: string
   /** The second line, where the choice needs one. */
   hint?: string
+  /* A leading glyph. Optional, and every sheet in the app now passes one,
+     because a column of text-only rows is what made these read as a system
+     menu rather than as part of this app — and because an icon is the half of
+     a row that a child, or someone reading a second language, can use. */
+  icon?: ReactNode
   /** Drawn as chosen. For a set of mutually exclusive values. */
   selected?: boolean
+  /* The one the sheet exists to offer. Drawn as a filled control rather than
+     a row, because a confirmation whose two answers look identical is a
+     confirmation that has not been designed — "Download & enable" and "Not
+     now" carried exactly the same weight before this. At most one per sheet;
+     menus of equal choices (the language pickers, the download formats) pass
+     none and are unaffected. */
+  primary?: boolean
   /** Throws something away. Drawn in --danger, and last in the list. */
   danger?: boolean
   onSelect: () => void
@@ -37,6 +49,25 @@ interface ActionSheetProps {
      `label` still names the dialog for assistive tech, it just is not drawn
      twice. */
   hideTitle?: boolean
+}
+
+function CheckIcon() {
+  return (
+    <svg
+      className="action-sheet__check"
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M20 6L9 17l-5-5" />
+    </svg>
+  )
 }
 
 /* A bottom sheet of choices, for a phone.
@@ -142,7 +173,7 @@ export function ActionSheet({
               type="button"
               role={kind === 'radio' ? 'menuitemradio' : 'menuitem'}
               {...(kind === 'radio' ? { 'aria-checked': !!option.selected } : {})}
-              className={`action-sheet__option${option.selected ? ' action-sheet__option--selected' : ''}${option.danger ? ' action-sheet__option--danger' : ''}`}
+              className={`action-sheet__option${option.selected ? ' action-sheet__option--selected' : ''}${option.danger ? ' action-sheet__option--danger' : ''}${option.primary ? ' action-sheet__option--primary' : ''}`}
               onClick={() => {
                 /* Close first, then act. Some of these handlers open a
                    system dialog of their own — the print sheet, the Android
@@ -153,8 +184,17 @@ export function ActionSheet({
                 option.onSelect()
               }}
             >
-              <span className="action-sheet__label">{option.label}</span>
-              {option.hint && <span className="action-sheet__hint">{option.hint}</span>}
+              {option.icon && <span className="action-sheet__icon">{option.icon}</span>}
+              <span className="action-sheet__option-text">
+                <span className="action-sheet__label">{option.label}</span>
+                {option.hint && <span className="action-sheet__hint">{option.hint}</span>}
+              </span>
+              {/* The tick is what makes a radio list look like one. Before it,
+                  the current language was marked by colour and weight alone,
+                  which is a difference you can only see by comparing the rows
+                  against each other. aria-checked already says it properly;
+                  this is the same fact for everyone else. */}
+              {option.selected && <CheckIcon />}
             </button>
           ))}
         </div>

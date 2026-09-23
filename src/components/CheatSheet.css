@@ -36,10 +36,14 @@
   color: var(--muted);
 }
 
+/* No rules between the cells — the same change, and the same reason, as the
+   month grid in CalendarPage.css. A boxed cell per letter turned a reference
+   you scan into a table you read, and it is also what made the three unused
+   slots at the end of the vowel grid look like an unfinished table rather than
+   like the end of a list. */
 .cells {
   display: grid;
-  gap: 1px;
-  background: var(--border);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-field);
   overflow: hidden;
@@ -58,7 +62,7 @@
   border: 0;
   cursor: pointer;
   /* Every cell is tap-to-insert, so every cell is a real touch target. */
-  min-height: 44px;
+  min-height: 2.75rem;
   font: inherit;
   transition: background-color var(--dur) var(--ease), transform var(--dur-fast) var(--ease-expo);
 }
@@ -85,13 +89,22 @@
   line-height: 1.4;
   color: var(--text-h);
 }
+/* --muted, not --accent-text, and the reason is what the accent is *for*.
+ *
+ * These are 52 static labels. Painting all of them crimson spent the app's one
+ * action colour on the largest block of non-interactive text in it, so a whole
+ * screen of red arrived where nothing on the screen was a button — and the
+ * crimson that does mark actions had to compete with it. The glyph above is
+ * the thing being looked up; the key is the answer, in the app's ordinary
+ * secondary tone. --muted is 4.59:1 at worst here.
+ *
+ * Mono stays. A literal key you press is the one thing in this app monospace
+ * is actually for. */
 .cell .r {
   display: block;
   font-family: var(--mono);
   font-size: 0.72rem;
-  /* --accent-text, not --accent: this is the smallest type in the app and the
-     fill crimson does not clear AA against the cell surface. */
-  color: var(--accent-text);
+  color: var(--muted);
   margin-top: 0.1rem;
 }
 .cell--filler {

@@ -52,7 +52,7 @@
   /* 40px rather than the dock's 48: this is inside a scrolling list, where a
      taller control pushes the rows below it off the screen, and it is not a
      control anyone hits repeatedly. */
-  min-height: 40px;
+  min-height: 2.5rem;
   padding: 0 0.5rem;
   cursor: pointer;
   transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease),
@@ -87,7 +87,7 @@
   background: transparent;
   border: 1px solid var(--danger);
   border-radius: var(--radius-pill);
-  min-height: 40px;
+  min-height: 2.5rem;
   padding: 0 1.1rem;
   cursor: pointer;
   transition: background-color var(--dur-fast) var(--ease), opacity var(--dur-fast) var(--ease),
@@ -134,7 +134,7 @@
   background: transparent;
   border: 1px solid var(--border-field);
   border-radius: var(--radius-pill);
-  min-height: 40px;
+  min-height: 2.5rem;
   padding: 0 1.1rem;
   cursor: pointer;
   transition: background-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);

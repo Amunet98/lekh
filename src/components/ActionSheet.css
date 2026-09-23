@@ -20,10 +20,12 @@
   overflow: hidden;
 }
 .action-sheet::backdrop {
-  /* The same 45% the cheat sheet uses. A sheet you can still see the page
-     through reads as "on top of my work" rather than "a different screen",
-     which for a three-item menu is exactly the right claim. */
-  background: rgb(var(--scrim) / 0.45);
+  /* 0.6, up from 0.45. A sheet needs the page behind it to recede or the two
+     read as one flat grey field — which is exactly how this looked on a phone
+     with Material You repainting both surfaces from the same wallpaper ramp.
+     The dim is the only separator that survives that, because it is drawn
+     from --scrim rather than from a surface token. */
+  background: rgb(var(--scrim) / 0.6);
   /* backwards holds the from-frame until the animation starts; without it the
      dim snaps in while the sheet below eases up, and the mismatch is the part
      that reads as janky. */
@@ -45,10 +47,19 @@
   /* svh, not vh: on iOS Safari vh counts the collapsed toolbar, so a sheet
      capped in vh can be taller than the visible area. */
   max-height: 85svh;
-  padding-bottom: env(safe-area-inset-bottom);
+  /* Plus a gutter of its own. Flush against the gesture bar, the last row of
+     the sheet looks like it has been cut off by the bottom of the screen. */
+  padding-bottom: calc(env(safe-area-inset-bottom) + var(--sp-2));
   background: var(--surface);
-  border-top: 1px solid var(--border);
-  border-radius: var(--radius-card) var(--radius-card) 0 0;
+  /* A hairline of the app's own accent along the top edge. One pixel, and it
+     is the only thing in the sheet that is not a neutral — enough to say the
+     panel belongs to this app rather than to the system, and it follows the
+     wallpaper palette on Android 12+ along with every other accent. */
+  border-top: 1px solid var(--accent-border);
+  /* 24, not 14. The card radius is for things that sit *in* the page; a sheet
+     that rises over it wants a softer mouth, and at 14px the corners read as
+     a panel that has been cropped by the screen edge. */
+  border-radius: 24px 24px 0 0;
   box-shadow: var(--shadow-pop);
   /* Drives the drag-to-dismiss glide — the snap-back, or the fling the rest
      of the way off-screen before the dialog actually closes. Turned off while
@@ -76,14 +87,40 @@
    aria-label, and marking this up as an <h2> would have a screen reader
    announce the name of the sheet twice in a row on open. */
 .action-sheet__title {
-  padding: 0 var(--sp-4) var(--sp-2);
-  font-family: var(--sans);
-  font-size: 0.72rem;
+  padding: 0 var(--sp-4) var(--sp-3);
+  font-family: var(--display);
+  /* A title, not an eyebrow.
+   *
+     This was 0.72rem uppercase in --muted, which is the label a *group inside
+     a list* gets — right over a row group in Settings, wrong as the only
+     heading of a panel that has just taken over the screen. Above a paragraph
+     of body text it read as a caption that had drifted to the top, and it was
+     the main reason the sheet looked like a system menu rather than part of
+     this app. Same size and face as the other headings here, in the heading
+     colour, sentence case because it is a sentence fragment and not a tag. */
+  font-size: 1.05rem;
   font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  /* The eyebrow label every grouped list in the app uses over its rows. */
+  letter-spacing: -0.01em;
+  color: var(--text-h);
+}
+
+/* Prose passed in as children — the confirmation's explanation, and anything
+   like it.
+ *
+   It needs its own class because the sheet deliberately does not pad its
+   children: the date converter arrives with padding of its own and would be
+   double-inset by a padded wrapper. Without this, a paragraph handed to the
+   sheet ran flush into both screen edges, which is how the model
+   confirmation first shipped to the phone. */
+.action-sheet__text {
+  margin: 0 0 var(--sp-3);
+  padding: 0 var(--sp-4);
+  font-size: 0.9rem;
+  line-height: 1.55;
   color: var(--muted);
+}
+.action-sheet__text + .action-sheet__text {
+  margin-top: calc(var(--sp-3) * -1 + var(--sp-2));
 }
 
 .action-sheet__options {
@@ -98,14 +135,20 @@
    top layer with no group container around them, and their divider has to
    come from the rows themselves. */
 .action-sheet__option {
+  /* A row now, not a column: the label and its hint stack inside
+     __option-text, and the row itself holds that against a trailing tick. */
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.1rem;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
   width: 100%;
-  /* 52px, matching .sheet-row — this is the same furniture. */
-  min-height: 52px;
-  padding: var(--sp-2) var(--sp-4);
+  /* 56px. Was 52 to match .sheet-row, and these are not quite the same
+     furniture — a settings row is one of fifteen being scanned, a sheet row is
+     one of two or three being chosen, with a thumb, over whatever the sheet
+     interrupted. */
+  min-height: 3.5rem;
+  padding: var(--sp-3) var(--sp-4);
   border: 0;
   background: transparent;
   color: var(--text-h);
@@ -114,6 +157,62 @@
   text-align: left;
   cursor: pointer;
   transition: background-color var(--dur-fast) var(--ease);
+}
+.action-sheet__option-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  min-width: 0;
+  /* Takes the slack, so the tick stays pinned to the trailing edge whatever
+     the label's length. */
+  margin-inline-end: auto;
+}
+
+/* The leading glyph, in a chip of its own.
+ *
+ * A bare icon beside a label floats — it has no relationship to the row, and
+ * at 18px against 15px type it reads as a slightly larger piece of text. The
+ * chip gives it a footprint, lines every row's text up on one edge however
+ * wide the glyph is, and is the thing that makes a list of rows look composed
+ * rather than typed out.
+ *
+ * --surface-2 rather than an accent tint: there can be five of these in one
+ * sheet and five accent chips would be a row of traffic lights. The accent is
+ * spent on the one row that matters, which is either the primary pill or the
+ * tick. */
+.action-sheet__icon {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-field);
+  background: var(--surface-2);
+  color: var(--text);
+}
+/* The destructive row colours its own glyph, the same way it colours its
+   label — see --danger below. */
+.action-sheet__option--danger .action-sheet__icon {
+  color: var(--danger);
+}
+.action-sheet__option--selected .action-sheet__icon {
+  color: var(--accent-text);
+}
+/* A letter used as an icon — the language pickers' अ and A. Sized against the
+   chip rather than the row, and in the Devanagari display face so the two
+   scripts sit at the same optical weight instead of the Latin one looking
+   bolder at the same pixel size. */
+.action-sheet__script {
+  font-family: var(--display-dev);
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1;
+}
+.action-sheet__check {
+  flex: none;
+  color: var(--accent-text);
 }
 .action-sheet__option + .action-sheet__option {
   border-top: 1px solid var(--border);
@@ -145,6 +244,74 @@
    about the list. */
 .action-sheet__option--danger {
   color: var(--danger);
+}
+
+/* The answer the sheet was opened to get.
+ *
+ * Drawn as a filled control inset from the list rather than as another row,
+ * because the two answers to a confirmation are not two items of a menu. On
+ * the model sheet "Download & enable" and "Not now" were the same size, the
+ * same weight and the same colour, separated by a hairline — a ~900MB
+ * commitment and a dismissal, offered identically.
+ *
+ * --accent/--on-accent is the one pair in the palette guaranteed to be legible
+ * against each other (see the token comments in index.css, and dynamicColor.ts
+ * picks --on-accent against the chosen accent for exactly this), so this keeps
+ * its contrast when Material You repaints the whole ramp from a wallpaper.
+ *
+ * The hint rides along inside the fill, so it cannot stay --muted — that is a
+ * colour chosen against a surface, and on an accent it is close to invisible.
+ * Same ink at 80%, which is the one thing known to be readable here. */
+.action-sheet__option--primary {
+  margin: var(--sp-2) var(--sp-4) var(--sp-1);
+  /* Explicit, not `auto`. A <button> carries intrinsic sizing from the UA
+     sheet, so `width: auto` shrank the pill to its label — 175px adrift in a
+     390px sheet, which reads as a stray tag rather than the main action. */
+  width: calc(100% - 2 * var(--sp-4));
+  box-sizing: border-box;
+  justify-content: center;
+  text-align: center;
+  background: var(--accent);
+  color: var(--on-accent);
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+}
+.action-sheet__option--primary .action-sheet__option-text {
+  align-items: center;
+}
+.action-sheet__option--primary .action-sheet__hint {
+  color: var(--on-accent);
+  opacity: 0.8;
+}
+/* No hairline against a filled pill — a divider butting into a rounded fill
+   reads as a rendering fault. Both sides, since it can be given in any order. */
+.action-sheet__option--primary + .action-sheet__option,
+.action-sheet__option--primary {
+  border-top: 0;
+}
+/* Whatever follows the primary is the way out of the decision, not the next
+   item on a menu — so it is centred under the pill and drops to --muted
+   rather than sitting left-aligned in heading ink as if it were an equal
+   choice. Scoped to the sibling of a primary, so a sheet with no primary (the
+   language pickers, the download formats) keeps its plain list. */
+.action-sheet__option--primary + .action-sheet__option {
+  justify-content: center;
+  text-align: center;
+  color: var(--muted);
+  min-height: 3rem;
+}
+.action-sheet__option--primary + .action-sheet__option .action-sheet__option-text {
+  align-items: center;
+}
+@media (hover: hover) {
+  .action-sheet__option--primary:hover {
+    background: var(--accent);
+    filter: brightness(1.08);
+  }
+}
+.action-sheet__option--primary:active {
+  background: var(--accent);
+  filter: brightness(0.94);
 }
 
 /* A sheet that spans a 1600px window is not a sheet, it is a bar.

@@ -4,6 +4,7 @@ import { DOCK_QUERY } from '../hooks/useDockDetached'
 import { DOWNLOAD_FORMATS, useDownloadActions } from '../hooks/useDownloadActions'
 import { isNativeApp } from '../lib/androidApp'
 import { ActionSheet } from './ActionSheet'
+import { SheetIcon } from './SheetIcons'
 import './DownloadActions.css'
 
 /* Shared by Translate and Type.
@@ -120,6 +121,7 @@ export function DownloadActions({ text, filenameBase, label, compact = false }: 
             id: f.id,
             label: f.label,
             hint: f.hint,
+            icon: <SheetIcon name={f.icon} />,
             onSelect: () => run(f.id),
           }))}
         />

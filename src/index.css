@@ -29,16 +29,29 @@
  * where content genuinely scrolls underneath and the blur is doing work.
  */
 :root {
-  /* Neutrals, tinted toward the flag blue. Pure greys were tried first and
-     read as cold and generic next to the crimson; the blue cast is what makes
-     the two halves of the palette look like they come from one place. */
-  --text: #4a5162;          /* 7.61 on --bg, 7.94 on --surface */
-  --text-h: #141824;        /* 16.98 on --bg */
-  --bg: #fafafb;
+  /* The light ground is paper, and warm. It was #fafafb — a blue-tinted
+     near-white — which put the entire light theme inside 1.08:1 of #ffffff:
+     nothing read as a surface sitting on a page, because nothing was
+     distinguishable from the page. A warm ground gives the theme a temperature
+     and gives --surface somewhere to lift off, and it is the half of "Crimson
+     & Paper" that was never actually drawn.
+
+     The dark neutrals stay tinted toward the flag blue — see --dark-bg below.
+     A blue-black is the right dark ground and the deep-black block depends on
+     it, so the two halves are deliberately warm and cool rather than one
+     temperature stretched across both.
+
+     Every ratio here was recomputed against the new ground, per the rule
+     above. --muted is the tightest pair in the file and it is the one with
+     nothing left to give: 4.74 -> 4.59 on --surface-2. Do not darken the
+     ground further without moving it. */
+  --text: #4a5162;          /* 7.49 on --bg, 7.94 on --surface */
+  --text-h: #141824;        /* 16.71 on --bg */
+  --bg: #faf8f5;
   --surface: #ffffff;
-  --surface-2: #f1f3f7;
-  --muted: #646c7e;         /* 5.05 on --bg, 4.74 on --surface-2 — the tightest pair here */
-  --border: #dde1e9;
+  --surface-2: #f2efe9;
+  --muted: #646c7e;         /* 4.97 on --bg, 4.59 on --surface-2 — the tightest pair here */
+  --border: #e3ded5;
   /* Borders come in two strengths and the distinction is a WCAG requirement,
      not a style choice. --border is decorative: dividers, the edge of a card
      you are not asked to operate. It sits at 1.26:1, which is fine for that
@@ -46,13 +59,13 @@
      order to use it — a textarea, a select, the file dropzone — takes
      --border-field, which clears the 3:1 floor for UI components. */
   --border-field: #7c87a0;  /* 3.60 on --surface */
-  --code-bg: #f1f3f7;
+  --code-bg: #f2efe9;
   /* Flag crimson is #DC143C. This is that colour walked a little darker: at
      #DC143C white lands on 4.99:1, which passes but leaves nothing for the
      tinted and hover variants to spend. #C8102E gives white 5.88:1 and still
      reads as the flag's red rather than a generic brand red. */
-  --accent: #c8102e;        /* 5.64 on --bg — clears 3:1 as a UI colour */
-  --accent-text: #a80d26;   /* 7.32 on --bg, 6.69 on --accent-bg */
+  --accent: #c8102e;        /* 5.55 on --bg — clears 3:1 as a UI colour */
+  --accent-text: #a80d26;   /* 7.20 on --bg, 6.69 on --accent-bg */
   --on-accent: #ffffff;     /* 5.88 on --accent */
   --accent-bg: #fdecee;
   --accent-border: rgba(200, 16, 46, 0.4);
@@ -72,22 +85,37 @@
      are not in the token list dynamicColor.ts writes, and must not be added to
      it. The values are the crimson theme's --accent-text and --accent-bg, so
      with wallpaper colours off nothing about the calendar changes at all. */
-  --bida: #a80d26;          /* 7.32 on --bg, 6.69 on --bida-bg */
+  --bida: #a80d26;          /* 7.20 on --bg, 6.69 on --bida-bg */
   --bida-bg: #fdecee;
   /* The flag's blue, and the one place it appears literally: the ख of the
      wordmark. Not an accent — it is never a control, never a link, and never
-     competes with the crimson for the eye. 10.13:1 on --bg. */
+     competes with the crimson for the eye. 9.97:1 on --bg. */
   --flag-blue: #003893;
   --ok: #15803d;
   --warn: #b45309;
   --danger: #b91c1c;
-  /* One shadow, and it is for things that genuinely float above the page:
-     the cheat-sheet panel, the About sheet, the update toast. Cards in the
-     normal flow get a hairline and nothing else — a page where everything
-     casts a shadow has no hierarchy left to express. */
+  /* Two levels, where there was one.
+   *
+   * --shadow-pop is unchanged and still means *floating above the page*: the
+   * cheat-sheet panel, the Settings screen, the update toast, the dock.
+   *
+   * --shadow-rest is new and means *a surface on the page* — the editor, a
+   * translation pane, the month grid. The old rule (a hairline and nothing
+   * else, because a page where everything casts a shadow has no hierarchy)
+   * was right about the failure mode and wrong about the remedy: with one
+   * level a resting screen has no depth at all, which is most of why this
+   * interface reads as flat. Two levels is a hierarchy; one is a rule against
+   * having one.
+   *
+   * Deliberately almost nothing — 4% and 8% black. It must not read as a card
+   * lifting off, only as an edge that is lit. And it is desktop-only: below
+   * 768px these surfaces run to both edges of the display (see the phone block
+   * in App.css), where there is no page beside them to lift off and a shadow
+   * would only fog the bezel. */
+  --shadow-rest: 0 1px 2px rgba(16, 17, 20, 0.04), 0 2px 8px -4px rgba(16, 17, 20, 0.08);
   --shadow-pop: 0 4px 12px rgba(16, 17, 20, 0.08), 0 20px 48px -20px rgba(16, 17, 20, 0.2);
   --shadow-accent: 0 2px 8px -2px rgba(200, 16, 46, 0.4);
-  --bar-bg: rgba(250, 250, 251, 0.82);
+  --bar-bg: rgba(250, 248, 245, 0.82);
   /* The modal scrim, as bare channels so each sheet can pick its own alpha —
      .sheet::backdrop dims harder than the cheat panel's does. One value for
      both themes on purpose: a scrim is a darkening, not a surface, and it is
@@ -121,6 +149,7 @@
   --dark-ok: #4ade80;
   --dark-warn: #fbbf24;
   --dark-danger: #f87171;
+  --dark-shadow-rest: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px -4px rgba(0, 0, 0, 0.45);
   --dark-shadow-pop: 0 4px 12px rgba(0, 0, 0, 0.5), 0 20px 48px -20px rgba(0, 0, 0, 0.7);
   --dark-shadow-accent: 0 2px 8px -2px rgba(248, 113, 113, 0.35);
   --dark-bar-bg: rgba(14, 18, 32, 0.82);
@@ -165,10 +194,44 @@
      where it sticks, and one pixel of travel is one pixel too many. */
   --bar-h: calc(3.5rem + 1px + env(safe-area-inset-top, 0px));
 
-  /* Editor and translation text size, set from the Settings sheet (App.tsx
-     writes it on :root). 1 is the designed size; the control only scales up,
-     because the designed size is already at the iOS zoom-on-focus floor. */
-  --text-scale: 1;
+  /* The Settings sheet's text size, set on :root by App.tsx. 1 is the designed
+     size; the control only scales up, because the designed size is already at
+     the iOS zoom-on-focus floor.
+   *
+     This used to be --text-scale and it multiplied exactly three declarations:
+     the editor textarea and the two translation panes. So the setting built for
+     someone who cannot read the app comfortably grew the writing surface and
+     left every label, button, count and hint at its designed size — 13.1px
+     controls, an 11.5px "Try one", and a 9.6px Gregorian date inside each
+     calendar cell. It scaled the one thing on screen already at the 16px floor
+     and nothing that was actually small.
+   *
+     It scales the root font size now, which is what makes it reach everything:
+     every size in this stylesheet is in rem, so one multiplier moves the whole
+     type ramp at once and no pair of siblings can invert — a 0.82rem
+     label cannot end up larger than the 0.95rem one beside it, which is exactly what
+     patching the small declarations one at a time would have produced.
+     Spacing rides along for the same reason (--sp-* are rem), so controls grow
+     with their labels rather than clamping them.
+   *
+     What deliberately does not scale: the px media queries, so the phone/desktop
+     breakpoints stay tied to the physical screen rather than to a preference.
+     See .actions in Editor.css for the one row that has to shed a member to
+     survive the widest setting.
+
+     One consequence worth knowing, because it is invisible on a desktop and
+     had to be measured on a phone: Android's WebView applies the *system*
+     font-size setting as textZoom, and it applies to rendered text only, not
+     to lengths. The A024 at font_scale 0.85 reports a 13.6px root font while
+     `1rem` as a length is still exactly 16px — so a 0.82rem label renders at
+     11.2px inside a 2.25rem button that is still 36px tall.
+
+     Which means the two scales do different jobs and do not fight: the phone's
+     own setting adjusts text within the layout, and this one adjusts the
+     layout with it. A control never shrinks below the size it was drawn at
+     because of a system preference — measured 36 / 41.4 / 46.8px across the
+     three settings on-device, against 36px before this change. */
+  --ui-scale: 1;
 
   --dur: 200ms;
   --dur-fast: 140ms;
@@ -241,6 +304,7 @@
     --ok: var(--dark-ok);
     --warn: var(--dark-warn);
     --danger: var(--dark-danger);
+    --shadow-rest: var(--dark-shadow-rest);
     --shadow-pop: var(--dark-shadow-pop);
     --shadow-accent: var(--dark-shadow-accent);
     --bar-bg: var(--dark-bar-bg);
@@ -270,6 +334,7 @@
   --ok: var(--dark-ok);
   --warn: var(--dark-warn);
   --danger: var(--dark-danger);
+  --shadow-rest: var(--dark-shadow-rest);
   --shadow-pop: var(--dark-shadow-pop);
   --shadow-accent: var(--dark-shadow-accent);
   --bar-bg: var(--dark-bar-bg);
@@ -351,12 +416,23 @@ body {
    the whole splash away as a web page. */
 html {
   background: var(--bg);
+  /* Where the text-size setting actually lands. A percentage rather than a
+     rem value, because a rem here would resolve against this same declaration
+     and compound on every setting change.
+
+     Everything in this stylesheet is sized in rem against this, so one number
+     moves the whole interface — see --ui-scale for why it is done here rather
+     than on the handful of declarations that looked too small. */
+  font-size: calc(100% * var(--ui-scale));
 }
 
 body {
   background: var(--bg);
   color: var(--text);
-  font: 16px/1.6 var(--sans);
+  /* 1rem, not 16px. As a fixed pixel size this was the one font declaration
+     in the app that ignored the text-size setting, and it is the one every
+     unstyled run of text inherits from. */
+  font: 1rem/1.6 var(--sans);
   letter-spacing: 0.01em;
 }
 

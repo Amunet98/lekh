@@ -18,6 +18,31 @@
   pointer-events: none;
 }
 
+/* Undoing what the popover UA sheet brings with it.
+ *
+ * The attribute is what puts this in the top layer (see Toast.tsx), and it
+ * arrives with a full set of UA styles meant for a centred dialog-ish box:
+ * `inset: 0`, `margin: auto`, a solid border, a `canvas` background, padding
+ * and `width/height: fit-content`. The rule above only sets `left` and
+ * `bottom`, so the UA's `top: 0; right: 0` survived and stretched the region
+ * across the screen.
+ *
+ * Written against the attribute rather than `:popover-open` so the geometry is
+ * identical whether the popover is open or not, and so an engine without
+ * popover support — which never gets the attribute — is untouched. */
+.toast-region[popover] {
+  top: auto;
+  right: auto;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  overflow: visible;
+  background: transparent;
+  width: max-content;
+  height: auto;
+  color: inherit;
+}
+
 @media (max-width: 767px) {
   .toast-region {
     /* Above the dock, matching UpdatePrompt's own clearance. */

@@ -57,7 +57,7 @@
 .crash__button {
   flex: 1;
   /* The 44px touch floor the rest of the app holds to. */
-  min-height: 44px;
+  min-height: 2.75rem;
   padding: 0 14px;
   border: 1px solid var(--border-field, #7c87a0);
   border-radius: var(--radius-field, 10px);

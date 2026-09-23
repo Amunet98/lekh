@@ -71,7 +71,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
+  min-height: 2.75rem;
   padding: 0 14px;
   border: 1px solid var(--border-field);
   border-radius: var(--radius-field);

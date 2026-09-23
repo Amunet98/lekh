@@ -16,7 +16,7 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 28px;
+  min-height: 1.75rem;
   padding: var(--sp-2) 0;
   border: 0;
   background: transparent;
@@ -52,4 +52,26 @@
   /* 44px of the 36 it is drawn at. */
   --grab: 1.222;
   background: var(--accent);
+}
+
+/* The focus ring belongs to the bar, not to the strip.
+ *
+ * The grabber is a full-width button with a 40x4px bar in the middle of it —
+ * the width is hit area, and that is right for a thumb. The app's one focus
+ * treatment draws a 2px accent outline around the *element*, so opening a
+ * sheet from the keyboard put a full-width rounded rectangle across the top of
+ * it, which reads as a rendering fault rather than as focus. Moving the ring
+ * onto the bar keeps the same affordance at the size of the thing it is
+ * actually pointing at.
+ *
+ * Pre-existing, and only visible on the keyboard path — a touch or a mouse
+ * press does not match :focus-visible, which is why it never showed on a
+ * phone. */
+.sheet-grabber:focus-visible {
+  outline: none;
+}
+.sheet-grabber:focus-visible .sheet-grabber-bar {
+  outline: 2px solid var(--accent);
+  outline-offset: 5px;
+  border-radius: var(--radius-pill);
 }

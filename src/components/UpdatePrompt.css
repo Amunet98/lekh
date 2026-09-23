@@ -84,7 +84,7 @@
   font-size: 0.82rem;
   border-radius: var(--radius-pill);
   padding: 0 1rem;
-  min-height: 44px;
+  min-height: 2.75rem;
   cursor: pointer;
   transition: background-color var(--dur-fast) var(--ease),
     border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease),

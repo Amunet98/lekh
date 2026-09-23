@@ -118,7 +118,7 @@
   gap: 0.4rem;
   /* Kept from when this was a button. It is now inert text, but the height is
      what the bar's row is built around and the actions align to. */
-  min-height: 44px;
+  min-height: 2.75rem;
   font-family: var(--display);
   /* Clamped rather than fixed: this is the largest thing in the bar and the
      bar also has to hold the section nav and three controls. It gets its full
@@ -217,7 +217,11 @@
   /* Clears the fixed bottom dock (see TabSwitcher.css) so the last of the
      content — including the footer — isn't hidden behind it. */
   .page {
-    padding-bottom: calc(4.75rem + env(safe-area-inset-bottom));
+    /* Named, because the Type page has to subtract exactly this to fill the
+       screen (see .type-page in Editor.css) and a hand-copied 4.75rem in two
+       files is a number that drifts. It inherits, so any section can read it. */
+    --page-bottom: calc(4.75rem + env(safe-area-inset-bottom));
+    padding-bottom: var(--page-bottom);
     /* The top edge, the same idea as the sides and the reason it is here
        rather than beside them: two of the three sections open on one of the
        surfaces below, and this padding put a strip of page background between
@@ -235,6 +239,16 @@
   }
   .translate-page {
     padding-block-start: var(--sp-5);
+  }
+
+  /* The dock slides off the bottom of the screen while the keyboard is up (see
+     TabSwitcher.css), so the clearance reserved for it should go with it —
+     otherwise the editor toolbar floats a dock's height above the keys with a
+     band of empty page underneath, which is the same dead space this pass
+     removed from the resting layout. `has-keyboard` is set on <html> by
+     App.tsx from useKeyboardOpen. */
+  .has-keyboard .page {
+    --page-bottom: var(--sp-3);
   }
 
   /* Surfaces that become the screen. They keep their top and bottom hairline
@@ -350,7 +364,7 @@
   /* Not 44px. This is a line of small print that happens to open, not a
      control anyone is hunting for, and a 44px band of empty space under every
      one of them costs more than the easier tap is worth. */
-  min-height: 32px;
+  min-height: 2rem;
   padding: 0 0.15rem;
   cursor: pointer;
   /* The UA triangle, removed twice over: `list-style` is what standards-mode
