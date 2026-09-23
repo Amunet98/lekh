@@ -1,15 +1,18 @@
 import { useState, type RefObject } from 'react'
 import type { EditorState } from '../hooks/useEditorState'
 import { SAMPLES } from '../data/samples'
+import { convertPhrase } from '../lib/engine'
 import { SHARE_AVAILABLE } from '../lib/share'
 import { isNativeApp } from '../lib/androidApp'
 import { tick } from '../lib/haptics'
 import { useToast } from '../hooks/useToast'
 import { useMediaQuery } from '../hooks/useMediaQuery'
+import { useIntroDemo } from '../hooks/useIntroDemo'
 import { DOCK_QUERY } from '../hooks/useDockDetached'
 import { DOWNLOAD_FORMATS, useDownloadActions } from '../hooks/useDownloadActions'
 import { DownloadActions } from './DownloadActions'
 import { ActionSheet, type ActionSheetOption } from './ActionSheet'
+import { SheetIcon } from './SheetIcons'
 import './Editor.css'
 
 function MoreIcon() {
@@ -40,11 +43,21 @@ interface EditorProps {
   editor: EditorState
   textareaRef: RefObject<HTMLTextAreaElement | null>
   onOpenCheatSheet: () => void
+  /** Splash still up — see TypePage, and useIntroDemo for who cares. */
+  booting: boolean
 }
 
-export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
+const PLACEHOLDER = 'namaste — start typing, press space to convert…'
+
+export function Editor({ editor, textareaRef, onOpenCheatSheet, booting }: EditorProps) {
   const toast = useToast()
   const isEmpty = editor.text.length === 0
+
+  /* The one-time first-run demonstration. It drives the placeholder, so it is
+     already impossible for it to cover anything the user has written; the
+     emptiness argument is a snapshot taken at mount, and is about never
+     *starting* for someone who arrived with a draft. See useIntroDemo. */
+  const intro = useIntroDemo(!booting, isEmpty)
   const wordCount = editor.text.trim() === '' ? 0 : editor.text.trim().split(/\s+/).length
 
   /* Eight controls do not fit one row on a phone.
@@ -96,7 +109,13 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
   const moreOptions: ActionSheetOption[] = []
   if (!isEmpty) {
     if (SHARE_AVAILABLE) {
-      moreOptions.push({ id: 'share', label: 'Share', hint: 'Send to another app', onSelect: share })
+      moreOptions.push({
+        id: 'share',
+        label: 'Share',
+        hint: 'Send to another app',
+        icon: <SheetIcon name="share" />,
+        onSelect: share,
+      })
     }
     /* "Save as" is the web's verb, and only the web's. Inside the app
        saveFile hands the file to the system share sheet (see download.ts —
@@ -109,25 +128,53 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
         id: f.id,
         label: native ? `Export ${f.label}` : `Save as ${f.label}`,
         hint: native && f.id !== 'pdf' ? `${f.hint} · via the share sheet` : f.hint,
+        icon: <SheetIcon name={f.icon} />,
         onSelect: () => run(f.id),
       })
     }
   }
   if (editor.lastCleared !== null) {
-    moreOptions.push({ id: 'undo', label: 'Undo clear', hint: 'Put the text back', onSelect: editor.undoClear })
+    moreOptions.push({
+      id: 'undo',
+      label: 'Undo clear',
+      hint: 'Put the text back',
+      icon: <SheetIcon name="undo" />,
+      onSelect: editor.undoClear,
+    })
   } else if (!isEmpty) {
-    moreOptions.push({ id: 'clear', label: 'Clear', hint: 'Empty the editor', danger: true, onSelect: clear })
+    moreOptions.push({
+      id: 'clear',
+      label: 'Clear',
+      hint: 'Empty the editor',
+      danger: true,
+      icon: <SheetIcon name="trash" />,
+      onSelect: clear,
+    })
   }
 
   return (
     <div className="editor-shell">
-      <div className={`editor${editor.flashing ? ' editor--flash' : ''}`}>
+      <div className={`editor${editor.flashing || intro.flashing ? ' editor--flash' : ''}`}>
+        {/*
+          The strip keeps its reserved height whether or not it has chips —
+          letting it collapse would jump the textarea by a row as you type —
+          but it no longer fills that height with a sentence.
+
+          "Suggestions appear here as you type…" was on screen 100% of the
+          time before anyone typed, and most of the time while they did (the
+          chips only exist mid-word), so the app opened on a permanent band of
+          grey text describing a thing that was not happening. With the strip's
+          fill and hairline gone too (see .sugg), the reserved space is now
+          just the top margin of the writing surface.
+
+          The conversion-off line stays. That one is not teaching, it is
+          state — the editor is behaving differently from how it looks, and
+          this is the only thing that says so.
+        */}
         <div className="sugg" aria-live="polite">
           {!editor.nepali ? (
             <span className="sugg-hint">Nepali conversion is off — typing plain English.</span>
-          ) : !editor.pending ? (
-            <span className="sugg-hint">Suggestions appear here as you type…</span>
-          ) : (
+          ) : !editor.pending ? null : (
             <>
               {editor.chips.map((chip) => (
                 <button
@@ -157,6 +204,26 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
           )}
         </div>
 
+        {/* See .editor-mark in Editor.css. aria-hidden and inert to the
+            pointer: it is texture behind the field, not content — and since
+            the demonstration plays once per install and never again, it is
+            also the only thing left on this screen that states the mechanic.
+
+            Held back while the demonstration runs, so the first thing on the
+            screen is one word typing itself rather than a word typing itself
+            over a watermark. It fades in when the demo releases. */}
+        {isEmpty && !intro.active && (
+          <span className="editor-mark" aria-hidden="true">
+            <span className="editor-mark__key">a</span>
+            <span className="editor-mark__arrow">→</span>
+            {/* No `dev` class, deliberately. .editor-mark sets the *display*
+                face (Anek Devanagari) and `dev` would override it with the
+                text face — the mark has been Anek since it was drawn, and
+                splitting one span into three is not the place to restyle it. */}
+            <span className="editor-mark__dev">अ</span>
+          </span>
+        )}
+
         <textarea
           ref={textareaRef}
           id={EDITOR_ID}
@@ -165,10 +232,19 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
           autoCapitalize="off"
           autoCorrect="off"
           aria-label="Nepali editor — type romanized Nepali"
-          placeholder="namaste — start typing, press space to convert…"
+          placeholder={intro.text ?? PLACEHOLDER}
           value={editor.text}
           onChange={(e) => editor.handleChange(e.target.value, e.target.selectionEnd)}
-          onKeyDown={editor.handleKeyDown}
+          /* Typing already ends the demonstration on its own — a placeholder is
+             gone the moment there is a character in the field — but a tap that
+             only moves the caret does not, and sitting there animating under
+             someone's cursor is its own kind of wrong. Both handlers still run
+             their real work; stop() is idempotent and a no-op once it has. */
+          onKeyDown={(e) => {
+            intro.stop()
+            editor.handleKeyDown(e)
+          }}
+          onPointerDown={intro.stop}
         />
 
         <div className="actions">
@@ -212,9 +288,22 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
             </button>
           </div>
 
+          {/* Labelled, and stacked rather than beside — which is the only
+              reason it can be labelled at all. This row has 47px of headroom
+              at the default text size and 7px at the widest; a word set next
+              to the glyph costs 38 of that and wraps the toolbar. Set under
+              it, the button's width is governed by the wider of the two lines
+              instead of their sum, so the label costs about 3px and the row
+              survives every setting.
+
+              It is the same shape as the dock (see TabSwitcher) for the same
+              reason: क ख is the one control here that has to explain itself.
+              ⋯ beside it keeps its glyph — an overflow dot-row is a convention
+              a user has already met, where a pair of Devanagari letters on a
+              button is not. */}
           <button
             type="button"
-            className="btn btn--icon"
+            className="btn btn--icon btn--stack"
             aria-haspopup="dialog"
             title="Cheat sheet — how letters map"
             aria-label="Cheat sheet — how letters map"
@@ -222,6 +311,9 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
           >
             <span className="dev" aria-hidden="true">
               क ख
+            </span>
+            <span className="btn__label" aria-hidden="true">
+              letters
             </span>
           </button>
 
@@ -231,7 +323,15 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
               nothing silently "succeeds" — the label even flips to "copied" —
               which is the kind of feedback that teaches someone the button is
               broken. */}
-          <button type="button" className="btn" disabled={isEmpty} onClick={editor.copy}>
+          {/* The filled one. Getting the Devanagari out is what someone came
+              to this screen to do, so it is the action that carries the
+              accent — see .btn--primary. */}
+          <button
+            type="button"
+            className="btn btn--primary"
+            disabled={isEmpty}
+            onClick={editor.copy}
+          >
             {editor.copied ? 'copied' : 'copy'}
           </button>
           {compactActions ? (
@@ -320,7 +420,22 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
                   textareaRef.current?.focus()
                 }}
               >
-                {sample}
+                {/* Both halves, because one of them was useless to the reader
+                    this screen is for. A chip that said only `kasto chha` was
+                    a line of romanized Nepali — the script a Nepali speaker is
+                    *least* likely to read comfortably — promising an outcome
+                    it never showed. Now the chip is the lesson: this is what
+                    you type, this is what the app gives you back.
+
+                    Stacked rather than joined with an arrow, for the same
+                    reason the cheat-sheet button is stacked: `sanchai
+                    hunuhunchha → सञ्चै हुनुहुन्छ` on one line is twice the
+                    width, and four of those wrap to four rows on a phone.
+
+                    convertPhrase is the same function appendSample runs, so
+                    the label cannot drift from what the tap produces. */}
+                <span className="starter__roman">{sample}</span>
+                <span className="starter__dev dev">{convertPhrase(sample)}</span>
               </button>
             ))}
           </div>
@@ -350,25 +465,37 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
           there was no English to keep, and a full stop stayed a full stop —
           directly under a suggestion bar already saying conversion was off.
           What someone in that state needs is the way back. */}
-      <p className="editor-hint">
-        {editor.nepali ? (
-          <>
-            <kbd>space</kbd> converts ·{' '}
-            <span className="editor-hint__fine">
-              <kbd>esc</kbd> keeps English
-            </span>
-            <span className="editor-hint__coarse">
-              tap <b>(keep)</b> for English
-            </span>{' '}
-            · <kbd>.</kbd> becomes । · runs entirely on your device
-          </>
-        ) : (
-          <>
-            Tap <b className="dev">नेपाली</b> to convert as you type · runs entirely on your
-            device
-          </>
-        )}
-      </p>
+      {/* Empty-state only, like the starters above it — and for the same
+          reason they are. Someone with a paragraph of Devanagari on screen has
+          demonstrably worked out that space converts; leaving the legend there
+          permanently spent two lines at the bottom of every session on the one
+          instruction the user has already followed.
+
+          The mode-off variant is the exception and is why this is a condition
+          rather than a move into the block above: with conversion off, this is
+          the only thing on screen that says how to turn it back on, and that
+          is as true of a full editor as an empty one. */}
+      {(isEmpty || !editor.nepali) && (
+        <p className="editor-hint">
+          {editor.nepali ? (
+            <>
+              <kbd>space</kbd> converts ·{' '}
+              <span className="editor-hint__fine">
+                <kbd>esc</kbd> keeps English
+              </span>
+              <span className="editor-hint__coarse">
+                tap <b>(keep)</b> for English
+              </span>{' '}
+              · <kbd>.</kbd> becomes । · runs entirely on your device
+            </>
+          ) : (
+            <>
+              Tap <b className="dev">नेपाली</b> to convert as you type · runs entirely on your
+              device
+            </>
+          )}
+        </p>
+      )}
     </div>
   )
 }

@@ -18,6 +18,19 @@ export interface Keyword {
   dev?: string
 }
 
+/* Six, not nine.
+ *
+ * Installable, No account and Free were the three with no Devanagari half —
+ * and by the argument above, the Devanagari half is the whole point: a chip
+ * that is only a Latin word is a claim, where the others are the product
+ * demonstrating itself. All three are also already said elsewhere on the same
+ * screen (the install offer is a button in the bar, and the Privacy row states
+ * both of the other two), so what they added to a nine-pill wall inside a
+ * utility app was length.
+ *
+ * The `dev` field stays optional. If a seventh claim ever earns its place and
+ * has no natural gloss, that is a reason to think harder about the wording,
+ * not a reason it cannot be here. */
 export const KEYWORDS: Keyword[] = [
   { term: 'Offline', dev: 'अफलाइन' },
   { term: 'Private', dev: 'निजी' },
@@ -25,7 +38,4 @@ export const KEYWORDS: Keyword[] = [
   { term: 'Phonetic', dev: 'उच्चारण' },
   { term: 'OCR', dev: 'तस्बिरबाट' },
   { term: 'Translate', dev: 'अनुवाद' },
-  { term: 'Installable' },
-  { term: 'No account' },
-  { term: 'Free' },
 ]

@@ -4,6 +4,29 @@
  * collapsed into one muted line underneath. What is left is a suggestion
  * strip, the text, and a toolbar.
  */
+/* 2a: on a phone the writing surface *is* the screen.
+ *
+ * The editor used to be clamp(200px, 44dvh, 480px) — 402px inside a 915px
+ * display — with the starters and the hint under it and then roughly 230px of
+ * empty page between them and the dock. A third of the screen was blank with
+ * nothing below it, which is the single loudest "unfinished web page" signal
+ * in the app.
+ *
+ * So the shell fills the space the page gives it and the editor takes up the
+ * slack: the toolbar, the starters and the hint keep the order they already
+ * had, and the gap that used to pile up at the bottom is absorbed by the text
+ * area instead. Nothing moves relative to anything else; the dead band is
+ * simply gone.
+ *
+ * The height comes from .page's own clearance token rather than a copy of its
+ * arithmetic: --page-bottom is declared in App.css's phone block and inherits
+ * down here, so when the dock slides away for the keyboard and that padding
+ * collapses, the editor grows into the space in the same frame.
+ * padding-block-start is 0 on a phone, so the bar is the only other subtrahend.
+ *
+ * dvh, not vh, and it is load-bearing: it tracks the *visual* viewport, so
+ * when the keyboard comes up the editor shrinks to what is actually visible
+ * rather than pushing the toolbar off the bottom of the screen. */
 .editor-shell {
   display: flex;
   flex-direction: column;
@@ -13,14 +36,40 @@
 .editor {
   display: flex;
   flex-direction: column;
-  background: var(--surface);
+  /* The same warm ground the translation result has — 5% of the accent mixed
+     into the surface.
+   *
+     Both screens now say "your Nepali lives here" the same way: on Translate
+     it separates the result from the thing you typed, and here there is only
+     one surface and it is the result. It is the difference between a writing
+     app that looks like a form and one that looks like paper, which is half
+     of what "Crimson & Paper" was supposed to mean. Subtle by construction —
+     a 1.06 step — and both tokens are repainted together on Android 12+, so
+     it survives a wallpaper rather than drifting off the palette. */
+  background: color-mix(in srgb, var(--accent) 5%, var(--surface));
   /* --border-field, not --border: this is the control the whole app exists
      for, and a 1.26:1 hairline around it does not clear the 3:1 floor for
      something a user has to locate in order to use it. */
   border: 1px solid var(--border-field);
   border-radius: var(--radius-card);
   overflow: hidden;
+  /* For .editor-mark, which paints behind the text. */
+  position: relative;
   transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+/* Desktop only. Below 768px the editor runs to both edges of the display (see
+   the phone block in App.css) and there is no page beside it to lift off — a
+   shadow there would only fog the bezel. The focus ring composes with the rest
+   shadow rather than replacing it, so the card does not visibly drop a level
+   the moment the caret lands in it. */
+@media (min-width: 768px) {
+  .editor {
+    box-shadow: var(--shadow-rest);
+  }
+  .editor:focus-within {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent),
+      var(--shadow-rest);
+  }
 }
 /* The whole card takes the focus treatment when the caret is inside it, so
    the editor reads as one object rather than a box containing a focused
@@ -61,15 +110,19 @@
 
 /* Suggestion strip. Reserves its own height whether or not there is anything
    in it — it sits directly above the text, and letting it collapse would jump
-   the textarea up and down by a row as you type. */
+   the textarea up and down by a row as you type.
+ *
+ * No fill and no rule under it. It used to be a --surface-2 band with a
+ * hairline, which made it a permanent piece of furniture at the top of the
+ * writing surface — and since it is empty most of the time, a piece of
+ * furniture with nothing in it. The chips carry their own edges; when there
+ * are none, the reserved height is simply paper. */
 .sugg {
   display: flex;
   align-items: center;
   gap: var(--sp-2);
-  min-height: 46px;
+  min-height: 2.875rem;
   padding: var(--sp-2) var(--sp-3);
-  border-bottom: 1px solid var(--border);
-  background: var(--surface-2);
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -87,9 +140,9 @@
   gap: 0.35rem;
   flex: 0 0 auto;
   padding: 0.3rem 0.7rem;
-  min-height: 32px;
+  min-height: 2rem;
   font-size: 0.95rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-field);
   background: var(--surface);
   color: var(--text-h);
   border-radius: var(--radius-pill);
@@ -129,18 +182,31 @@
 .editor textarea {
   /* clamp on dvh rather than a fixed rows count. dvh tracks the *visual*
      viewport, so when a phone's on-screen keyboard opens the editor shrinks
-     to what is actually visible instead of pushing the toolbar off-screen. */
-  min-height: clamp(200px, 44dvh, 480px);
+     to what is actually visible instead of pushing the toolbar off-screen.
+     (Below 768px the phone block above takes over with flex: 1 and this is
+     only the floor; these numbers are the desktop layout.)
+
+     68dvh/700px, up from 44dvh/480px. The old ceiling left roughly 300px of
+     empty page under the card in a 900px window — the desktop half of the same
+     dead band the phone layout just lost, and for the same reason: the editor
+     was sized to a guess about a comfortable number of rows rather than to the
+     space it had. It still does not take the whole window, because on a desktop
+     this is a card on a page rather than the page itself. */
+  min-height: clamp(200px, 68dvh, 700px);
   padding: var(--sp-4);
   border: 0;
+  /* Above .editor-mark. The background stays transparent, so the glyph shows
+     through the field rather than being covered by it. */
+  position: relative;
+  z-index: 1;
   resize: vertical;
   background: transparent;
   color: var(--text-h);
   /* 1.05rem, and never below 1rem: iOS zooms the page when a field under
      16px takes focus, which on a typing app means every session starts by
-     jerking the layout sideways. --text-scale (the Settings sheet's text-size
+     jerking the layout sideways. --ui-scale (the Settings sheet's text-size
      control) only ever multiplies up, for that reason. */
-  font-size: calc(1.05rem * var(--text-scale));
+  font-size: 1.05rem;
   line-height: 1.85;
 }
 /* The resize grip is a browser affordance, and on a phone it is only that.
@@ -164,13 +230,42 @@
   color: var(--muted);
 }
 
+/* Below the textarea's own min-height on purpose, not beside .editor-shell
+   where the rest of this argument lives. Both rules are (0,1,1), so the one
+   that wins is the one written last — and with the desktop clamp declared
+   after this block, 68dvh beat `min-height: 0` and the editor stopped being
+   able to shrink. It showed up only with the keyboard open, where 68dvh of a
+   430px viewport is 292px of textarea inside 361px of room: the toolbar went
+   under the keyboard and the page grew a 38px scroll. Measured, after it had
+   been correct at the old 44dvh/480px ceiling, which happened to fit. */
+@media (max-width: 767px) {
+  .type-page {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100dvh - var(--bar-h) - var(--page-bottom, 4.75rem));
+  }
+  .editor-shell,
+  .editor {
+    flex: 1;
+    /* A flex item will not shrink below its content unless told to, and the
+       textarea's min-height would otherwise hold the column open. */
+    min-height: 0;
+  }
+  .editor textarea {
+    flex: 1;
+    min-height: 0;
+  }
+}
+
+/* No fill and no rule above it — see .sugg. These two bands, one at each end
+   of the text, are what made the editor read as three stacked strips instead
+   of one writing surface. The controls have their own edges now (see .btn);
+   the toolbar itself is just a row of them standing on the page. */
 .actions {
   display: flex;
   align-items: center;
   gap: var(--sp-2);
   padding: var(--sp-2) var(--sp-3);
-  border-top: 1px solid var(--border);
-  background: var(--surface-2);
   flex-wrap: wrap;
 }
 /* Pushes copy/clear/count to the trailing edge, so the toolbar reads as
@@ -186,7 +281,7 @@
   gap: 2px;
   padding: 2px;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-field);
   border-radius: var(--radius-pill);
 }
 .lang-seg__opt {
@@ -199,8 +294,8 @@
      one thing the app is named for. The ::after trick .btn uses is no help
      here: these two sit 2px apart inside a shared track, so growing their
      areas sideways would only make them fight each other. */
-  min-height: 38px;
-  min-width: 44px;
+  min-height: 2.375rem;
+  min-width: 2.75rem;
   padding: 0 var(--sp-3);
   border: 0;
   background: transparent;
@@ -220,11 +315,27 @@
   color: var(--on-accent);
 }
 
+/* --border-field, not --border, and this is index.css's own rule finally
+ * applied to the control it was written for. That file draws the distinction
+ * plainly: --border is decorative, for a divider or the edge of a card you are
+ * not asked to operate, and it sits at 1.26:1; anything a user has to *find*
+ * in order to use it takes --border-field, which clears the 3:1 floor for UI
+ * components. Every secondary button in the app — copy, clear, share, undo
+ * clear, remove, Download, add to calendar — was drawn at 1.26:1, which is
+ * why they all read as ghosts, and why a disabled one at 0.4 opacity looked no
+ * different from a live one.
+ *
+ * The fill moves to --surface-2 for the same reason. A button needs a body,
+ * not just an outline: on --surface it was a white pill on a white toolbar
+ * held together by a hairline nobody could see. --surface-2 is now the tone
+ * for a control or a recess rather than for a band (see .sugg and .actions
+ * above, which gave it up), so this is the same token doing a coherent job.
+ * --text on it is 6.92:1, --border-field 3.14:1. */
 .btn {
-  min-height: 36px;
+  min-height: 2.25rem;
   padding: 0 var(--sp-3);
-  border: 1px solid var(--border);
-  background: var(--surface);
+  border: 1px solid var(--border-field);
+  background: var(--surface-2);
   color: var(--text);
   font-family: var(--sans);
   font-size: 0.82rem;
@@ -237,8 +348,41 @@
 @media (hover: hover) {
   .btn:hover:not(:disabled) {
     color: var(--text-h);
-    border-color: var(--border-field);
+    background: color-mix(in srgb, var(--text) 8%, var(--surface-2));
   }
+}
+
+/* The one action a screen exists to produce.
+ *
+ * Nothing in this app was a filled button except the thumb of a segmented
+ * control, so crimson only ever appeared in ~40px doses and never as an area —
+ * which is most of why the interface reads as flat. One filled primary per
+ * screen puts a real block of the accent on every screen and costs no layout
+ * at all. --on-accent on --accent is 5.88:1, already measured in index.css.
+ *
+ * One. If a second button here ever takes this class, one of them is not the
+ * primary action and the question to answer is which. */
+.btn--primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+}
+@media (hover: hover) {
+  .btn--primary:hover:not(:disabled) {
+    color: var(--on-accent);
+    background: color-mix(in srgb, #000 10%, var(--accent));
+  }
+}
+/* A disabled primary drops back to the secondary skin rather than fading.
+   .btn:disabled's 0.4 opacity turns crimson into a mid pink, which on the
+   empty Type screen made the most prominent thing on the page a button that
+   looks live and does nothing — the exact failure the opacity exists to
+   prevent, produced by the opacity. Faded grey cannot be misread. */
+.btn--primary:disabled {
+  border-color: var(--border-field);
+  background: var(--surface-2);
+  color: var(--text);
 }
 /* The tappable area, taken to the 44px touch floor without changing the 36px
  * the button draws. 44 in layout terms — 36 plus 4 either side — and 43 when
@@ -266,10 +410,32 @@
  * Not applied to the segmented controls or the disclosures, and neither is an
  * oversight: .mode-seg__opt is 38 so that its track is 44, and
  * .disclosure > summary says in App.css why a line of small print that happens
- * to open should not reserve a 44px band. */
+ * to open should not reserve a 44px band.
+ *
+ * Every number quoted here is the size at the default setting, because the
+ * heights are rem now rather than px. As px they were the one part of a
+ * control the text-size setting could not move: the label grew, the padding
+ * grew with it, and the box stayed pinned at 36 — so the setting made the text
+ * bigger and the target no bigger at all. The inset stays 4px against an 8px
+ * row gap at every setting, which is the invariant this comment is really
+ * about: two stacked rows' areas meet and never overlap. */
 .btn,
 .starter {
   position: relative;
+}
+/* What you type, and what you get. The roman is the smaller of the two on
+   purpose: it is the instruction, and the Devanagari under it is the result
+   the reader actually came for. Line-height 1.1 rather than the body's 1.6,
+   which would set two lines of a pill nearly 60px tall. */
+.starter__roman {
+  font-size: 0.72rem;
+  color: var(--muted);
+  line-height: 1.1;
+}
+.starter__dev {
+  font-size: 0.95rem;
+  color: var(--text-h);
+  line-height: 1.3;
 }
 .btn::after,
 .starter::after {
@@ -288,9 +454,33 @@
   opacity: 0.4;
   cursor: not-allowed;
 }
+/* The glyph over its name, in the height the row already has.
+ *
+ * A 2.5rem button holds a 0.95rem glyph and a 0.6rem label with room to
+ * spare, so this buys its word out of vertical space that was already
+ * reserved rather than out of the horizontal space the row is short of.
+ * line-height: 1 on both, because the app's 1.6 body leading would stack
+ * two lines taller than the button. */
+.btn--stack {
+  flex-direction: column;
+  gap: 1px;
+  padding: 0 var(--sp-2);
+  line-height: 1;
+}
+.btn--stack > * {
+  line-height: 1;
+}
+.btn__label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  /* The glyph is the subject; the word underneath is a caption for it. */
+  opacity: 0.75;
+}
+
 .btn--icon {
-  min-width: 44px;
-  min-height: 40px;
+  min-width: 2.75rem;
+  min-height: 2.5rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -307,15 +497,122 @@
   }
 }
 
+/* Not mono. There is no code in this app, and a monospace register on the one
+   number in the toolbar was the fourth typeface on the Type screen (Anek for
+   the wordmark, Inter for the UI, Noto Devanagari for the user's own writing,
+   and this). tabular-nums is what actually stops the trailing edge twitching
+   as the count changes; the face never had anything to do with it. */
+/* At the wider text sizes the count stops being a member of this row.
+ *
+ * Measured at 390px with the row at its narrowest — `copy` before it says
+ * `copied`, `0 words` before it says `148 words` — the toolbar has 47px of
+ * headroom at the default setting and 7px at the widest. That is not a margin,
+ * it is a coin toss, and losing it wraps the row: the count drops to a second
+ * line and takes the overflow button with it, which is the exact failure this
+ * toolbar was rebuilt around (see the compactActions branch in Editor.tsx).
+ *
+ * So it is sent to its own line deliberately rather than left to wrap into one
+ * by accident. flex-basis: 100% makes the break happen after the controls, so
+ * the controls keep one row and the one thing in here that is not a control —
+ * a number nobody taps — takes the second. It stays right-aligned, so it lands
+ * under the overflow button where it already sat.
+ *
+ * Keyed off the attribute App.tsx writes beside --ui-scale, because a custom
+ * property's value cannot be matched in a selector. */
+:root[data-ui-scale='lg'] .actions .count,
+:root[data-ui-scale='xl'] .actions .count {
+  flex: 1 0 100%;
+}
+
 .count {
-  font-family: var(--mono);
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   color: var(--muted);
   /* Tabular figures — the count changes on every keystroke and proportional
      digits make the toolbar's trailing edge twitch as it does. */
   font-variant-numeric: tabular-nums;
   min-width: 3ch;
   text-align: right;
+}
+
+/* 2e: the empty writing surface gets a face.
+ *
+ * A blank textarea is the correct amount of chrome and the wrong amount of
+ * *anything* — on a phone it is 400-odd px of undifferentiated white, and it
+ * is the first thing anyone sees. One large glyph behind the text says, with
+ * no words and no controls, that this is a place Devanagari comes out of.
+ *
+ * अ rather than the wordmark: लेख / पात्रो is already in the bar directly
+ * above, and repeating it here would be branding twice on one screen. This is
+ * the first letter of the alphabet the app writes.
+ *
+ * `a → अ` rather than अ alone, and that arrow is the whole point of the
+ * change. The first-run demonstration types one word and then sets seenIntro
+ * for good, so from the second launch onwards this mark was the largest thing
+ * on an empty screen and it said only "Devanagari happens here" — true, and
+ * not the thing a new user cannot guess. The key that produces the letter is
+ * the lesson, it costs no layout (this is still one absolutely-positioned
+ * layer behind the field), and it is legible to someone who has never been
+ * shown the app, every time they open it rather than once.
+ *
+ * Behind, not beside: it is aria-hidden, pointer-events: none, and it is gone
+ * the moment there is anything to read (see Editor.tsx), so it can never sit
+ * underneath someone's own writing. Costs no layout at all. */
+.editor-mark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+  font-family: var(--display-dev);
+  /* The one place in the app that scales *against* the text-size setting.
+   *
+     The mark is texture behind the field, not something anyone is asked to
+     read, and it is sized to the field. As rem it did the opposite of what it
+     should: at the widest setting the toolbar, chips, legend and dock all grew
+     and took the editor from 458px to 222px, while the mark grew too and ended
+     up covering nearly the whole of what was left, placeholder included.
+     Dividing by the scale holds it at roughly the same share of the field at
+     every setting — 164px of a 458px editor, 126px of a 222px one — which is
+     what "sized to the field" meant in the first place. px bounds rather than
+     rem for the same reason. */
+  font-size: clamp(90px, calc(42vw / var(--ui-scale)), 240px);
+  line-height: 1;
+  /* The accent at 9%, not a neutral. A grey glyph on a warm ground reads as a
+     smudge; a trace of the app's own crimson reads as ink. Nowhere near text
+     contrast on purpose — it is a texture, not something anyone is asked to
+     read, and the placeholder above it is --muted at 4.97:1. */
+  color: color-mix(in srgb, var(--accent) 9%, transparent);
+  /* The glyph's own body is not centred in its em box, and at this size that
+     reads as the mark sitting high in the field. */
+  padding-block-start: 0.08em;
+  /* Three parts now, and the row has to stay a row at 390px: the key and the
+     arrow are sized as fractions of the glyph so the whole mark scales as one
+     thing off the clamp above. */
+  gap: 0.08em;
+}
+/* Small enough to read as annotation on the letter rather than as a second
+   letter. Latin, so --sans rather than the Devanagari display face. */
+.editor-mark__key {
+  font-family: var(--sans);
+  font-size: 0.3em;
+  font-weight: 600;
+  /* The three parts sit on the Devanagari glyph's optical centre, not on a
+     shared baseline — at a 3:1 size ratio a common baseline drops the small
+     two to the floor of the mark. */
+  align-self: center;
+}
+.editor-mark__arrow {
+  font-family: var(--sans);
+  font-size: 0.26em;
+  align-self: center;
+  /* Lighter than what it points between, so the eye lands on the pair. */
+  opacity: 0.7;
+}
+.editor-mark__dev {
+  align-self: center;
 }
 
 /* Empty state. Present only while the editor has no text — see Editor.tsx. */
@@ -325,12 +622,19 @@
   gap: var(--sp-2);
   flex-wrap: wrap;
 }
+/* "Try one", not "TRY ONE".
+ *
+ * 0.72rem uppercase in --muted with 0.1em of tracking is the eyebrow this app
+ * puts over a group inside a list — and it was heading the one thing on an
+ * empty Type screen that invites a first tap. Set as a small heading instead,
+ * the same move the translate panes' labels got: a step larger, the text
+ * colour, sentence case, no tracking. */
 .starters__label {
-  font-size: 0.72rem;
+  font-family: var(--display);
+  font-size: 0.85rem;
   font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
+  letter-spacing: -0.01em;
+  color: var(--text);
 }
 .starters__row {
   display: flex;
@@ -338,10 +642,20 @@
   flex-wrap: wrap;
 }
 .starter {
-  min-height: 36px;
-  padding: 0 var(--sp-3);
-  border: 1px dashed var(--border-field);
-  background: transparent;
+  /* Two lines now (see Editor.tsx), so this is the floor rather than the
+     height — the chip takes whatever its contents need. */
+  min-height: 2.25rem;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1px;
+  padding: var(--sp-2) var(--sp-3);
+  /* Solid, not dashed. A dashed edge means dropzone or placeholder everywhere
+     else in UI, and it made four working buttons read as an unfinished part of
+     the page rather than as things to tap. */
+  border: 1px solid var(--border-field);
+  background: var(--surface);
   color: var(--text);
   font-family: var(--sans);
   font-size: 0.82rem;
@@ -395,7 +709,7 @@
 @media (max-width: 480px) {
   .editor textarea {
     padding: var(--sp-3);
-    font-size: calc(1rem * var(--text-scale));
+    font-size: 1rem;
   }
   .actions {
     gap: var(--sp-1);

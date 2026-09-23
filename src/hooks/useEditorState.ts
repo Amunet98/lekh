@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { convert, suggest } from '../lib/engine'
+import { convert, convertPhrase, suggest } from '../lib/engine'
 import type { Chip } from '../lib/engine/types'
 import { confirm, tick } from '../lib/haptics'
 import { getPref } from '../lib/prefs'
@@ -148,11 +148,7 @@ export function useEditorState() {
   }, [])
 
   const appendSample = useCallback((words: string) => {
-    const converted = words
-      .trim()
-      .split(/\s+/)
-      .map(convert)
-      .join(' ')
+    const converted = convertPhrase(words)
     setText((t) => {
       const sep = t && !/\s$/.test(t) ? ' ' : ''
       return t + sep + converted + ' '
