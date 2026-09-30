@@ -108,3 +108,26 @@ python3 -c "from PIL import Image; \
 
 Only clients that probe `/favicon.ico` directly use it — `index.html` links the
 PNGs — so this rarely needs redoing.
+
+## store-screenshots.html → design/play/0N-*.png
+
+```sh
+npm run play:screenshots
+```
+
+The seven Play Store phone screenshots (1440×2560): a headline, a Devanagari
+kicker and a **real** device capture from `design/play/raw/` in a phone frame,
+each on its own ground (crimson, paper, flag blue, night, marigold, wallpaper
+violet, paper). The renderer flattens to RGB because Play rejects screenshots
+with an alpha channel.
+
+The captures are real on purpose — re-shoot them when the UI changes rather
+than editing pixels. Recipe (2026-09-30): the `.dev` debug APK driven over CDP
+(see lekh-claude.md), wallpaper colours OFF in that copy so the app wears
+Crimson & Paper, `font_scale` 1.0, and Android's SystemUI demo mode for a clean
+status bar (`am broadcast -a com.android.systemui.demo -e command clock -e hhmm
+0941`, battery 100, notifications hidden). Restore all three afterwards. The
+widgets come from `WidgetPreviewActivity` and keep the wallpaper palette,
+because that is what they really do; they are cut out with a geometric
+rounded-rect mask (radius 60px at 3x) — a colour-distance mask eats the light
+text near the corners.

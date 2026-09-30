@@ -61,4 +61,5 @@ online translation feature, transient, not stored, and user-initiated.
 |---|---|
 | `icon-512.png` | App icon, 512×512, 32-bit with alpha |
 | `feature-graphic.png` | 1024×500, regenerate with `npm run play:feature` |
-| `01-type.png` … `05-widgets.png` | Phone screenshots, 1080×1920 (9:16) |
+| `01-type.png` … `07-private.png` | Phone screenshots, 1440×2560 (9:16), 24-bit. Regenerate with `npm run play:screenshots` from `design/store-screenshots.html` |
+| `raw/` | The real device captures inside those frames (A024, 2026-09-30, v1.9.34) — recapture when the UI changes |

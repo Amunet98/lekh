@@ -18,6 +18,7 @@
     "android:release": "npm run android:assets && npm run build && npx cap sync android && cd android && ./gradlew assembleRelease",
     "android:bundle": "npm run android:assets && npm run build && npx cap sync android && cd android && ./gradlew bundleRelease",
     "play:feature": "node scripts/render-feature-graphic.mjs",
+    "play:screenshots": "node scripts/render-store-screenshots.mjs",
     "play:publish": "npm run android:bundle && node scripts/play-publish.mjs"
   },
   "dependencies": {
