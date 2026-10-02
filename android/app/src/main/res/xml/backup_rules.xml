@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 8-11. Same exclusions as data_extraction_rules.xml, which
+     explains why the WebView's service worker must not be restored. -->
+<full-backup-content>
+    <exclude domain="root" path="app_webview/Default/Service Worker/" />
+    <exclude domain="root" path="app_webview/Service Worker/" />
+</full-backup-content>

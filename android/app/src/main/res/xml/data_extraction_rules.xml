@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 12+ (API 31+). Keep in step with backup_rules.xml, which is the
+     same list for Android 8-11.
+
+     The app is a WebView pointed at the live site, and the WebView keeps its
+     service worker and the precached app shell under app_webview/. Restoring
+     that folder (on reinstall, or on a new phone) brings back whatever build
+     the old install last cached: the old UI paints first, then the update
+     check finds the live build, and because downloading it outlasts
+     UpdatePrompt's 10s fresh-load window the user gets a "Reload" banner on
+     their very first launch. Seen 2026-10-03 after an uninstall/reinstall
+     from Play on the closed-test phone.
+
+     Only the service worker is excluded. localStorage (theme, text size,
+     other prefs) sits beside it and still comes across, and so does
+     everything outside app_webview/. -->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="root" path="app_webview/Default/Service Worker/" />
+        <exclude domain="root" path="app_webview/Service Worker/" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="root" path="app_webview/Default/Service Worker/" />
+        <exclude domain="root" path="app_webview/Service Worker/" />
+    </device-transfer>
+</data-extraction-rules>
