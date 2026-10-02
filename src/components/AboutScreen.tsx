@@ -3,7 +3,7 @@ import { SectionIcon } from './SectionIcons'
 import { LekhMark } from './LekhMark'
 import { KEYWORDS } from '../data/keywords'
 import { useHasAndroidApp } from '../hooks/useHasAndroidApp'
-import { APK_URL, isAndroid } from '../lib/androidApp'
+import { APK_URL, PLAY_URL, isAndroid } from '../lib/androidApp'
 import { versionLine } from '../lib/report'
 import { useNativeInfo } from '../hooks/useNativeInfo'
 import { ReportBlock } from './ReportBlock'
@@ -113,13 +113,27 @@ export function AboutScreen({ onDismiss, onGoTo }: AboutScreenProps) {
               the header button and this row can never disagree about what
               Android is offered. */}
           {android && !hasApp && (
-            <a className="about__apk" href={APK_URL} target="_blank" rel="noopener noreferrer">
-              <span className="about__apk-main">Get the Android app (.apk)</span>
-              <span className="about__apk-sub">
-                Downloads a ~23&nbsp;MB .apk file directly — the only version with the{' '}
-                <span className="dev">पात्रो</span> home-screen widget.
-              </span>
-            </a>
+            <>
+              <a className="about__apk" href={PLAY_URL} target="_blank" rel="noopener noreferrer">
+                <span className="about__apk-main">Get the Android app on Google Play</span>
+                <span className="about__apk-sub">
+                  The only version with the <span className="dev">पात्रो</span>{' '}
+                  home-screen widget, and Play keeps it updated.
+                </span>
+              </a>
+              {/* Same build, for phones without Play. Under the Play row and
+                  quieter, because sideloading is blocked outright when
+                  Advanced Protection is on. */}
+              <a
+                className="about__apk about__apk--alt"
+                href={APK_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span className="about__apk-main">No Play Store? Download the .apk</span>
+                <span className="about__apk-sub">About 23&nbsp;MB, same app, installed by hand.</span>
+              </a>
+            </>
           )}
 
           {/* Above Privacy rather than below it, because these two rows are not

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { APK_URL, isAndroidWebApp } from '../lib/androidApp'
+import { PLAY_URL, isAndroidWebApp } from '../lib/androidApp'
 import './WebAppNotice.css'
 
 const DISMISSED_KEY = 'lekh-web-app-notice-dismissed'
@@ -80,11 +80,11 @@ export function WebAppNotice({ suppressed = false }: WebAppNoticeProps) {
         </button>
         <a
           className="web-app-notice__btn web-app-notice__btn--primary"
-          href={APK_URL}
+          href={PLAY_URL}
           target="_blank"
           rel="noopener noreferrer"
         >
-          Get app (.apk)
+          Get the app
         </a>
       </div>
     </div>

@@ -173,10 +173,9 @@ festival list and a widget is not where anyone wants to find that out. The
 5-wide grows a week strip when you make it taller, which is what replaced the
 separate 4x2 and 5x2 sizes. It ships as part of the Capacitor Android app that
 wraps the web app (`capacitor.config.ts`'s `server.url` points at the live
-site, so most web fixes ship without a new build), and is **on Play's internal
-testing track, not publicly released** — Play requires a closed test before
-production access. See `android/README.md` for the build and widget details
-and `lekh-play.md` for where the release stands.
+site, so most web fixes ship without a new build), and is **[on Google
+Play](https://play.google.com/store/apps/details?id=np.com.bimeshpoudel.lekh)** since 2026-10-02. See `android/README.md` for the build and
+widget details.
 
 ## Installing and updating
 
@@ -184,7 +183,7 @@ and `lekh-play.md` for where the release stands.
 
 | You are on | Install | Why |
 |---|---|---|
-| **Android** | the [`.apk`](https://github.com/Amunet98/lekh/releases/latest) | Home-screen widgets. A PWA cannot provide them — the `widgets` manifest member is Microsoft's Windows 11 feature, not the Android home screen — so the Android build is a real app, not an installed web page. |
+| **Android** | [Google Play](https://play.google.com/store/apps/details?id=np.com.bimeshpoudel.lekh), or the [`.apk`](https://github.com/Amunet98/lekh/releases/latest) on a phone without Play | Home-screen widgets. A PWA cannot provide them — the `widgets` manifest member is Microsoft's Windows 11 feature, not the Android home screen — so the Android build is a real app, not an installed web page. |
 | **iPhone / iPad** | the PWA — Share → Add to Home Screen | There is no Android-style install prompt on iOS, and no App Store build. |
 | **Desktop** | the PWA — install button in the header | Works in any Chromium browser. |
 
@@ -214,9 +213,10 @@ dictionary, and cheat sheet work offline. Details worth knowing:
 
 ### Installing the Android app on a phone with Advanced Protection
 
-This is the Android route — the current `.apk` is on the
-[releases page](https://github.com/Amunet98/lekh/releases/latest). On iOS or
-desktop you want the PWA instead, and none of this applies.
+**Install from [Google Play](https://play.google.com/store/apps/details?id=np.com.bimeshpoudel.lekh) and none of this applies** — Advanced
+Protection only blocks installs from outside Play. This section is for the
+`.apk` from the [releases page](https://github.com/Amunet98/lekh/releases/latest),
+on a phone without Play. On iOS or desktop you want the PWA instead.
 
 **If Android's Advanced Protection is switched on, the install will fail and
 the phone will not really tell you why.** Advanced Protection is a single

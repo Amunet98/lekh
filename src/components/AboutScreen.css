@@ -214,6 +214,15 @@
   text-decoration: none;
   min-height: 2.75rem;
 }
+.about__apk--alt {
+  margin-top: var(--sp-2);
+  border-color: var(--border);
+  background: none;
+}
+.about__apk--alt .about__apk-main {
+  font-size: 0.85rem;
+  color: var(--text);
+}
 .about__apk-main {
   display: block;
   font-family: var(--sans);

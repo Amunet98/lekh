@@ -1,6 +1,6 @@
 import { useInstallPrompt } from '../hooks/useInstallPrompt'
 import { useHasAndroidApp } from '../hooks/useHasAndroidApp'
-import { APK_URL, isAndroid } from '../lib/androidApp'
+import { PLAY_URL, isAndroid } from '../lib/androidApp'
 import './InstallButton.css'
 
 function DownloadIcon() {
@@ -28,7 +28,11 @@ function DownloadIcon() {
   )
 }
 
-/* One install affordance per platform, and on Android it is the APK.
+/* One install affordance per platform, and on Android it is the Play listing.
+ *
+ * It was the APK until the listing went public. Play is the better default
+ * now: the same build, it installs with Advanced Protection on, and it keeps
+ * itself updated. The APK is still offered in About, for phones without Play.
  *
  * This button used to fire the PWA install prompt on every platform. On
  * Android that was actively misleading: it was the most prominent control on
@@ -72,13 +76,13 @@ export function InstallButton() {
     return (
       <a
         className="install-btn"
-        href={APK_URL}
+        href={PLAY_URL}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="Download the Android app as an APK file, which includes the Patro home-screen widget"
+        aria-label="Get the Android app on Google Play, which includes the Patro home-screen widget"
       >
         <DownloadIcon />
-        Get app (.apk)
+        Get app
       </a>
     )
   }

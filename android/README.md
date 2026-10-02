@@ -243,15 +243,20 @@ doesn't rebuild — and defaults to the `internal` track
 
 **Both channels are live, and they are for different people.** Play carries
 the app for anyone who can install from Play; the `android-v*` GitHub releases
-(asset `lekh-patro.apk`) carry it for everyone else, and are what the site's
-own "Get app (.apk)" button downloads via `releases/latest/download`.
+(asset `lekh-patro.apk`) carry it for everyone else. Since the public Play
+listing (2026-10-02) the site's "Get app" button opens Play, and the APK is the
+second row in About ("No Play Store?"), downloaded via `releases/latest/download`.
 
 `android-v1.0.0` through `android-v1.5.2` are TWA-era history and predate both
 the version-unification with `package.json` and the Play automation. From
 **`android-v1.8.72` (2026-09-01)** the GitHub release is a current Capacitor
 build again, cut from the same APK as the Play upload.
 
-Routine releases still go to Play with `npm run play:publish`. Cut a GitHub
+Routine releases still go to Play with `npm run play:publish`, which lands on
+the internal track; the service account cannot touch production, so a native
+change reaches the public only when it is promoted in the Console (Production →
+Create new release → Add from library — the "Promote release" shortcut once
+saved no release at all). Cut a GitHub
 release when the sideload copy has drifted far enough to matter — it sat 67
 patch versions behind before this one, which made the README's own install
 instructions point at a build from before the Capacitor migration. The asset
