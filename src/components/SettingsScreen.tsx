@@ -18,6 +18,7 @@ import type { EditorSize } from '../lib/prefs'
 import type { Tab } from './TabSwitcher'
 
 import './sheet.css'
+import { RowChevron } from './SheetIcons'
 import './SettingsScreen.css'
 
 /* Settings, which the app did not have.
@@ -343,7 +344,7 @@ export function SettingsScreen({ open, onDismiss, onOpenAbout, onGoTo, t }: Sett
                   <span className="sheet-row__rest">plays the one-word introduction again</span>
                 </span>
                 <span className="sheet-row__go" aria-hidden="true">
-                  →
+                  <RowChevron />
                 </span>
               </button>
             </div>
@@ -400,7 +401,7 @@ export function SettingsScreen({ open, onDismiss, onOpenAbout, onGoTo, t }: Sett
                   disabled={clearing || cacheBytes === 0}
                   onClick={() => setConfirmingClear(true)}
                 >
-                  {clearing ? 'clearing…' : 'clear'}
+                  {clearing ? 'Clearing…' : 'Clear'}
                 </button>
               </div>
               {/* In the row group rather than floating over it, so the question
@@ -463,7 +464,7 @@ export function SettingsScreen({ open, onDismiss, onOpenAbout, onGoTo, t }: Sett
               <span className="sheet-row__rest">{versionLine(native)}</span>
             </span>
             <span className="sheet-row__go" aria-hidden="true">
-              →
+              <RowChevron />
             </span>
           </button>
         </div>

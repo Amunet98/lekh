@@ -10,7 +10,7 @@ export function TranslationOutput({ t }: { t: TranslateState }) {
     <>
       <div className="translate-output dev" aria-live="polite">
         {t.interpretedAs && (
-          <p className="sugg-hint interpreted-hint">interpreted as: {t.interpretedAs}</p>
+          <p className="sugg-hint interpreted-hint">Interpreted as: {t.interpretedAs}</p>
         )}
         {t.status === 'loading' && t.modelLoad !== null ? (
           t.modelLoad.phase === 'downloading' ? (
@@ -103,11 +103,11 @@ export function TranslationOutput({ t }: { t: TranslateState }) {
           disabled={!t.translated}
           onClick={() => void t.copy()}
         >
-          {t.copied ? 'copied' : 'copy'}
+          {t.copied ? 'Copied' : 'Copy'}
         </button>
         {SHARE_AVAILABLE && (
           <button type="button" className="btn" disabled={!t.translated} onClick={() => void t.share()}>
-            share
+            Share
           </button>
         )}
       </div>

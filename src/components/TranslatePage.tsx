@@ -137,7 +137,7 @@ export function TranslatePage({ t }: TranslatePageProps) {
                 onClick={upload.openFilePicker}
               >
                 <SectionIcon name="upload" size={14} />
-                upload
+                Upload
               </button>
               {/* A second capture-mode input rather than a second visible
                   affordance for "browse" vs "camera" — most phones already
@@ -160,11 +160,11 @@ export function TranslatePage({ t }: TranslatePageProps) {
               {!upload.currentFile &&
                 (t.lastClearedSource !== null ? (
                   <button type="button" className="btn" onClick={t.undoClearSource}>
-                    undo clear
+                    Undo clear
                   </button>
                 ) : (
                   <button type="button" className="btn" disabled={isEmpty} onClick={upload.clearUpload}>
-                    clear
+                    Clear
                   </button>
                 ))}
             </div>
@@ -192,7 +192,7 @@ export function TranslatePage({ t }: TranslatePageProps) {
               )}
               <span className="upload-current__name">{upload.currentFile}</span>
               <button type="button" className="btn" onClick={upload.clearUpload}>
-                remove
+                Remove
               </button>
             </div>
           )}

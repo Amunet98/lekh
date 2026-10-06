@@ -313,7 +313,7 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet, booting }: Edito
               क ख
             </span>
             <span className="btn__label" aria-hidden="true">
-              letters
+              Letters
             </span>
           </button>
 
@@ -332,7 +332,7 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet, booting }: Edito
             disabled={isEmpty}
             onClick={editor.copy}
           >
-            {editor.copied ? 'copied' : 'copy'}
+            {editor.copied ? 'Copied' : 'Copy'}
           </button>
           {compactActions ? (
             <>
@@ -362,7 +362,7 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet, booting }: Edito
                   on every tap. */}
               {SHARE_AVAILABLE && (
                 <button type="button" className="btn" disabled={isEmpty} onClick={share}>
-                  share
+                  Share
                 </button>
               )}
               {/* Typing is the app's main job and it was the one screen you could
@@ -376,11 +376,11 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet, booting }: Edito
               />
               {editor.lastCleared !== null ? (
                 <button type="button" className="btn" onClick={editor.undoClear}>
-                  undo clear
+                  Undo clear
                 </button>
               ) : (
                 <button type="button" className="btn" disabled={isEmpty} onClick={clear}>
-                  clear
+                  Clear
                 </button>
               )}
             </>
@@ -393,7 +393,7 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet, booting }: Edito
               toolbar was rebuilt to stop wrapping), so below that it is simply
               the words, which is the number a writing app is asked for
               anyway. */}
-          <span className="count">
+          <span className={`count${wordCount === 0 ? ' count--empty' : ''}`}>
             {wordCount} {wordCount === 1 ? 'word' : 'words'}
             <span className="count__chars"> · {editor.text.length} characters</span>
           </span>

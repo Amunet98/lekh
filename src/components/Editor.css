@@ -272,6 +272,12 @@
    "what mode am I in" on the left and "what can I do with this" on the
    right. A margin-left: auto on the first right-hand button would break the
    moment the row wraps on a narrow phone. */
+/* One height for the whole row. Copy is a plain .btn (36px) while letters and
+   the overflow button are .btn--icon (40px), so the one filled button in the
+   row was also the one visibly shorter than its neighbours. */
+.actions > .btn {
+  min-height: 2.5rem;
+}
 .actions__spacer {
   flex: 1 1 auto;
 }
@@ -383,6 +389,9 @@
   border-color: var(--border-field);
   background: var(--surface-2);
   color: var(--text);
+  /* translate.css gives every .btn--primary the accent glow, and nothing took
+     it back here, so a disabled copy was a grey pill with a pink shadow. */
+  box-shadow: none;
 }
 /* The tappable area, taken to the 44px touch floor without changing the 36px
  * the button draws. 44 in layout terms — 36 plus 4 either side — and 43 when
@@ -737,4 +746,11 @@
   .count__chars {
     display: inline;
   }
+}
+
+/* "0 words" on an empty editor is a count of nothing. Hidden rather than
+   removed so the slot keeps its width and copy does not shift on the first
+   keystroke. */
+.count--empty {
+  visibility: hidden;
 }

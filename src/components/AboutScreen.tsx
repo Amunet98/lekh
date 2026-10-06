@@ -10,6 +10,7 @@ import { ReportBlock } from './ReportBlock'
 import { ScreenBar } from './Screen'
 
 import './sheet.css'
+import { RowChevron } from './SheetIcons'
 import './AboutScreen.css'
 
 interface AboutScreenProps {
@@ -84,7 +85,7 @@ export function AboutScreen({ onDismiss, onGoTo }: AboutScreenProps) {
                   <span className="sheet-row__rest">{rest}</span>
                 </span>
                 <span className="sheet-row__go" aria-hidden="true">
-                  →
+                  <RowChevron />
                 </span>
               </button>
             ))}
@@ -176,7 +177,7 @@ export function AboutScreen({ onDismiss, onGoTo }: AboutScreenProps) {
               <span className="sheet-row__rest">typing, OCR and calendar stay local</span>
             </span>
             <span className="sheet-row__go" aria-hidden="true">
-              →
+              <RowChevron />
             </span>
           </a>
 

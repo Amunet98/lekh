@@ -300,6 +300,16 @@
     border-block-start: 0;
   }
 
+  /* Patro: the month bar draws its own bottom hairline, then the page gap,
+     then the grid draws a top one, which on a phone left a 16px strip of page
+     ruled off at both edges between the bar and the weekday names. The bar
+     already separates the two, so the grid tucks up under it. Only when they
+     are adjacent: with the today button between them the gap is doing work. */
+  .page .cal__nav + .cal__grid {
+    margin-block-start: calc(-1 * var(--sp-4));
+    border-block-start: 0;
+  }
+
   /* A bled list keeps its heading where it was, so the rows have to come to
      the heading rather than the other way round: the row pays the gutter as
      its own padding, and the two labels share a left edge. Without this the

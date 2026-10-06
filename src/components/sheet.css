@@ -140,6 +140,7 @@
 }
 .sheet-row__go {
   margin-left: auto;
+  flex-shrink: 0;
   color: var(--muted);
   transition: transform var(--dur-fast) var(--ease-expo), color var(--dur-fast) var(--ease);
 }

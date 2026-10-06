@@ -390,7 +390,7 @@ export function CalendarPage({ converterOpen, onOpenConverter, onCloseConverter 
                   )
               }
             >
-              add to calendar
+              Add to calendar
             </button>
           </>
         ) : (
