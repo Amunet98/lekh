@@ -293,6 +293,13 @@
   position: relative;
   z-index: 1;
 }
+/* A holiday for some people only — the Valley, women employees, a community.
+   Half the holiday tint and no red numeral: marked, but not saying "day off"
+   to everyone who is not in that group. */
+.cal__cell--partial::before {
+  background: color-mix(in srgb, var(--bida-bg) 32%, var(--surface));
+}
+
 .cal__dot {
   z-index: 1;
 }
@@ -534,6 +541,121 @@
   font-size: 0.9rem;
   color: var(--text-h);
   line-height: 1.5;
+}
+
+/* The day's kind, above its festivals: partial holiday and साइत. */
+.cal__badges {
+  margin: var(--sp-3) 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+.cal__badge {
+  font-size: 0.8rem;
+  line-height: 1.4;
+  padding: 0.3rem 0.7rem;
+  border-radius: var(--radius-pill);
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border-field);
+}
+.cal__badge .dev {
+  font-weight: 600;
+}
+.cal__badge--partial {
+  color: var(--bida);
+  background: var(--bida-bg);
+  border-color: transparent;
+}
+.cal__badge--sait {
+  color: var(--accent-text);
+  background: var(--accent-bg);
+  border-color: transparent;
+}
+
+/* A partial holiday's number in the list: the same lighter tint as its square
+   in the grid, so the list and the month agree on which days are for everyone. */
+.cal__holiday-day--partial {
+  background: color-mix(in srgb, var(--bida-bg) 32%, var(--surface));
+  color: var(--text);
+}
+/* Who a partial holiday is for, under its name in the month's list. */
+.cal__holiday-partial {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+/* शुभ साइत — the month's wedding and bratabandha days. */
+.cal__sait {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.cal__sait-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.cal__sait-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.cal__sait-label .dev {
+  font-family: var(--display-dev);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-h);
+}
+.cal__sait-days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+/* The same squircle as a holiday's day number, in the accent rather than the
+   holiday red: these are good days, not days off. 44px, a real tap target. */
+.cal__sait-day {
+  width: 2.75rem;
+  height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-field);
+  border: 1px solid transparent;
+  background: var(--accent-bg);
+  color: var(--accent-text);
+  font-family: var(--display-dev);
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease),
+    transform var(--dur-fast) var(--ease-expo);
+}
+.cal__sait-day:active {
+  transform: scale(0.94);
+}
+.cal__sait-day--on {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.cal__sait-none {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.cal__sait-next {
+  border: 0;
+  background: none;
+  padding: 0.25rem 0;
+  font: inherit;
+  font-weight: 600;
+  color: var(--accent-text);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .cal__coverage {

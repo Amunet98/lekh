@@ -18,7 +18,7 @@ import {
   toDevanagari,
   type BsDate,
 } from '../../lib/calendar/nepaliDate'
-import { COVERAGE } from '../../lib/calendar/panchang'
+import { COVERAGE, nextSaitMonth } from '../../lib/calendar/panchang'
 import { useMonthPanchang } from '../../hooks/useMonthPanchang'
 import { DateConverter } from './DateConverter'
 import { ActionSheet } from '../ActionSheet'
@@ -150,6 +150,59 @@ function FestivalName({ name }: { name: string }) {
         ),
       )}
     </>
+  )
+}
+
+interface SaitRowProps {
+  label: string
+  gloss: string
+  kind: 'marriage' | 'bratabandha'
+  days: number[]
+  view: { year: number; month: number }
+  selectedDay: number | null
+  onPick: (day: number) => void
+  onJump: (year: number, month: number, day: number) => void
+}
+
+/* One kind of साइत for the month on screen: its days as buttons that select
+   the day, or — when there are none — the next month that has some, as a
+   button that goes there. */
+function SaitRow({ label, gloss, kind, days, view, selectedDay, onPick, onJump }: SaitRowProps) {
+  const next = days.length === 0 ? nextSaitMonth(kind, view.year, view.month) : null
+  return (
+    <div className="cal__sait-row">
+      <p className="cal__sait-label">
+        <span className="dev">{label}</span> · {gloss}
+      </p>
+      {days.length > 0 ? (
+        <div className="cal__sait-days">
+          {days.map((day) => (
+            <button
+              key={day}
+              type="button"
+              className={`cal__sait-day dev${selectedDay === day ? ' cal__sait-day--on' : ''}`}
+              aria-pressed={selectedDay === day}
+              aria-label={`${gloss}, ${NP_MONTHS_EN[view.month]} ${day}`}
+              onClick={() => onPick(day)}
+            >
+              {toDevanagari(day)}
+            </button>
+          ))}
+        </div>
+      ) : (
+        <p className="cal__sait-none">
+          <span className="dev">यो महिना साइत छैन</span> · none this month
+          {next && (
+            <>
+              {' '}
+              <button type="button" className="cal__sait-next" onClick={() => onJump(next.year, next.month, next.days[0])}>
+                Next: <span className="dev">{NP_MONTHS[next.month]} {toDevanagari(next.year)}</span>
+              </button>
+            </>
+          )}
+        </p>
+      )}
+    </div>
   )
 }
 
@@ -300,7 +353,10 @@ export function CalendarPage({ converterOpen, onOpenConverter, onCloseConverter 
               info?.tithi,
               info?.festivals.join(', '),
               info?.isHoliday ? 'public holiday' : '',
+              info?.partialFor ? `partial holiday, ${info.partialFor}` : '',
               weeklyOff ? 'weekly day off' : '',
+              info?.marriage ? 'auspicious for a wedding' : '',
+              info?.bratabandha ? 'auspicious for a bratabandha' : '',
             ].filter(Boolean).join(' — ')
 
             return (
@@ -330,6 +386,11 @@ export function CalendarPage({ converterOpen, onOpenConverter, onCloseConverter 
                   (info?.isHoliday && info.festivals.length > 0
                     ? ' cal__cell--holiday'
                     : '') +
+                  /* A holiday for some people only (the Valley, women
+                     employees, a community). Its own lighter mark rather than
+                     the full fill and a red numeral, which would tell everyone
+                     else they have the day off. */
+                  (info?.partialFor && !weeklyOff ? ' cal__cell--partial' : '') +
                   (isToday ? ' cal__cell--today' : '') +
                   (isSelected ? ' cal__cell--selected' : '')
                 }
@@ -362,6 +423,28 @@ export function CalendarPage({ converterOpen, onOpenConverter, onCloseConverter 
           {formatAd(selectedAd)}
           {selectedInfo?.tithi && <> · <span className="dev">{selectedInfo.tithi}</span></>}
         </p>
+        {/* What kind of day it is, before what is on it: a partial holiday
+            and its people, and the साइत this day carries. */}
+        {selectedInfo && (selectedInfo.partialFor || selectedInfo.marriage || selectedInfo.bratabandha) && (
+          <ul className="cal__badges">
+            {selectedInfo.partialFor && (
+              <li className="cal__badge cal__badge--partial">
+                <span className="dev">आंशिक बिदा</span> · {/* the who, in the source's words */}
+                <span className="dev">{selectedInfo.partialFor}</span>
+              </li>
+            )}
+            {selectedInfo.marriage && (
+              <li className="cal__badge cal__badge--sait">
+                <span className="dev">विवाह साइत</span> · wedding
+              </li>
+            )}
+            {selectedInfo.bratabandha && (
+              <li className="cal__badge cal__badge--sait">
+                <span className="dev">ब्रतबन्ध साइत</span> · bratabandha
+              </li>
+            )}
+          </ul>
+        )}
         {selectedInfo && selectedInfo.festivals.length > 0 ? (
           <>
             <ul className="cal__detail-fest">
@@ -429,10 +512,25 @@ export function CalendarPage({ converterOpen, onOpenConverter, onCloseConverter 
                   thing standing between the user and a silent lie. Why it
                   works that way is documentation, and goes behind the
                   summary. */}
-              Dates convert for any year, but festivals could not be loaded for this month.
-              Built-in data covers{' '}
-              <b>BS {toDevanagari(COVERAGE.from)}–{toDevanagari(COVERAGE.to)}</b>; anything
-              outside that needs a connection the first time.
+              {/* Two different reasons look the same from here, and they need
+                  different words: past the built-in range and online, the
+                  almanac for that year is usually just not out yet (Nepal's
+                  calendar committee publishes it a few months before
+                  Baisakh); offline, it is the connection. */}
+              {view.year > COVERAGE.to && navigator.onLine ? (
+                <>
+                  Festivals for BS {toDevanagari(view.year)} have not been published yet. The almanac
+                  usually comes out a few months before Baisakh, and Patro adds it on its own once it
+                  does. Dates already convert.
+                </>
+              ) : (
+                <>
+                  Dates convert for any year, but festivals could not be loaded for this month.
+                  Built-in data covers{' '}
+                  <b>BS {toDevanagari(COVERAGE.from)}–{toDevanagari(COVERAGE.to)}</b>; anything
+                  outside that needs a connection the first time.
+                </>
+              )}
               <details className="disclosure cal__coverage-why">
                 <summary>
                   <span className="disclosure__caret">
@@ -460,7 +558,7 @@ export function CalendarPage({ converterOpen, onOpenConverter, onCloseConverter 
               </p>
             ) : (
               <ul>
-                {namedHolidays.map(({ day, names }) => (
+                {namedHolidays.map(({ day, names, partialFor }) => (
                   <li key={day}>
                     <button
                       type="button"
@@ -470,7 +568,7 @@ export function CalendarPage({ converterOpen, onOpenConverter, onCloseConverter 
                 setSelected({ year: view.year, month: view.month, day })
               }}
                     >
-                      <span className="cal__holiday-day dev">{toDevanagari(day)}</span>
+                      <span className={`cal__holiday-day dev${partialFor ? ' cal__holiday-day--partial' : ''}`}>{toDevanagari(day)}</span>
                       <span className="cal__holiday-name dev">
                         {names.map((name, i) => (
                           <span key={name}>
@@ -478,6 +576,9 @@ export function CalendarPage({ converterOpen, onOpenConverter, onCloseConverter 
                             <FestivalName name={name} />
                           </span>
                         ))}
+                        {partialFor && (
+                          <span className="cal__holiday-partial">आंशिक बिदा · {partialFor}</span>
+                        )}
                       </span>
                     </button>
                   </li>
@@ -486,6 +587,51 @@ export function CalendarPage({ converterOpen, onOpenConverter, onCloseConverter 
             )}
           </div>
         )
+      )}
+
+      {/* शुभ साइत — the days the almanac gives for a wedding and a bratabandha.
+          The question people bring is "when", so a month with none says where
+          the next ones are instead of stopping at "none". */}
+      {covered && panchang && (
+        <section className="cal__sait" aria-labelledby="cal-sait-title">
+          <h2 className="cal__holidays-title" id="cal-sait-title">
+            <span className="dev">शुभ साइत</span> · auspicious dates
+          </h2>
+          <SaitRow
+            label="विवाह"
+            gloss="wedding"
+            kind="marriage"
+            days={panchang.marriage}
+            view={view}
+            selectedDay={selected.year === view.year && selected.month === view.month ? selected.day : null}
+            onPick={(day) => {
+              tick()
+              setSelected({ year: view.year, month: view.month, day })
+            }}
+            onJump={(y, m, d) => {
+              tick()
+              setView({ year: y, month: m })
+              setSelected({ year: y, month: m, day: d })
+            }}
+          />
+          <SaitRow
+            label="ब्रतबन्ध"
+            gloss="bratabandha"
+            kind="bratabandha"
+            days={panchang.bratabandha}
+            view={view}
+            selectedDay={selected.year === view.year && selected.month === view.month ? selected.day : null}
+            onPick={(day) => {
+              tick()
+              setSelected({ year: view.year, month: view.month, day })
+            }}
+            onJump={(y, m, d) => {
+              tick()
+              setView({ year: y, month: m })
+              setSelected({ year: y, month: m, day: d })
+            }}
+          />
+        </section>
       )}
 
       {/* Disclosure, not decoration.

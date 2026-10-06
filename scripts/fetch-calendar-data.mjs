@@ -63,6 +63,21 @@ const problems = []
    every festival after Jestha lands on the wrong square — silently, and in a
    way that looks completely normal. A missing month is obvious; a Dashain on
    the wrong day is not. */
+/* The month's साइत, read off the source's Devanagari sentence ("७, ८, २२ र ३१
+   गते", or "...मुर्हुत छैन ।" when there is none). Mirrors parseSaitDays in
+   src/lib/calendar/panchang.ts — keep the two in step. */
+function parseSaitDays(lines, monthLength) {
+  if (!Array.isArray(lines)) return []
+  const text = lines.join(' ')
+  if (/छैन/.test(text)) return []
+  const days = new Set()
+  for (const run of text.match(/[०-९0-9]+/g) ?? []) {
+    const n = Number(run.replace(/[०-९]/g, (d) => String('०१२३४५६७८९'.indexOf(d))))
+    if (n >= 1 && n <= monthLength) days.add(n)
+  }
+  return [...days].sort((a, b) => a - b)
+}
+
 const rejected = new Set()
 let festivalCount = 0
 let holidayCount = 0
@@ -108,19 +123,42 @@ for (let year = FROM; year <= TO; year++) {
         festivals[day] = f
         festivalCount++
       }
-      if (cell.h === true) {
+      /* Not a holiday for everyone when the name says who it is for — "(...
+         मात्र बिदा)". The source flags a couple of these (valley-only days),
+         and the widgets read `h` directly, so the flag is dropped here as well
+         as in buildMonth. */
+      if (cell.h === true && !/\([^()]*[बव]िदा[^()]*\)/.test(f)) {
         holidays.push(day)
         holidayCount++
       }
       tithis.push((cell.t || '').trim())
     })
 
-    out[year][month] = { f: festivals, h: holidays, t: tithis }
+    out[year][month] = {
+      f: festivals,
+      h: holidays,
+      t: tithis,
+      m: parseSaitDays(json.marriage, tithis.length),
+      b: parseSaitDays(json.bratabandha, tithis.length),
+    }
   }
   process.stdout.write(`  BS ${year} ✓\n`)
 }
 
 for (const year of rejected) delete out[year]
+
+/* A year is only shipped whole. Months that 404 (a year upstream has not
+   published) or a year with no festival names at all (upstream's placeholder
+   for an almanac not out yet — BS 2084 in October 2026) would otherwise be
+   kept as empty and widen COVERAGE to years Patro knows nothing about. */
+for (const year of Object.keys(out)) {
+  const months = Object.values(out[year])
+  const festivalDays = months.reduce((n, m) => n + Object.keys(m.f).length, 0)
+  if (months.length < 12 || festivalDays === 0) {
+    problems.push(`BS ${year}: ${months.length}/12 months, ${festivalDays} festival days — not published yet, left out`)
+    delete out[year]
+  }
+}
 
 const kept = Object.keys(out).map(Number).sort((a, b) => a - b)
 if (kept.length === 0) {

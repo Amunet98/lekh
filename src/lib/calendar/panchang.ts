@@ -45,6 +45,10 @@ export interface RawMonth {
   h: number[]
   /** Tithi name per BS day, index 0 = day 1. */
   t: string[]
+  /** Auspicious days (साइत) for a wedding, from the source's विवाह मुहूर्त. */
+  m?: number[]
+  /** Auspicious days for a bratabandha, from its ब्रतबन्ध मुहूर्त. */
+  b?: number[]
 }
 
 interface PanchangFile {
@@ -61,14 +65,57 @@ export const COVERAGE = data.coverage
 const UPSTREAM = 'https://raw.githubusercontent.com/S4NKALP/nepali-calendar-api/main/data'
 
 export interface DayPanchang {
+  /** Festival names, with any "(... मात्र बिदा)" note taken off — see partialFor. */
   festivals: string[]
+  /** A holiday for everyone (the weekly Saturday included). */
   isHoliday: boolean
+  /**
+   * Who a partial holiday is for — "काठमाडौं उपत्यकालाई मात्र", "महिला
+   * कर्मचारीहरूको लागि मात्र" — or '' when the day is not one.
+   */
+  partialFor: string
   tithi: string
+  marriage: boolean
+  bratabandha: boolean
 }
 
 export interface MonthPanchang {
   byDay: Map<number, DayPanchang>
-  holidays: { day: number; names: string[] }[]
+  holidays: { day: number; names: string[]; partialFor: string }[]
+  marriage: number[]
+  bratabandha: number[]
+}
+
+/* The source writes a partial holiday into the festival's name, as a bracketed
+ * note that always says बिदा (or विदा): "तीज(महिला कर्मचारीहरूको लागि मात्र
+ * बिदा)", "इन्द्रजात्रा(काठमाडौं उपत्यकालाई मात्र विदा)". Every such note across
+ * BS 2081–2083 is for some people only — a district list, the Valley, women
+ * employees, a community — and the source's own holiday flag is inconsistent
+ * about them (two valley-only days carry it). So the note decides: a day with
+ * one is a partial holiday, never painted as a day off for everyone. Checked
+ * against ashesh.com.np's calendar (2026-10-07), which colours these days red. */
+const PARTIAL_NOTE = /\(([^()]*[बव]िदा[^()]*)\)/
+
+function partialNote(name: string): string {
+  const m = name.match(PARTIAL_NOTE)
+  if (!m) return ''
+  return m[1].replace(/[बव]िदा/, '').replace(/\s+/g, ' ').trim()
+}
+
+/* The source gives each month's साइत as one Devanagari sentence — "७, ८, २२,
+ * २३ र ३१ गते", or "यो महिना को लागी विवाह मुर्हुत छैन ।" when there is none —
+ * so the days are read off its numerals. Out-of-range numbers are dropped
+ * rather than trusted. Mirrored in scripts/fetch-calendar-data.mjs. */
+export function parseSaitDays(lines: unknown, monthLength: number): number[] {
+  if (!Array.isArray(lines)) return []
+  const text = lines.join(' ')
+  if (/छैन/.test(text)) return []
+  const days = new Set<number>()
+  for (const run of text.match(/[०-९0-9]+/g) ?? []) {
+    const n = Number(run.replace(/[०-९]/g, (d) => String('०१२३४५६७८९'.indexOf(d))))
+    if (n >= 1 && n <= monthLength) days.add(n)
+  }
+  return [...days].sort((a, b) => a - b)
 }
 
 /**
@@ -118,30 +165,36 @@ function splitTopLevel(text: string): string[] {
 /** Turns either source's raw month into what the UI renders. */
 export function buildMonth(m: RawMonth): MonthPanchang {
   const holidaySet = new Set(m.h)
+  const marriage = new Set(m.m ?? [])
+  const bratabandha = new Set(m.b ?? [])
   const byDay = new Map<number, DayPanchang>()
 
   for (let day = 1; day <= m.t.length; day++) {
     const text = m.f[String(day)] ?? ''
+    /* The source packs several festivals into one comma-separated string.
+       Split for rendering but keep the original order — it is roughly
+       significance order, so the first name is the one worth showing when
+       there is only room for one. A few entries have a comma *inside* a
+       parenthetical note (e.g. "...होली(हिमाली, पहाडी तथा भित्री मधेशका ५६
+       जिल्लाहरूमा बिदा)"), so a plain split on ',' would cut that note in
+       half — split only at top level. */
+    const raw = text ? splitTopLevel(text).map((s) => s.trim()).filter(Boolean) : []
+    const partialFor = raw.map(partialNote).find(Boolean) ?? ''
     byDay.set(day, {
-      /* The source packs several festivals into one comma-separated string.
-         Split for rendering but keep the original order — it is roughly
-         significance order, so the first name is the one worth showing when
-         there is only room for one. A few entries have a comma *inside* a
-         parenthetical note (e.g. "...होली(हिमाली, पहाडी तथा भित्री मधेशका ५६
-         जिल्लाहरूमा बिदा)"), so a plain split on ',' would cut that note in
-         half — split only at top level. */
-      festivals: text ? splitTopLevel(text).map((s) => s.trim()).filter(Boolean) : [],
-      isHoliday: holidaySet.has(day),
+      festivals: raw.map((name) => name.replace(PARTIAL_NOTE, '').trim()).filter(Boolean),
+      isHoliday: holidaySet.has(day) && !partialFor,
+      partialFor,
       tithi: m.t[day - 1] ?? '',
+      marriage: marriage.has(day),
+      bratabandha: bratabandha.has(day),
     })
   }
 
-  const holidays = m.h
-    .slice()
-    .sort((a, b) => a - b)
-    .map((day) => ({ day, names: byDay.get(day)?.festivals ?? [] }))
+  const holidays = [...byDay.entries()]
+    .filter(([, info]) => info.isHoliday || info.partialFor)
+    .map(([day, info]) => ({ day, names: info.festivals, partialFor: info.partialFor }))
 
-  return { byDay, holidays }
+  return { byDay, holidays, marriage: [...marriage].sort((a, b) => a - b), bratabandha: [...bratabandha].sort((a, b) => a - b) }
 }
 
 /**
@@ -159,7 +212,11 @@ export async function fetchLiveMonth(year: number, month: number): Promise<RawMo
   try {
     const res = await fetch(`${UPSTREAM}/${year}/${month + 1}.json`)
     if (!res.ok) return null
-    const json = (await res.json()) as { days?: { n?: string; f?: string; t?: string; h?: boolean }[] }
+    const json = (await res.json()) as {
+      days?: { n?: string; f?: string; t?: string; h?: boolean }[]
+      marriage?: unknown
+      bratabandha?: unknown
+    }
     if (!Array.isArray(json.days)) return null
 
     /* `days` is a 35- or 42-cell grid including the blank leading cells before
@@ -188,9 +245,41 @@ export async function fetchLiveMonth(year: number, month: number): Promise<RawMo
      * months the count runs 11–25 with a median of 15, and never once 0. */
     if (Object.keys(f).length === 0) return null
 
-    return assertMonthLength(year, month, { f, h, t })
+    return assertMonthLength(year, month, {
+      f,
+      h,
+      t,
+      m: parseSaitDays(json.marriage, t.length),
+      b: parseSaitDays(json.bratabandha, t.length),
+    })
   } catch {
     // Offline, blocked, or CORS — the bundled table covers it.
     return null
   }
+}
+
+/**
+ * The next month after (year, month) with any साइत of this kind, from the
+ * bundled table — so "none this month" can be followed by where the next
+ * dates are, offline. Null when the bundled range has none left.
+ */
+export function nextSaitMonth(
+  kind: 'marriage' | 'bratabandha',
+  year: number,
+  month: number,
+): { year: number; month: number; days: number[] } | null {
+  let y = year
+  let mo = month
+  for (let step = 0; step < 24; step++) {
+    mo += 1
+    if (mo > 11) {
+      mo = 0
+      y += 1
+    }
+    if (y > COVERAGE.to) return null
+    const raw = getBundledMonth(y, mo)
+    const days = raw ? (kind === 'marriage' ? raw.m : raw.b) ?? [] : []
+    if (days.length > 0) return { year: y, month: mo, days }
+  }
+  return null
 }
