@@ -74,8 +74,22 @@ export function ReportBlock() {
           <b>Report a problem</b>
           <span className="sheet-row__rest">copies your build and device, nothing you typed</span>
         </span>
+        {/* Drawn, at the stroke of the › on every other row in this pane — a
+            typed ⌄ set in the body face came out as a small "v" sitting high. */}
         <span className="report__chevron" aria-hidden="true">
-          ⌄
+          <svg
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{ display: 'block' }}
+          >
+            <path d="M6 9l6 6 6-6" />
+          </svg>
         </span>
       </summary>
 
@@ -96,7 +110,7 @@ export function ReportBlock() {
           </a>
         </div>
         <p className="report__hint">
-          Paste it wherever you're reporting, or send it to{' '}
+          Paste it wherever you’re reporting, or send it to{' '}
           <span className="report__address">{REPORT_EMAIL}</span> — and say what you were doing
           when it happened.
         </p>

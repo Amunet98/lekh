@@ -87,7 +87,11 @@
 .report__button--primary {
   border-color: transparent;
   background: var(--accent);
-  color: #fff;
+  /* --on-accent, not #fff. The dark theme's accent is a light coral, and
+     white on it measured well under 3:1 — every other filled button in the
+     app already takes --on-accent for exactly that reason. */
+  color: var(--on-accent);
+  font-weight: 600;
 }
 
 @media (hover: hover) {

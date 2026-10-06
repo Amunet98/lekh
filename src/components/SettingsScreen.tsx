@@ -242,7 +242,7 @@ export function SettingsScreen({ open, onDismiss, onOpenAbout, onGoTo, t }: Sett
               <div className="sheet-row sheet-row--stack">
                 <span className="sheet-row__text">
                   <b>Text size</b>
-                  <span className="sheet-row__rest">in the editor and the translation panes</span>
+                  <span className="sheet-row__rest">for the whole app</span>
                 </span>
                 <Segmented
                   label="Text size"
@@ -371,8 +371,12 @@ export function SettingsScreen({ open, onDismiss, onOpenAbout, onGoTo, t }: Sett
                   options={ENGINES}
                   onChange={(next) => (next === 'online' ? t.switchToOnline() : t.requestOnDevice())}
                 />
+                {/* Inside the row, so it shares the row's padding. As a sibling
+                    of the row it ran flush to both screen edges — the model
+                    status line was the one piece of text in Settings with no
+                    margin at all. */}
+                <EngineStatus t={t} />
               </div>
-              <EngineStatus t={t} />
             </div>
           </section>
 
