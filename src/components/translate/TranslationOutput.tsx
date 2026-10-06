@@ -95,22 +95,27 @@ export function TranslationOutput({ t }: { t: TranslateState }) {
           <span className="sugg-hint">Translation appears here.</span>
         )}
       </div>
-      <div className="translate-output__actions">
-        {/* The primary action of this screen — see .btn--primary in Editor.css. */}
-        <button
-          type="button"
-          className="btn btn--primary"
-          disabled={!t.translated}
-          onClick={() => void t.copy()}
-        >
-          {t.copied ? 'Copied' : 'Copy'}
-        </button>
-        {SHARE_AVAILABLE && (
-          <button type="button" className="btn" disabled={!t.translated} onClick={() => void t.share()}>
-            Share
+      {/* Not rendered until there is something to act on. Disabled, they were a
+          grey Copy and Share under an empty pane on every first visit — two
+          controls that could not do anything yet. The pane already says where
+          the answer will go. */}
+      {t.translated && (
+        <div className="translate-output__actions reveal">
+          {/* The primary action of this screen — see .btn--primary in Editor.css. */}
+          <button
+            type="button"
+            className="btn btn--primary"
+            onClick={() => void t.copy()}
+          >
+            {t.copied ? 'Copied' : 'Copy'}
           </button>
-        )}
-      </div>
+          {SHARE_AVAILABLE && (
+            <button type="button" className="btn" onClick={() => void t.share()}>
+              Share
+            </button>
+          )}
+        </div>
+      )}
     </>
   )
 }

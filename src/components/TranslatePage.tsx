@@ -319,7 +319,13 @@ export function TranslatePage({ t }: TranslatePageProps) {
       </div>
 
       <TranslateActions t={t} />
-      <DownloadActions text={t.translated} filenameBase="lekh-translation" label="translation" />
+      {/* Hidden, not disabled, until there is a translation — the same call as
+          Copy and Share in TranslationOutput. */}
+      {t.translated && (
+        <div className="reveal">
+          <DownloadActions text={t.translated} filenameBase="lekh-translation" label="translation" />
+        </div>
+      )}
     </section>
   )
 }

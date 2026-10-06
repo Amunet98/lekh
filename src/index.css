@@ -569,6 +569,19 @@ body {
   border-radius: 6px;
 }
 
+/* Controls that only exist once there is something for them to act on (the
+   Translate tab's Copy, Share and Download) arrive with a short fade rather
+   than snapping in under the result. Opacity and transform only. */
+.reveal {
+  animation: reveal-in var(--dur) var(--ease) both;
+}
+@keyframes reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   /* Shortening the duration is not enough on its own: a transform still runs,
      it just runs instantly, and any looping animation keeps looping. */

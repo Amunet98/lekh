@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import {
   NP_MONTHS,
   NP_MONTHS_EN,
@@ -159,6 +159,23 @@ export function CalendarPage({ converterOpen, onOpenConverter, onCloseConverter 
   const [view, setView] = useState({ year: today.year, month: today.month })
   const [selected, setSelected] = useState<BsDate>(today)
 
+  /* The weekday row sticks directly under the month bar (see .cal__weekdays),
+     so it needs the bar's height, and that is not a constant: the English
+     gloss under the month shows only above 420px, and the text-size setting
+     scales the title. Measured rather than mirrored in CSS for that reason. */
+  const pageRef = useRef<HTMLElement>(null)
+  const navRef = useRef<HTMLDivElement>(null)
+  useLayoutEffect(() => {
+    const page = pageRef.current
+    const nav = navRef.current
+    if (!page || !nav || typeof ResizeObserver === 'undefined') return
+    const ro = new ResizeObserver(() => {
+      page.style.setProperty('--cal-nav-h', `${nav.offsetHeight}px`)
+    })
+    ro.observe(nav)
+    return () => ro.disconnect()
+  }, [])
+
   const monthLength = daysInBsMonth(view.year, view.month)
   const leadingBlanks = bsWeekday(view.year, view.month, 1)
   const { month: panchang, source, loading } = useMonthPanchang(view.year, view.month)
@@ -192,10 +209,10 @@ export function CalendarPage({ converterOpen, onOpenConverter, onCloseConverter 
   const selectedWeekday = bsWeekday(selected.year, selected.month, selected.day)
 
   return (
-    <section className="cal">
+    <section className="cal" ref={pageRef}>
       <h1 className="sr-only">Nepali calendar</h1>
 
-      <div className="cal__nav">
+      <div className="cal__nav" ref={navRef}>
         <button type="button" className="cal__arrow" aria-label="Previous month" onClick={() => goto(-1)}>
           <ChevronIcon dir="left" />
         </button>
