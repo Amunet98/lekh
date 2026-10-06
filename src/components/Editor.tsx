@@ -1,7 +1,5 @@
 import { useState, type RefObject } from 'react'
 import type { EditorState } from '../hooks/useEditorState'
-import { SAMPLES } from '../data/samples'
-import { convertPhrase } from '../lib/engine'
 import { SHARE_AVAILABLE } from '../lib/share'
 import { isNativeApp } from '../lib/androidApp'
 import { tick } from '../lib/haptics'
@@ -30,14 +28,6 @@ function MoreIcon() {
    route and stays the one this file uses; this id is purely the outside
    world's handle on the same element. */
 export const EDITOR_ID = 'lekh-editor'
-
-/* Four, not the full eleven. The old "TRY ONE" block ran ten chips over three
-   wrapped rows and was permanent — it sat under the editor whether you had
-   written a thousand words or nothing at all. Four is enough to show what the
-   app does, and they now appear only while the editor is empty (see below).
-   The rest of SAMPLES stays in the data file; the order there is a
-   progression, so the first four are the introduction. */
-const STARTER_SAMPLES = SAMPLES.slice(0, 4)
 
 interface EditorProps {
   editor: EditorState
@@ -253,24 +243,24 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet, booting }: Edito
           onPointerDown={intro.stop}
         />
 
-          {/* The empty state, inside the writing surface rather than under it.
-              The starters and the legend used to sit below the editor, past
-              its toolbar, where they read as a page footer — a tester called
-              the section "out of place", and it was: the one invitation to
-              tap something sat furthest from where you type. Centred in the
-              blank field, they are the field's own first-run content, and
-              they disappear with the first character the same way the
-              placeholder does.
+          {/* The empty state, inside the writing surface rather than under it:
+              the mark, what the screen is, and the one-line legend, centred in
+              the blank field and gone with the first character, the same way
+              the placeholder is. It used to sit below the editor past its
+              toolbar, where it read as a page footer.
 
-              Layered over the textarea with pointer-events: none, so a tap
-              anywhere but a starter still lands in the field and raises the
-              keyboard. Held back while the demonstration runs, so the first
-              thing on screen is one word typing itself (see useIntroDemo). */}
+              The "Try one" starters that were here are gone (owner's call):
+              tapping one dropped finished Devanagari into the field, which
+              taught nothing the cheat sheet does not, and with the layout now
+              named above them they were clutter.
+
+              Transparent to the pointer, so a tap anywhere lands in the field
+              and raises the keyboard. Held back while the demonstration runs,
+              so the first thing on screen is one word typing itself. */}
           {isEmpty && !intro.active && (
             <div className="editor-empty reveal">
-              {/* See .editor-mark in Editor.css — aria-hidden texture, now a
-                  centred mark above the starters rather than a full-field
-                  watermark behind everything. */}
+              {/* See .editor-mark in Editor.css — aria-hidden texture, a
+                  centred mark heading the empty state. */}
               <span className="editor-mark" aria-hidden="true">
                 <span className="editor-mark__key">a</span>
                 <span className="editor-mark__arrow">→</span>
@@ -287,28 +277,6 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet, booting }: Edito
                 <p className="editor-empty__sub">
                   Type in English letters, get Nepali Unicode you can paste anywhere.
                 </p>
-              </div>
-              <div className="starters">
-                <span className="starters__label">Try one</span>
-                <div className="starters__row">
-                  {STARTER_SAMPLES.map((sample) => (
-                    <button
-                      key={sample}
-                      type="button"
-                      className="starter"
-                      onClick={() => {
-                        editor.appendSample(sample)
-                        textareaRef.current?.focus()
-                      }}
-                    >
-                      {/* What you type over what you get; convertPhrase is the
-                          same function appendSample runs, so the two halves
-                          cannot drift. */}
-                      <span className="starter__roman">{sample}</span>
-                      <span className="starter__dev dev">{convertPhrase(sample)}</span>
-                    </button>
-                  ))}
-                </div>
               </div>
               <EditorHint nepali={editor.nepali} />
             </div>

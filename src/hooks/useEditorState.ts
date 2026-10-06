@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { convert, convertPhrase, suggest } from '../lib/engine'
+import { convert, suggest } from '../lib/engine'
 import type { Chip } from '../lib/engine/types'
 import { confirm, tick } from '../lib/haptics'
 import { getPref } from '../lib/prefs'
@@ -141,18 +141,10 @@ export function useEditorState() {
     if (restored !== null) setText(restored)
   }, [undoable])
 
-  // Appends typed-then-committed text — used by cheat-sheet tap-to-insert
-  // and the sample-phrase buttons. Deliberately end-of-text-only.
+  // Appends typed-then-committed text — used by cheat-sheet tap-to-insert.
+  // Deliberately end-of-text-only.
   const insertAtCursor = useCallback((ch: string) => {
     setText((t) => t + ch)
-  }, [])
-
-  const appendSample = useCallback((words: string) => {
-    const converted = convertPhrase(words)
-    setText((t) => {
-      const sep = t && !/\s$/.test(t) ? ' ' : ''
-      return t + sep + converted + ' '
-    })
   }, [])
 
   /* The trailing Latin run is only *pending* while conversion is on. In EN
@@ -204,7 +196,6 @@ export function useEditorState() {
     copy,
     share,
     insertAtCursor,
-    appendSample,
   }
 }
 

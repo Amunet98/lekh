@@ -436,26 +436,10 @@
  * bigger and the target no bigger at all. The inset stays 4px against an 8px
  * row gap at every setting, which is the invariant this comment is really
  * about: two stacked rows' areas meet and never overlap. */
-.btn,
-.starter {
+.btn {
   position: relative;
 }
-/* What you type, and what you get. The roman is the smaller of the two on
-   purpose: it is the instruction, and the Devanagari under it is the result
-   the reader actually came for. Line-height 1.1 rather than the body's 1.6,
-   which would set two lines of a pill nearly 60px tall. */
-.starter__roman {
-  font-size: 0.72rem;
-  color: var(--muted);
-  line-height: 1.1;
-}
-.starter__dev {
-  font-size: 0.95rem;
-  color: var(--text-h);
-  line-height: 1.3;
-}
-.btn::after,
-.starter::after {
+.btn::after {
   content: '';
   position: absolute;
   inset: -4px 0;
@@ -604,10 +588,9 @@
   flex-direction: column;
 }
 
-/* The empty editor's own content: the mark, the starters and the legend,
-   centred in the blank field. Above the textarea (z-index 2) but transparent
-   to the pointer, so any tap that is not on a starter falls through to the
-   field. The top padding keeps it clear of the placeholder line, which wraps
+/* The empty editor's own content: the mark, the layout's name and the
+   legend, centred in the blank field. Above the textarea (z-index 2) but
+   transparent to the pointer, so every tap falls through to the field. The top padding keeps it clear of the placeholder line, which wraps
    to two lines on a narrow phone. */
 .editor-empty {
   position: absolute;
@@ -621,9 +604,6 @@
   padding: 5.5rem var(--sp-4) var(--sp-4);
   text-align: center;
   pointer-events: none;
-}
-.editor-empty .starter {
-  pointer-events: auto;
 }
 .editor-empty__intro {
   display: flex;
@@ -643,16 +623,11 @@
   line-height: 1.5;
   color: var(--muted);
 }
-/* With the keyboard up the field is a third of the screen, and what someone
-   needs there is the starters — the mark and the legend go, so the chips are
-   not squeezed against the placeholder. */
-.has-keyboard .editor-empty .editor-mark,
-.has-keyboard .editor-empty .editor-empty__intro,
-.has-keyboard .editor-empty .editor-hint {
-  display: none;
-}
+/* With the keyboard up the field is a third of the screen and the caret is
+   already in it — nothing here is needed, and anything left would be
+   squeezed against the placeholder. */
 .has-keyboard .editor-empty {
-  padding-top: 4rem;
+  display: none;
 }
 
 /* 2e: the empty writing surface gets a face.
@@ -679,9 +654,8 @@
  * the moment there is anything to read (see Editor.tsx), so it can never sit
  * underneath someone's own writing. Costs no layout at all. */
 .editor-mark {
-  /* In flow inside .editor-empty now, above the starters, rather than an
-     absolutely-placed watermark behind the whole card: it is the heading of
-     the empty state, sized down so the starters under it fit beside it. */
+  /* In flow inside .editor-empty now rather than an absolutely-placed
+     watermark behind the whole card: it heads the empty state. */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -737,69 +711,6 @@
 }
 .editor-mark__dev {
   align-self: center;
-}
-
-/* Empty state. Present only while the editor has no text — see Editor.tsx. */
-.starters {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--sp-2);
-}
-/* "Try one", not "TRY ONE".
- *
- * 0.72rem uppercase in --muted with 0.1em of tracking is the eyebrow this app
- * puts over a group inside a list — and it was heading the one thing on an
- * empty Type screen that invites a first tap. Set as a small heading instead,
- * the same move the translate panes' labels got: a step larger, the text
- * colour, sentence case, no tracking. */
-.starters__label {
-  font-family: var(--display);
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--text);
-}
-.starters__row {
-  display: flex;
-  justify-content: center;
-  gap: var(--sp-2);
-  flex-wrap: wrap;
-  max-width: 34rem;
-}
-.starter {
-  /* Two lines now (see Editor.tsx), so this is the floor rather than the
-     height — the chip takes whatever its contents need. */
-  min-height: 2.25rem;
-  display: inline-flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 1px;
-  padding: var(--sp-2) var(--sp-3);
-  /* Solid, not dashed. A dashed edge means dropzone or placeholder everywhere
-     else in UI, and it made four working buttons read as an unfinished part of
-     the page rather than as things to tap. */
-  border: 1px solid var(--border-field);
-  background: var(--surface);
-  color: var(--text);
-  font-family: var(--sans);
-  font-size: 0.82rem;
-  border-radius: var(--radius-pill);
-  cursor: pointer;
-  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease),
-    border-color var(--dur) var(--ease), transform var(--dur-fast) var(--ease-expo);
-}
-@media (hover: hover) {
-  .starter:hover {
-    border-style: solid;
-    border-color: var(--accent);
-    color: var(--accent-text);
-    background: var(--accent-bg);
-  }
-}
-.starter:active {
-  transform: scale(0.96);
 }
 
 .editor-hint {
