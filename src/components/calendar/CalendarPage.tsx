@@ -215,7 +215,7 @@ export function CalendarPage({ converterOpen, onOpenConverter, onCloseConverter 
               you page; this line does not move with it. Short weekday names,
               the same ones as the grid header. */}
           <p className="cal__today dev">
-            आज {NP_WEEKDAYS_SHORT[todayWeekday]}, {NP_MONTHS[today.month]} {toDevanagari(today.day)}
+            {NP_WEEKDAYS_SHORT[todayWeekday]}, {NP_MONTHS[today.month]} {toDevanagari(today.day)}
           </p>
         </div>
 
