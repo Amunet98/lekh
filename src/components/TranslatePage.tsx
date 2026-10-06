@@ -6,7 +6,6 @@ import { TranslationOutput } from './translate/TranslationOutput'
 import { fill } from './translate/progressFill'
 import { TranslateActions } from './translate/TranslateActions'
 import { TranslateRun } from './translate/TranslateRun'
-import { DownloadActions } from './DownloadActions'
 import { useOnline } from '../hooks/useOnline'
 import { SectionIcon } from './SectionIcons'
 import './TranslatePage.css'
@@ -319,13 +318,6 @@ export function TranslatePage({ t }: TranslatePageProps) {
       </div>
 
       <TranslateActions t={t} />
-      {/* Hidden, not disabled, until there is a translation — the same call as
-          Copy and Share in TranslationOutput. */}
-      {t.translated && (
-        <div className="reveal">
-          <DownloadActions text={t.translated} filenameBase="lekh-translation" label="translation" />
-        </div>
-      )}
     </section>
   )
 }

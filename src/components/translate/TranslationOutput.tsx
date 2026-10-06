@@ -1,6 +1,7 @@
 import type { TranslateState } from '../../hooks/useTranslateState'
 import { SHARE_AVAILABLE } from '../../lib/share'
 import { fill } from './progressFill'
+import { DownloadActions } from '../DownloadActions'
 import './translate.css'
 
 const formatMB = (bytes: number) => `${Math.round(bytes / 1e6)} MB`
@@ -101,6 +102,18 @@ export function TranslationOutput({ t }: { t: TranslateState }) {
           the answer will go. */}
       {t.translated && (
         <div className="translate-output__actions reveal">
+          {/* Everything you can do with the result, in one row. Export used
+              to sit on its own at the foot of the page, below the engine
+              line, left-aligned under a right-aligned Copy and Share — three
+              places to look for one job. It leads the row because its
+              desktop popover opens from its left edge. */}
+          <DownloadActions
+            text={t.translated}
+            filenameBase="lekh-translation"
+            label="translation"
+            compact
+          />
+          <span className="translate-output__spacer" />
           {/* The primary action of this screen — see .btn--primary in Editor.css. */}
           <button
             type="button"

@@ -34,11 +34,17 @@
   transition: border-color var(--dur) var(--ease), background-color var(--dur) var(--ease),
     color var(--dur) var(--ease), transform var(--dur-fast) var(--ease-expo);
 }
+/* Drawn exactly as .btn (Editor.css), because it only ever stands in a row of
+   them: the editor toolbar on a wide screen and the row under a translation.
+   It used --border, the 1.26:1 decorative hairline, which index.css reserves
+   for edges nobody has to find — the same mistake .btn itself was fixed for.
+   Next to Copy and Share it read as the one ghost in the row. */
 .download-menu__btn--compact {
   min-height: 2.25rem;
   padding: 0 var(--sp-3);
   font-size: 0.82rem;
-  border-color: var(--border);
+  border-color: var(--border-field);
+  background: var(--surface-2);
   color: var(--text);
 }
 @media (hover: hover) {
@@ -63,6 +69,10 @@
   left: 0;
   z-index: 10;
   min-width: 11.875rem;
+  /* As wide as its longest hint, so each format stays a two-line row; at the
+     old fixed minimum the hints wrapped and the rows came out uneven. */
+  width: max-content;
+  max-width: min(20rem, calc(100vw - 2rem));
   display: flex;
   flex-direction: column;
   gap: 0.15rem;

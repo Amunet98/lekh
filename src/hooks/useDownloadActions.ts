@@ -14,15 +14,20 @@ export type DownloadFormat = 'txt' | 'docx' | 'pdf'
    glyphs for the same file — which is exactly the drift SectionIcons was
    written to stop. A name, not a component, to keep this module inert data
    with no JSX in it. */
+/* label is the row in a list of formats; noun follows a verb ("Export text
+   file", "Save as Word document") in the editor's overflow, where the rows are
+   actions rather than formats. The extension moved into the hint: as the label
+   it made two rows read ".txt" and ".docx" beside a third reading "PDF". */
 export const DOWNLOAD_FORMATS: {
   id: DownloadFormat
   label: string
+  noun: string
   hint: string
   icon: SheetIconName
 }[] = [
-  { id: 'txt', label: '.txt', hint: 'Plain text', icon: 'text' },
-  { id: 'docx', label: '.docx', hint: 'Word document', icon: 'doc' },
-  { id: 'pdf', label: 'PDF', hint: 'Via your device’s print dialog', icon: 'pdf' },
+  { id: 'txt', label: 'Text file', noun: 'text file', hint: '.txt — opens in any app', icon: 'text' },
+  { id: 'docx', label: 'Word document', noun: 'Word document', hint: '.docx — for Word or Google Docs', icon: 'doc' },
+  { id: 'pdf', label: 'PDF', noun: 'PDF', hint: 'Through your device’s print dialog', icon: 'pdf' },
 ]
 
 /* Writing the editor or a translation out to a file.

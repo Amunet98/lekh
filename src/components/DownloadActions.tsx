@@ -33,6 +33,9 @@ interface DownloadActionsProps {
 export function DownloadActions({ text, filenameBase, label, compact = false }: DownloadActionsProps) {
   const { busy, run } = useDownloadActions({ text, filenameBase })
   const enabled = text.trim().length > 0
+  /* One verb for the trigger and the sheet it opens. The sheet said "Download
+     translation as" under a button reading "Export". */
+  const verb = isNativeApp() ? 'Export' : 'Download'
 
   // A menu, not a <select>. The native control was the one thing on the page
   // the browser drew for us — it ignored the pill language every other control
@@ -83,7 +86,7 @@ export function DownloadActions({ text, filenameBase, label, compact = false }: 
           {/* "Download" is the web's word for this. In the app saveFile goes
               to the share sheet instead, so the trigger says what the rows it
               opens now say — see the same split in Editor's overflow. */}
-          {busy ? 'Preparing…' : isNativeApp() ? 'Export' : 'Download'}
+          {busy ? 'Preparing…' : verb}
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M6 9l6 6 6-6" />
@@ -93,7 +96,7 @@ export function DownloadActions({ text, filenameBase, label, compact = false }: 
             plain dispatch on an id, so neither path owns the options — adding
             a format still means editing one array. */}
         {open && !asSheet && (
-          <div className="download-menu__menu" role="menu" aria-label={`Download ${label} as`}>
+          <div className="download-menu__menu" role="menu" aria-label={`${verb} ${label} as`}>
             {DOWNLOAD_FORMATS.map((f) => (
               <button
                 key={f.id}
@@ -116,7 +119,7 @@ export function DownloadActions({ text, filenameBase, label, compact = false }: 
         <ActionSheet
           open={open}
           onClose={() => setOpen(false)}
-          label={`Download ${label} as`}
+          label={`${verb} ${label} as`}
           options={DOWNLOAD_FORMATS.map((f) => ({
             id: f.id,
             label: f.label,

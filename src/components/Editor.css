@@ -275,7 +275,8 @@
 /* One height for the whole row. Copy is a plain .btn (36px) while letters and
    the overflow button are .btn--icon (40px), so the one filled button in the
    row was also the one visibly shorter than its neighbours. */
-.actions > .btn {
+.actions > .btn,
+.actions .download-menu__btn--compact {
   min-height: 2.5rem;
 }
 .actions__spacer {

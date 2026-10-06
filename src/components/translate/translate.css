@@ -124,6 +124,30 @@
   align-items: center;
   gap: 0.4rem;
 }
+/* The language is the value of the control, not a hint about it. In
+   .mode-btn's --muted it read as a disabled pill on the phone, beside a swap
+   glyph drawn in the same grey. Two classes, because .mode-btn is declared
+   further down this file and would otherwise win the tie. */
+.lang-picker .lang-picker__btn {
+  color: var(--text);
+}
+/* On a phone the two pickers split the row between them, swap in the middle,
+   the way every translator lays this out. Content-width, the pair hugged the
+   left edge and left a third of the row empty, and the two pills were
+   different widths because "English" is longer than "Nepali". */
+@media (max-width: 767px) {
+  .direction-toggle {
+    flex-wrap: nowrap;
+  }
+  .lang-picker {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .lang-picker__btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
 .lang-picker__menu {
   position: absolute;
   top: calc(100% + 0.3rem);
@@ -355,9 +379,12 @@
 
 .translate-output__actions {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
   gap: var(--sp-2);
   margin-top: var(--sp-1);
+}
+.translate-output__spacer {
+  flex: 1 1 auto;
 }
 
 .interpreted-hint {

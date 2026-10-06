@@ -126,7 +126,7 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet, booting }: Edito
     for (const f of DOWNLOAD_FORMATS) {
       moreOptions.push({
         id: f.id,
-        label: native ? `Export ${f.label}` : `Save as ${f.label}`,
+        label: native ? `Export ${f.noun}` : `Save as ${f.noun}`,
         hint: native && f.id !== 'pdf' ? `${f.hint} · via the share sheet` : f.hint,
         icon: <SheetIcon name={f.icon} />,
         onSelect: () => run(f.id),

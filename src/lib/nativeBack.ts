@@ -25,6 +25,24 @@ export function installNativeBackHandler(): void {
   try {
     if (!Capacitor.isNativePlatform() || !Capacitor.isPluginAvailable('App')) return
     void App.addListener('backButton', ({ canGoBack }) => {
+      /* An open ActionSheet closes, and that is all the press does.
+       *
+       * Most of them — the language pickers, Translate's engine sheet,
+       * Download, the editor's ⋯ menu, the on-device confirmation — are local
+       * state with no history entry of their own, so Back went straight past
+       * them to history: it shut the sheet *and* left the tab, or quit the app
+       * outright from Type. Seen on the A024 with a language picker open.
+       * close() fires the dialog's close event, which is the same path as
+       * Escape or a tap on the dim, so every caller's own onClose runs. The
+       * date converter is the one that is in history; its onClose is
+       * closeSheet, which pops its entry exactly as Back would have.
+       * Last match, because the newest showModal() is the one on top. */
+      const sheets = document.querySelectorAll<HTMLDialogElement>('dialog.action-sheet[open]')
+      const top = sheets[sheets.length - 1]
+      if (top) {
+        top.close()
+        return
+      }
       if (canGoBack) window.history.back()
       else void App.exitApp()
     })
