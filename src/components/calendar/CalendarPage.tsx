@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import {
   NP_MONTHS,
   NP_MONTHS_EN,
@@ -159,23 +159,6 @@ export function CalendarPage({ converterOpen, onOpenConverter, onCloseConverter 
   const [view, setView] = useState({ year: today.year, month: today.month })
   const [selected, setSelected] = useState<BsDate>(today)
 
-  /* The weekday row sticks directly under the month bar (see .cal__weekdays),
-     so it needs the bar's height, and that is not a constant: the English
-     gloss under the month shows only above 420px, and the text-size setting
-     scales the title. Measured rather than mirrored in CSS for that reason. */
-  const pageRef = useRef<HTMLElement>(null)
-  const navRef = useRef<HTMLDivElement>(null)
-  useLayoutEffect(() => {
-    const page = pageRef.current
-    const nav = navRef.current
-    if (!page || !nav || typeof ResizeObserver === 'undefined') return
-    const ro = new ResizeObserver(() => {
-      page.style.setProperty('--cal-nav-h', `${nav.offsetHeight}px`)
-    })
-    ro.observe(nav)
-    return () => ro.disconnect()
-  }, [])
-
   const monthLength = daysInBsMonth(view.year, view.month)
   const leadingBlanks = bsWeekday(view.year, view.month, 1)
   const { month: panchang, source, loading } = useMonthPanchang(view.year, view.month)
@@ -207,22 +190,32 @@ export function CalendarPage({ converterOpen, onOpenConverter, onCloseConverter 
       ? panchang?.byDay.get(selected.day)
       : undefined
   const selectedWeekday = bsWeekday(selected.year, selected.month, selected.day)
+  const todayWeekday = bsWeekday(today.year, today.month, today.day)
 
   return (
-    <section className="cal" ref={pageRef}>
+    <section className="cal">
       <h1 className="sr-only">Nepali calendar</h1>
 
-      <div className="cal__nav" ref={navRef}>
+      <div className="cal__nav">
         <button type="button" className="cal__arrow" aria-label="Previous month" onClick={() => goto(-1)}>
           <ChevronIcon dir="left" />
         </button>
 
         <div className="cal__title">
-          <h2 className="cal__month dev">
-            {NP_MONTHS[view.month]} {toDevanagari(view.year)}
-          </h2>
-          <p className="cal__sub">
-            {NP_MONTHS_EN[view.month]} · {adSpanLabel(view.year, view.month)}
+          <div className="cal__title-row">
+            <h2 className="cal__month dev">
+              {NP_MONTHS[view.month]} {toDevanagari(view.year)}
+            </h2>
+            <p className="cal__sub">
+              {NP_MONTHS_EN[view.month]} · {adSpanLabel(view.year, view.month)}
+            </p>
+          </div>
+          {/* Today, in the one place that stays on screen. The bar names the
+              month being looked at, which stops being this month the moment
+              you page; this line does not move with it. Short weekday names,
+              the same ones as the grid header. */}
+          <p className="cal__today dev">
+            आज {NP_WEEKDAYS_SHORT[todayWeekday]}, {NP_MONTHS[today.month]} {toDevanagari(today.day)}
           </p>
         </div>
 

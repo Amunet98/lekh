@@ -69,10 +69,26 @@
 }
 .cal__title {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+.cal__title-row {
+  display: flex;
   align-items: baseline;
   justify-content: center;
   gap: 0.4rem;
   min-width: 0;
+}
+/* Today's day and date under the month. Muted and small: it is a reference
+   line, and the month above it is still the answer to "where am I". */
+.cal__today {
+  font-family: var(--display-dev);
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--muted);
+  white-space: nowrap;
 }
 .cal__month {
   font-family: var(--display-dev);
@@ -155,11 +171,7 @@
 .cal__grid {
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
-  /* clip, not hidden. Both round the corners off the cells, but hidden also
-     makes the grid a scroll container, and a sticky child sticks to its
-     nearest scroll container — so .cal__weekdays below would have stuck to
-     the grid, which never scrolls, instead of to the page. */
-  overflow: clip;
+  overflow: hidden;
   background: var(--surface);
   display: flex;
   flex-direction: column;
@@ -191,17 +203,6 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   border-bottom: 1px solid var(--border);
-  /* Pinned under the month bar while the month scrolls, so a date in the
-     fourth week can still be read as a day of the week. It lets go with the
-     grid (sticky is bounded by its parent), so the detail and holiday list
-     below get the full screen. --cal-nav-h is measured in CalendarPage.tsx;
-     the fallback is the bar at the default text size on a phone. z-index 2
-     clears the cells' own lifted text (z-index 1), and stays inside the grid
-     because the grid isolates. */
-  position: sticky;
-  top: calc(var(--bar-h) + var(--cal-nav-h, 61px));
-  z-index: 2;
-  background: var(--surface);
 }
 /* No fill. A --surface-2 header band over a --surface grid is the same
    striping the editor had at both ends of its text — and the weekday row is
