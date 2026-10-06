@@ -18,17 +18,10 @@
  * It is a real motor on Android, which is where the app is installed.
  */
 
-/* Off is a setting, not a guess — see the haptics switch in SettingsSheet.
- * Module-level rather than threaded through every call site: this is a device
- * property, there is one device, and every caller wants the same answer. */
-let enabled = true
-
-export function setHapticsEnabled(next: boolean) {
-  enabled = next
-}
-
+/* Always on. There was a Vibration switch in Settings; it was removed at the
+ * owner's request (2026-10-07) to keep Settings short, and the taps are light
+ * and few enough that they no longer need an off switch. */
 function buzz(pattern: number | number[]) {
-  if (!enabled) return
   try {
     navigator.vibrate?.(pattern)
   } catch {

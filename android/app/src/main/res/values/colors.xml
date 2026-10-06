@@ -19,4 +19,13 @@
     <color name="widget_accent">#A80D26</color>
     <!-- Today's cell in the week strip: the web app's pale accent wash. -->
     <color name="widget_today">#FBE9EC</color>
+    <!-- The same Crimson & Paper widget colours under names values-v31/ does NOT
+         override, so they stay fixed when Material You is on. WidgetTheme.kt
+         swaps a widget onto these when the app's "Wallpaper colours" setting is
+         off. widget_surface needs no twin: values-v31/ never overrides it. -->
+    <color name="widget_static_text">#141824</color>
+    <color name="widget_static_muted">#646C7E</color>
+    <color name="widget_static_accent">#A80D26</color>
+    <color name="widget_static_border">#DDE1E9</color>
+    <color name="widget_static_today">#FBE9EC</color>
 </resources>

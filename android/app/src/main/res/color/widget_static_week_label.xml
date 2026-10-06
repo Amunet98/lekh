@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fixed-palette twin of color/widget_week_label.xml, for when the app's "Wallpaper
+     colours" setting is off (see WidgetTheme.kt). Same state logic. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_enabled="false" android:color="@color/widget_static_accent" />
+    <item android:color="@color/widget_static_muted" />
+</selector>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The card under the fixed palette, for every Android version: the same
+     shape as drawable/widget_background.xml, whose -v31 variant swaps in the
+     wallpaper colour. Used when "Wallpaper colours" is off (WidgetTheme.kt).
+     If the radius changes, it changes in all three files. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/widget_surface" />
+    <corners android:radius="20dp" />
+</shape>

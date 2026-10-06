@@ -69,6 +69,8 @@ interface Palette {
 
 interface DynamicColorPlugin {
   getPalette(): Promise<{ available: boolean; palette?: Palette }>
+  /** Added for the widgets in app 1.9.49; older APKs reject it as unimplemented. */
+  setWidgetDynamic(options: { enabled: boolean }): Promise<void>
 }
 
 const DynamicColor = registerPlugin<DynamicColorPlugin>('DynamicColor')
@@ -417,6 +419,18 @@ export function setDynamicColorEnabled(enabled: boolean): void {
   }
   setState({ ...state, enabled })
   paint(enabled ? cachedCss() : null)
+  syncWidgets(enabled)
+}
+
+/* The home-screen widgets follow this setting too, but they are native and
+   cannot read localStorage, so it is handed across on every change and once
+   per launch (from refreshDynamicColor) — the launch call is what carries over
+   a setting chosen before the widgets knew about it. An APK older than the
+   method rejects the call as unimplemented, which is fine: its widgets simply
+   keep following the wallpaper, as they always did. */
+function syncWidgets(enabled: boolean): void {
+  if (!Capacitor.isNativePlatform() || !Capacitor.isPluginAvailable('DynamicColor')) return
+  DynamicColor.setWidgetDynamic({ enabled }).catch(() => {})
 }
 
 /**
@@ -446,6 +460,7 @@ export async function refreshDynamicColor(): Promise<void> {
   if (!Capacitor.isNativePlatform() || !Capacitor.isPluginAvailable('DynamicColor')) {
     return
   }
+  syncWidgets(prefEnabled())
 
   let palette: Palette | undefined
   try {

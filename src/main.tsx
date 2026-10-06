@@ -3,11 +3,9 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import { bootDynamicColor } from './lib/dynamicColor'
 import { applyAmoled, applyTheme, getAmoled, getInitialTheme, watchSystemTheme } from './lib/theme'
-import { setHapticsEnabled } from './lib/haptics'
 import { installNativeBackHandler } from './lib/nativeBack'
 import { watchForErrors } from './lib/lastError'
 import { loadNativeInfo } from './lib/nativeInfo'
-import { getPref } from './lib/prefs'
 import { ToastProvider } from './components/Toast'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import App from './App.tsx'
@@ -42,7 +40,6 @@ applyTheme(getInitialTheme())
    status bar off a --bg that this can move. */
 applyAmoled(getAmoled())
 watchSystemTheme()
-setHapticsEnabled(getPref('haptics'))
 /* Android only, and the thing that makes useAppNavigation's history model
    reachable at all inside the app — see nativeBack.ts. */
 installNativeBackHandler()

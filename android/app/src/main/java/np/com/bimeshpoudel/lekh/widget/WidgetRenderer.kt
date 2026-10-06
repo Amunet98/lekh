@@ -38,11 +38,11 @@ object WidgetRenderer {
 
     private val adFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMM yyyy")
 
-    private val weekDayIds = intArrayOf(
+    internal val weekDayIds = intArrayOf(
         R.id.widget_week_d0, R.id.widget_week_d1, R.id.widget_week_d2, R.id.widget_week_d3,
         R.id.widget_week_d4, R.id.widget_week_d5, R.id.widget_week_d6,
     )
-    private val weekLabelIds = intArrayOf(
+    internal val weekLabelIds = intArrayOf(
         R.id.widget_week_l0, R.id.widget_week_l1, R.id.widget_week_l2, R.id.widget_week_l3,
         R.id.widget_week_l4, R.id.widget_week_l5, R.id.widget_week_l6,
     )
@@ -134,9 +134,11 @@ object WidgetRenderer {
         val isOff = NepaliCalendar.isWeeklyOff(today) || (info?.isHoliday == true)
         views.setBoolean(R.id.widget_day, "setEnabled", !isOff)
 
-        if (showsWeek) renderWeek(views, today)
+        if (showsWeek) renderWeek(views, today, WidgetTheme.pill(context))
 
         if (onClick != null) views.setOnClickPendingIntent(R.id.widget_root, onClick)
+        // The app's "Wallpaper colours" setting, carried over — see WidgetTheme.
+        if (WidgetTheme.useStatic(context)) WidgetTheme.applyStatic(views, layoutRes)
         return views
     }
 
@@ -152,7 +154,7 @@ object WidgetRenderer {
      * doing that leaves yesterday's marker behind when the widget redraws
      * across midnight without being reinflated.
      */
-    private fun renderWeek(views: RemoteViews, today: BsDate) {
+    private fun renderWeek(views: RemoteViews, today: BsDate, pill: Int) {
         val week = NepaliCalendar.weekOf(today)
 
         for (i in 0..6) {
@@ -172,7 +174,7 @@ object WidgetRenderer {
             views.setInt(
                 weekCellIds[i],
                 "setBackgroundResource",
-                if (i == NepaliCalendar.weekdayOf(today)) R.drawable.widget_pill else 0,
+                if (i == NepaliCalendar.weekdayOf(today)) pill else 0,
             )
         }
     }

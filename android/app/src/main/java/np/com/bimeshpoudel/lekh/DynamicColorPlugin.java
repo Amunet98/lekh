@@ -7,6 +7,7 @@ import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import java.util.Locale;
+import np.com.bimeshpoudel.lekh.widget.WidgetTheme;
 
 /**
  * Hands the WebView the wallpaper-derived Material You palette.
@@ -81,5 +82,19 @@ public class DynamicColorPlugin extends Plugin {
     /** Locale.ROOT, not the default: %X uppercases through the locale's rules. */
     private static String toHex(int color) {
         return String.format(Locale.ROOT, "#%06X", 0xFFFFFF & color);
+    }
+
+    /**
+     * The app's "Wallpaper colours" setting, handed to the home-screen widgets.
+     * The setting lives in the WebView's localStorage, which the widgets
+     * cannot read; WidgetTheme keeps a copy and redraws them when it changes.
+     * Called on every launch as well as on toggle, so a setting chosen before
+     * this method existed is picked up the first time the new APK runs.
+     */
+    @PluginMethod
+    public void setWidgetDynamic(PluginCall call) {
+        Boolean enabled = call.getBoolean("enabled", true);
+        WidgetTheme.INSTANCE.setDynamic(getContext(), enabled == null || enabled);
+        call.resolve();
     }
 }

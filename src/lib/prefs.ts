@@ -21,8 +21,6 @@ import type { Tab } from '../components/TabSwitcher'
 export type EditorSize = 'md' | 'lg' | 'xl'
 
 export interface Prefs {
-  /** Vibration on selections and confirmations. */
-  haptics: boolean
   /** Editor and translate-pane text size. Scales up only — the default is
    *  already at the 16px floor under which iOS zooms the page on focus. */
   editorSize: EditorSize
@@ -48,7 +46,6 @@ export interface Prefs {
 }
 
 const DEFAULTS: Prefs = {
-  haptics: true,
   editorSize: 'md',
   restoreLastTab: false,
   lastTab: 'type',
@@ -62,7 +59,6 @@ const DEFAULTS: Prefs = {
 const KEY_PREFIX = 'lekh:pref:'
 
 const VALIDATORS: { [K in keyof Prefs]: (raw: unknown) => Prefs[K] | undefined } = {
-  haptics: (raw) => (typeof raw === 'boolean' ? raw : undefined),
   editorSize: (raw) => (raw === 'md' || raw === 'lg' || raw === 'xl' ? raw : undefined),
   restoreLastTab: (raw) => (typeof raw === 'boolean' ? raw : undefined),
   lastTab: (raw) => (raw === 'type' || raw === 'translate' || raw === 'calendar' ? raw : undefined),

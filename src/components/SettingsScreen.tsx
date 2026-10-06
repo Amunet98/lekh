@@ -5,7 +5,7 @@ import { applyAmoled, resolveTheme } from '../lib/theme'
 import { usePref } from '../hooks/usePref'
 import { useDynamicColor } from '../hooks/useDynamicColor'
 import { setDynamicColorEnabled } from '../lib/dynamicColor'
-import { setHapticsEnabled, tick } from '../lib/haptics'
+import { tick } from '../lib/haptics'
 import { clearHeavyCaches, estimateHeavyCaches, formatBytes } from '../lib/storage'
 import { useToast } from '../hooks/useToast'
 import { useNativeInfo } from '../hooks/useNativeInfo'
@@ -139,8 +139,8 @@ function SwitchRow({
       role="switch"
       aria-checked={checked}
       onClick={() => {
-        /* Before the state change, so the switch that turns haptics *off*
-           still confirms the press that turned it off. */
+        /* Before the state change, so the press is felt even when the
+           switch is turning something off. */
         tick()
         onChange(!checked)
       }}
@@ -160,7 +160,6 @@ export function SettingsScreen({ open, onDismiss, onOpenAbout, onGoTo, t }: Sett
   const toast = useToast()
   const [theme, setTheme] = useTheme()
   const [editorSize, setEditorSize] = usePref('editorSize')
-  const [haptics, setHaptics] = usePref('haptics')
   const [restoreLastTab, setRestoreLastTab] = usePref('restoreLastTab')
   const [startNepali, setStartNepali] = usePref('startNepali')
   /* Read here, written through applyAmoled — which calls setPref itself and so
@@ -297,15 +296,6 @@ export function SettingsScreen({ open, onDismiss, onOpenAbout, onGoTo, t }: Sett
           <section className="settings__group">
             <h3 className="settings__group-title">Behaviour</h3>
             <div className="row-group">
-              <SwitchRow
-                title="Vibration"
-                rest="a tap when something is selected or finished"
-                checked={haptics}
-                onChange={(next) => {
-                  setHaptics(next)
-                  setHapticsEnabled(next)
-                }}
-              />
               <SwitchRow
                 title="Open where I left off"
                 rest={restoreLastTab ? 'reopens your last section' : 'always opens on Type'}
