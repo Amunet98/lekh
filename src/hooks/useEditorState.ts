@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import { convert, suggest } from '../lib/engine'
 import type { Chip } from '../lib/engine/types'
 import { confirm, tick } from '../lib/haptics'
 import { getPref } from '../lib/prefs'
 import { useUndoableClear } from './useUndoableClear'
 import { shareText } from '../lib/share'
+import { commitAt, insertAt, pendingAt, type Edit } from '../lib/caretCommit'
 
 const TEXT_KEY = 'lekh:editor-text'
 
@@ -21,13 +22,13 @@ function computePending(text: string): string {
   return m ? m[0] : ''
 }
 
-// Not caret-aware — always operates on the trailing run of Latin
-// characters, same limitation as the prototype (see project notes).
-function commitText(text: string, replacement?: string): string {
+// The end-of-text commit, for copy/share/export: whatever Latin run is left
+// at the very end goes out as Devanagari. Typing itself commits at the caret
+// (see caretCommit.ts).
+function commitText(text: string): string {
   const p = computePending(text)
   if (!p) return text
-  const conv = replacement !== undefined ? replacement : convert(p)
-  return text.slice(0, text.length - p.length) + conv
+  return text.slice(0, text.length - p.length) + convert(p)
 }
 
 // Enter is deliberately excluded — it should only insert a newline, never
@@ -36,8 +37,17 @@ function isTrigger(ch: string): boolean {
   return ch === ' ' || ch === '.' || ',?!;:'.includes(ch)
 }
 
-export function useEditorState() {
+export function useEditorState(textareaRef?: RefObject<HTMLTextAreaElement | null>) {
   const [text, setText] = useState(getInitialText)
+  /* Where the caret is, so a word can convert wherever it is typed rather
+     than only at the end of the text. Starts at the end, which is where the
+     field puts it on focus. */
+  const [caret, setCaret] = useState(() => getInitialText().length)
+  /* A caret position to restore once React has written a new value. Setting
+     a controlled textarea's value from state moves the caret to the end, so
+     every programmatic edit would otherwise throw someone typing in the
+     middle of a paragraph to the bottom of it. */
+  const caretAfterRender = useRef<number | null>(null)
   /* Read once, at mount, rather than subscribed: this is what the editor
      *starts* as, and having a settings change silently flip the mode under
      someone mid-sentence would be worse than making them tap EN/नेपाली. */
@@ -55,7 +65,26 @@ export function useEditorState() {
     }
   }, [text])
 
-  const pending = useMemo(() => (nepali ? computePending(text) : ''), [text, nepali])
+  const pending = useMemo(
+    () => (nepali ? pendingAt(text, Math.min(caret, text.length)) : ''),
+    [text, caret, nepali],
+  )
+
+  /* One door for every edit that is not plain typing: write the text, then
+     put the caret where the edit says it belongs. */
+  const apply = useCallback((edit: Edit) => {
+    caretAfterRender.current = edit.caret
+    setCaret(edit.caret)
+    setText(edit.text)
+  }, [])
+
+  useLayoutEffect(() => {
+    const at = caretAfterRender.current
+    const el = textareaRef?.current
+    if (at === null || !el) return
+    caretAfterRender.current = null
+    if (document.activeElement === el) el.setSelectionRange(at, at)
+  }, [text, textareaRef])
 
   const triggerFlash = useCallback(() => {
     setFlashing(true)
@@ -68,24 +97,25 @@ export function useEditorState() {
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (!nepali) return
       if (e.metaKey || e.ctrlKey || e.altKey) return
-      if (e.key === ' ') {
+      const el = e.currentTarget
+      /* A selected range is being replaced, not typed after; let the browser
+         do that the ordinary way. */
+      if (el.selectionStart !== el.selectionEnd) return
+      const at = el.selectionEnd
+      const commitWith = (suffix: string) => {
         e.preventDefault()
-        if (pending) triggerFlash()
-        setText((t) => commitText(t) + ' ')
-      } else if (e.key === '.') {
+        if (pendingAt(el.value, at)) triggerFlash()
+        apply(commitAt(el.value, at, suffix))
+      }
+      if (e.key === ' ') commitWith(' ')
+      else if (e.key === '.') commitWith('।')
+      else if (',?!;:'.includes(e.key) && e.key.length === 1) commitWith(e.key)
+      else if (e.key === 'Escape') {
         e.preventDefault()
-        if (pending) triggerFlash()
-        setText((t) => commitText(t) + '।')
-      } else if (',?!;:'.includes(e.key) && e.key.length === 1) {
-        e.preventDefault()
-        if (pending) triggerFlash()
-        setText((t) => commitText(t) + e.key)
-      } else if (e.key === 'Escape') {
-        e.preventDefault()
-        setText((t) => t + ' ') // keep the English word as-is
+        apply(insertAt(el.value, at, ' ')) // keep the English word as-is
       }
     },
-    [nepali, pending, triggerFlash],
+    [nepali, triggerFlash, apply],
   )
 
   // Android IME keyboards (Gboard) fire keydown with key='Unidentified'
@@ -97,48 +127,61 @@ export function useEditorState() {
   const handleChange = useCallback(
     (newValue: string, selectionEnd: number) => {
       if (!nepali) {
+        setCaret(selectionEnd)
         setText(newValue)
         return
       }
+      /* The character just typed is the one before the caret, wherever the
+         caret is — not the last character of the text. */
       const grew = newValue.length >= text.length
-      const atEnd = selectionEnd === newValue.length
-      const lastChar = newValue.slice(-1)
-      if (grew && atEnd && isTrigger(lastChar)) {
-        const body = newValue.slice(0, -1)
-        const hadPending = computePending(body) !== ''
-        if (hadPending) triggerFlash()
-        const suffix = lastChar === '.' ? '।' : lastChar
-        setText(commitText(body) + suffix)
+      const typed = newValue.charAt(selectionEnd - 1)
+      if (grew && selectionEnd > 0 && isTrigger(typed)) {
+        const withoutTrigger = newValue.slice(0, selectionEnd - 1) + newValue.slice(selectionEnd)
+        const at = selectionEnd - 1
+        if (pendingAt(withoutTrigger, at)) triggerFlash()
+        apply(commitAt(withoutTrigger, at, typed === '.' ? '।' : typed))
         return
       }
+      setCaret(selectionEnd)
       setText(newValue)
     },
-    [nepali, text, triggerFlash],
+    [nepali, text, triggerFlash, apply],
   )
+
+  /* Caret moves that change no text — a tap elsewhere in the paragraph, the
+     arrow keys — still change which word is pending, and so which
+     suggestions the strip offers. */
+  const handleSelect = useCallback((selectionEnd: number) => {
+    setCaret(selectionEnd)
+  }, [])
 
   const chooseChip = useCallback(
     (chipText: string) => {
       triggerFlash()
       tick()
-      setText((t) => commitText(t, chipText) + ' ')
+      apply(commitAt(text, Math.min(caret, text.length), ' ', chipText))
     },
-    [triggerFlash],
+    [triggerFlash, apply, text, caret],
   )
 
   const keepRaw = useCallback(() => {
-    setText((t) => t + ' ')
-  }, [])
+    apply(insertAt(text, Math.min(caret, text.length), ' '))
+  }, [apply, text, caret])
 
   const toggleMode = useCallback(() => setNepali((n) => !n), [])
 
   const clear = useCallback(() => {
     undoable.remember(text)
+    setCaret(0)
     setText('')
   }, [text, undoable])
 
   const undoClear = useCallback(() => {
     const restored = undoable.undo()
-    if (restored !== null) setText(restored)
+    if (restored !== null) {
+      setCaret(restored.length)
+      setText(restored)
+    }
   }, [undoable])
 
   // Appends typed-then-committed text — used by cheat-sheet tap-to-insert.
@@ -156,9 +199,9 @@ export function useEditorState() {
   const commitForExport = useCallback((): string => {
     if (!nepali) return text
     const committed = commitText(text)
-    setText(committed)
+    if (committed !== text) apply({ text: committed, caret: Math.min(caret, committed.length) })
     return committed
-  }, [nepali, text])
+  }, [nepali, text, caret, apply])
 
   const copy = useCallback(async () => {
     const committed = commitForExport()
@@ -187,6 +230,7 @@ export function useEditorState() {
     flashing,
     handleKeyDown,
     handleChange,
+    handleSelect,
     chooseChip,
     keepRaw,
     toggleMode,

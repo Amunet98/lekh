@@ -26,8 +26,10 @@ export function TypePage({
   onOpenCheatSheet,
   onCloseCheatSheet,
 }: TypePageProps) {
-  const editor = useEditorState()
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  /* The ref goes in so the hook can put the caret back after converting a
+     word in the middle of the text — see useEditorState. */
+  const editor = useEditorState(textareaRef)
 
   /* Stable identity, and CheatSheet is memo'd — the two go together and neither
      works alone. Every keystroke updates editor state and re-renders this

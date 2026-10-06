@@ -241,6 +241,9 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet, booting }: Edito
             editor.handleKeyDown(e)
           }}
           onPointerDown={intro.stop}
+          /* Caret moves change which word is pending (and so the
+             suggestions), even when no text changes. */
+          onSelect={(e) => editor.handleSelect(e.currentTarget.selectionEnd)}
         />
 
           {/* The empty state, inside the writing surface rather than under it:
