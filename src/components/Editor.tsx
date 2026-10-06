@@ -277,6 +277,17 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet, booting }: Edito
                 {/* No `dev` class — .editor-mark sets the display face. */}
                 <span className="editor-mark__dev">अ</span>
               </span>
+              {/* What the screen is, in the words people search for. "Romanized
+                  Nepali Unicode" is the name Nepali typists already know the
+                  layout by (see the standing rule in maps.ts), and Unicode is
+                  the reason to use it over a Preeti-style font: the text pastes
+                  correctly into any app. */}
+              <div className="editor-empty__intro">
+                <p className="editor-empty__title">Romanized Nepali Unicode</p>
+                <p className="editor-empty__sub">
+                  Type in English letters, get Nepali Unicode you can paste anywhere.
+                </p>
+              </div>
               <div className="starters">
                 <span className="starters__label">Try one</span>
                 <div className="starters__row">

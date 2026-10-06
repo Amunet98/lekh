@@ -625,10 +625,29 @@
 .editor-empty .starter {
   pointer-events: auto;
 }
+.editor-empty__intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  max-width: 24rem;
+}
+.editor-empty__title {
+  font-family: var(--display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-h);
+}
+.editor-empty__sub {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
 /* With the keyboard up the field is a third of the screen, and what someone
    needs there is the starters — the mark and the legend go, so the chips are
    not squeezed against the placeholder. */
 .has-keyboard .editor-empty .editor-mark,
+.has-keyboard .editor-empty .editor-empty__intro,
 .has-keyboard .editor-empty .editor-hint {
   display: none;
 }
