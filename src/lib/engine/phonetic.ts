@@ -1,14 +1,15 @@
-import { CONS, VOW, SIGNS } from './maps'
+import { CONS, VOW, SIGNS, RI_MATRA, RI_CLUSTER, OM, EYELASH_RA, SEPARATOR } from './maps'
 
 type Token =
   | { kind: 'cons'; value: string }
   | { kind: 'vowel'; value: [string, string] }
   | { kind: 'sign'; value: string }
   | { kind: 'raw'; value: string }
+  | { kind: 'break' }
 
-/* Case is meaningful here — T/D/N/Th/Dh/Sh are the retroflexes and A/I/U/E
- * the long vowels — so an exact-case hit always wins at a given length. But
- * only ten capitals carry a meaning, and the other sixteen used to fall
+/* Case is meaningful here — T/D/N/Th/Dh/Sh are the retroflexes, as on
+ * ashesh, plus the signs M and H — so an exact-case hit always wins at a given
+ * length. Every other capital is its lowercase letter; they used to fall
  * through to `raw` and stay Latin in the middle of a Devanagari word: typing a
  * name gave "Bimesh" -> "Bइमेश". Dictionary words never showed it, because
  * convert() lowercases before its lookup, so this only ever bit the words not
@@ -25,8 +26,14 @@ type Token =
  * initially there is nothing under them: "Mohan" gave "ंओहन", an orphan
  * anusvara. There is no position in the layout where a bare ं opens a word, so
  * at index 0 the sign is declined and the lowercase form answers instead: म. */
-function matchAt(sub: string, wordInitial: boolean): Token | null {
+function matchAt(sub: string, wordInitial: boolean, afterCons: boolean): Token | null {
   for (const form of sub === sub.toLowerCase() ? [sub] : [sub, sub.toLowerCase()]) {
+    // The context-dependent tokens first — see RI_MATRA and OM in maps.ts.
+    if (form === 'ri^') return { kind: 'raw', value: afterCons ? RI_CLUSTER : 'रि' }
+    if (form === 'ri' && afterCons) return { kind: 'vowel', value: ['ऋ', RI_MATRA] }
+    if ((form === 'om' || form === 'aum') && !afterCons) return { kind: 'raw', value: OM }
+    if (form === 'rr') return { kind: 'raw', value: EYELASH_RA }
+    if (form === SEPARATOR) return { kind: 'break' }
     if (Object.hasOwn(CONS, form)) return { kind: 'cons', value: CONS[form] }
     if (Object.hasOwn(VOW, form)) return { kind: 'vowel', value: VOW[form] }
     if (Object.hasOwn(SIGNS, form) && !wordInitial) return { kind: 'sign', value: SIGNS[form] }
@@ -38,9 +45,13 @@ function tokenize(word: string): Token[] {
   const tokens: Token[] = []
   let i = 0
   while (i < word.length) {
+    const prev = tokens[tokens.length - 1]
+    const afterCons = prev !== undefined && prev.kind === 'cons'
     let matched = false
-    for (let len = 3; len >= 1 && !matched; len--) {
-      const token = matchAt(word.substr(i, len), i === 0)
+    // 4, for `rree`; everything else is 3 or shorter.
+    for (let len = 4; len >= 1 && !matched; len--) {
+      if (i + len > word.length) continue
+      const token = matchAt(word.substr(i, len), i === 0, afterCons)
       if (token) {
         tokens.push(token)
         i += len
@@ -73,6 +84,9 @@ export function phonetic(word: string): string {
       out += prev && prev.kind === 'cons' ? tok.value[1] : tok.value[0]
     } else if (tok.kind === 'sign') {
       out += tok.value // combining sign rides on whatever came before
+    } else if (tok.kind === 'break') {
+      // prints nothing; its only job is to sit between two consonants so the
+      // cluster halant above is not added
     } else {
       out += tok.value
     }

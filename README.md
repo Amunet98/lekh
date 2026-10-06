@@ -35,25 +35,30 @@ right in the browser.
 
 ## How the romanization maps
 
-The keys are the Nepali Unicode **Romanized** layout — the conventional
-scheme for romanized Nepali input, the one Madan Puraskar Pustakalaya
-publishes and most Nepali Unicode pages use — rather than a scheme invented
-here.
+Lekh types the way [ashesh.com.np's romanized Nepali Unicode
+converter](https://www.ashesh.com.np/nepali-unicode.php) does — the pattern most
+Nepali typists already know — so the same keystrokes give the same letters.
+Common words come from Lekh's own dictionary first (reviewed by a native
+speaker), the way ashesh keeps one too; everything else follows the pattern.
 
-Case is part of that layout and carries meaning. `t`/`T` is the dental and
-retroflex split (त / ट), and so are `d`/`D` and `n`/`N`; `A`, `I` and `U` are
-the long vowels (आ ई ऊ); `M` and `H` are the anusvara and visarga, typed as
-`aM` and `aH`. Aspirates are digraphs — `kh gh chh jh th dh ph bh`, plus `Th`,
-`Dh` and `Sh`.
+- **Case:** only `T`, `D`, `N` and `Sh` are case-sensitive — त/ट, द/ड, न/ण,
+  श/ष. Every other capital is its lowercase letter, so `Anil` → अनिल.
+- **Vowels:** a consonant carries its `a` (`ka` → क); `aa` ा, `i` ि, `ee` ी,
+  `u` ु, `oo` ू, `e` े, `ai` ै, `o` ो, `au` ौ. `ri` after a letter is ृ
+  (`kri` → कृ); `ri^` gives the र-cluster instead (`kri^ket` → क्रिकेट).
+- **Consonants:** aspirates are digraphs (`kh gh chh jh th dh ph bh`, `Th`
+  `Dh`), `ksh` क्ष, `gy` ज्ञ, `yna` ञ — so `ny` is a plain न्य — and `c` क,
+  `x` क्स.
+- **Signs:** `*` ं and `**` ँ (Lekh's older `M` and `~` still work), `H` ः.
+  Clusters join on their own; `\` writes a halant where one would not appear
+  (`bas\` → बस्), and `/` keeps two letters apart.
+- **Word endings,** as on ashesh: a final `-i` after a consonant is ी
+  (`nepaali` → नेपाली), and a final `-cha` is छ (`garcha` → गर्छ). One
+  deliberate difference: a final `y` is ी (`story` → स्तोरी), where ashesh's
+  rule runs into its own `rree` key and gives स्तोॠ.
 
-That is eight single capitals with a meaning of their own. **Every other
-capital is simply its lowercase letter**, so a capitalised name types the way
-you would expect it to: `Bimesh` → बिमेश, `Mohan` → मोहन. A word never opens
-with a bare combining mark, either — `M` and `H` are signs that ride a vowel,
-and word-initially they fall back to म and ह.
-
-`src/lib/engine/engine.test.ts` pins all three of those rules, and
-`src/lib/engine/maps.ts` is the table itself.
+`src/lib/engine/maps.ts` is the table, `convert.ts` the word rules, and
+`src/lib/engine/engine.test.ts` pins each of the above.
 
 ## Design
 

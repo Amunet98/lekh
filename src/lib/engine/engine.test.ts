@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CONS, DICT, DIGITS, SIGNS, VARIANTS, VOW, convert, phonetic, suggest } from './index'
+import { CONS, DICT, DIGITS, SIGNS, VARIANTS, VOW, applyWordRules, convert, phonetic, suggest } from './index'
 
 /* The engine, tested on what it produces rather than on what it documents.
  *
@@ -41,9 +41,14 @@ describe('convert', () => {
   })
 
   it('does not treat a mixed alphanumeric token as a number', () => {
-    // The digit branch is anchored (^\d+$), so 'a1' must fall through to the
-    // phonetic path rather than being half-converted.
+    // Only a token with no letters takes the digits-only branch, so 'a1' must
+    // fall through to the phonetic path rather than being half-converted.
     expect(convert('a1')).not.toBe('a१')
+  })
+
+  it('converts the digits of a date and keeps its slashes', () => {
+    // `/` is the pattern's letter separator, but a date has no letters in it.
+    expect(convert('2083/06/20')).toBe('२०८३/०६/२०')
   })
 
   it('falls back to the phonetic parser for unknown words', () => {
@@ -66,8 +71,8 @@ describe('phonetic — the rules that make typing feel right', () => {
   })
 
   it('reads a capital with no meaning of its own as its lowercase letter', () => {
-    // Only ten capitals mean anything (the retroflexes and the long vowels,
-    // above). The rest used to fall through and sit in the output as Latin —
+    // Only the retroflexes (above) and the signs M and H mean anything as
+    // capitals. The rest used to fall through and sit in the output as Latin —
     // 'Bimesh' came out 'Bइमेश'. Dictionary words hid it, since convert()
     // lowercases before its lookup, so it only ever showed on the words that
     // are not in the dictionary: names.
@@ -145,6 +150,67 @@ describe('phonetic — the rules that make typing feel right', () => {
     // 'chha' is the cheat sheet's own worked example of greedy matching:
     // chh -> छ, then 'a' as a matra on it.
     expect(phonetic('chha')).toBe(`${CONS['chh']}${VOW['a'][1]}`)
+  })
+})
+
+describe('the ashesh.com.np pattern', () => {
+  /* Lekh types the way ashesh's romanized converter does (owner's call,
+     2026-10-06), checked word by word against a model of its rules. These pin
+     the places where that differs from what Lekh used to do. */
+  it('types ञ as yna, so ny is a plain न्य cluster', () => {
+    expect(phonetic('yna')).toBe('ञ')
+    expect(phonetic('nyaaya')).toBe('न्याय')
+    expect(phonetic('dhanyawaad')).toBe('धन्यवाद')
+  })
+
+  it('takes * and ** for the anusvara and chandrabindu, keeping M and ~', () => {
+    expect(phonetic('sa*saar')).toBe('संसार')
+    expect(phonetic('chaa**d')).toBe('चाँद')
+    expect(phonetic('saMsaar')).toBe('संसार')
+    expect(phonetic('chaa~d')).toBe('चाँद')
+  })
+
+  it('takes \\ for an explicit halant and / to keep two letters apart', () => {
+    expect(phonetic('bas\\')).toBe('बस्')
+    expect(phonetic('kt')).toBe('क्त')
+    expect(phonetic('k/t')).toBe('कत')
+  })
+
+  it('reads ri after a consonant as ृ, and ri^ as the र cluster', () => {
+    expect(phonetic('kri')).toBe('कृ')
+    expect(phonetic('prithvi')).toBe('पृथ्वि')
+    expect(phonetic('Hari')).toBe('हरि')
+    expect(phonetic('kri^')).toBe('क्रि')
+  })
+
+  it('maps c to क and x to क्स, as ashesh does', () => {
+    expect(phonetic('ca')).toBe('क')
+    expect(phonetic('xa')).toBe('क्स')
+    expect(phonetic('ksh')).toBe('क्ष')
+  })
+
+  it('treats capital vowels as lowercase: only T D N Sh are case-sensitive', () => {
+    expect(phonetic('Anil')).toBe('अनिल')
+    expect(phonetic('Ishwor')).toBe(phonetic('ishwor'))
+    expect(phonetic('SH')).toBe(CONS['Sh'])
+  })
+
+  it('gives ॐ for om and aum only where a vowel could start', () => {
+    expect(phonetic('om')).toBe('ॐ')
+    expect(phonetic('aum')).toBe('ॐ')
+    expect(phonetic('kom')).toBe('कोम')
+  })
+
+  it('applies the word-ending rules to words the dictionary does not know', () => {
+    expect(applyWordRules('garcha')).toBe('garchha')
+    expect(applyWordRules('nepaali')).toBe('nepaalee')
+    expect(applyWordRules('lai')).toBe('laaii')
+    expect(applyWordRules('pani')).toBe('pani')
+    // a final -a after a consonant run is lengthened, except after these
+    expect(applyWordRules('garna')).toBe('garna')
+    expect(applyWordRules('kendra')).toBe('kendra')
+    // the one departure from ashesh: a final y is ee, not ree (see convert.ts)
+    expect(applyWordRules('story')).toBe('storee')
   })
 })
 

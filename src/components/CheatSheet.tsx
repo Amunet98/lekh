@@ -134,7 +134,10 @@ export const CheatSheet = memo(function CheatSheet({ onInsert, query }: CheatShe
       <Cells group={CONJUNCTS} onInsert={onInsert} />
       <p className="map-caption">
         Lowercase is dental (त द न), uppercase is retroflex (ट ड ण). Joints happen on their own:{' '}
-        <span className="dev">t</span>+<span className="dev">r</span> → त्र.
+        <span className="dev">t</span>+<span className="dev">r</span> → त्र. After a letter,{' '}
+        <span className="dev">ri</span> is ृ (<span className="dev">kri</span> → कृ). Put{' '}
+        <span className="dev">/</span> between two letters to keep them apart, and end with{' '}
+        <span className="dev">\</span> for a final ् (<span className="dev">bas\</span> → बस्).
       </p>
 
       <p className="sub">{SIGNS_DIGITS.label}</p>

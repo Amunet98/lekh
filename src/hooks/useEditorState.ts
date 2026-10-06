@@ -18,7 +18,7 @@ function getInitialText(): string {
 }
 
 function computePending(text: string): string {
-  const m = text.match(/[A-Za-z0-9~]+$/)
+  const m = text.match(/[A-Za-z0-9~*\\/^]+$/)
   return m ? m[0] : ''
 }
 

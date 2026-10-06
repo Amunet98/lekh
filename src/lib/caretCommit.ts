@@ -12,7 +12,9 @@ import { convert } from './engine'
  * Pure functions on (text, caret) so they can be tested without a DOM; the
  * hook owns the state and puts the caret back on the textarea. */
 
-const LATIN_RUN = /[A-Za-z0-9~]+$/
+/* Letters and digits, plus the pattern's own keys: ~ * \ / ^ (see maps.ts),
+   so `sa*saar`, `bas\` and `kri^ket` reach the engine whole. */
+const LATIN_RUN = /[A-Za-z0-9~*\\/^]+$/
 
 export interface Edit {
   text: string

@@ -35,8 +35,10 @@ import {
 const NOT_A_ROMANIZATION = new Set([
   'ph · f', // two accepted spellings for फ
   'w · v', // two accepted spellings for व
-  'ksh · x', // two accepted spellings for क्ष
-  'auto', // the halant ्, which the engine applies itself
+  '* · M', // ashesh's anusvara key, and Lekh's older one
+  '** · ~', // ashesh's chandrabindu key, and Lekh's older one
+  '\\ · auto', // the halant ्: typed as \, and applied by the engine on its own
+  'H', // the visarga ः: a sign that rides a vowel (aH), never a word on its own
   '.', // shown as the danda ।
 ])
 

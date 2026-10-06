@@ -29,8 +29,8 @@ export const VOWELS: CheatGroup = {
        because their marks (ं ः) already appear in the signs table below — but
        a sign is not a letter: someone reciting the alphabet is looking for
        अं here, at the end of the vowels, not for a bare anusvara three tables
-       down. Typing them is `aM` / `aH`; both verified against the engine. */
-    { glyph: 'अं', insert: 'अं', romanized: 'aM' },
+       down. Typing them is `a*` / `aH` (`aM` still works); verified against the engine. */
+    { glyph: 'अं', insert: 'अं', romanized: 'a*' },
     { glyph: 'अः', insert: 'अः', romanized: 'aH' },
   ],
 }
@@ -56,7 +56,7 @@ export const CONSONANT_GROUPS: CheatGroup[] = [
       { glyph: 'छ', insert: 'छ', romanized: 'chh' },
       { glyph: 'ज', insert: 'ज', romanized: 'j' },
       { glyph: 'झ', insert: 'झ', romanized: 'jh' },
-      { glyph: 'ञ', insert: 'ञ', romanized: 'ny' },
+      { glyph: 'ञ', insert: 'ञ', romanized: 'yna' },
     ],
   },
   {
@@ -113,7 +113,7 @@ export const CONJUNCTS: CheatGroup = {
   label: 'संयुक्ताक्षर · conjuncts',
   columns: 4,
   cells: [
-    { glyph: 'क्ष', insert: 'क्ष', romanized: 'ksh · x' },
+    { glyph: 'क्ष', insert: 'क्ष', romanized: 'ksh' },
     { glyph: 'त्र', insert: 'त्र', romanized: 'tr' },
     { glyph: 'ज्ञ', insert: 'ज्ञ', romanized: 'gy' },
     { glyph: 'श्र', insert: 'श्र', romanized: 'shr' },
@@ -124,10 +124,10 @@ export const SIGNS_DIGITS: CheatGroup = {
   label: 'चिन्ह र अंक · signs & digits',
   columns: 5,
   cells: [
-    { glyph: 'ं', insert: 'ं', romanized: 'M' },
+    { glyph: 'ं', insert: 'ं', romanized: '* · M' },
     { glyph: 'ः', insert: 'ः', romanized: 'H' },
-    { glyph: 'ँ', insert: 'ँ', romanized: '~' },
-    { glyph: '्', insert: '्', romanized: 'auto' },
+    { glyph: 'ँ', insert: 'ँ', romanized: '** · ~' },
+    { glyph: '्', insert: '्', romanized: '\\ · auto' },
     { glyph: '।', insert: '।', romanized: '.' },
   ],
 }
