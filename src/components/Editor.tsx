@@ -47,6 +47,44 @@ interface EditorProps {
   booting: boolean
 }
 
+/* The one-line legend. Its pointer-type halves are both rendered and swapped
+   in CSS (a phone has no esc key — "(keep)" in the suggestion row is the
+   touch equivalent); the mode is branched here, because with conversion off
+   every clause but the last described something the editor was not doing,
+   and what someone in that state needs is the way back. */
+function EditorHint({ nepali }: { nepali: boolean }) {
+  return (
+    <p className="editor-hint">
+      {nepali ? (
+        /* Each clause is one unbreakable run, so a narrow screen breaks the
+           line between clauses — it used to strand the । at the start of the
+           second line, away from the full stop it is the answer to. */
+        <>
+          <span className="editor-hint__clause">
+            <kbd>space</kbd> converts
+          </span>{' '}
+          ·{' '}
+          <span className="editor-hint__clause editor-hint__fine">
+            <kbd>esc</kbd> keeps English
+          </span>
+          <span className="editor-hint__clause editor-hint__coarse">
+            tap <b>(keep)</b> for English
+          </span>{' '}
+          ·{' '}
+          <span className="editor-hint__clause">
+            <kbd>.</kbd> becomes ।
+          </span>{' '}
+          · <span className="editor-hint__clause">runs entirely on your device</span>
+        </>
+      ) : (
+        <>
+          Tap <b className="dev">नेपाली</b> to convert as you type · runs entirely on your device
+        </>
+      )}
+    </p>
+  )
+}
+
 const PLACEHOLDER = 'namaste — start typing, press space to convert…'
 
 export function Editor({ editor, textareaRef, onOpenCheatSheet, booting }: EditorProps) {
@@ -133,24 +171,11 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet, booting }: Edito
       })
     }
   }
-  if (editor.lastCleared !== null) {
-    moreOptions.push({
-      id: 'undo',
-      label: 'Undo clear',
-      hint: 'Put the text back',
-      icon: <SheetIcon name="undo" />,
-      onSelect: editor.undoClear,
-    })
-  } else if (!isEmpty) {
-    moreOptions.push({
-      id: 'clear',
-      label: 'Clear',
-      hint: 'Empty the editor',
-      danger: true,
-      icon: <SheetIcon name="trash" />,
-      onSelect: clear,
-    })
-  }
+  /* Clear and Undo are no longer in here: on the phone they are a button of
+     their own in the toolbar (see below), and the desktop row has always had
+     them inline. A tester's first complaint was having to open ⋯ to find the
+     one action everybody uses, and the sheet now holds only the ways out —
+     share and the files. */
 
   return (
     <div className="editor-shell">
@@ -204,26 +229,7 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet, booting }: Edito
           )}
         </div>
 
-        {/* See .editor-mark in Editor.css. aria-hidden and inert to the
-            pointer: it is texture behind the field, not content — and since
-            the demonstration plays once per install and never again, it is
-            also the only thing left on this screen that states the mechanic.
-
-            Held back while the demonstration runs, so the first thing on the
-            screen is one word typing itself rather than a word typing itself
-            over a watermark. It fades in when the demo releases. */}
-        {isEmpty && !intro.active && (
-          <span className="editor-mark" aria-hidden="true">
-            <span className="editor-mark__key">a</span>
-            <span className="editor-mark__arrow">→</span>
-            {/* No `dev` class, deliberately. .editor-mark sets the *display*
-                face (Anek Devanagari) and `dev` would override it with the
-                text face — the mark has been Anek since it was drawn, and
-                splitting one span into three is not the place to restyle it. */}
-            <span className="editor-mark__dev">अ</span>
-          </span>
-        )}
-
+        <div className="editor-field">
         <textarea
           ref={textareaRef}
           id={EDITOR_ID}
@@ -246,6 +252,57 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet, booting }: Edito
           }}
           onPointerDown={intro.stop}
         />
+
+          {/* The empty state, inside the writing surface rather than under it.
+              The starters and the legend used to sit below the editor, past
+              its toolbar, where they read as a page footer — a tester called
+              the section "out of place", and it was: the one invitation to
+              tap something sat furthest from where you type. Centred in the
+              blank field, they are the field's own first-run content, and
+              they disappear with the first character the same way the
+              placeholder does.
+
+              Layered over the textarea with pointer-events: none, so a tap
+              anywhere but a starter still lands in the field and raises the
+              keyboard. Held back while the demonstration runs, so the first
+              thing on screen is one word typing itself (see useIntroDemo). */}
+          {isEmpty && !intro.active && (
+            <div className="editor-empty reveal">
+              {/* See .editor-mark in Editor.css — aria-hidden texture, now a
+                  centred mark above the starters rather than a full-field
+                  watermark behind everything. */}
+              <span className="editor-mark" aria-hidden="true">
+                <span className="editor-mark__key">a</span>
+                <span className="editor-mark__arrow">→</span>
+                {/* No `dev` class — .editor-mark sets the display face. */}
+                <span className="editor-mark__dev">अ</span>
+              </span>
+              <div className="starters">
+                <span className="starters__label">Try one</span>
+                <div className="starters__row">
+                  {STARTER_SAMPLES.map((sample) => (
+                    <button
+                      key={sample}
+                      type="button"
+                      className="starter"
+                      onClick={() => {
+                        editor.appendSample(sample)
+                        textareaRef.current?.focus()
+                      }}
+                    >
+                      {/* What you type over what you get; convertPhrase is the
+                          same function appendSample runs, so the two halves
+                          cannot drift. */}
+                      <span className="starter__roman">{sample}</span>
+                      <span className="starter__dev dev">{convertPhrase(sample)}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <EditorHint nepali={editor.nepali} />
+            </div>
+          )}
+        </div>
 
         <div className="actions">
           {/*
@@ -300,10 +357,15 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet, booting }: Edito
               reason: क ख is the one control here that has to explain itself.
               ⋯ beside it keeps its glyph — an overflow dot-row is a convention
               a user has already met, where a pair of Devanagari letters on a
-              button is not. */}
+              button is not.
+
+              Drawn as a .btn now, not in the accent tint. Pink fill, pink
+              hairline and a caption at 75% opacity made it read as a tag or a
+              badge — "doesn't look like a button" was the tester's word for
+              it. Same skin as Clear and ⋯ beside it. */}
           <button
             type="button"
-            className="btn btn--icon btn--stack"
+            className="btn btn--stack btn--letters"
             aria-haspopup="dialog"
             title="Cheat sheet — how letters map"
             aria-label="Cheat sheet — how letters map"
@@ -319,55 +381,103 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet, booting }: Edito
 
           <div className="actions__spacer" />
 
-          {/* Disabled on an empty editor, like clear beside it. Copying
-              nothing silently "succeeds" — the label even flips to "copied" —
-              which is the kind of feedback that teaches someone the button is
-              broken. */}
-          {/* The filled one. Getting the Devanagari out is what someone came
-              to this screen to do, so it is the action that carries the
-              accent — see .btn--primary. */}
-          <button
-            type="button"
-            className="btn btn--primary"
-            disabled={isEmpty}
-            onClick={editor.copy}
-          >
-            {editor.copied ? 'Copied' : 'Copy'}
-          </button>
           {compactActions ? (
-            <>
-              <button
-                type="button"
-                className="btn btn--icon"
-                aria-haspopup="dialog"
-                aria-label="More actions — share, save, clear"
-                title="More actions"
-                disabled={moreOptions.length === 0 || busy}
-                onClick={() => setMoreOpen(true)}
-              >
-                <MoreIcon />
-              </button>
-              <ActionSheet
-                open={moreOpen}
-                onClose={() => setMoreOpen(false)}
-                label="Text actions"
-                options={moreOptions}
-              />
-            </>
+            /* The phone row. Nothing on this side until there is something to
+               act on — an empty editor opened on three disabled buttons, which
+               on a first launch is three things that look broken. They arrive
+               with the first character, into the empty end of the row, so
+               nothing a thumb is already on moves. */
+            isEmpty ? (
+              editor.lastCleared !== null && (
+                <div className="actions__end reveal">
+                  <button
+                    type="button"
+                    className="btn btn--clear"
+                    aria-label="Undo clear"
+                    onClick={editor.undoClear}
+                  >
+                    <span className="btn__icon" aria-hidden="true">
+                      <SheetIcon name="undo" size={18} />
+                    </span>
+                    <span className="btn__text" aria-hidden="true">
+                      Undo
+                    </span>
+                  </button>
+                </div>
+              )
+            ) : (
+              /* One group, so that if the row ever has to wrap (the largest
+                 text size on a narrow phone) the three go to the next line
+                 together, right-aligned, instead of ⋯ dropping on its own. */
+              <div className="actions__end reveal">
+                {/* Out of the ⋯ sheet, where a tester could not find it. It
+                    becomes Undo in the same slot the moment it is used, so a
+                    mis-tap costs one more tap rather than the text. Below a
+                    certain row width it drops its word for the icon — see the
+                    @container rule on .actions. */}
+                <button
+                  type="button"
+                  className="btn btn--clear"
+                  aria-label="Clear"
+                  onClick={clear}
+                >
+                  <span className="btn__icon" aria-hidden="true">
+                    <SheetIcon name="trash" size={18} />
+                  </span>
+                  <span className="btn__text" aria-hidden="true">Clear</span>
+                </button>
+                {/* The filled one — getting the Devanagari out is what someone
+                    came here to do. See .btn--primary. */}
+                <button type="button" className="btn btn--primary" onClick={editor.copy}>
+                  {editor.copied ? 'Copied' : 'Copy'}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn--icon"
+                  aria-haspopup="dialog"
+                  aria-label="More actions — share, export"
+                  title="More actions"
+                  disabled={moreOptions.length === 0 || busy}
+                  onClick={() => setMoreOpen(true)}
+                >
+                  <MoreIcon />
+                </button>
+                <ActionSheet
+                  open={moreOpen}
+                  onClose={() => setMoreOpen(false)}
+                  label="Text actions"
+                  options={moreOptions}
+                >
+                  {/* The count lives here on a phone. In the row it was the
+                      price of a visible Clear — the row has no width for
+                      both — and it is a number people look up, not watch. */}
+                  <p className="action-sheet__text">
+                    {wordCount} {wordCount === 1 ? 'word' : 'words'} · {editor.text.length}{' '}
+                    {editor.text.length === 1 ? 'character' : 'characters'}
+                  </p>
+                </ActionSheet>
+              </div>
+            )
           ) : (
             <>
-              {/* Feature-detected, not just tried-and-caught — a browser with no
-                  navigator.share has no share sheet to fail into, so the button
-                  itself shouldn't exist there rather than existing and erroring
-                  on every tap. */}
+              {/* Disabled on an empty editor, like clear beside it. Copying
+                  nothing silently "succeeds" — the label even flips to
+                  "copied" — which teaches someone the button is broken. */}
+              <button
+                type="button"
+                className="btn btn--primary"
+                disabled={isEmpty}
+                onClick={editor.copy}
+              >
+                {editor.copied ? 'Copied' : 'Copy'}
+              </button>
+              {/* Feature-detected, not just tried-and-caught — a browser with
+                  no navigator.share has no share sheet to fail into. */}
               {SHARE_AVAILABLE && (
                 <button type="button" className="btn" disabled={isEmpty} onClick={share}>
                   Share
                 </button>
               )}
-              {/* Typing is the app's main job and it was the one screen you could
-                  not get a file out of — copy and share only, while Translate
-                  beside it could hand you a .docx. Same component, smaller pill. */}
               <DownloadActions
                 text={editor.text}
                 filenameBase="lekh-nepali"
@@ -383,119 +493,22 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet, booting }: Edito
                   Clear
                 </button>
               )}
+              {/* The character count carries its unit or it does not
+                  appear; a bare trailing number read as a cut-off label. */}
+              <span className={`count${wordCount === 0 ? ' count--empty' : ''}`}>
+                {wordCount} {wordCount === 1 ? 'word' : 'words'}
+                <span className="count__chars"> · {editor.text.length} characters</span>
+              </span>
             </>
           )}
-          {/* The character count carries its unit or it does not appear. As a
-              bare trailing number — "5 words · 26" — it said nothing, and hard
-              against the toolbar's right edge on a phone it read as a label
-              that had been cut off rather than as a count. There is no room to
-              spell it out at 390px without wrapping the row (the width this
-              toolbar was rebuilt to stop wrapping), so below that it is simply
-              the words, which is the number a writing app is asked for
-              anyway. */}
-          <span className={`count${wordCount === 0 ? ' count--empty' : ''}`}>
-            {wordCount} {wordCount === 1 ? 'word' : 'words'}
-            <span className="count__chars"> · {editor.text.length} characters</span>
-          </span>
         </div>
       </div>
 
-      {/*
-        An empty state, not a permanent shelf. These vanish the moment there is
-        anything in the editor — which is the only time they were ever useful,
-        and the rest of the time they were a block of unexplained romanized
-        Nepali sitting under someone's writing.
-      */}
-      {isEmpty && (
-        <div className="starters">
-          <span className="starters__label">Try one</span>
-          <div className="starters__row">
-            {STARTER_SAMPLES.map((sample) => (
-              <button
-                key={sample}
-                type="button"
-                className="starter"
-                onClick={() => {
-                  editor.appendSample(sample)
-                  textareaRef.current?.focus()
-                }}
-              >
-                {/* Both halves, because one of them was useless to the reader
-                    this screen is for. A chip that said only `kasto chha` was
-                    a line of romanized Nepali — the script a Nepali speaker is
-                    *least* likely to read comfortably — promising an outcome
-                    it never showed. Now the chip is the lesson: this is what
-                    you type, this is what the app gives you back.
-
-                    Stacked rather than joined with an arrow, for the same
-                    reason the cheat-sheet button is stacked: `sanchai
-                    hunuhunchha → सञ्चै हुनुहुन्छ` on one line is twice the
-                    width, and four of those wrap to four rows on a phone.
-
-                    convertPhrase is the same function appendSample runs, so
-                    the label cannot drift from what the tap produces. */}
-                <span className="starter__roman">{sample}</span>
-                <span className="starter__dev dev">{convertPhrase(sample)}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/*
-        One line where there were three — a dismissible hint banner, a keyboard
-        legend and a privacy note, stacked under the editor and between the
-        user and the cheat sheet.
-
-        The middle clause is still rendered both ways and swapped by pointer
-        type in CSS. A phone keyboard has no esc key, so on a touch device that
-        line was describing an escape hatch the user physically cannot reach —
-        in the installed PWA, which is where most people type Nepali, it was
-        the only instruction on screen that could not be followed. The touch
-        equivalent already exists: the "(keep)" chip in the suggestion row does
-        exactly what esc does.
-
-        Rendered both ways rather than branched in JS: this is presentation,
-        and a device that changes pointer type (a tablet gaining a keyboard)
-        updates live instead of needing a re-render.
-      */}
-      {/* The mode *is* branched in JS, unlike the pointer variants above.
-          With conversion off, every clause here but the last one described
-          something the editor was no longer doing — space did not convert,
-          there was no English to keep, and a full stop stayed a full stop —
-          directly under a suggestion bar already saying conversion was off.
-          What someone in that state needs is the way back. */}
-      {/* Empty-state only, like the starters above it — and for the same
-          reason they are. Someone with a paragraph of Devanagari on screen has
-          demonstrably worked out that space converts; leaving the legend there
-          permanently spent two lines at the bottom of every session on the one
-          instruction the user has already followed.
-
-          The mode-off variant is the exception and is why this is a condition
-          rather than a move into the block above: with conversion off, this is
-          the only thing on screen that says how to turn it back on, and that
-          is as true of a full editor as an empty one. */}
-      {(isEmpty || !editor.nepali) && (
-        <p className="editor-hint">
-          {editor.nepali ? (
-            <>
-              <kbd>space</kbd> converts ·{' '}
-              <span className="editor-hint__fine">
-                <kbd>esc</kbd> keeps English
-              </span>
-              <span className="editor-hint__coarse">
-                tap <b>(keep)</b> for English
-              </span>{' '}
-              · <kbd>.</kbd> becomes । · runs entirely on your device
-            </>
-          ) : (
-            <>
-              Tap <b className="dev">नेपाली</b> to convert as you type · runs entirely on your
-              device
-            </>
-          )}
-        </p>
-      )}
+      {/* With conversion off, the one line that says how to turn it back on.
+          On an empty editor that line is part of the empty state above; once
+          there is text, it is the only thing on screen saying the editor is
+          behaving differently from how it looks, so it stays. */}
+      {!isEmpty && !editor.nepali && <EditorHint nepali={false} />}
     </div>
   )
 }

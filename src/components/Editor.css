@@ -245,7 +245,8 @@
     min-height: calc(100dvh - var(--bar-h) - var(--page-bottom, 4.75rem));
   }
   .editor-shell,
-  .editor {
+  .editor,
+  .editor-field {
     flex: 1;
     /* A flex item will not shrink below its content unless told to, and the
        textarea's min-height would otherwise hold the column open. */
@@ -275,9 +276,15 @@
 /* One height for the whole row. Copy is a plain .btn (36px) while letters and
    the overflow button are .btn--icon (40px), so the one filled button in the
    row was also the one visibly shorter than its neighbours. */
-.actions > .btn,
+.actions .btn,
 .actions .download-menu__btn--compact {
   min-height: 2.5rem;
+}
+.actions__end {
+  display: flex;
+  align-items: center;
+  gap: inherit;
+  margin-inline-start: auto;
 }
 .actions__spacer {
   flex: 1 1 auto;
@@ -481,11 +488,61 @@
   line-height: 1;
 }
 .btn__label {
-  font-size: 0.6rem;
+  font-size: 0.62rem;
   font-weight: 600;
-  letter-spacing: 0.04em;
-  /* The glyph is the subject; the word underneath is a caption for it. */
-  opacity: 0.75;
+  letter-spacing: 0.02em;
+  /* The glyph is the subject; the word underneath is a caption for it —
+     --muted rather than 75% opacity, so it is quieter without looking
+     disabled. */
+  color: var(--muted);
+}
+/* क ख over "Letters": the glyph in the display face at the size of a button
+   label, so the pair reads as the button's face and not as small print. */
+.btn--letters {
+  /* inline-flex is what makes .btn--stack a stack — it used to come from
+     .btn--icon, which this button no longer carries. */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3.25rem;
+  color: var(--text-h);
+}
+.btn--letters .dev {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+/* Clear, with a word where the row has room and an icon where it does not.
+ *
+ * The phone row is the mode switch, Letters, Clear, Copy and ⋯ — 322px of
+ * controls at the default text size, against 336px of row on a 360px phone.
+ * At a larger text size every one of them grows and the row would wrap, which
+ * is the failure this toolbar was rebuilt around. So the row is a size
+ * container and Clear gives up its label below the width the whole set needs.
+ * The threshold is in rem, so it moves with the text-size setting the same
+ * way the buttons do: 20.875rem is the 322px plus room for "Copied". */
+.actions {
+  container: actions / inline-size;
+}
+.btn--clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn--clear .btn__icon {
+  display: none;
+}
+@container actions (max-width: 20.875rem) {
+  .btn--clear {
+    min-width: 2.75rem;
+    padding: 0;
+  }
+  .btn--clear .btn__icon {
+    display: inline-flex;
+  }
+  .btn--clear .btn__text {
+    display: none;
+  }
 }
 
 .btn--icon {
@@ -495,16 +552,10 @@
   align-items: center;
   justify-content: center;
   font-size: 0.95rem;
-  color: var(--accent-text);
-  border-color: var(--accent-border);
-  background: var(--accent-bg);
-}
-@media (hover: hover) {
-  .btn--icon:hover:not(:disabled) {
-    background: var(--accent);
-    color: var(--on-accent);
-    border-color: var(--accent);
-  }
+  /* The .btn skin, no accent tint. The tint made ⋯ and the letters button
+     read as tags rather than as things to press, and it put two pink objects
+     beside the one control that is meant to be pink — Copy. */
+  color: var(--text);
 }
 
 /* Not mono. There is no code in this app, and a monospace register on the one
@@ -544,6 +595,47 @@
   text-align: right;
 }
 
+/* The textarea and its empty state, so the empty state can be centred on the
+   writing area alone rather than on the whole card, toolbar and suggestion
+   strip included. A column so the textarea still fills it on a phone. */
+.editor-field {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The empty editor's own content: the mark, the starters and the legend,
+   centred in the blank field. Above the textarea (z-index 2) but transparent
+   to the pointer, so any tap that is not on a starter falls through to the
+   field. The top padding keeps it clear of the placeholder line, which wraps
+   to two lines on a narrow phone. */
+.editor-empty {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-4);
+  padding: 5.5rem var(--sp-4) var(--sp-4);
+  text-align: center;
+  pointer-events: none;
+}
+.editor-empty .starter {
+  pointer-events: auto;
+}
+/* With the keyboard up the field is a third of the screen, and what someone
+   needs there is the starters — the mark and the legend go, so the chips are
+   not squeezed against the placeholder. */
+.has-keyboard .editor-empty .editor-mark,
+.has-keyboard .editor-empty .editor-hint {
+  display: none;
+}
+.has-keyboard .editor-empty {
+  padding-top: 4rem;
+}
+
 /* 2e: the empty writing surface gets a face.
  *
  * A blank textarea is the correct amount of chrome and the wrong amount of
@@ -568,14 +660,14 @@
  * the moment there is anything to read (see Editor.tsx), so it can never sit
  * underneath someone's own writing. Costs no layout at all. */
 .editor-mark {
-  position: absolute;
-  inset: 0;
+  /* In flow inside .editor-empty now, above the starters, rather than an
+     absolutely-placed watermark behind the whole card: it is the heading of
+     the empty state, sized down so the starters under it fit beside it. */
   display: flex;
   align-items: center;
   justify-content: center;
   pointer-events: none;
   user-select: none;
-  z-index: 0;
   font-family: var(--display-dev);
   /* The one place in the app that scales *against* the text-size setting.
    *
@@ -588,13 +680,16 @@
      every setting — 164px of a 458px editor, 126px of a 222px one — which is
      what "sized to the field" meant in the first place. px bounds rather than
      rem for the same reason. */
-  font-size: clamp(90px, calc(42vw / var(--ui-scale)), 240px);
+  font-size: clamp(64px, calc(24vw / var(--ui-scale)), 140px);
   line-height: 1;
   /* The accent at 9%, not a neutral. A grey glyph on a warm ground reads as a
      smudge; a trace of the app's own crimson reads as ink. Nowhere near text
      contrast on purpose — it is a texture, not something anyone is asked to
      read, and the placeholder above it is --muted at 4.97:1. */
-  color: color-mix(in srgb, var(--accent) 9%, transparent);
+  /* 18%, up from 9%: it was a full-field watermark at 9% and is a smaller
+     mark heading the empty state now, so it can carry a little more. Still a
+     texture, not something anyone is asked to read. */
+  color: color-mix(in srgb, var(--accent) 18%, transparent);
   /* The glyph's own body is not centred in its em box, and at this size that
      reads as the mark sitting high in the field. */
   padding-block-start: 0.08em;
@@ -628,9 +723,9 @@
 /* Empty state. Present only while the editor has no text — see Editor.tsx. */
 .starters {
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: var(--sp-2);
-  flex-wrap: wrap;
 }
 /* "Try one", not "TRY ONE".
  *
@@ -648,8 +743,10 @@
 }
 .starters__row {
   display: flex;
+  justify-content: center;
   gap: var(--sp-2);
   flex-wrap: wrap;
+  max-width: 34rem;
 }
 .starter {
   /* Two lines now (see Editor.tsx), so this is the floor rather than the
@@ -690,6 +787,12 @@
   font-size: 0.75rem;
   color: var(--muted);
   line-height: 1.7;
+}
+.editor-empty .editor-hint {
+  max-width: 30rem;
+}
+.editor-hint__clause {
+  white-space: nowrap;
 }
 .editor-hint kbd {
   font-family: var(--mono);
