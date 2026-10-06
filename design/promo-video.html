@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Anek+Devanagari:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=block"
+      rel="stylesheet"
+    />
+    <style>
+      /* Play Store promo video cards, 1920x1080. One card per location.hash:
+         intro and outro are full cards; the four feature cards leave a phone
+         frame on the left that the screen recording is composited into, and
+         #frame is the bezel layer drawn on top of that recording (transparent
+         everywhere else). Built by scripts/render-promo-video.mjs.
+
+         Same grounds, faces and voice as store-screenshots.html, so the video
+         and the screenshots read as one listing. */
+      :root {
+        --ink: #141824;
+        --paper: #f6f1e7;
+        --crimson: #c8102e;
+        --flag-blue: #0b3a8c;
+        --marigold: #f3a712;
+        --en: 'Inter', system-ui, sans-serif;
+        --dev: 'Anek Devanagari', 'Noto Sans Devanagari', sans-serif;
+        --dev-text: 'Noto Sans Devanagari', sans-serif;
+        --mono: 'JetBrains Mono', ui-monospace, monospace;
+        /* The phone. The screen is the recording's 720x1600 at 0.5625. */
+        --sx: 330px;
+        --sy: 90px;
+        --sw: 405px;
+        --sh: 900px;
+        --bezel: 16px;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; }
+      body { font-family: var(--en); -webkit-font-smoothing: antialiased; }
+      body.frame { background: transparent; }
+      .card { display: none; position: relative; width: 1920px; height: 1080px; overflow: hidden; }
+      .card.on { display: block; }
+
+      /* Behind the recording: the phone body and its shadow. */
+      .body {
+        position: absolute;
+        left: calc(var(--sx) - var(--bezel));
+        top: calc(var(--sy) - var(--bezel));
+        width: calc(var(--sw) + 2 * var(--bezel));
+        height: calc(var(--sh) + 2 * var(--bezel));
+        border-radius: 62px;
+        background: #0a0a0d;
+        box-shadow: 0 50px 100px -30px rgba(0, 0, 0, 0.5), 0 24px 48px -18px rgba(0, 0, 0, 0.35);
+      }
+      /* On top of the recording: the bezel ring, whose inner curve also masks
+         the recording's square corners, and the camera hole. */
+      .bezel {
+        position: absolute;
+        left: calc(var(--sx) - var(--bezel));
+        top: calc(var(--sy) - var(--bezel));
+        width: calc(var(--sw) + 2 * var(--bezel));
+        height: calc(var(--sh) + 2 * var(--bezel));
+        border-radius: 62px;
+        border: var(--bezel) solid #0a0a0d;
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.07) inset;
+      }
+      .bezel::after {
+        content: '';
+        position: absolute;
+        top: 14px;
+        left: 50%;
+        width: 18px;
+        height: 18px;
+        margin-left: -9px;
+        border-radius: 50%;
+        background: #050507;
+      }
+
+      .copy {
+        position: absolute;
+        left: 900px;
+        right: 120px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+      .kicker { font-family: var(--dev); font-weight: 700; font-size: 52px; line-height: 1.1; }
+      h1 { font-weight: 800; font-size: 96px; line-height: 1.03; letter-spacing: -0.035em; margin-top: 18px; }
+      .sub { font-size: 38px; line-height: 1.32; font-weight: 500; margin-top: 28px; opacity: 0.88; }
+      .chips { display: flex; gap: 16px; margin-top: 34px; flex-wrap: wrap; }
+      .chip { font-size: 32px; font-weight: 600; padding: 12px 26px; border-radius: 999px; border: 3px solid currentColor; }
+
+      .mark { font-family: var(--dev); font-weight: 700; line-height: 1; color: var(--ink); }
+      .mark i { font-style: normal; color: #1c3f94; }
+      .mark .slash { color: #9aa1b2; font-weight: 500; margin: 0 0.04em; }
+      .mark em { font-style: normal; color: var(--crimson); }
+
+      .bubble {
+        display: inline-flex;
+        align-items: center;
+        gap: 26px;
+        padding: 26px 42px;
+        border-radius: 999px;
+        background: #fff;
+        color: var(--ink);
+        box-shadow: 0 30px 60px -18px rgba(0, 0, 0, 0.25);
+      }
+      .bubble .roman { font-family: var(--mono); font-size: 44px; color: #646c7e; }
+      .bubble .arrow { font-size: 42px; color: var(--crimson); font-weight: 700; }
+      .bubble .deva { font-family: var(--dev-text); font-weight: 700; font-size: 54px; }
+
+      /* Intro and outro: centred, on paper, wearing the real wordmark. */
+      .centre {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        gap: 40px;
+      }
+      #intro, #outro { background: var(--paper); color: var(--ink); }
+      #intro .mark, #outro .mark { font-size: 190px; }
+      #intro .tag { font-weight: 800; font-size: 80px; letter-spacing: -0.03em; }
+      #outro .tag { font-weight: 800; font-size: 72px; letter-spacing: -0.03em; }
+      #outro .tag em { font-style: normal; color: var(--crimson); }
+      #outro .play { font-size: 40px; font-weight: 600; color: #4b5266; }
+
+      #type { background: var(--crimson); color: #fff; }
+      #letters { background: var(--paper); color: var(--ink); }
+      #letters .kicker { color: var(--crimson); }
+      #translate { background: var(--marigold); color: var(--ink); }
+      #patro { background: var(--flag-blue); color: #fff; }
+      #patro .chip { color: #cfdcff; }
+    </style>
+  </head>
+  <body>
+    <section class="card" id="intro">
+      <div class="centre">
+        <div class="mark">ले<i>ख</i><span class="slash">/</span><em>पात्रो</em></div>
+        <div class="tag">Type Nepali the way you text</div>
+        <div class="bubble">
+          <span class="roman">kasto chha</span><span class="arrow">&rarr;</span><span class="deva">कस्तो छ</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="type">
+      <div class="body"></div>
+      <div class="copy">
+        <div class="kicker">नेपाली लेख्नुहोस्</div>
+        <h1>English letters in,<br />Nepali out</h1>
+        <p class="sub">Romanized Nepali Unicode that pastes into any app.</p>
+      </div>
+    </section>
+
+    <section class="card" id="letters">
+      <div class="body"></div>
+      <div class="copy">
+        <div class="kicker">क ख ग</div>
+        <h1>Every letter,<br />one look away</h1>
+        <p class="sub">A searchable map from sound to letter.</p>
+      </div>
+    </section>
+
+    <section class="card" id="translate">
+      <div class="body"></div>
+      <div class="copy">
+        <div class="kicker">अनुवाद</div>
+        <h1>English &harr; Nepali<br />in a tap</h1>
+        <div class="chips"><span class="chip">Text</span><span class="chip">Photos</span><span class="chip">PDFs</span><span class="chip">Offline</span></div>
+      </div>
+    </section>
+
+    <section class="card" id="patro">
+      <div class="body"></div>
+      <div class="copy">
+        <div class="kicker">बिक्रम सम्बत पात्रो</div>
+        <h1>Your patro,<br />without the ads</h1>
+        <div class="chips"><span class="chip">Festivals</span><span class="chip">Public holidays</span><span class="chip">Tithi</span></div>
+      </div>
+    </section>
+
+    <section class="card" id="outro">
+      <div class="centre">
+        <div class="mark">ले<i>ख</i><span class="slash">/</span><em>पात्रो</em></div>
+        <div class="tag">Free. No ads. <em>No sign-up.</em></div>
+        <div class="play">Get it on Google Play</div>
+      </div>
+    </section>
+
+    <section class="card" id="frame">
+      <div class="bezel"></div>
+    </section>
+
+    <script>
+      const id = location.hash.slice(1) || 'intro'
+      document.getElementById(id)?.classList.add('on')
+      if (id === 'frame') document.body.classList.add('frame')
+    </script>
+  </body>
+</html>

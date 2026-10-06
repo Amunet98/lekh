@@ -131,3 +131,36 @@ widgets come from `WidgetPreviewActivity` and keep the wallpaper palette,
 because that is what they really do; they are cut out with a geometric
 rounded-rect mask (radius 60px at 3x) — a colour-distance mask eats the light
 text near the corners.
+
+Re-shot 2026-10-06 for v1.9.46 (Clear in the toolbar, the Letters button, the
+today line in Patro's month bar, Export beside Copy). Two traps on that run:
+SystemUI demo mode only took after `sysui_demo_allowed 1` had been set for a
+moment, so send `enter` again if the real clock is still showing; and wifi
+needs `-e fully true` or it is drawn with a no-internet `!`. Open the cheat
+sheet with a real `adb shell input tap`, not a scripted `.click()`, or the
+sheet's grabber shows a focus ring.
+
+`npm run play:screenshots` needs a Playwright Chromium. Brave's one-shot
+`--screenshot` hangs, so without one the slides were rendered over CDP in
+headless Brave instead (navigate to `about:blank` between slides: a hash-only
+change does not re-run the slide picker).
+
+## `promo-video.html` → `play/lekh-patro-promo.mp4`
+
+A 30-second, 1920×1080 promo video for the Play listing (Play takes it as a
+YouTube link, so the MP4 is what gets uploaded there). Intro and outro cards on
+paper with the wordmark; four feature cards (Type, Letters, Translate, Patro)
+on the screenshots' grounds, each with a real screen recording composited into
+a phone frame. `promo-video.html#<card>` renders each card; `#frame` is the
+bezel layer with a transparent screen, laid over the recording so its inner
+curve rounds the recording's corners.
+
+Recipe: the same `.dev` + demo-mode setup as the screenshots, then `adb shell
+screenrecord --size 720x1600` while the app is driven over CDP (typing is
+`Input.insertText` one character at a time, so the suggestion strip and the
+conversion show on screen). Cards rendered to PNG at 1920×1080; each segment is
+`ffmpeg` overlaying the trimmed recording (scaled to 405×900 at 330,90) between
+its card and the bezel; segments joined with 0.4s `xfade` fades and a silent
+AAC track. Find cut points from the recording's pixels (the dimmed app bar
+when a sheet is open, the dock highlight), not from wall-clock marks taken
+while driving it: screenrecord's start lag made those a second or more out.
