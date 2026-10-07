@@ -713,3 +713,38 @@
 .cal__coverage-why > p {
   color: var(--muted);
 }
+
+/* English for the festivals that have a hand-checked entry (festivalsEn.ts).
+   Under the Nepali, never instead of it: the name in the English people use,
+   one line on what happens, and — in the accent — the practical part for a
+   visitor. In the month's list only the name, so the rows stay scannable. */
+.cal__fest-en {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin: 0.15rem 0 0.35rem;
+  font-family: var(--sans);
+  line-height: 1.45;
+}
+.cal__fest-en-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-h);
+}
+.cal__fest-en-about {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.cal__fest-en-note {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--accent-text);
+}
+.cal__holiday-en {
+  display: block;
+  margin-top: 0.1rem;
+  font-family: var(--sans);
+  font-size: 0.76rem;
+  color: var(--muted);
+  line-height: 1.4;
+}

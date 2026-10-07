@@ -19,6 +19,7 @@ import {
   type BsDate,
 } from '../../lib/calendar/nepaliDate'
 import { COVERAGE, nextSaitMonth } from '../../lib/calendar/panchang'
+import { festivalInfo, festivalInfos } from '../../lib/calendar/festivalsEn'
 import { useMonthPanchang } from '../../hooks/useMonthPanchang'
 import { saveFile } from '../../lib/download'
 import { openCalendarEvent } from '../../lib/calendarEvent'
@@ -422,11 +423,26 @@ export function CalendarPage() {
                   It was applied there and not here, so one screen dimmed the
                   "only for X employees" clause and the other set it in full
                   strength two inches away. */}
-              {selectedInfo.festivals.map((f) => (
-                <li key={f} className="dev">
-                  <FestivalName name={f} />
-                </li>
-              ))}
+              {selectedInfo.festivals.map((f) => {
+                /* English only where a hand-checked entry exists — see
+                   festivalsEn.ts for why nothing is generated. lang="en" on
+                   the gloss, because the list item itself is Nepali. */
+                const info = festivalInfo(f)
+                return (
+                  <li key={f}>
+                    <span className="dev" lang="ne">
+                      <FestivalName name={f} />
+                    </span>
+                    {info && (
+                      <span className="cal__fest-en" lang="en">
+                        <span className="cal__fest-en-name">{info.en}</span>
+                        <span className="cal__fest-en-about">{info.about}</span>
+                        {info.note && <span className="cal__fest-en-note">{info.note}</span>}
+                      </span>
+                    )}
+                  </li>
+                )
+              })}
             </ul>
             <button
               type="button"
@@ -548,6 +564,13 @@ export function CalendarPage() {
                         ))}
                         {partialFor && (
                           <span className="cal__holiday-partial">आंशिक बिदा · {partialFor}</span>
+                        )}
+                        {festivalInfos(names).length > 0 && (
+                          <span className="cal__holiday-en" lang="en">
+                            {festivalInfos(names)
+                              .map((info) => info.en)
+                              .join(' · ')}
+                          </span>
                         )}
                       </span>
                     </button>
