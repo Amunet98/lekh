@@ -37,8 +37,11 @@ export function applyWordRules(word: string): string {
   } else if (e0 === 'y') {
     /* The one deliberate departure from ashesh, which writes 'ree' here: its
        own `rree` key (ॠ) then swallows the r before it, so "story" comes out
-       स्तोॠ. 'ee' keeps the intent, a long ी: story → स्तोरी. */
-    out = word.slice(0, -1) + 'ee'
+       स्तोॠ. 'ee' keeps the intent, a long ी: story → स्तोरी.
+       A doubled r still made `rree` out of 'ee' — sorry → सोॠ, worry, hurry —
+       so the pair is read as one r, the way it is said: sorry → सोरी. */
+    const stem = e1 === 'r' && e2 === 'r' ? word.slice(0, -2) : word.slice(0, -1)
+    out = stem + 'ee'
   } else if (
     e0 === 'a' &&
     !(e1 === 'h' && e2 === 'h') &&

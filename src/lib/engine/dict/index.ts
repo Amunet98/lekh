@@ -13,13 +13,16 @@ import { BODY } from './body'
 import { NATURE } from './nature'
 import { MISC } from './misc'
 import { COLORS } from './colors'
+import { ENGLISH } from './english'
 
 // Frequency dictionary — wins over the phonetic parser on common words
 // (e.g. "pani" -> पनि, not the phonetically-plausible पानी). Lowercase keys;
 // one word may appear under several romanized spellings (chha/cha -> छ).
 // Split by category to keep native-speaker review tractable; merged flat
-// here so lookups stay a single Record access.
+// here so lookups stay a single Record access. ENGLISH goes first so that a
+// Nepali entry under the same key would win over it.
 export const DICT: Record<string, string> = {
+  ...ENGLISH,
   ...GREETINGS,
   ...PRONOUNS,
   ...VERBS,

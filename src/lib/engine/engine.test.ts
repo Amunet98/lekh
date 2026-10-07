@@ -211,6 +211,10 @@ describe('the ashesh.com.np pattern', () => {
     expect(applyWordRules('kendra')).toBe('kendra')
     // the one departure from ashesh: a final y is ee, not ree (see convert.ts)
     expect(applyWordRules('story')).toBe('storee')
+    // …and a doubled r before it is one r, or 'rree' is ॠ again: सोॠ
+    expect(applyWordRules('sorry')).toBe('soree')
+    expect(phonetic(applyWordRules('worry'))).not.toContain('ॠ')
+    expect(phonetic(applyWordRules('hurry'))).toBe('हुरी')
   })
 })
 
