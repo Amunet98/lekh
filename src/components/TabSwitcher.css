@@ -80,7 +80,7 @@
 }
 
 /* Mobile app shell: the control detaches from the bar and becomes a fixed,
-   full-bleed bottom dock. Three items, well under the five-item ceiling a
+   full-bleed bottom dock. Four items, still under the five-item ceiling a
    bottom bar can carry, each with an icon and a label. */
 @media (max-width: 767px) {
   .tab-switcher {

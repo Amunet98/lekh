@@ -3,7 +3,7 @@ import { SectionIcon } from './SectionIcons'
 import { tick } from '../lib/haptics'
 import './TabSwitcher.css'
 
-export type Tab = 'type' | 'translate' | 'calendar'
+export type Tab = 'type' | 'translate' | 'calendar' | 'tools'
 
 interface TabSwitcherProps {
   active: Tab
@@ -21,6 +21,7 @@ const TABS: { id: Tab; label: string; icon: ReactNode }[] = [
   { id: 'type', label: 'Type', icon: <SectionIcon name="type" /> },
   { id: 'translate', label: 'Translate', icon: <SectionIcon name="translate" /> },
   { id: 'calendar', label: 'Patro', icon: <SectionIcon name="calendar" /> },
+  { id: 'tools', label: 'Tools', icon: <SectionIcon name="tools" /> },
 ]
 
 export function TabSwitcher({ active, onChange, booting = false }: TabSwitcherProps) {

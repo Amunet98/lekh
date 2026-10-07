@@ -51,9 +51,11 @@ import { getPref, setPref } from '../lib/prefs'
    grid, the day detail, the holiday list and the source note. It is a sheet
    off the pinned month bar now, and being in this union is what makes Back
    close it rather than leave the app. */
-export type Sheet = 'about' | 'settings' | 'cheatsheet' | 'converter'
+/* 'show' is a translation held up full-screen for someone else to read —
+   Back has to put it down before it does anything else. */
+export type Sheet = 'about' | 'settings' | 'cheatsheet' | 'converter' | 'show'
 
-export const TAB_ORDER: Tab[] = ['type', 'translate', 'calendar']
+export const TAB_ORDER: Tab[] = ['type', 'translate', 'calendar', 'tools']
 
 /** The start destination. Back from anywhere lands here before it exits. */
 const HOME: Tab = 'type'

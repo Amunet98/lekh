@@ -1,0 +1,153 @@
+.tools {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+.tools__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+}
+
+/* The same small-caps heading Patro uses for its lists. */
+.tools__title {
+  margin: 0 0 var(--sp-1);
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.tools__title .dev {
+  font-family: var(--display-dev);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.9rem;
+  color: var(--text-h);
+}
+
+.tools__label {
+  font-size: 0.85rem;
+  color: var(--text);
+}
+.tools__sample {
+  font-family: var(--mono);
+  font-size: 0.9em;
+}
+
+.tools__input {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--border-field);
+  border-radius: var(--radius-field);
+  background: var(--bg);
+  color: var(--text-h);
+  font: 1.05rem/1.5 var(--sans);
+}
+.tools__input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.tools__input[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+.tools__area {
+  resize: vertical;
+  font-family: var(--devanagari), var(--sans);
+}
+
+.tools__hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.tools__hint:empty {
+  display: none;
+}
+
+/* Label, value, copy — one line each while they fit, the value wrapping
+   under its label once they do not. */
+.tools__rows {
+  margin: var(--sp-1) 0 0;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--border);
+}
+.tools__row {
+  display: grid;
+  grid-template-columns: minmax(6.5rem, auto) 1fr auto;
+  align-items: center;
+  gap: var(--sp-1) var(--sp-3);
+  padding: var(--sp-2) 0;
+  border-bottom: 1px solid var(--border);
+}
+.tools__row dt {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.tools__row dd {
+  margin: 0;
+  color: var(--text-h);
+  overflow-wrap: anywhere;
+}
+.tools__row dd.dev {
+  font-size: 1.05rem;
+}
+
+.tools__copy {
+  min-height: 2.25rem;
+  font-size: 0.8rem;
+}
+
+.tools__out-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  margin-top: var(--sp-1);
+}
+.tools__direction {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--accent-text);
+}
+.tools__out {
+  margin: 0;
+  padding: var(--sp-3);
+  border-radius: var(--radius-field);
+  background: var(--surface-2);
+  color: var(--text-h);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 1.05rem;
+}
+.tools__out--preeti {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+
+@media (max-width: 767px) {
+  /* Like Translate, this opens on content sitting on the page background,
+     so it keeps the top padding the phone layout takes off .page. */
+  .tools {
+    padding-block-start: var(--sp-5);
+  }
+}
+
+@media (max-width: 420px) {
+  .tools__row {
+    grid-template-columns: 1fr auto;
+  }
+  .tools__row dt {
+    grid-column: 1 / -1;
+  }
+}

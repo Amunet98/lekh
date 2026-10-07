@@ -30,6 +30,7 @@ const SECTIONS: { id: Tab; label: string; rest: string; icon: Tab }[] = [
   { id: 'type', icon: 'type', label: 'Type', rest: 'phonetic, as you already text' },
   { id: 'translate', icon: 'translate', label: 'Translate', rest: 'EN ↔ NE, even offline — type it or drop in a photo/PDF' },
   { id: 'calendar', icon: 'calendar', label: 'Patro', rest: 'Bikram Sambat, festivals & holidays' },
+  { id: 'tools', icon: 'tools', label: 'Tools', rest: 'amounts in words, Preeti ↔ Unicode' },
 ]
 
 

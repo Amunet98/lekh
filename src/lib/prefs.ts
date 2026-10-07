@@ -61,7 +61,8 @@ const KEY_PREFIX = 'lekh:pref:'
 const VALIDATORS: { [K in keyof Prefs]: (raw: unknown) => Prefs[K] | undefined } = {
   editorSize: (raw) => (raw === 'md' || raw === 'lg' || raw === 'xl' ? raw : undefined),
   restoreLastTab: (raw) => (typeof raw === 'boolean' ? raw : undefined),
-  lastTab: (raw) => (raw === 'type' || raw === 'translate' || raw === 'calendar' ? raw : undefined),
+  lastTab: (raw) =>
+    raw === 'type' || raw === 'translate' || raw === 'calendar' || raw === 'tools' ? raw : undefined,
   startNepali: (raw) => (typeof raw === 'boolean' ? raw : undefined),
   amoled: (raw) => (typeof raw === 'boolean' ? raw : undefined),
   translateOnDevice: (raw) => (typeof raw === 'boolean' ? raw : undefined),
