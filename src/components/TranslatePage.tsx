@@ -12,6 +12,8 @@ import './TranslatePage.css'
 
 interface TranslatePageProps {
   t: TranslateState
+  /** Opens the translation full-screen — see ShowScreen. */
+  onShow: () => void
 }
 
 // Not in SectionIcon — that set is deliberately scoped to nav destinations
@@ -45,7 +47,7 @@ function CameraIcon({ size = 16 }: { size?: number }) {
  * file picker, plus drag-and-drop directly onto the pane — see useUploadState
  * for the mechanics this page hands off to.
  */
-export function TranslatePage({ t }: TranslatePageProps) {
+export function TranslatePage({ t, onShow }: TranslatePageProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
   const upload = useUploadState(t, fileInputRef)
@@ -313,7 +315,7 @@ export function TranslatePage({ t }: TranslatePageProps) {
               {t.targetLang.native}
             </span>
           </div>
-          <TranslationOutput t={t} />
+          <TranslationOutput t={t} onShow={onShow} />
         </div>
       </div>
 

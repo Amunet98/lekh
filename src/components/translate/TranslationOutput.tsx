@@ -2,11 +2,15 @@ import type { TranslateState } from '../../hooks/useTranslateState'
 import { SHARE_AVAILABLE } from '../../lib/share'
 import { fill } from './progressFill'
 import { DownloadActions } from '../DownloadActions'
+import { pronounce } from '../../lib/engine/pronounce'
 import './translate.css'
 
 const formatMB = (bytes: number) => `${Math.round(bytes / 1e6)} MB`
 
-export function TranslationOutput({ t }: { t: TranslateState }) {
+export function TranslationOutput({ t, onShow }: { t: TranslateState; onShow: () => void }) {
+  /* Only once the answer is in: a half-finished chunked translation would
+     have its pronunciation rewritten under the reader on every chunk. */
+  const settled = t.status !== 'loading' && t.translated !== ''
   return (
     <>
       <div className="translate-output dev" aria-live="polite">
@@ -100,6 +104,14 @@ export function TranslationOutput({ t }: { t: TranslateState }) {
           grey Copy and Share under an empty pane on every first visit — two
           controls that could not do anything yet. The pane already says where
           the answer will go. */}
+      {/* For a reader who cannot read Devanagari — a visitor, or anyone
+          about to say the translation out loud. Outside the live region, so
+          a screen reader announces the answer once rather than twice. */}
+      {settled && t.targetLang.code === 'ne' && (
+        <p className="translate-say" lang="ne-Latn">
+          <span className="translate-say__label">Say it</span> {pronounce(t.translated)}
+        </p>
+      )}
       {t.translated && (
         <div className="translate-output__actions reveal">
           {/* Everything you can do with the result, in one row. Export used
@@ -127,6 +139,10 @@ export function TranslationOutput({ t }: { t: TranslateState }) {
               Share
             </button>
           )}
+          {/* Full screen, large, to hold up to someone. */}
+          <button type="button" className="btn" onClick={onShow} disabled={!settled}>
+            Show
+          </button>
         </div>
       )}
     </>

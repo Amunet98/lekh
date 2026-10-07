@@ -618,3 +618,19 @@
 .privacy-note__dot--ondevice {
   background: var(--ok);
 }
+
+/* The translation in plain Latin letters, under the Nepali — see pronounce.ts. */
+.translate-say {
+  margin: var(--sp-2) 0 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text);
+}
+.translate-say__label {
+  margin-inline-end: var(--sp-1);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}

@@ -16,7 +16,9 @@ import { TypePage } from './components/TypePage'
 import { EDITOR_ID } from './components/Editor'
 import { TranslatePage } from './components/TranslatePage'
 import { ModelConfirmSheet } from './components/translate/TranslateControls'
+import { ShowScreen } from './components/translate/ShowScreen'
 import { CalendarPage } from './components/calendar/CalendarPage'
+import { ToolsPage } from './components/ToolsPage'
 import { InstallButton } from './components/InstallButton'
 import { BootScreen } from './components/BootScreen'
 import { getPrintText, subscribePrintText } from './lib/printSheet'
@@ -146,7 +148,7 @@ function App() {
 
   /* Swipe sideways to change section — the same goToTab the dock calls, so it
      inherits the history behaviour and the directional transition rather than
-     inventing either. Clamped at both ends: TAB_ORDER is a row of three, not a
+     inventing either. Clamped at both ends: TAB_ORDER is a row of four, not a
      carousel, and a phone that jumps from Patro back to Type on an overshoot
      is a phone that has lost your place.
    *
@@ -203,7 +205,7 @@ function App() {
     document.documentElement.dataset.uiScale = editorSize
   }, [editorSize])
 
-  /* Alt+1..3 switch tabs, matching TAB_ORDER's left-to-right order. Alt-digit isn't
+  /* Alt+1..4 switch tabs, matching TAB_ORDER's left-to-right order. Alt-digit isn't
      text any browser inserts into a focused field, and useEditorState's own
      keydown handler already bails out on e.altKey — so no focus guard is
      needed here. */
@@ -379,7 +381,7 @@ function App() {
         )}
         {visited.includes('translate') && (
           <Section active={tab === 'translate'}>
-            <TranslatePage t={translateState} />
+            <TranslatePage t={translateState} onShow={() => openSheet('show')} />
           </Section>
         )}
         {visited.includes('calendar') && (
@@ -389,6 +391,11 @@ function App() {
               onOpenConverter={() => openSheet('converter')}
               onCloseConverter={closeSheet}
             />
+          </Section>
+        )}
+        {visited.includes('tools') && (
+          <Section active={tab === 'tools'}>
+            <ToolsPage />
           </Section>
         )}
       </div>
@@ -431,6 +438,13 @@ function App() {
           t={translateState}
         />
         <AboutScreen onDismiss={closeSheet} onGoTo={goToTab} />
+      </Screen>
+
+      {/* A translation held up for someone else to read. Its own screen
+          rather than a third pane of the one above: it is reached from
+          Translate, not from Settings, and Back from it goes straight home. */}
+      <Screen open={sheet === 'show'} depth={0} labelledBy="show-title" onDismiss={closeSheet}>
+        <ShowScreen t={translateState} onDismiss={closeSheet} />
       </Screen>
 
       {/* Always mounted — the hook inside it is what registers the service
