@@ -71,3 +71,28 @@ describe('nextSaitMonth', () => {
     expect(nextSaitMonth('marriage', 2090, 0)).toBeNull()
   })
 })
+
+describe('weekend festivals', () => {
+  // Asoj 2083 (month index 5): the 3rd, 17th and 31st are Saturdays.
+  const asoj = (f: Record<string, string>, h: number[]): RawMonth => ({
+    f,
+    h,
+    t: Array.from({ length: 31 }, () => 'प्रतिपदा'),
+  })
+
+  it('keeps a Saturday festival that is a holiday in its own right', () => {
+    const built = buildMonth(asoj({ '3': 'संविधान दिवस (राष्ट्रिय दिवस)', '31': 'फूलपाती' }, [3, 31]), { year: 2083, month: 5 })
+    expect(built.holidays.map((h) => h.day)).toEqual([3, 31])
+  })
+
+  it('drops a Saturday whose only festivals are observances', () => {
+    const built = buildMonth(asoj({ '17': 'अष्टमीव्रत, अष्टमी श्राद्ध' }, [17]), { year: 2083, month: 5 })
+    expect(built.holidays).toEqual([])
+    expect(built.byDay.get(17)!.isHoliday).toBe(false)
+  })
+
+  it('trusts the flag on a weekday', () => {
+    const built = buildMonth(asoj({ '9': 'अष्टमीव्रत' }, [9]), { year: 2083, month: 5 })
+    expect(built.byDay.get(9)!.isHoliday).toBe(true)
+  })
+})

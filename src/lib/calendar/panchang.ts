@@ -1,5 +1,5 @@
 import raw from '../../data/calendar/panchang.json'
-import { daysInBsMonth } from './nepaliDate'
+import { bsWeekday, daysInBsMonth, isWeeklyOff } from './nepaliDate'
 
 /* Festivals, public holidays and tithi.
  *
@@ -67,7 +67,8 @@ const UPSTREAM = 'https://raw.githubusercontent.com/S4NKALP/nepali-calendar-api/
 export interface DayPanchang {
   /** Festival names, with any "(... मात्र बिदा)" note taken off — see partialFor. */
   festivals: string[]
-  /** A holiday for everyone (the weekly Saturday included). */
+  /** A holiday for everyone. A weekly off counts only when one of its festivals
+   *  is a holiday in its own right — see HOLIDAY_FESTIVALS. */
   isHoliday: boolean
   /**
    * Who a partial holiday is for — "काठमाडौं उपत्यकालाई मात्र", "महिला
@@ -162,8 +163,61 @@ function splitTopLevel(text: string): string[] {
   return parts
 }
 
-/** Turns either source's raw month into what the UI renders. */
-export function buildMonth(m: RawMonth): MonthPanchang {
+/* Which festivals are holidays in their own right, learned from the bundle.
+ *
+ * The source flags nearly every Saturday as a holiday (see namedHolidays in
+ * CalendarPage), and a Saturday usually has *something* on it, so the flag
+ * alone put अष्टमीव्रत and औंसी श्राद्ध in the public-holiday list next to
+ * संविधान दिवस and फूलपाती: the day was off, but because it was a Saturday, not
+ * because of the vrat. On a weekday the flag is reliable — nobody gets a
+ * Wednesday off for nothing — so a festival the source has flagged on a
+ * weekday in any bundled year is one that earns the day off. On a weekly off,
+ * a day only counts as a festival holiday if one of its names is on that list.
+ *
+ * Bare tithi names (द्वादशी, तृतीया — the extra Dashain and Tihar days are
+ * titled that way) and the vrat/shraddha observances are left out of the
+ * vocabulary: as names they are generic, and one Dashain द्वादशी being a
+ * holiday says nothing about every other द्वादशी that lands on a Saturday. */
+const GENERIC_NAME = /(व्रत|श्राद्ध)$/
+
+function festivalNames(m: RawMonth): Map<number, string[]> {
+  const out = new Map<number, string[]>()
+  for (const [day, text] of Object.entries(m.f)) {
+    const names = splitTopLevel(text)
+      .map((name) => name.replace(PARTIAL_NOTE, '').trim())
+      .filter(Boolean)
+    out.set(Number(day), names)
+  }
+  return out
+}
+
+export const HOLIDAY_FESTIVALS: ReadonlySet<string> = (() => {
+  const tithis = new Set<string>()
+  const names = new Set<string>()
+  for (const [year, months] of Object.entries(data.years)) {
+    for (const [key, m] of Object.entries(months)) {
+      const month = Number(key) - 1
+      m.t.forEach((t) => tithis.add(t))
+      const byDay = festivalNames(m)
+      for (const day of m.h) {
+        const text = m.f[String(day)] ?? ''
+        if (partialNote(text)) continue
+        const date = { year: Number(year), month, day }
+        if (isWeeklyOff(date, bsWeekday(date.year, month, day))) continue
+        for (const name of byDay.get(day) ?? []) names.add(name)
+      }
+    }
+  }
+  for (const name of [...names]) {
+    if (tithis.has(name) || GENERIC_NAME.test(name)) names.delete(name)
+  }
+  return names
+})()
+
+/** Turns either source's raw month into what the UI renders. `at` is which
+ *  month it is, needed to tell a weekly off from a weekday — see
+ *  HOLIDAY_FESTIVALS. Without it the source's flag is taken as it stands. */
+export function buildMonth(m: RawMonth, at?: { year: number; month: number }): MonthPanchang {
   const holidaySet = new Set(m.h)
   const marriage = new Set(m.m ?? [])
   const bratabandha = new Set(m.b ?? [])
@@ -180,9 +234,16 @@ export function buildMonth(m: RawMonth): MonthPanchang {
        half — split only at top level. */
     const raw = text ? splitTopLevel(text).map((s) => s.trim()).filter(Boolean) : []
     const partialFor = raw.map(partialNote).find(Boolean) ?? ''
+    const festivals = raw.map((name) => name.replace(PARTIAL_NOTE, '').trim()).filter(Boolean)
+    const weeklyOff =
+      at !== undefined &&
+      isWeeklyOff({ year: at.year, month: at.month, day }, bsWeekday(at.year, at.month, day))
     byDay.set(day, {
-      festivals: raw.map((name) => name.replace(PARTIAL_NOTE, '').trim()).filter(Boolean),
-      isHoliday: holidaySet.has(day) && !partialFor,
+      festivals,
+      isHoliday:
+        holidaySet.has(day) &&
+        !partialFor &&
+        (!weeklyOff || festivals.some((name) => HOLIDAY_FESTIVALS.has(name))),
       partialFor,
       tithi: m.t[day - 1] ?? '',
       marriage: marriage.has(day),

@@ -64,7 +64,7 @@ export function useMonthPanchang(year: number, month: number): MonthPanchangStat
     const live = forThisMonth?.raw ?? null
     const chosen = live ?? bundled
     return {
-      month: chosen ? buildMonth(chosen) : null,
+      month: chosen ? buildMonth(chosen, { year, month }) : null,
       source: live ? 'live' : bundled ? 'bundled' : 'none',
       // Nothing to show, and the fetch has not come back yet.
       loading: !chosen && !forThisMonth,
