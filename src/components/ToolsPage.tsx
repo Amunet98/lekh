@@ -13,6 +13,8 @@ import { looksLikeRomanized, looksLikeUnicode, preetiToUnicode, unicodeToPreeti 
 import { romanizedToDevanagari } from '../lib/engine/romanize'
 import { DateConverter } from './calendar/DateConverter'
 import { ToolHeader } from './ToolHeader'
+import type { Shown } from './translate/ShowScreen'
+import { EMERGENCY_NUMBERS, PHRASE_GROUPS } from '../data/phrases'
 import { useToast } from '../hooks/useToast'
 import { tick } from '../lib/haptics'
 import './ToolsPage.css'
@@ -244,13 +246,85 @@ function PreetiTool() {
   )
 }
 
-export function ToolsPage() {
+/* What a visitor needs to say, ready-made and offline — Translate needs a
+ * network or a 900 MB model, and a trail at 4,000 m has neither. Each line
+ * has its Nepali, how to say it, and Show, which holds it up full-screen for
+ * the person you are talking to. The emergency numbers come first, above
+ * the topics: nobody in trouble should have to scroll past "Thank you". */
+function Phrasebook({ onShow }: { onShow: (shown: Shown) => void }) {
+  const id = useId()
+  const [groupId, setGroupId] = useState(PHRASE_GROUPS[0].id)
+  const group = PHRASE_GROUPS.find((g) => g.id === groupId) ?? PHRASE_GROUPS[0]
+
+  return (
+    <section className="tools__card" aria-labelledby={`${id}-title`}>
+      <ToolHeader id={`${id}-title`} badge="वा" ne="काम लाग्ने वाक्य" en="Phrasebook for travellers — works offline" />
+      <div className="sos" role="group" aria-labelledby={`${id}-sos`}>
+        <h3 className="sos__title" id={`${id}-sos`}>
+          Emergency numbers
+        </h3>
+        <ul className="sos__list">
+          {EMERGENCY_NUMBERS.map((n) => (
+            <li key={n.number}>
+              <a className="sos__item" href={`tel:${n.number}`}>
+                <span className="sos__number">{n.number}</span>
+                <span className="sos__label">
+                  {n.label} · <span className="dev" lang="ne">{n.ne}</span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className="tools__groups" role="group" aria-label="Phrase topics">
+        {PHRASE_GROUPS.map((g) => (
+          <button
+            key={g.id}
+            type="button"
+            aria-pressed={g.id === group.id}
+            className={`tools__chip${g.id === group.id ? ' tools__chip--on' : ''}`}
+            onClick={() => {
+              tick()
+              setGroupId(g.id)
+            }}
+          >
+            {g.label}
+          </button>
+        ))}
+      </div>
+      <ul className="phrases">
+        {group.phrases.map((p) => (
+          <li className="phrase" key={p.en}>
+            <span className="phrase__en">{p.en}</span>
+            <span className="phrase__ne dev" lang="ne">
+              {p.ne}
+            </span>
+            <span className="phrase__say" lang="ne-Latn">
+              {p.say ?? pronounce(p.ne)}
+            </span>
+            <button
+              type="button"
+              className="btn tools__copy phrase__show"
+              aria-label={`Show “${p.en}” full screen`}
+              onClick={() => onShow({ text: p.ne, lang: 'ne', say: p.say })}
+            >
+              Show
+            </button>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
+
+export function ToolsPage({ onShow }: { onShow: (shown: Shown) => void }) {
   return (
     <div className="tools">
       <h1 className="sr-only">Tools</h1>
       <DateConverter />
       <NumberTool />
       <PreetiTool />
+      <Phrasebook onShow={onShow} />
     </div>
   )
 }

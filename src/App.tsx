@@ -16,7 +16,7 @@ import { TypePage } from './components/TypePage'
 import { EDITOR_ID } from './components/Editor'
 import { TranslatePage } from './components/TranslatePage'
 import { ModelConfirmSheet } from './components/translate/TranslateControls'
-import { ShowScreen } from './components/translate/ShowScreen'
+import { ShowScreen, type Shown } from './components/translate/ShowScreen'
 import { CalendarPage } from './components/calendar/CalendarPage'
 import { ToolsPage } from './components/ToolsPage'
 import { InstallButton } from './components/InstallButton'
@@ -117,6 +117,17 @@ function App() {
   // and Upload, each calling useTranslateState() themselves) so it survives
   // the tab unmounting/remounting rather than resetting on every visit.
   const translateState = useTranslateState()
+  /* What the Show screen is holding up: a translation, or a phrasebook line
+     from Tools. Set just before the sheet opens; kept after it closes so the
+     exit animation still has its text. */
+  const [shown, setShown] = useState<Shown>({ text: '', lang: 'ne' })
+  const show = useCallback(
+    (next: Shown) => {
+      setShown(next)
+      openSheet('show')
+    },
+    [openSheet],
+  )
   const [editorSize] = usePref('editorSize')
   const online = useOnline()
   const toast = useToast()
@@ -381,7 +392,10 @@ function App() {
         )}
         {visited.includes('translate') && (
           <Section active={tab === 'translate'}>
-            <TranslatePage t={translateState} onShow={() => openSheet('show')} />
+            <TranslatePage
+              t={translateState}
+              onShow={() => show({ text: translateState.translated, lang: translateState.targetLang.code })}
+            />
           </Section>
         )}
         {visited.includes('calendar') && (
@@ -391,7 +405,7 @@ function App() {
         )}
         {visited.includes('tools') && (
           <Section active={tab === 'tools'}>
-            <ToolsPage />
+            <ToolsPage onShow={show} />
           </Section>
         )}
       </div>
@@ -436,11 +450,12 @@ function App() {
         <AboutScreen onDismiss={closeSheet} onGoTo={goToTab} />
       </Screen>
 
-      {/* A translation held up for someone else to read. Its own screen
-          rather than a third pane of the one above: it is reached from
-          Translate, not from Settings, and Back from it goes straight home. */}
+      {/* A translation or a phrasebook line held up for someone else to read.
+          Its own screen rather than a third pane of the one above: it is
+          reached from Translate and Tools, not from Settings, and Back from it
+          goes straight home. */}
       <Screen open={sheet === 'show'} depth={0} labelledBy="show-title" onDismiss={closeSheet}>
-        <ShowScreen t={translateState} onDismiss={closeSheet} />
+        <ShowScreen shown={shown} onDismiss={closeSheet} />
       </Screen>
 
       {/* Always mounted — the hook inside it is what registers the service

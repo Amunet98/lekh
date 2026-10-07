@@ -299,3 +299,110 @@
     grid-column: 1 / -1;
   }
 }
+
+/* ---------- phrasebook ---------- */
+
+.tools__groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.phrases {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-radius: var(--radius-field);
+  background: var(--answer-bg);
+  border-inline-start: 3px solid var(--accent-border);
+  overflow: hidden;
+}
+/* English to recognise it by, the Nepali large, how to say it under that —
+   with Show beside the Nepali, where the thumb reaches for it. */
+.phrase {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0 var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+}
+.phrase + .phrase {
+  border-top: 1px solid var(--answer-rule);
+}
+.phrase__en {
+  grid-column: 1 / -1;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+.phrase__ne {
+  font-family: var(--display-dev);
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.45;
+  color: var(--text-h);
+  overflow-wrap: anywhere;
+}
+.phrase__show {
+  grid-row: 2 / span 2;
+  grid-column: 2;
+}
+.phrase__say {
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+/* The numbers you cannot afford to look for: large, in the accent, and links
+   that dial on a phone. */
+.sos {
+  margin-bottom: var(--sp-1);
+}
+.sos__title {
+  margin: 0 0 var(--sp-2);
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.sos__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-2);
+}
+.sos__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-height: 3.5rem;
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-field);
+  background: var(--surface);
+  color: var(--text);
+  text-decoration: none;
+  transition: background-color var(--dur) var(--ease);
+}
+@media (hover: hover) {
+  .sos__item:hover {
+    background: var(--accent-bg);
+  }
+}
+.sos__item:active {
+  background: var(--accent-bg);
+}
+.sos__number {
+  font-size: 1.35rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-text);
+  line-height: 1.2;
+}
+.sos__label {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
