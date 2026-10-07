@@ -14,6 +14,7 @@ import { NATURE } from './nature'
 import { MISC } from './misc'
 import { COLORS } from './colors'
 import { ENGLISH } from './english'
+import { TEXTING } from './texting'
 
 // Frequency dictionary — wins over the phonetic parser on common words
 // (e.g. "pani" -> पनि, not the phonetically-plausible पानी). Lowercase keys;
@@ -38,4 +39,5 @@ export const DICT: Record<string, string> = {
   ...NATURE,
   ...MISC,
   ...COLORS,
+  ...TEXTING,
 }

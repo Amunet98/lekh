@@ -218,6 +218,16 @@ describe('the ashesh.com.np pattern', () => {
   })
 })
 
+describe('texting spellings', () => {
+  it('reads the long-vowel and v-for-bh habits the way they are meant', () => {
+    expect(convert('tapaailai')).toBe('तपाईंलाई')
+    expect(convert('dhanyabaad')).toBe('धन्यवाद')
+    expect(convert('vayo')).toBe('भयो')
+    expect(convert('tika')).toBe('टीका')
+    expect(convert('thamel')).toBe('ठमेल')
+  })
+})
+
 describe('suggest', () => {
   it('returns nothing for an empty input', () => {
     expect(suggest('')).toEqual([])
