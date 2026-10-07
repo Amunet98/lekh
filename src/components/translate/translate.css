@@ -629,3 +629,94 @@
   line-height: 1.6;
   color: var(--muted);
 }
+
+/* ---------- colour pass (1.9.53) ----------
+ *
+ * The same language as Tools: the accent marks what you are getting, and
+ * stays off what you are only choosing. So the target side of every pair —
+ * the picker tile, the pane label, the answer box — carries it, and the
+ * source side stays neutral. Copy is still the one filled control; the
+ * secondary actions under the answer take the accent's outline, as Tools'
+ * Copy buttons do. */
+
+.lang-picker .lang-picker__btn {
+  gap: 0.55rem;
+  padding-inline: 0.45rem 0.9rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-h);
+}
+.lang-picker__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lang-picker__script {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  color: var(--text);
+  font-family: var(--display-dev);
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.lang-picker__btn--target .lang-picker__script {
+  background: var(--accent-bg);
+  color: var(--accent-text);
+}
+/* On a phone the pills stretch and centre their label; the tile sits at the
+   leading edge instead, so the two pills line up tile over tile. */
+@media (max-width: 767px) {
+  .lang-picker .lang-picker__btn {
+    justify-content: flex-start;
+  }
+  .lang-picker .lang-picker__btn > svg {
+    margin-inline-start: auto;
+  }
+}
+
+/* The hinge between them, in the accent at rest now — tinted rather than
+   outlined, so it still does not read as a third pill. */
+.swap-btn {
+  background: var(--accent-bg);
+  color: var(--accent-text);
+}
+
+/* Two classes: TranslatePage.css loads after this file and its plain
+   .translate-pane__label would otherwise win the tie. */
+.translate-pane .translate-pane__label--target {
+  color: var(--accent-text);
+}
+
+/* Upload and camera keep their neutral pill (see TranslatePage.css for why
+   they stopped being filled); their icons take the accent so the two read as
+   the photo/document feature rather than as two more grey buttons. */
+.pane-upload-btn svg,
+.pane-camera-btn svg {
+  color: var(--accent-text);
+}
+.upload-hint__or svg {
+  color: var(--accent-text);
+}
+
+/* Download, Share and Show — outlined in the accent, beside the filled Copy. */
+.translate-output__actions .btn:not(.btn--primary),
+.translate-output__actions .download-menu__btn--compact {
+  border-color: var(--accent-border);
+  background: transparent;
+  color: var(--accent-text);
+  font-weight: 600;
+}
+@media (hover: hover) {
+  .translate-output__actions .btn:not(.btn--primary):hover:not(:disabled),
+  .translate-output__actions .download-menu__btn--compact:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: var(--accent-bg);
+  }
+}

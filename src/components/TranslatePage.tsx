@@ -311,7 +311,7 @@ export function TranslatePage({ t, onShow }: TranslatePageProps) {
               textarea's, since its header was only ever as tall as a bare
               label. */}
           <div className="translate-pane__header">
-            <span className="translate-pane__label" lang={t.targetLang.code}>
+            <span className="translate-pane__label translate-pane__label--target" lang={t.targetLang.code}>
               {t.targetLang.native}
             </span>
           </div>

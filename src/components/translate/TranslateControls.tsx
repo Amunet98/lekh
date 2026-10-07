@@ -47,6 +47,7 @@ function SwapIcon() {
 
 interface LangPickerProps {
   label: string
+  side: 'source' | 'target'
   current: Language
   isOpen: boolean
   /** Below the dock breakpoint the menu is a bottom sheet — see ActionSheet. */
@@ -60,18 +61,24 @@ interface LangPickerProps {
   onSelect: (lang: Language) => void
 }
 
-function LangPicker({ label, current, isOpen, asSheet, onToggle, onClose, onSelect }: LangPickerProps) {
+function LangPicker({ label, side, current, isOpen, asSheet, onToggle, onClose, onSelect }: LangPickerProps) {
   return (
     <div className="lang-picker">
       <button
         type="button"
-        className="mode-btn lang-picker__btn"
+        className={`mode-btn lang-picker__btn lang-picker__btn--${side}`}
         aria-haspopup="menu"
         aria-expanded={isOpen}
         aria-label={`${label}, ${current.label}`}
         onClick={onToggle}
       >
-        {current.label}
+        {/* The script as a tile, the way Tools heads its cards: grey for what
+            you have, the accent for what you are getting — the same colour as
+            the answer box it fills. */}
+        <span className="lang-picker__script" aria-hidden="true">
+          {current.script}
+        </span>
+        <span className="lang-picker__name">{current.label}</span>
         <CaretIcon />
       </button>
       {isOpen && !asSheet && (
@@ -163,6 +170,7 @@ export function DirectionToggle({ t }: { t: TranslateState }) {
     <div className="direction-toggle" ref={containerRef}>
       <LangPicker
         label="Source language"
+        side="source"
         current={t.sourceLang}
         isOpen={openMenu === 'source'}
         asSheet={asSheet}
@@ -178,6 +186,7 @@ export function DirectionToggle({ t }: { t: TranslateState }) {
       </button>
       <LangPicker
         label="Target language"
+        side="target"
         current={t.targetLang}
         isOpen={openMenu === 'target'}
         asSheet={asSheet}
