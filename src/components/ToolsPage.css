@@ -374,7 +374,13 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--sp-2);
 }
+/* Each item fills its grid cell, so two boxes in a row are always the same
+   height whatever their labels do. */
+.sos__list > li {
+  display: flex;
+}
 .sos__item {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 0.1rem;
@@ -404,5 +410,12 @@
 }
 .sos__label {
   font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sos__label--ne {
   color: var(--muted);
 }

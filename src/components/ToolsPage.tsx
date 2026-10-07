@@ -268,8 +268,12 @@ function Phrasebook({ onShow }: { onShow: (shown: Shown) => void }) {
             <li key={n.number}>
               <a className="sos__item" href={`tel:${n.number}`}>
                 <span className="sos__number">{n.number}</span>
-                <span className="sos__label">
-                  {n.label} · <span className="dev" lang="ne">{n.ne}</span>
+                {/* English over Nepali, always two lines: "Tourist Police ·
+                    पर्यटक प्रहरी" on one line wrapped where the others did not,
+                    and its box stood taller than its neighbour. */}
+                <span className="sos__label">{n.label}</span>
+                <span className="sos__label sos__label--ne dev" lang="ne">
+                  {n.ne}
                 </span>
               </a>
             </li>
