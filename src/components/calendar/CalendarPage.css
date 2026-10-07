@@ -34,11 +34,10 @@
   position: sticky;
   top: var(--bar-h);
   z-index: 1;
-  /* Grid, not space-between, and the outer tracks are deliberately equal.
-     There is one control on the left and two on the right (next month, and
-     the date converter), so a flex row would push the month off centre by
-     half a button. Equal 1fr tracks keep it optically centred whatever ends
-     up hanging off either end. */
+  /* Grid, not space-between, and the outer tracks are deliberately equal, so
+     the month stays optically centred whatever ends up hanging off either
+     end — there used to be two controls on the right (next month, and the
+     date converter, which has since moved to Tools). */
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
@@ -55,17 +54,6 @@
   align-items: center;
   gap: var(--sp-2);
   justify-self: end;
-}
-/* The converter is a tool, not navigation. Drawn as a third outlined circle
-   identical to the two month arrows, the three of them together outweighed the
-   month name they stand either side of — and two of them step through the
-   calendar while the third opens something else entirely. It keeps its 44px
-   target and loses the outline, so the bar reads as: last month, THIS MONTH,
-   next month, and a tool. */
-.cal__arrow--convert {
-  color: var(--muted);
-  border-color: transparent;
-  background: transparent;
 }
 .cal__title {
   display: flex;

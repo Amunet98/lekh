@@ -33,9 +33,7 @@ export function installNativeBackHandler(): void {
        * them to history: it shut the sheet *and* left the tab, or quit the app
        * outright from Type. Seen on the A024 with a language picker open.
        * close() fires the dialog's close event, which is the same path as
-       * Escape or a tap on the dim, so every caller's own onClose runs. The
-       * date converter is the one that is in history; its onClose is
-       * closeSheet, which pops its entry exactly as Back would have.
+       * Escape or a tap on the dim, so every caller's own onClose runs.
        * Last match, because the newest showModal() is the one on top. */
       const sheets = document.querySelectorAll<HTMLDialogElement>('dialog.action-sheet[open]')
       const top = sheets[sheets.length - 1]

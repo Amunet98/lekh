@@ -159,7 +159,7 @@ function App() {
   const swipe = useTabSwipe({
     /* Not while a sheet is open, and that is a correctness fix rather than a
        refinement. The handler is on .page, and the cheat sheet and the date
-       converter are <dialog>s rendered *inside* their section — the top layer
+       converter were <dialog>s rendered *inside* their section — the top layer
        is where they paint, not where they sit in the tree, so their touches
        bubble straight out to this. A sideways drag while reading the cheat
        sheet therefore closed it and changed section (goToTab unwinds the
@@ -386,11 +386,7 @@ function App() {
         )}
         {visited.includes('calendar') && (
           <Section active={tab === 'calendar'}>
-            <CalendarPage
-              converterOpen={sheet === 'converter'}
-              onOpenConverter={() => openSheet('converter')}
-              onCloseConverter={closeSheet}
-            />
+            <CalendarPage />
           </Section>
         )}
         {visited.includes('tools') && (

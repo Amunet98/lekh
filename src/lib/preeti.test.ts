@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { DICT } from './engine/dict'
-import { looksLikeUnicode, preetiToUnicode, unicodeToPreeti } from './preeti'
+import { looksLikeRomanized, looksLikeUnicode, preetiToUnicode, unicodeToPreeti } from './preeti'
 
 describe('preetiToUnicode', () => {
   it('reads plain letters and vowel signs', () => {
@@ -54,5 +54,19 @@ describe('looksLikeUnicode', () => {
   it('tells the two apart by the script in them', () => {
     expect(looksLikeUnicode('नेपाल')).toBe(true)
     expect(looksLikeUnicode('g]kfn')).toBe(false)
+  })
+})
+
+describe('looksLikeRomanized', () => {
+  it('spots romanized Nepali typed into the Preeti box', () => {
+    expect(looksLikeRomanized('mero naam kamal ho')).toBe(true)
+    expect(looksLikeRomanized('tapaailai kasto chha?')).toBe(true)
+  })
+
+  it('leaves real Preeti alone', () => {
+    expect(looksLikeRomanized('g]kfn ;/sf/')).toBe(false)
+    expect(looksLikeRomanized('d]/f] gfd sdn xf]')).toBe(false)
+    expect(looksLikeRomanized('?k}ofF')).toBe(false)
+    expect(looksLikeRomanized('नेपाल')).toBe(false)
   })
 })

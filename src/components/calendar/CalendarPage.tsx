@@ -20,8 +20,6 @@ import {
 } from '../../lib/calendar/nepaliDate'
 import { COVERAGE, nextSaitMonth } from '../../lib/calendar/panchang'
 import { useMonthPanchang } from '../../hooks/useMonthPanchang'
-import { DateConverter } from './DateConverter'
-import { ActionSheet } from '../ActionSheet'
 import { saveFile } from '../../lib/download'
 import { openCalendarEvent } from '../../lib/calendarEvent'
 import { isNativeApp } from '../../lib/androidApp'
@@ -38,17 +36,7 @@ function ChevronIcon({ dir }: { dir: 'left' | 'right' }) {
   )
 }
 
-function ConvertIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-         strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M4 8h13M17 8l-3-3M17 8l-3 3" />
-      <path d="M20 16H7M7 16l3-3M7 16l3 3" />
-    </svg>
-  )
-}
-
-/* Local date, never toISOString(). The converter hands back a Date at local
+/* Local date, never toISOString(). bsToAd hands back a Date at local
    midnight, and this machine sits at +05:45 — reading it back as UTC moves
    every festival a day earlier, which is exactly the silent one-day error
    this whole feature is trying not to make. */
@@ -100,15 +88,6 @@ function downloadIcs(names: string[], date: Date) {
   // saveFile, not an <a download>: that click is dropped silently by the
   // Android WebView, so this button did nothing at all inside the app.
   return saveFile(blob, 'lekh-patro-holiday.ics')
-}
-
-interface CalendarPageProps {
-  /* The date converter is a sheet off the month bar rather than the last
-     block of the page — see the Sheet union in useAppNavigation for why it is
-     history and not local state. */
-  converterOpen: boolean
-  onOpenConverter: () => void
-  onCloseConverter: () => void
 }
 
 /* Who a holiday is actually for, set as the aside it is.
@@ -206,7 +185,7 @@ function SaitRow({ label, gloss, kind, days, view, selectedDay, onPick, onJump }
   )
 }
 
-export function CalendarPage({ converterOpen, onOpenConverter, onCloseConverter }: CalendarPageProps) {
+export function CalendarPage() {
   const toast = useToast()
   const today = useMemo(() => todayBs(), [])
   const [view, setView] = useState({ year: today.year, month: today.month })
@@ -272,22 +251,13 @@ export function CalendarPage({ converterOpen, onOpenConverter, onCloseConverter 
           </p>
         </div>
 
-        {/* Two controls on this side and one on the other, which is why the
-            bar is a three-column grid with equal outer tracks (see the CSS):
-            the month stays optically centred whatever hangs off the ends. */}
+        {/* The bar is a three-column grid with equal outer tracks (see the
+            CSS), so the month stays optically centred whatever hangs off the
+            ends. The date converter used to hang here too; it lives in Tools
+            now. */}
         <div className="cal__nav-end">
           <button type="button" className="cal__arrow" aria-label="Next month" onClick={() => goto(1)}>
             <ChevronIcon dir="right" />
-          </button>
-          <button
-            type="button"
-            className="cal__arrow cal__arrow--convert"
-            aria-haspopup="dialog"
-            aria-label="Date converter"
-            title="Date converter"
-            onClick={onOpenConverter}
-          >
-            <ConvertIcon />
           </button>
         </div>
       </div>
@@ -665,17 +635,6 @@ export function CalendarPage({ converterOpen, onOpenConverter, onCloseConverter 
         </p>
       </details>
 
-      {/* Was the last block of this page, five blocks below the grid. The
-          month bar it now hangs off is pinned, so it is reachable from
-          anywhere on the screen instead of only from the bottom of it. */}
-      <ActionSheet
-        open={converterOpen}
-        onClose={onCloseConverter}
-        label="Date converter"
-        hideTitle
-      >
-        <DateConverter bare />
-      </ActionSheet>
     </section>
   )
 }

@@ -46,14 +46,11 @@ import { getPref, setPref } from '../lib/prefs'
  * the old behaviour.
  */
 
-/* 'converter' is the Bikram Sambat date converter, which used to be the last
-   block on the Patro screen — a second tool you reached by scrolling past the
-   grid, the day detail, the holiday list and the source note. It is a sheet
-   off the pinned month bar now, and being in this union is what makes Back
-   close it rather than leave the app. */
-/* 'show' is a translation held up full-screen for someone else to read —
+/* Being in this union is what makes Back close a sheet rather than leave the
+   app. ('converter', the Patro date converter, was one until it became a card
+   on the Tools tab.) 'show' is a translation held up full-screen for someone else to read —
    Back has to put it down before it does anything else. */
-export type Sheet = 'about' | 'settings' | 'cheatsheet' | 'converter' | 'show'
+export type Sheet = 'about' | 'settings' | 'cheatsheet' | 'show'
 
 export const TAB_ORDER: Tab[] = ['type', 'translate', 'calendar', 'tools']
 

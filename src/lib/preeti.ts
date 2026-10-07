@@ -266,5 +266,28 @@ export function unicodeToPreeti(input: string): string {
 /** Which way a pasted text most likely needs converting: Devanagari in it
  *  means it is already Unicode. */
 export function looksLikeUnicode(text: string): boolean {
-  return /[ऀ-ॿ]/.test(text)
+  return /[\u0900-\u097f]/.test(text)
+}
+
+/* Preeti punctuation that romanized Nepali never needs — ] is े, ; is स, { is
+   the reph, / is र — and a capital in the middle of a word, which in Preeti
+   is a half letter (dGqL) and in typed romanized Nepali almost never happens
+   outside T, D, N, Sh and the M of an anusvara. ? and : only count with a
+   letter after them: in Preeti they are रु and स् inside a word, in prose
+   they end a question or introduce a list. */
+const PREETI_SIGNS = /[\][{};'"/\\|`~+=<>]|[?:][a-zA-Z]|[a-z][A-CE-LO-RT-Z]/
+
+/** Latin text that reads as romanized Nepali (or English) rather than
+ *  Preeti — "mero naam kamal ho" rather than "d]/f] gfd sdn xf]". Preeti
+ *  spends its vowel keys on consonants (a is ब, e is भ, o is य), so text with
+ *  a speaker's share of lowercase vowels and none of Preeti's signs is almost
+ *  certainly not Preeti. Measured on the dictionary in four-word runs: about
+ *  one run in two hundred misread either way. Single words are much less
+ *  certain, which is why the Tools page lets the reader overrule it. */
+export function looksLikeRomanized(text: string): boolean {
+  if (looksLikeUnicode(text) || PREETI_SIGNS.test(text)) return false
+  const letters = text.replace(/[^a-zA-Z]/g, '')
+  if (!letters) return false
+  const vowels = text.match(/[aeiou]/g)?.length ?? 0
+  return vowels / letters.length >= 0.25
 }

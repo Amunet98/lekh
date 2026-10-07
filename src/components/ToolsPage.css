@@ -151,3 +151,30 @@
     grid-column: 1 / -1;
   }
 }
+
+/* Preeti or romanized — the guess, shown as a choice the reader can overrule. */
+.tools__read-as {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.tools__read-as-label {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.tools__chip {
+  min-height: 2.25rem;
+  padding: 0 var(--sp-3);
+  border: 1px solid var(--border-field);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text);
+  font: 500 0.82rem/1 var(--sans);
+  cursor: pointer;
+}
+.tools__chip--on {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  color: var(--accent-text);
+}

@@ -35,10 +35,7 @@ function fromInputValue(v: string): Date | null {
   return Number.isNaN(d.getTime()) ? null : d
 }
 
-/* `bare` drops the card. Inside the Patro sheet the surface and the rounded
-   corners are the sheet's, and a bordered box inside a bordered box reads as
-   a mistake. */
-export function DateConverter({ bare = false }: { bare?: boolean } = {}) {
+export function DateConverter() {
   const today = todayBs()
   const [bs, setBs] = useState({ year: today.year, month: today.month, day: today.day })
 
@@ -66,7 +63,7 @@ export function DateConverter({ bare = false }: { bare?: boolean } = {}) {
   for (let y = BS_MIN_YEAR; y <= BS_MAX_YEAR; y++) years.push(y)
 
   return (
-    <div className={`conv${bare ? ' conv--bare' : ''}`}>
+    <div className="conv">
       <h2 className="conv__title">
         <span className="dev">मिति परिवर्तन</span> · date converter
       </h2>
