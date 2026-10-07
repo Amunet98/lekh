@@ -1,38 +1,81 @@
+/* Tools — the same visual language as the rest of the app, not a page of
+ * forms. Three things carry it:
+ *  - the card head: an --accent-bg tile like Patro's day badges, the Nepali
+ *    name in the display face, an English line under it (ToolHeader);
+ *  - the answer: tinted with the accent and ruled on the leading edge, which
+ *    is exactly how Translate marks its result (.translate-output), so "this
+ *    is what you came for" looks the same on every tab;
+ *  - copy buttons in the accent's outline, quiet enough to repeat down a list
+ *    where a row of filled crimson pills would shout.
+ * Every colour is a token, so dark mode, Deep black and Material You repaint
+ * this tab along with the others. */
+
 .tools {
+  --answer-bg: color-mix(in srgb, var(--accent) 5%, var(--surface));
+  --answer-rule: color-mix(in srgb, var(--accent) 14%, var(--border));
   max-width: 720px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: var(--sp-5);
+  gap: var(--sp-4);
 }
 
-.tools__card {
+.tools__card,
+.tools .conv {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-2);
+  gap: var(--sp-3);
   padding: var(--sp-4);
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
+  box-shadow: var(--shadow-rest);
 }
 
-/* The same small-caps heading Patro uses for its lists. */
-.tools__title {
-  margin: 0 0 var(--sp-1);
-  font-family: var(--sans);
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
+/* ---------- card head ---------- */
+
+.tool-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-1);
 }
-.tools__title .dev {
+.tool-head__badge {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-field);
+  background: var(--accent-bg);
+  color: var(--accent-text);
   font-family: var(--display-dev);
-  text-transform: none;
-  letter-spacing: 0;
-  font-size: 0.9rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.tool-head__title {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.tool-head__ne {
+  font-family: var(--display-dev);
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.35;
   color: var(--text-h);
 }
+.tool-head__en {
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+/* ---------- inputs ---------- */
 
 .tools__label {
   font-size: 0.85rem;
@@ -41,6 +84,9 @@
 .tools__sample {
   font-family: var(--mono);
   font-size: 0.9em;
+  padding: 0.05em 0.3em;
+  border-radius: 4px;
+  background: var(--code-bg);
 }
 
 .tools__input {
@@ -52,13 +98,23 @@
   background: var(--bg);
   color: var(--text-h);
   font: 1.05rem/1.5 var(--sans);
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
 }
+/* The same focus treatment as the Translate panes: the field takes the
+   accent and a soft ring, rather than the browser's outline. */
 .tools__input:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
 }
 .tools__input[aria-invalid='true'] {
   border-color: var(--danger);
+}
+.tools__input--number {
+  font-size: 1.3rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
 }
 .tools__area {
   resize: vertical;
@@ -74,25 +130,63 @@
   display: none;
 }
 
-/* Label, value, copy — one line each while they fit, the value wrapping
-   under its label once they do not. */
+/* ---------- the answer ---------- */
+
+.tools__answer {
+  border-radius: var(--radius-field);
+  background: var(--answer-bg);
+  border-inline-start: 3px solid var(--accent-border);
+  overflow: hidden;
+}
+
+/* The words, large, with how to say them underneath — the pair Translate
+   shows for a sentence. Copy sits beside the words, not the pronunciation. */
+.tools__hero {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: 0 var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+}
+.tools__hero-text {
+  margin: 0;
+  font-family: var(--display-dev);
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.45;
+  color: var(--text-h);
+  overflow-wrap: anywhere;
+}
+.tools__say {
+  grid-column: 1 / -1;
+  margin: 0.15rem 0 0;
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+
 .tools__rows {
-  margin: var(--sp-1) 0 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
-  border-top: 1px solid var(--border);
 }
 .tools__row {
   display: grid;
-  grid-template-columns: minmax(6.5rem, auto) 1fr auto;
+  grid-template-columns: 5.5rem 1fr auto;
   align-items: center;
   gap: var(--sp-1) var(--sp-3);
-  padding: var(--sp-2) 0;
-  border-bottom: 1px solid var(--border);
+  padding: var(--sp-2) var(--sp-4);
+  border-top: 1px solid var(--answer-rule);
 }
 .tools__row dt {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   color: var(--muted);
+}
+.tools__row dt.dev {
+  font-family: var(--display-dev);
+  font-size: 0.85rem;
+  letter-spacing: 0;
 }
 .tools__row dd {
   margin: 0;
@@ -103,52 +197,23 @@
   font-size: 1.05rem;
 }
 
+/* ---------- buttons ---------- */
+
+/* Outlined in the accent: the Copy on Type and Translate is a filled
+   primary, because it is the one action on those screens. Here it repeats
+   down a list, so it keeps the colour and drops the fill. */
 .tools__copy {
   min-height: 2.25rem;
+  padding: 0 var(--sp-3);
   font-size: 0.8rem;
-}
-
-.tools__out-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sp-2);
-  margin-top: var(--sp-1);
-}
-.tools__direction {
-  font-size: 0.78rem;
   font-weight: 600;
   color: var(--accent-text);
+  border-color: var(--accent-border);
+  background: transparent;
 }
-.tools__out {
-  margin: 0;
-  padding: var(--sp-3);
-  border-radius: var(--radius-field);
-  background: var(--surface-2);
-  color: var(--text-h);
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  font-size: 1.05rem;
-}
-.tools__out--preeti {
-  font-family: var(--mono);
-  font-size: 0.95rem;
-}
-
-@media (max-width: 767px) {
-  /* Like Translate, this opens on content sitting on the page background,
-     so it keeps the top padding the phone layout takes off .page. */
-  .tools {
-    padding-block-start: var(--sp-5);
-  }
-}
-
-@media (max-width: 420px) {
-  .tools__row {
-    grid-template-columns: 1fr auto;
-  }
-  .tools__row dt {
-    grid-column: 1 / -1;
+@media (hover: hover) {
+  .tools__copy:hover {
+    background: var(--accent-bg);
   }
 }
 
@@ -172,9 +237,65 @@
   color: var(--text);
   font: 500 0.82rem/1 var(--sans);
   cursor: pointer;
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease);
 }
 .tools__chip--on {
   border-color: var(--accent);
-  background: var(--accent-bg);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+}
+
+/* ---------- Preeti outputs ---------- */
+
+.tools__out-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  margin-top: var(--sp-1);
+}
+.tools__direction {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   color: var(--accent-text);
+}
+.tools__out {
+  margin: 0;
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius-field);
+  background: var(--surface-2);
+  color: var(--text-h);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 1.05rem;
+}
+.tools__out--answer {
+  background: var(--answer-bg);
+  border-inline-start: 3px solid var(--accent-border);
+  font-size: 1.2rem;
+  line-height: 1.6;
+}
+.tools__out--preeti {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+
+@media (max-width: 767px) {
+  /* Like Translate, this opens on content sitting on the page background,
+     so it keeps the top padding the phone layout takes off .page. */
+  .tools {
+    padding-block-start: var(--sp-5);
+  }
+}
+
+@media (max-width: 420px) {
+  .tools__row {
+    grid-template-columns: 1fr auto;
+  }
+  .tools__row dt {
+    grid-column: 1 / -1;
+  }
 }

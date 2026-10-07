@@ -95,7 +95,20 @@ export function TranslationOutput({ t, onShow }: { t: TranslateState; onShow: ()
         ) : t.status === 'loading' ? (
           <span className="sugg-hint">Translating…</span>
         ) : t.translated ? (
-          t.translated
+          <>
+            {t.translated}
+            {/* How to say it, straight under the words it belongs to and in
+                the same box — where Google Translate puts it, and where a
+                reader's eye already is. Smaller and muted so the Nepali still
+                reads as the answer. In the live region on purpose: an English
+                screen-reader voice cannot pronounce Devanagari, and this line
+                is what it can. */}
+            {t.targetLang.code === 'ne' && (
+              <span className="translate-output__say" lang="ne-Latn">
+                {pronounce(t.translated)}
+              </span>
+            )}
+          </>
         ) : (
           <span className="sugg-hint">Translation appears here.</span>
         )}
@@ -104,14 +117,6 @@ export function TranslationOutput({ t, onShow }: { t: TranslateState; onShow: ()
           grey Copy and Share under an empty pane on every first visit — two
           controls that could not do anything yet. The pane already says where
           the answer will go. */}
-      {/* For a reader who cannot read Devanagari — a visitor, or anyone
-          about to say the translation out loud. Outside the live region, so
-          a screen reader announces the answer once rather than twice. */}
-      {settled && t.targetLang.code === 'ne' && (
-        <p className="translate-say" lang="ne-Latn">
-          <span className="translate-say__label">Say it</span> {pronounce(t.translated)}
-        </p>
-      )}
       {t.translated && (
         <div className="translate-output__actions reveal">
           {/* Everything you can do with the result, in one row. Export used

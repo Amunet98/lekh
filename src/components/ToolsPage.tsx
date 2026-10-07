@@ -12,6 +12,7 @@ import {
 import { looksLikeRomanized, looksLikeUnicode, preetiToUnicode, unicodeToPreeti } from '../lib/preeti'
 import { romanizedToDevanagari } from '../lib/engine/romanize'
 import { DateConverter } from './calendar/DateConverter'
+import { ToolHeader } from './ToolHeader'
 import { useToast } from '../hooks/useToast'
 import { tick } from '../lib/haptics'
 import './ToolsPage.css'
@@ -67,33 +68,33 @@ function NumberTool() {
   const amount = raw.trim() ? parseAmount(raw) : null
   const invalid = raw.trim() !== '' && amount === null
 
+  /* The words are the answer, so they lead, large, with how to say them
+     straight underneath — the same pairing as a translation. Everything
+     else is a row under them. */
+  let words = ''
   let rows: Row[] = []
   if (amount) {
     const paisa = amount.paisa !== null ? `.${String(amount.paisa).padStart(2, '0')}` : ''
     const grouped = groupNepali(amount.whole) + paisa
-    const words = nepaliWords(amount.whole)
+    words = nepaliWords(amount.whole)
     rows = [
       { label: 'नेपाली अङ्क', value: toDevanagariDigits(grouped), dev: true, what: 'Nepali digits' },
       { label: 'Digits', value: grouped, what: 'digits' },
-      { label: 'शब्दमा', value: words, dev: true, what: 'Nepali words' },
-      { label: 'Say it', value: pronounce(words), what: 'pronunciation' },
       { label: 'English', value: englishWords(amount.whole), what: 'English words' },
-      { label: 'चेकमा · cheque', value: nepaliAmount(amount), dev: true, what: 'Nepali cheque line' },
-      { label: 'Cheque · English', value: englishAmount(amount), what: 'English cheque line' },
+      { label: 'चेकमा', value: nepaliAmount(amount), dev: true, what: 'Nepali cheque line' },
+      { label: 'Cheque', value: englishAmount(amount), what: 'English cheque line' },
     ]
   }
 
   return (
     <section className="tools__card" aria-labelledby={`${id}-title`}>
-      <h2 className="tools__title" id={`${id}-title`}>
-        <span className="dev">अङ्क र रकम</span> · numbers in words
-      </h2>
+      <ToolHeader id={`${id}-title`} badge="रु" ne="अङ्क र रकम" en="Numbers & amounts in words" />
       <label className="tools__label" htmlFor={`${id}-input`}>
         A number or an amount, in either script
       </label>
       <input
         id={`${id}-input`}
-        className="tools__input"
+        className="tools__input tools__input--number"
         type="text"
         inputMode="decimal"
         autoComplete="off"
@@ -111,18 +112,29 @@ function NumberTool() {
             ? ''
             : 'Reads a price in Nepali digits, or writes an amount out for a cheque.'}
       </p>
-      {rows.length > 0 && (
-        <dl className="tools__rows">
-          {rows.map((row) => (
-            <div className="tools__row" key={row.label}>
-              <dt className={row.label.match(/[ऀ-ॿ]/) ? 'dev' : undefined}>{row.label}</dt>
-              <dd className={row.dev ? 'dev' : undefined} lang={row.dev ? 'ne' : undefined}>
-                {row.value}
-              </dd>
-              <CopyButton text={row.value} what={row.what} />
-            </div>
-          ))}
-        </dl>
+      {amount && (
+        <div className="tools__answer">
+          <div className="tools__hero">
+            <p className="tools__hero-text dev" lang="ne">
+              {words}
+            </p>
+            <CopyButton text={words} what="Nepali words" />
+            <p className="tools__say" lang="ne-Latn">
+              {pronounce(words)}
+            </p>
+          </div>
+          <dl className="tools__rows">
+            {rows.map((row) => (
+              <div className="tools__row" key={row.label}>
+                <dt className={/[\u0900-\u097f]/.test(row.label) ? 'dev' : undefined}>{row.label}</dt>
+                <dd className={row.dev ? 'dev' : undefined} lang={row.dev ? 'ne' : undefined}>
+                  {row.value}
+                </dd>
+                <CopyButton text={row.value} what={row.what} />
+              </div>
+            ))}
+          </dl>
+        </div>
       )}
     </section>
   )
@@ -160,9 +172,7 @@ function PreetiTool() {
 
   return (
     <section className="tools__card" aria-labelledby={`${id}-title`}>
-      <h2 className="tools__title" id={`${id}-title`}>
-        <span className="dev">प्रीति ↔ युनिकोड</span> · Preeti ↔ Unicode
-      </h2>
+      <ToolHeader id={`${id}-title`} badge="अ" ne="प्रीति ↔ युनिकोड" en="Preeti ↔ Unicode" />
       <label className="tools__label" htmlFor={`${id}-input`}>
         Paste Preeti text (it looks like <span className="tools__sample">g]kfn</span>), Nepali
         Unicode, or romanized Nepali — the direction is worked out from what is in the box
@@ -211,7 +221,7 @@ function PreetiTool() {
             </span>
             <CopyButton text={unicode} what="Unicode text" />
           </div>
-          <p className="tools__out dev" lang="ne">
+          <p className="tools__out tools__out--answer dev" lang="ne">
             {unicode}
           </p>
         </>

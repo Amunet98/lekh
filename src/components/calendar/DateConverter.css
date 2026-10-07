@@ -8,22 +8,6 @@
   gap: var(--sp-3);
 }
 
-.conv__title {
-  font-family: var(--sans);
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.conv__title .dev {
-  font-family: var(--display-dev);
-  text-transform: none;
-  letter-spacing: 0;
-  font-size: 0.95rem;
-  color: var(--text-h);
-}
-
 .conv__row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -98,17 +82,29 @@
 }
 
 .conv__out {
-  padding-top: var(--sp-3);
-  border-top: 1px solid var(--border);
-  font-size: 0.95rem;
-  color: var(--text-h);
-  line-height: 1.7;
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius-field);
+  background: var(--answer-bg);
+  border-inline-start: 3px solid var(--accent-border);
 }
-.conv__out .dev {
+.conv__out p {
+  margin: 0;
+}
+.conv__out-bs {
   font-family: var(--display-dev);
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--text-h);
+}
+.conv__out-ad {
+  margin-top: 0.1rem;
+  font-size: 0.95rem;
   font-weight: 600;
+  color: var(--accent-text);
 }
 .conv__out-en {
+  font-weight: 400;
   color: var(--muted);
   font-size: 0.85rem;
 }

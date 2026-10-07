@@ -12,6 +12,7 @@ import {
   todayBs,
   toDevanagari,
 } from '../../lib/calendar/nepaliDate'
+import { ToolHeader } from '../ToolHeader'
 import './DateConverter.css'
 
 function pad(n: number) {
@@ -63,10 +64,15 @@ export function DateConverter() {
   for (let y = BS_MIN_YEAR; y <= BS_MAX_YEAR; y++) years.push(y)
 
   return (
-    <div className="conv">
-      <h2 className="conv__title">
-        <span className="dev">मिति परिवर्तन</span> · date converter
-      </h2>
+    <section className="conv" aria-labelledby="conv-title">
+      {/* The badge is the selected day, so the tile reads like a calendar
+          leaf and changes with the answer. */}
+      <ToolHeader
+        id="conv-title"
+        badge={toDevanagari(safeDay)}
+        ne="मिति परिवर्तन"
+        en="BS ↔ AD date converter"
+      />
 
       <div className="conv__row">
         <div className="conv__side">
@@ -124,16 +130,17 @@ export function DateConverter() {
         </div>
       </div>
 
-      <p className="conv__out" aria-live="polite">
-        <span className="dev">
-          {NP_MONTHS[bs.month]} {toDevanagari(safeDay)}, {toDevanagari(bs.year)}
-        </span>
-        {' = '}
-        {ad.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
-        {' · '}
-        <span className="dev">{NP_WEEKDAYS_FULL[weekday]}</span>
-        <span className="conv__out-en"> ({NP_MONTHS_EN[bs.month]})</span>
-      </p>
-    </div>
+      {/* Both dates, one over the other — either can be the answer,
+          depending on which side was just changed. */}
+      <div className="conv__out" aria-live="polite">
+        <p className="conv__out-bs dev" lang="ne">
+          {NP_WEEKDAYS_FULL[weekday]}, {NP_MONTHS[bs.month]} {toDevanagari(safeDay)}, {toDevanagari(bs.year)}
+        </p>
+        <p className="conv__out-ad">
+          {ad.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+          <span className="conv__out-en"> · {NP_MONTHS_EN[bs.month]} {safeDay}, {bs.year} BS</span>
+        </p>
+      </div>
+    </section>
   )
 }

@@ -7,6 +7,10 @@
 
 .show__text {
   margin: 0;
+  /* The answer's mark from Translate and Tools — the accent rule on the
+     leading edge — at the scale of this screen. */
+  padding-inline-start: var(--sp-4);
+  border-inline-start: 4px solid var(--accent);
   color: var(--text-h);
   font-weight: 600;
   line-height: 1.45;
@@ -25,8 +29,9 @@
 
 .show__say {
   margin: 0;
-  padding-top: var(--sp-4);
-  border-top: 1px solid var(--border);
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius-field);
+  background: color-mix(in srgb, var(--accent) 5%, var(--surface));
   font-size: 1.15rem;
   line-height: 1.6;
   color: var(--text);
@@ -38,5 +43,5 @@
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--accent-text);
 }
