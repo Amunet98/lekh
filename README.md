@@ -1,4 +1,4 @@
-# Lekh Patro (लेख) — Nepali Typing
+# Lekh Patro (लेख) — Nepali Typing, Translation, Calendar & Tools
 
 [![Live](https://img.shields.io/badge/Live-lekh--gamma.vercel.app-facc15)](https://lekh-gamma.vercel.app)
 [![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white)](https://react.dev)
@@ -15,12 +15,16 @@ right in the browser.
 
 ## What it does
 
-- **Type** — a phonetic transliteration engine backed by a 763-word
-  dictionary shows suggestion chips (with spelling variants) as you type;
-  a searchable Devanagari cheat sheet covers the long tail, and tapping a
-  cell echoes the result inside the sheet so you can see the letter land
-  without closing it. Works with mobile keyboards/IMEs (Gboard-style
-  commit flow).
+Four tabs — **Type**, **Translate**, **Patro** and **Tools**:
+
+- **Type** — a phonetic transliteration engine backed by an 887-entry
+  dictionary shows suggestion chips (with spelling variants) as you type.
+  The dictionary knows the English words people mix in (`school` → स्कुल,
+  `facebook` → फेसबुक) and the way people actually text (`tapaailai` →
+  तपाईंलाई, `vayo` → भयो). A searchable Devanagari cheat sheet covers the long
+  tail, and tapping a cell echoes the result inside the sheet so you can see
+  the letter land without closing it. Works with mobile keyboards/IMEs
+  (Gboard-style commit flow).
 - **Translate** — English ↔ Nepali with a Google-style language switcher.
   Type directly or drop in a photo, PDF, DOCX, or TXT file — OCR happens
   **entirely in the browser** via
@@ -29,9 +33,22 @@ right in the browser.
   **fully on-device** NLLB-200 model
   ([Transformers.js](https://github.com/huggingface/transformers.js)) —
   private and offline-capable once cached (large download, fetched in
-  phases with progress).
+  phases with progress). Every Nepali translation carries a plain-Latin
+  pronunciation line under it (`कृपया मलाई ठमेल लैजानुहोस्` → *Kripaya malai
+  thamel laijanuhos*), and **Show** holds it up full-screen in large type for
+  a taxi driver or shopkeeper.
 - **Patro** — a Bikram Sambat calendar with festivals, public holidays and
-  tithi, plus an AD ↔ BS date converter. No ads, no account, no network.
+  tithi. About 70 festivals and national days also have an English name, a
+  line on what happens and, where it matters, a note for visitors ("offices,
+  banks and many shops close from Fulpati until after Tika") — written by
+  hand, see below. No ads, no account.
+- **Tools** — a BS ↔ AD **date converter**; **numbers in words** for a
+  cheque or a price you can't read (`१२,५००.५०` → बाह्र हजार पाँच सय रुपैयाँ पचास
+  पैसा मात्र, in Nepali and English, lakh/crore grouping); **Preeti ↔
+  Unicode**, which also notices romanized Nepali pasted into it; and an
+  **offline phrasebook** for travellers — 43 phrases in five topics, each
+  with its pronunciation and Show, under the emergency numbers (Police 100,
+  Tourist Police 1144, Ambulance 102, Fire 101) as tap-to-dial links.
 
 ## How the romanization maps
 
@@ -76,7 +93,7 @@ the palette Android derives from the user's wallpaper instead, and so do the
 home-screen widgets. Only the colours change: layout, spacing, shape, type and
 motion are the same design underneath. Crimson & Paper stays the app's identity
 on the web, in the PWA, on Android 11 and below, and for anyone who turns
-wallpaper colours off in the About sheet.
+wallpaper colours off in Settings.
 
 It is not a lookup table. Android's shade numbers are only guaranteed to mean a
 given lightness on a phone running something close to AOSP — several OEMs
@@ -117,8 +134,7 @@ baseline and renders instantly; the app then fetches the same month from
 upstream, which re-scrapes daily, so a holiday added or dropped by cabinet
 decision arrives within about a day and years past the bundled range work
 without a redeploy. The calendar says which source the month on screen came
-from — this is the one place in Lekh Patro that touches the network, and it is not
-hidden. It is a plain GET for a public file with nothing about you attached,
+from — this is the calendar's only network call, and it is not hidden. It is a plain GET for a public file with nothing about you attached,
 and the service worker caches it so a month fetched once keeps working
 offline.
 
@@ -141,6 +157,24 @@ Festival data comes from
 (MIT, © 2026 Sankalp Tharu), which scrapes nepalicalendar.rat32.com — a
 third-party almanac, not an official Government of Nepal notice. Public
 holidays are set by cabinet decision and do move.
+
+**English names are hand-written, and deliberately incomplete.**
+`src/lib/calendar/festivalsEn.ts` covers about 70 festivals and national days
+— every named Dashain and Tihar day, the Kathmandu Valley jatras, the
+Lhosars, the national days — with names in common English use and who gets
+the day off taken from the Ministry of Home Affairs' public-holiday notice for
+BS 2083, and what happens from the Nepal Tourism Board and standard
+references. Everything else stays in Nepali only. The widget once had English
+for every name, generated or scraped, and too many came out wrong ("Naaga",
+"Panchamee"); a missing line is better than a wrong one. The almanac has no
+entry called Laxmi Puja or Mha Puja — those days are गाई पूजा and गोरू पूजा —
+so that is where their English lives.
+
+**A Saturday festival is only a public holiday if it is one in its own right.**
+The almanac flags nearly every Saturday, so its flag alone would list a
+weekly vrat beside Constitution Day. On a weekly off, a day counts only when
+one of its festivals has been a declared holiday on a weekday somewhere in the
+bundled years.
 
 **Nepal now has a two-day weekend.** Saturday has always been the weekly day
 off; the cabinet added Sunday on 5 April 2026, effective the next day —
@@ -205,7 +239,7 @@ dictionary, and cheat sheet work offline. Details worth knowing:
   until the OS decides otherwise. Reloading is per window: choosing "Later"
   in one window is not overridden by another window reloading, so unsaved
   editor text survives. *(If a change seems missing on a phone, check the
-  version in the About sheet first (tap the ⓘ button): an installed PWA
+  version first — Settings (the gear) → About Lekh Patro: an installed PWA
   can be running an older shell.)*
 - **App shortcuts** — long-press the installed icon to jump straight to
   Type, Translate, or Patro. These need their own icons; Android draws
@@ -299,7 +333,7 @@ npm run dev
 Both generators render to `public/`; don't edit their output by hand.
 
 **Every change bumps the patch version** in `package.json` (followed by
-`npm install`, so the lockfile follows). The About sheet (tap the ⓘ button)
+`npm install`, so the lockfile follows). Settings → About Lekh Patro
 renders that version, which is the first thing to check when debugging
 "it isn't updating on my phone" — see the update prompt above.
 
