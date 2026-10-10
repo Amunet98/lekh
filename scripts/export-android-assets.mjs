@@ -18,12 +18,6 @@
  *                     from nepali-date-converter so the Kotlin conversion has
  *                     the same numbers the browser uses
  *
- * It also renders the launcher icon at the five Android densities from
- * design/app-icon.html — the same source the web app's icons come from, so the
- * widget's app icon cannot drift from the PWA's. That step needs a cached
- * Chromium and is skipped with a warning if there isn't one, since the data
- * files are the part that actually matters.
- *
  * The epoch is verified here rather than trusted: BS 2000-01-01 is asserted to
  * be AD 1943-04-14, and the table is walked forward to confirm it lands where
  * the library says it should. If either check fails the export aborts, because
@@ -33,7 +27,6 @@ import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import NepaliDateDefault, { dateConfigMap } from 'nepali-date-converter'
-import { findChromium, shot } from './lib/chromium.mjs'
 
 /* The package is CommonJS, so under ESM the default import is the whole
    module.exports object and the class hangs off `.default`. Bundlers paper
@@ -108,22 +101,6 @@ console.log('wrote android/app/src/main/assets/')
 console.log(`  bs-calendar.json  BS ${years[0]}–${years[years.length - 1]}, epoch ${iso(epochDate)} (both checks passed)`)
 console.log(`  panchang.json     festivals BS ${coverage.from}–${coverage.to}`)
 
-/* Launcher icon, from the same source as the PWA's. Android's density buckets
-   want 48/72/96/144/192px for mdpi→xxxhdpi. */
-const DENSITIES = [
-  ['mdpi', 48], ['hdpi', 72], ['xhdpi', 96], ['xxhdpi', 144], ['xxxhdpi', 192],
-]
-const chrome = findChromium()
-if (!chrome) {
-  console.warn('\nNo cached Chromium — launcher icons NOT rendered.')
-  console.warn('The data files above are written; run `npx playwright install chromium` and re-run for icons.')
-} else {
-  const iconSrc = join(root, 'design', 'app-icon.html')
-  const res = join(root, 'android', 'app', 'src', 'main', 'res')
-  for (const [density, size] of DENSITIES) {
-    const dir = join(res, `mipmap-${density}`)
-    mkdirSync(dir, { recursive: true })
-    shot({ chrome, url: `file://${iconSrc}`, out: join(dir, 'ic_launcher.png'), width: size, height: size, settleMs: 8000 })
-  }
-  console.log(`  ic_launcher.png   ${DENSITIES.map(([d]) => d).join(', ')}`)
-}
+/* The launcher icon used to be rendered here too. It is an adaptive icon now —
+   vector layers written by design/logo/build_mark.py, legacy PNGs by
+   `npm run app-icons` — so this script is data only. */

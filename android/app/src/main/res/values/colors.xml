@@ -11,6 +11,11 @@
 
     <color name="launch_background">#FAFAFB</color>
 
+    <!-- Adaptive launcher icon tile (mipmap-anydpi-v26/ic_launcher.xml). Fixed:
+         the icon is the brand, so no night or v31 twin — Material You only
+         reaches it through the monochrome layer, as a themed icon. -->
+    <color name="ic_launcher_background">#151A2B</color>
+
     <!-- Translucent, not opaque: see the comment on widget_background.xml for why. -->
     <color name="widget_surface">#E6FFFFFF</color>
     <color name="widget_border">#DDE1E9</color>

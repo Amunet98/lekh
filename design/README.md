@@ -66,48 +66,32 @@ byte-identical file, so `git status` staying clean is a real signal that
 nothing drifted.
 
 
-## app-icon.html → the PWA icons
+## logo/ → every app icon
 
 ```sh
-npm run app-icons
+python3 design/logo/build_mark.py   # geometry → SVG masters + Android adaptive layers
+npm run app-icons                   # SVG masters → every PNG + favicon.ico
 ```
 
-Writes all six: `android-chrome-{192,512}`, `maskable-icon-512x512`,
-`apple-touch-icon`, and `favicon-{16,32}`. One source, sized in `vmin`, so a
-single layout covers 16px to 512px; the maskable variant is selected by
-`#maskable` in the URL.
+The mark (2026-10-10, "the hanging page") and how to use it are in
+[`logo/README.md`](logo/README.md). The pipeline is two steps:
 
-These were hand-made PNGs with no source in the repo until the Crimson & Paper
-redesign, which is exactly why the old indigo caret survived it — there was
-nothing to re-render, so repainting them would have meant editing binaries.
+1. `build_mark.py` holds the geometry and writes the SVG masters in `logo/`
+   plus `android/…/res/drawable/ic_launcher_{foreground,monochrome}.xml`. It
+   needs fontTools; Inkscape only for the lockups' outlined wordmark.
+2. `render-app-icons.mjs` rasterises the masters with sharp — the six PWA and
+   favicon PNGs in `public/`, `favicon.ico` (16/32/48), the five legacy
+   launcher mipmaps, and `design/play/icon-512.png`.
 
-**The `--nudge` values are measured, not guessed.** Devanagari hangs from the
-शिरोरेखा rather than standing on a Latin baseline, and `ले` carries a tall ि
-matra, so the ink sits low in its em box and a mark centred by that box reads
-low on the tile. The correction is different per variant because the flex gap
-and the caret's box move the optical centre by different amounts at each scale.
-After changing `--scale`, the gap or the caret height, re-measure the ink
-bounding box of the rendered PNG and re-centre — the current values put every
-icon within ~4px of the tile centre.
+No browser and no web font is involved any more. The previous source,
+`app-icon.html`, set ले in Anek Devanagari from Google Fonts and needed a
+cached Chromium plus an 8-second font budget; a missing font rendered quietly
+in a fallback face. The masters are plain paths, so a render is a render.
 
-The maskable variant must also keep its ink inside the inner 80% circle, since
-Android may crop it to any shape. At the current scale the furthest corner is
-~150px of a 205px safe radius.
-
-### favicon.ico
-
-Not produced by the script: `.ico` is a container holding several images, which
-Chromium's `--screenshot` cannot write. Rebuild it from the finished 512 tile
-when the icon changes:
-
-```sh
-python3 -c "from PIL import Image; \
-  Image.open('public/android-chrome-512x512.png').convert('RGBA') \
-    .save('public/favicon.ico', format='ICO', sizes=[(16,16),(32,32),(48,48)])"
-```
-
-Only clients that probe `/favicon.ico` directly use it — `index.html` links the
-PNGs — so this rarely needs redoing.
+**The Play listing icon is not uploaded by `play:publish`** — replace
+`design/play/icon-512.png` in the Console by hand. **The launcher icon ships
+in the APK**, so phones only get it with the next store release; the web
+icons go live on the next deploy.
 
 ## store-screenshots.html → design/play/0N-*.png
 
