@@ -120,8 +120,8 @@ export function TranslateActions({ t }: TranslateActionsProps) {
         <p className="action-sheet__text">{online ? ONLINE_DETAIL : ONDEVICE_DETAIL}</p>
         {!canRunOnDevice && (
           <p className="action-sheet__text">
-            On-device translation needs more memory than this device reports, so only online
-            translation is available here.
+            On-device translation needs more memory than this device can give it, so only
+            online translation is available here.
           </p>
         )}
       </ActionSheet>

@@ -13,10 +13,30 @@
  *
  * Undefined (unsupported browser) is treated as 'ok' — there's no signal to
  * act on, and blocking or warning every non-Chromium visitor over a metric
- * they can't report would be worse than saying nothing. */
+ * they can't report would be worse than saying nothing.
+ *
+ * With one exception: iPhone and iPad, where every browser is WebKit and the
+ * answer is known without asking. A Safari tab gets far less memory than the
+ * phone has, and this load needs a lot at once — transformers.js holds both
+ * ~450MB weight files as JS buffers, then onnxruntime copies them into a WASM
+ * heap that iOS caps at around a gigabyte. A Reddit user reported the model
+ * "isn't being downloaded" on an iPhone (2026-10-12): the tab dies mid-load
+ * the way the Galaxy A07's did, and comes back with nothing to show for it.
+ * Not reproduced here (no iPhone to hand), but no iPhone ships the headroom,
+ * so it is blocked like any other device that can't fit the model. */
 export type MemoryTier = 'low' | 'warn' | 'ok'
 
+// iPadOS 13+ asks for the desktop site and reports itself as a Mac; the touch
+// points are what give it away (no Mac has a touchscreen).
+function isAppleMobile(): boolean {
+  return (
+    /iPhone|iPad|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  )
+}
+
 export function memoryTier(): MemoryTier {
+  if (isAppleMobile()) return 'low'
   const mem = (navigator as { deviceMemory?: number }).deviceMemory
   if (mem === undefined) return 'ok'
   if (mem <= 4) return 'low'

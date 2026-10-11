@@ -112,7 +112,10 @@ export function useTranslateState() {
   )
   const [sourceText, setSourceText] = useState(getInitialSourceText)
   const [mode, setMode] = useState<TranslateMode>(() =>
-    getPref('translateOnDevice') ? 'ondevice' : 'online',
+    // A saved on-device choice is only honoured where on-device can run —
+    // otherwise an iPhone that picked it before the memory gate covered iOS
+    // would keep opening into a mode whose first translate can only fail.
+    getPref('translateOnDevice') && memoryTier() !== 'low' ? 'ondevice' : 'online',
   )
   /* Declared after direction and mode rather than beside the other text state,
      because a stored result is only worth restoring when it still matches
