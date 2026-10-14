@@ -15,7 +15,13 @@ who wanted to type inside WhatsApp.
 
 ## Short description (79 / 80)
 
-Type Romanized Nepali Unicode, plus an ad-free Nepali calendar (patro) & widget
+Type Romanized Nepali Unicode, plus a Nepali calendar (patro), widget and tools
+
+Changed 2026-10-15: Play Console flagged the old one ("…plus an ad-free Nepali
+calendar (patro) & widget") with "may not be promoted … should not use
+keywords that indicate price or promotion" — "ad-free" counts. Price and
+promotion words are kept out of the title and this line; the full
+description's "No ads, ever" and "free and open source" are allowed there.
 
 ## Full description (2006 / 4000)
 
