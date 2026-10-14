@@ -549,6 +549,28 @@
   color: var(--text-h);
 }
 
+/* The same shape in the accent: a suggestion, not something gone wrong.
+   Under the source box rather than above it, so offering it never moves the
+   field being typed in. */
+.hint-banner {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  margin-top: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+  border-radius: var(--radius-field);
+  font-size: 0.88rem;
+  color: var(--text-h);
+}
+.hint-banner__actions {
+  display: flex;
+  gap: var(--sp-2);
+  margin-left: auto;
+}
+
 /* The engine row — see TranslateActions for why this stopped being a
    disclosure and became a control.
  *

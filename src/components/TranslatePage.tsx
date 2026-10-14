@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import type { TranslateState } from '../hooks/useTranslateState'
 import { useUploadState, FILE_ACCEPT } from '../hooks/useUploadState'
 import { DirectionToggle } from './translate/TranslateControls'
@@ -8,6 +8,7 @@ import { TranslateActions } from './translate/TranslateActions'
 import { TranslateRun } from './translate/TranslateRun'
 import { useOnline } from '../hooks/useOnline'
 import { SectionIcon } from './SectionIcons'
+import { looksLikeRomanNepali } from '../lib/translation/romanNepali'
 import './TranslatePage.css'
 
 interface TranslatePageProps {
@@ -53,6 +54,18 @@ export function TranslatePage({ t, onShow }: TranslatePageProps) {
   const upload = useUploadState(t, fileInputRef)
   const online = useOnline()
   const isEmpty = t.sourceText.length === 0
+
+  /* Nepali typed in English letters while the direction says English: the
+     translator would only respell it (मलाइ ढेरै भोक लग्यो), so offer the
+     direction that reads it as Nepali. "It's English" hides the offer until
+     the box is emptied — adjusted during render, not in an effect, since it
+     only ever follows the text. */
+  const [romanDismissed, setRomanDismissed] = useState(false)
+  if (isEmpty && romanDismissed) setRomanDismissed(false)
+  const romanNepali = useMemo(
+    () => t.direction === 'en-ne' && looksLikeRomanNepali(t.sourceText),
+    [t.direction, t.sourceText],
+  )
 
   return (
     <section className="translate-page">
@@ -302,6 +315,19 @@ export function TranslatePage({ t, onShow }: TranslatePageProps) {
                 </div>
               )}
           </div>
+          {romanNepali && !romanDismissed && (
+            <div className="hint-banner" role="status">
+              <span>This looks like Nepali typed in English letters.</span>
+              <span className="hint-banner__actions">
+                <button type="button" className="btn btn--primary" onClick={() => t.setDirectionOnly('ne-en')}>
+                  Translate from Nepali
+                </button>
+                <button type="button" className="btn" onClick={() => setRomanDismissed(true)}>
+                  It&rsquo;s English
+                </button>
+              </span>
+            </div>
+          )}
         </div>
         <TranslateRun t={t} />
         <div className="translate-pane">
