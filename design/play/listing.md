@@ -17,12 +17,12 @@ who wanted to type inside WhatsApp.
 
 Type Romanized Nepali Unicode, plus an ad-free Nepali calendar (patro) & widget
 
-## Full description (1538 / 4000)
+## Full description (2006 / 4000)
 
 Rewritten 2026-10-07 for search: the phrases people type into Play (Nepali
 typing, Romanized Nepali Unicode, Nepali calendar/patro, BS, साइत) in plain
 sentences rather than a keyword list, which Play's policy forbids. Every claim
-is checkable in v1.9.49.
+is checkable in v1.9.49; the TOOLS section (added 2026-10-15) in v1.9.65.
 
 Write Nepali the way you already text it. Type "namaste", press space, and it becomes नमस्ते. Lekh Patro is a Romanized Nepali Unicode typing app with an ad-free Nepali calendar (patro) built in.
 
@@ -42,6 +42,13 @@ NEPALI CALENDAR (नेपाली पात्रो)
 • Home-screen widgets in four sizes, from a small date to a full week with the next festival, in your wallpaper's colours or Lekh's own
 • No ads, ever
 
+TOOLS (उपकरण)
+• Amount in words for cheques: type 1250075.50 and get बाह्र लाख पचास हजार पचहत्तर रुपैयाँ पचास पैसा मात्र, in Nepali and in English
+• Preeti to Unicode: paste old Preeti-font text and get proper Nepali Unicode, or turn Unicode back into Preeti
+• Currency converter with the day's Nepal Rastra Bank exchange rates
+• Nepali digits and lakh/crore grouping: 12,50,075 ↔ १२,५०,०७५
+• A traveller's phrasebook with pronunciation and emergency numbers, offline
+
 TRANSLATE (अनुवाद)
 • English ↔ Nepali translation
 • Translate photos, screenshots, PDFs and documents
@@ -52,7 +59,8 @@ Typing, text recognition and the calendar all run on your phone. There are no ac
 
 ## Data safety
 
-Exactly four things leave the device. Audited 2026-08-14; re-check before
+Exactly five things leave the device. Audited 2026-08-14; the NRB exchange
+rates (1.9.59) added 2026-10-15 to match /privacy.html §5. Re-check before
 changing these answers.
 
 | What | Where | Carries user content? |
@@ -61,6 +69,7 @@ changing these answers.
 | Webfonts | fonts.googleapis.com, fonts.gstatic.com | No |
 | Calendar refresh | raw.githubusercontent.com | No |
 | Offline model download (opt-in) | huggingface.co | No |
+| Exchange rates (Tools → Currency, when opened) | www.nrb.org.np | No |
 
 Everything else — typing, transliteration, OCR, PDF parsing, the Bikram Sambat
 grid — is local. No accounts, no analytics, no advertising, no cookies. The
