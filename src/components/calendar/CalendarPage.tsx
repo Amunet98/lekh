@@ -229,54 +229,57 @@ export function CalendarPage() {
     <section className="cal">
       <h1 className="sr-only">Nepali calendar</h1>
 
-      <div className="cal__nav">
-        <button type="button" className="cal__arrow" aria-label="Previous month" onClick={() => goto(-1)}>
-          <ChevronIcon dir="left" />
-        </button>
+      {/* The month bar. Title on the left — the month in Nepali, its English
+          and Gregorian span under it — and the controls together on the
+          right: the way back to today (only when paged away from it) and one
+          joined previous/next control.
 
+          It used to centre the month between two 44px circles at the far
+          edges, with the English set inline after the Nepali on its baseline
+          and *today's* date stacked under the month, where it read as part of
+          the month's name. The today line is gone rather than moved: on this
+          month the grid marks today, and away from it the आज button in this
+          sticky bar is the way back, which is what the line was for. */}
+      <div className="cal__nav">
         <div className="cal__title">
-          <div className="cal__title-row">
-            <h2 className="cal__month dev">
-              {NP_MONTHS[view.month]} {toDevanagari(view.year)}
-            </h2>
-            <p className="cal__sub">
-              {NP_MONTHS_EN[view.month]} · {adSpanLabel(view.year, view.month)}
-            </p>
-          </div>
-          {/* Today, in the one place that stays on screen. The bar names the
-              month being looked at, which stops being this month the moment
-              you page; this line does not move with it. Short weekday names,
-              the same ones as the grid header. */}
-          <p className="cal__today dev">
-            {NP_WEEKDAYS_SHORT[todayWeekday]}, {NP_MONTHS[today.month]} {toDevanagari(today.day)}
+          <h2 className="cal__month dev">
+            {NP_MONTHS[view.month]} {toDevanagari(view.year)}
+          </h2>
+          <p className="cal__sub">
+            {NP_MONTHS_EN[view.month]}
+            <span className="cal__sub-year"> {view.year}</span> · {adSpanLabel(view.year, view.month)}
           </p>
         </div>
 
-        {/* The bar is a three-column grid with equal outer tracks (see the
-            CSS), so the month stays optically centred whatever hangs off the
-            ends. The date converter used to hang here too; it lives in Tools
-            now. */}
         <div className="cal__nav-end">
-          <button type="button" className="cal__arrow" aria-label="Next month" onClick={() => goto(1)}>
-            <ChevronIcon dir="right" />
-          </button>
+          {(view.year !== today.year || view.month !== today.month) && (
+            <button
+              type="button"
+              className="cal__today-btn"
+              aria-label={`Back to today, ${NP_MONTHS_EN[today.month]} ${today.day}`}
+              onClick={() => {
+                setView({ year: today.year, month: today.month })
+                setSelected(today)
+              }}
+            >
+              <span className="dev" lang="ne">
+                आज
+              </span>
+              <span className="cal__today-day dev" lang="ne">
+                {NP_WEEKDAYS_SHORT[todayWeekday]} {toDevanagari(today.day)}
+              </span>
+            </button>
+          )}
+          <div className="cal__step" role="group" aria-label="Change month">
+            <button type="button" className="cal__arrow" aria-label="Previous month" onClick={() => goto(-1)}>
+              <ChevronIcon dir="left" />
+            </button>
+            <button type="button" className="cal__arrow" aria-label="Next month" onClick={() => goto(1)}>
+              <ChevronIcon dir="right" />
+            </button>
+          </div>
         </div>
       </div>
-
-      {/* Only offered when it would do something — on the current month it is
-          a button that visibly does nothing, which reads as broken. */}
-      {(view.year !== today.year || view.month !== today.month) && (
-        <button
-          type="button"
-          className="cal__today-btn"
-          onClick={() => {
-            setView({ year: today.year, month: today.month })
-            setSelected(today)
-          }}
-        >
-          <span className="dev">आज</span> · today
-        </button>
-      )}
 
       <div className="cal__grid" role="grid" aria-label={`${NP_MONTHS_EN[view.month]} ${view.year}`}>
         <div className="cal__weekdays" role="row">

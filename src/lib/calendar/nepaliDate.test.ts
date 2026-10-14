@@ -188,12 +188,12 @@ describe('adSpanLabel', () => {
     // Every BS month starts mid-Gregorian-month, so essentially all of them
     // span two. The format is "Mon/Mon YYYY", or with both years when the BS
     // month crosses New Year.
-    expect(adSpanLabel(2082, 4)).toMatch(/^[A-Z][a-z]{2}\/[A-Z][a-z]{2} \d{4}$/)
+    expect(adSpanLabel(2082, 4)).toMatch(/^[A-Z][a-z]{2}–[A-Z][a-z]{2} \d{4}$/)
   })
 
   it('shows both years when the month crosses 1 January', () => {
     // Poush (month 8) reliably straddles the Gregorian year boundary.
-    expect(adSpanLabel(2082, 8)).toMatch(/\d{4}\/\d{4}$/)
+    expect(adSpanLabel(2082, 8)).toMatch(/\d{4}–\d{4}$/)
   })
 
   it('never throws anywhere in range', () => {

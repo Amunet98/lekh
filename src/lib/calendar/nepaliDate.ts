@@ -145,7 +145,8 @@ export function stepMonth(year: number, month: number, delta: number): { year: n
   return { year: y, month: m }
 }
 
-/** "Sep/Oct 2026" — the Gregorian span a BS month straddles. */
+/** "Sep–Oct 2026" — the Gregorian span a BS month straddles. An en dash,
+ *  the range mark, rather than the slash it used to be. */
 export function adSpanLabel(year: number, month: number): string {
   const first = bsToAd(year, month, 1)
   const last = bsToAd(year, month, daysInBsMonth(year, month))
@@ -154,8 +155,8 @@ export function adSpanLabel(year: number, month: number): string {
   const b = fmt(last)
   const years = first.getFullYear() === last.getFullYear()
     ? `${first.getFullYear()}`
-    : `${first.getFullYear()}/${last.getFullYear()}`
-  return a === b ? `${a} ${years}` : `${a}/${b} ${years}`
+    : `${first.getFullYear()}–${last.getFullYear()}`
+  return a === b ? `${a} ${years}` : `${a}–${b} ${years}`
 }
 
 export function isSameBsDate(a: BsDate, b: BsDate): boolean {

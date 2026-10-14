@@ -139,6 +139,13 @@ export function useTranslateState() {
   const [modelDownloaded, setModelDownloaded] = useState(() => hasDownloadedModel())
   const debounceRef = useRef<number | undefined>(undefined)
   const requestIdRef = useRef(0)
+  /* On-device's counterpart to requestIdRef. A model run cannot be aborted
+     mid-inference, so a run that is no longer wanted — the box was cleared,
+     or a newer run started — is left to finish and its result dropped. Without
+     this, pressing Clear during a slow on-device translation emptied the
+     answer and then the answer came back a few seconds later, under an empty
+     box. */
+  const deviceRunRef = useRef(0)
   // Guards against a second download being kicked off by an impatient second
   // tap. A ref, not `status`, so the check cannot read a stale closure.
   const downloadingRef = useRef(false)
@@ -255,6 +262,7 @@ export function useTranslateState() {
     // here truncates on its own — a chunks.length of 1 is the same single
     // inference call as before.
     const chunks = chunkText(effectiveSource)
+    const runId = ++deviceRunRef.current
     setStatus('loading')
     setError(null)
     setTranslated('')
@@ -267,6 +275,7 @@ export function useTranslateState() {
           // the load UI so the pane shows plain "Translating…" from there.
           onModelProgress: (p) => setModelLoad(p.phase === 'done' ? null : p),
         })
+        if (runId !== deviceRunRef.current) return
         results.push(piece)
         setTranslated(results.join('\n\n'))
         if (chunks.length > 1) setChunkProgress({ current: results.length, total: chunks.length })
@@ -274,6 +283,7 @@ export function useTranslateState() {
       setStatus('idle')
       setModelDownloaded(hasDownloadedModel())
     } catch {
+      if (runId !== deviceRunRef.current) return
       setStatus('error')
       warn()
       setError(
@@ -332,6 +342,10 @@ export function useTranslateState() {
   // result. Online mode doesn't need this: its debounced effect below
   // overwrites `translated` within ~500ms of any sourceText change anyway.
   const clearTranslation = useCallback(() => {
+    // Drop whatever is still in flight, in either mode, so it cannot land
+    // after the clear.
+    deviceRunRef.current++
+    requestIdRef.current++
     setTranslated('')
     setError(null)
     setStatus('idle')
@@ -348,6 +362,19 @@ export function useTranslateState() {
     setSourceText('')
     clearTranslation()
   }, [sourceText, clearTranslation, undoable])
+
+  /* Every edit to the source goes through here. Emptying the box by hand —
+     backspace, select-all and delete, cut — is a clear too, and has to take
+     the answer with it. Online mode already did this through its debounced
+     re-run; on-device runs only on the button, so it kept showing the
+     translation of text that was no longer there. */
+  const updateSourceText = useCallback(
+    (text: string) => {
+      setSourceText(text)
+      if (!text.trim()) clearTranslation()
+    },
+    [clearTranslation],
+  )
 
   const undoClearSource = useCallback(() => {
     const restored = undoable.undo()
@@ -414,7 +441,7 @@ export function useTranslateState() {
     sourceLang,
     targetLang,
     sourceText,
-    setSourceText,
+    setSourceText: updateSourceText,
     translated,
     interpretedAs,
     mode,

@@ -34,113 +34,152 @@
   position: sticky;
   top: var(--bar-h);
   z-index: 1;
-  /* Grid, not space-between, and the outer tracks are deliberately equal, so
-     the month stays optically centred whatever ends up hanging off either
-     end — there used to be two controls on the right (next month, and the
-     date converter, which has since moved to Tools). */
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  /* Title left, controls right: the way a calendar app's month bar reads,
+     and it keeps the month's two lines together instead of strung across
+     the bar on one baseline. */
+  display: flex;
   align-items: center;
-  gap: var(--sp-2);
+  justify-content: space-between;
+  gap: var(--sp-3);
   padding: var(--sp-2) 0;
   background: var(--bg);
   border-bottom: 1px solid var(--border);
 }
-.cal__nav > .cal__arrow {
-  justify-self: start;
-}
-.cal__nav-end {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-  justify-self: end;
-}
 .cal__title {
   display: flex;
   flex-direction: column;
-  align-items: center;
   min-width: 0;
-}
-.cal__title-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 0.4rem;
-  min-width: 0;
-}
-/* Today's day and date under the month. Muted and small: it is a reference
-   line, and the month above it is still the answer to "where am I". */
-.cal__today {
-  font-family: var(--display-dev);
-  font-size: 0.8rem;
-  font-weight: 600;
-  line-height: 1.3;
-  color: var(--muted);
-  white-space: nowrap;
 }
 .cal__month {
+  margin: 0;
   font-family: var(--display-dev);
-  /* The largest thing in the bar, which it was not: at 1.15rem it sat between
-     three 44px circles that each had more visual weight than the answer to the
-     question the bar exists to answer. */
-  font-size: clamp(1.3rem, 1.1rem + 1.4vw, 1.55rem);
+  font-size: clamp(1.35rem, 1.15rem + 1.2vw, 1.6rem);
   font-weight: 700;
-  line-height: 1.3;
+  line-height: 1.2;
   color: var(--text-h);
   white-space: nowrap;
 }
-/* The half that goes when there isn't room. भदौ २०८३ alone still answers the
-   question the bar is there to answer; "Bhadra · Aug/Sep 2026" is the gloss. */
+/* The gloss under the month: its English name and the Gregorian months it
+   spans. Tabular figures so paging does not make the line shimmy. */
 .cal__sub {
-  font-size: 0.72rem;
-  color: var(--muted);
+  margin: 0;
   font-family: var(--sans);
+  font-size: 0.75rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.35;
+  color: var(--muted);
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* The BS year in Latin digits, for a reader who cannot read २०८३ — the
+   first thing to go on the narrowest phones, where the line would otherwise
+   lose the Gregorian months off its end. */
+@media (max-width: 360px) {
+  .cal__sub-year {
+    display: none;
+  }
+  /* And the controls give back a few pixels each: 40px-wide halves (still
+     44px tall) and a tighter today button. */
+  .cal__nav {
+    gap: var(--sp-2);
+  }
+  .cal__nav .cal__arrow {
+    width: 2.5rem;
+  }
+  .cal__nav .cal__today-btn {
+    padding-inline: 0.6rem;
+  }
+}
+.cal__nav-end {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+/* Previous and next as one control, two halves of a pill with a hairline
+   between them — a pair that belongs together, rather than two circles at
+   opposite edges of the screen. Each half is still a full 44px target. */
+.cal__step {
+  display: inline-flex;
+  border: 1px solid var(--border-field);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  overflow: hidden;
+}
 .cal__arrow {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex: 0 0 auto;
-  width: 44px;
-  height: 44px;
-  border: 1px solid var(--border-field);
-  border-radius: var(--radius-pill);
-  background: var(--surface);
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
   color: var(--text);
   cursor: pointer;
-  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease),
-    border-color var(--dur) var(--ease), transform var(--dur-fast) var(--ease-expo);
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.cal__arrow + .cal__arrow {
+  border-inline-start: 1px solid var(--border);
 }
 @media (hover: hover) {
   .cal__arrow:hover {
     color: var(--accent-text);
-    border-color: var(--accent);
     background: var(--accent-bg);
   }
 }
 .cal__arrow:active {
-  transform: scale(0.92);
+  background: var(--accent-bg);
+  color: var(--accent-text);
+}
+.cal__arrow:active svg {
+  transform: scale(0.88);
+}
+.cal__arrow svg {
+  transition: transform var(--dur-fast) var(--ease-expo);
+}
+.cal__arrow:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
 }
 
+/* Back to today: आज over today's weekday and date, so the button says where
+   it goes. Accent-tinted — it is the one way out of a month you paged to. */
 .cal__today-btn {
-  align-self: center;
-  min-height: 2.25rem;
-  padding: 0 var(--sp-4);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0 var(--sp-3);
   border: 1px solid var(--accent-border);
   background: var(--accent-bg);
   color: var(--accent-text);
-  font-family: var(--sans);
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-family: var(--display-dev);
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.15;
   border-radius: var(--radius-pill);
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform var(--dur-fast) var(--ease-expo);
 }
-.cal__today-btn .dev {
-  font-family: var(--display-dev);
+.cal__today-btn:active {
+  transform: scale(0.95);
+}
+.cal__today-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.cal__today-day {
+  font-size: 0.68rem;
+  font-weight: 600;
+  opacity: 0.85;
 }
 
 /* The grid, with no grid in it.
@@ -680,10 +719,6 @@
 @media (max-width: 420px) {
   .cal__cell {
     padding: 0.1rem;
-  }
-  /* The gloss is the first thing to go — see .cal__sub. */
-  .cal__sub {
-    display: none;
   }
   .cal__ad {
     font-size: 0.62rem;
