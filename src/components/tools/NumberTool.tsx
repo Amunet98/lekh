@@ -2,10 +2,10 @@ import { useId, useRef, useState } from 'react'
 import { pronounce } from '../../lib/engine/pronounce'
 import {
   englishAmount,
-  englishWords,
+  englishSpoken,
   groupNepali,
   nepaliAmount,
-  nepaliWords,
+  nepaliSpoken,
   parseAmount,
   toDevanagariDigits,
 } from '../../lib/nepaliNumber'
@@ -36,11 +36,11 @@ export function NumberTool() {
   if (amount) {
     const paisa = amount.paisa !== null ? `.${String(amount.paisa).padStart(2, '0')}` : ''
     const grouped = groupNepali(amount.whole) + paisa
-    words = nepaliWords(amount.whole)
+    words = nepaliSpoken(amount)
     rows = [
       { label: 'नेपाली अङ्क', value: toDevanagariDigits(grouped), dev: true, what: 'Nepali digits' },
       { label: 'Digits', value: grouped, what: 'digits' },
-      { label: 'English', value: englishWords(amount.whole), what: 'English words' },
+      { label: 'English', value: englishSpoken(amount), what: 'English words' },
       { label: 'चेकमा', value: nepaliAmount(amount), dev: true, what: 'Nepali cheque line' },
       { label: 'Cheque', value: englishAmount(amount), what: 'English cheque line' },
     ]

@@ -115,6 +115,21 @@ export function englishWords(n: number): string {
     .join(' ')
 }
 
+/** The amount said aloud: plain words for a whole number, and with paisa
+ *  typed, "… रुपैयाँ पचास पैसा" — a decimal here is always money, the same
+ *  reading parseAmount gives it, so the headline never drops what the cheque
+ *  line below it keeps. */
+export function nepaliSpoken({ whole, paisa }: ParsedAmount): string {
+  if (!paisa) return nepaliWords(whole)
+  return `${nepaliWords(whole)} रुपैयाँ ${NE_0_99[paisa]} पैसा`
+}
+
+/** englishWords, with "rupees and fifty paisa" when paisa were typed. */
+export function englishSpoken({ whole, paisa }: ParsedAmount): string {
+  if (!paisa) return englishWords(whole)
+  return `${englishWords(whole)} rupees and ${englishUnder100(paisa)} paisa`
+}
+
 /** The cheque line: "बाह्र हजार पाँच सय रुपैयाँ पचास पैसा मात्र". */
 export function nepaliAmount({ whole, paisa }: ParsedAmount): string {
   const parts = [`${nepaliWords(whole)} रुपैयाँ`]

@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import {
   englishAmount,
+  englishSpoken,
   englishWords,
   groupNepali,
   nepaliAmount,
+  nepaliSpoken,
   nepaliWords,
   parseAmount,
   toDevanagariDigits,
@@ -56,5 +58,14 @@ describe('words', () => {
     expect(nepaliAmount({ whole: 350, paisa: 50 })).toBe('तीन सय पचास रुपैयाँ पचास पैसा मात्र')
     expect(englishAmount({ whole: 12500, paisa: null })).toBe('Rupees twelve thousand five hundred only')
     expect(englishAmount({ whole: 1, paisa: 5 })).toBe('Rupees one and five paisa only')
+  })
+
+  it('keeps the paisa in the spoken words, and leaves whole numbers plain', () => {
+    expect(nepaliSpoken({ whole: 1250075, paisa: 50 })).toBe('बाह्र लाख पचास हजार पचहत्तर रुपैयाँ पचास पैसा')
+    expect(englishSpoken({ whole: 1250075, paisa: 50 })).toBe(
+      'twelve lakh fifty thousand seventy-five rupees and fifty paisa',
+    )
+    expect(nepaliSpoken({ whole: 12500, paisa: null })).toBe('बाह्र हजार पाँच सय')
+    expect(englishSpoken({ whole: 100, paisa: 0 })).toBe('one hundred')
   })
 })
