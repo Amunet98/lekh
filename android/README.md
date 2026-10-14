@@ -103,19 +103,28 @@ missing id just returns quietly, so writing to a hidden view is harmless.
 The week strip is the one exception, since its ids only exist in the expanded
 xl layout; that is why it is written last, in its own block.
 
-**The widget is Nepali only.** There was a Nepali/English toggle, backed by a
-`Roman.kt` transliteration table and chosen from `LekhWidgetConfigActivity`;
-both were removed on 2026-08-29 and `Roman.kt` is deleted. It went in stages,
-which is the useful part of the story: festival names were pinned back to
-Devanagari first (`a1fe474`) because a diacritic-free letter-by-letter mapping
-cannot know that the final vowel in तीज is silent, and lesser-known
-Newar/Tamang/Sherpa names came out unrecognisable to a Nepali reader. Once the
-festival line — the thing people actually read on the widget — no longer
-switched script, a toggle that moved only the tithi was not worth a
-configuration screen. The app's own Translate tab is where to ask for English;
-this just shows the calendar.
+**Nepali by default, English by choice (since 1.9.60).** The language is one
+app-wide setting, chosen in the web app's Settings → Home-screen widget and
+handed across `DynamicColorPlugin.setWidgetLanguage` into the same
+SharedPreferences as the colour setting (`WidgetTheme.isEnglish`). The web side
+only offers it on a build whose versionCode is at least 1009060, because older
+APKs have no English mode to switch to.
 
-**`LekhWidgetConfigActivity` still exists, with nothing to ask.** Android 11
+English uses only `assets/festivals-en.json`, which `npm run android:assets`
+writes from the web app's hand-checked `festivalsEn.ts` — the same ~70
+festivals Patro shows in English. A festival without an entry is not named;
+the line falls back to the tithi (16 names, a closed set, hand-tabled in
+`FestivalsEn.kt`), and "what's next" only counts festivals that have an English
+name. Months follow the web app's `NP_MONTHS_EN`.
+
+**Never add a transliteration fallback.** The first English mode (a `Roman.kt`
+table plus letter-by-letter mapping, removed 2026-08-29) gave all ~450 almanac
+names an English form, and a diacritic-free mapping cannot know that the final
+vowel in तीज is silent: "Naaga", "Panchamee", and Newar/Tamang/Sherpa names a
+Nepali reader could not recognise. A missing name is better than a wrong one.
+
+**`LekhWidgetConfigActivity` still exists, with nothing to ask.** (The
+language lives in the app's Settings, not here.) Android 11
 and below require a declared `configure` activity before a widget can be
 placed at all — `widgetFeatures`, which lets newer Android skip that screen,
 does not exist before API 31. So it returns `RESULT_OK` carrying the same

@@ -71,6 +71,8 @@ interface DynamicColorPlugin {
   getPalette(): Promise<{ available: boolean; palette?: Palette }>
   /** Added for the widgets in app 1.9.49; older APKs reject it as unimplemented. */
   setWidgetDynamic(options: { enabled: boolean }): Promise<void>
+  /** Added for the widgets in app 1.9.60 — see WIDGET_LANGUAGE_BUILD. */
+  setWidgetLanguage(options: { english: boolean }): Promise<void>
 }
 
 const DynamicColor = registerPlugin<DynamicColorPlugin>('DynamicColor')
@@ -431,6 +433,20 @@ export function setDynamicColorEnabled(enabled: boolean): void {
 function syncWidgets(enabled: boolean): void {
   if (!Capacitor.isNativePlatform() || !Capacitor.isPluginAvailable('DynamicColor')) return
   DynamicColor.setWidgetDynamic({ enabled }).catch(() => {})
+}
+
+/* The widgets' language (Settings → Home-screen widget) crosses the same
+   bridge. Unlike the colour setting there is nothing to fall back to on an
+   APK that predates the method — its widgets have no English mode at all —
+   so the Settings row is only offered from this build on (versionCode, see
+   nativeInfo.ts), and the call itself is fire-and-forget. Sent on change and
+   once per launch, which carries the choice across a reinstall of the app
+   while the web storage survived. */
+export const WIDGET_LANGUAGE_BUILD = 1009060
+
+export function syncWidgetLanguage(english: boolean): void {
+  if (!Capacitor.isNativePlatform() || !Capacitor.isPluginAvailable('DynamicColor')) return
+  DynamicColor.setWidgetLanguage({ english }).catch(() => {})
 }
 
 /**

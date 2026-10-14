@@ -9,8 +9,8 @@
          four near-identical rows are actually distinguishable. -->
     <string name="widget_description">Date, tithi and today\'s festival</string>
     <string name="widget_description_small">Just the Bikram Sambat date</string>
-    <string name="widget_description_wide">A full-width strip: date and festival</string>
-    <string name="widget_description_xl">Wide strip: date, tithi and what\'s next</string>
+    <string name="widget_description_wide">Date, tithi, festival and what\'s next</string>
+    <string name="widget_description_xl">The same, wider; drag it taller for the week</string>
 
     <!-- Long-press app shortcuts (res/xml/shortcuts.xml). The web manifest's
          own `shortcuts` (vite.config.ts) only reach the launcher for an

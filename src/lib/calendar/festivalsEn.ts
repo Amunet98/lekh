@@ -371,3 +371,11 @@ export function festivalInfos(names: string[]): FestivalInfo[] {
 }
 
 export const FESTIVAL_ENTRY_COUNT = ENTRIES.length
+
+/** Every almanac spelling with its English name, keyed as festivalInfo()
+ *  looks it up. Exported for the Android widget's English mode
+ *  (scripts/export-android-assets.mjs writes it to festivals-en.json), so the
+ *  widget reads exactly this list and never a second copy of it. */
+export function festivalNameTable(): Record<string, string> {
+  return Object.fromEntries([...BY_NAME].map(([name, info]) => [name, info.en]))
+}

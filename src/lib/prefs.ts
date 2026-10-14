@@ -55,6 +55,10 @@ export interface Prefs {
   currency: string
   /** Which way the currency tool converts. */
   currencyToNpr: boolean
+  /** Draw the Android home-screen widgets in English rather than Nepali. The
+   *  widgets keep their own copy (they cannot read localStorage); see
+   *  syncWidgetLanguage in dynamicColor.ts. */
+  widgetEnglish: boolean
 }
 
 const DEFAULTS: Prefs = {
@@ -69,6 +73,7 @@ const DEFAULTS: Prefs = {
   tool: 'date',
   currency: 'USD',
   currencyToNpr: true,
+  widgetEnglish: false,
 }
 
 const KEY_PREFIX = 'lekh:pref:'
@@ -86,6 +91,7 @@ const VALIDATORS: { [K in keyof Prefs]: (raw: unknown) => Prefs[K] | undefined }
   tool: (raw) => (TOOL_IDS.includes(raw as ToolId) ? (raw as ToolId) : undefined),
   currency: (raw) => (typeof raw === 'string' && /^[A-Z]{3}$/.test(raw) ? raw : undefined),
   currencyToNpr: (raw) => (typeof raw === 'boolean' ? raw : undefined),
+  widgetEnglish: (raw) => (typeof raw === 'boolean' ? raw : undefined),
 }
 
 export function getPref<K extends keyof Prefs>(key: K): Prefs[K] {

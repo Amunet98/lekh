@@ -1,30 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 2x1. A short, wide strip: the date beside the month rather than above it,
-     because stacking five rows into one cell of height leaves nothing legible.
-     Weekday, tithi and the festival line are all gone — a festival name has
-     nowhere to go here, and a truncated one is worse than none. -->
+<!-- 2x1. The calendar leaf (weekday strip over the date) beside the month
+     and the AD date. Tithi and the festival line are gone at this size — a
+     festival name has nowhere to go here, and a truncated one is worse than
+     none.
+
+     The leaf is the widget's signature on every size: a crimson strip over a
+     page, the शिरोरेखा of the hanging-page logo. Its strip is
+     widget_leaf_head, its page widget_leaf; WidgetTheme swaps both drawables
+     for their _static twins when "Wallpaper colours" is off. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    android:gravity="center"
-    android:padding="10dp"
+    android:gravity="center_vertical"
+    android:paddingHorizontal="12dp"
+    android:paddingVertical="8dp"
     android:background="@drawable/widget_background">
 
-    <TextView
-        android:id="@+id/widget_day"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/widget_leaf"
+        android:layout_width="44dp"
         android:layout_height="wrap_content"
-        android:textSize="30sp"
-        android:textStyle="bold"
-        android:includeFontPadding="false"
+        android:orientation="vertical"
         android:layout_marginEnd="10dp"
-        android:textColor="@color/widget_day"
-        android:text="२९" />
+        android:background="@drawable/widget_leaf">
+
+        <TextView
+            android:id="@+id/widget_leaf_head"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingVertical="1dp"
+            android:textSize="9sp"
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:textColor="@color/widget_on_head"
+            android:background="@drawable/widget_leaf_head"
+            android:text="बुध" />
+
+        <TextView
+            android:id="@+id/widget_day"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="2dp"
+            android:paddingBottom="4dp"
+            android:textSize="21sp"
+            android:textStyle="bold"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:textColor="@color/widget_day"
+            android:text="२८" />
+    </LinearLayout>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
@@ -32,11 +64,12 @@
             android:id="@+id/widget_month"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
+            android:textSize="13sp"
+            android:textStyle="bold"
             android:maxLines="1"
             android:ellipsize="end"
             android:textColor="@color/widget_text"
-            android:text="श्रावण २०८३" />
+            android:text="असोज २०८३" />
 
         <TextView
             android:id="@+id/widget_ad"
@@ -45,7 +78,7 @@
             android:textSize="10sp"
             android:maxLines="1"
             android:textColor="@color/widget_muted"
-            android:text="14 Aug 2026" />
+            android:text="14 Oct 2026" />
     </LinearLayout>
 
     <!-- Present so one renderer can populate every layout; no room at 2x1. -->
@@ -58,7 +91,6 @@
     <TextView android:id="@+id/widget_note"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:visibility="gone" android:text="" />
-    <!-- Present so one renderer can populate every layout; no room at 2x1. -->
     <TextView android:id="@+id/widget_next"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:visibility="gone" android:text="" />

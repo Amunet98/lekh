@@ -4,7 +4,7 @@ import { useTheme } from '../hooks/useTheme'
 import { applyAmoled, resolveTheme } from '../lib/theme'
 import { usePref } from '../hooks/usePref'
 import { useDynamicColor } from '../hooks/useDynamicColor'
-import { setDynamicColorEnabled } from '../lib/dynamicColor'
+import { setDynamicColorEnabled, syncWidgetLanguage, WIDGET_LANGUAGE_BUILD } from '../lib/dynamicColor'
 import { tick } from '../lib/haptics'
 import { clearHeavyCaches, estimateHeavyCaches, formatBytes } from '../lib/storage'
 import { useToast } from '../hooks/useToast'
@@ -83,6 +83,14 @@ const THEMES: { id: Theme; label: string }[] = [
    breakpoint exactly 1rem — the floor under which iOS zooms the page when a
    field takes focus, which on a typing app means every session starts by
    jerking the layout sideways. A "smaller" option would have to break it. */
+/* Each language in its own script — the one place a word and its
+   translation sit side by side on purpose, because it is the choice of
+   script itself. */
+const WIDGET_LANGUAGES: { id: 'ne' | 'en'; label: string }[] = [
+  { id: 'ne', label: 'नेपाली' },
+  { id: 'en', label: 'English' },
+]
+
 const SIZES: { id: EditorSize; label: string }[] = [
   { id: 'md', label: 'Default' },
   { id: 'lg', label: 'Large' },
@@ -168,6 +176,10 @@ export function SettingsScreen({ open, onDismiss, onOpenAbout, onGoTo, t }: Sett
   const [amoled] = usePref('amoled')
   const dynamicColor = useDynamicColor()
   const native = useNativeInfo()
+  const [widgetEnglish, setWidgetEnglish] = usePref('widgetEnglish')
+  /* Only on an app build whose widgets have an English mode — see
+     WIDGET_LANGUAGE_BUILD. On the web there are no widgets at all. */
+  const hasWidgetLanguage = native !== null && Number(native.build) >= WIDGET_LANGUAGE_BUILD
 
   /* Recomputed on render rather than stored: 'auto' resolves against the OS,
      and watchSystemTheme re-applies the theme when that changes, which lands
@@ -292,6 +304,34 @@ export function SettingsScreen({ open, onDismiss, onOpenAbout, onGoTo, t }: Sett
               )}
             </div>
           </section>
+
+          {hasWidgetLanguage && (
+            <section className="settings__group">
+              <h3 className="settings__group-title">Home-screen widget</h3>
+              <div className="row-group">
+                <div className="sheet-row sheet-row--stack">
+                  <span className="sheet-row__text">
+                    <b>Language</b>
+                    <span className="sheet-row__rest">
+                      {widgetEnglish
+                        ? 'English — festivals with a checked English name, tithi otherwise'
+                        : 'Nepali, in Devanagari'}
+                    </span>
+                  </span>
+                  <Segmented
+                    label="Widget language"
+                    value={widgetEnglish ? 'en' : 'ne'}
+                    options={WIDGET_LANGUAGES}
+                    onChange={(next) => {
+                      const english = next === 'en'
+                      setWidgetEnglish(english)
+                      syncWidgetLanguage(english)
+                    }}
+                  />
+                </div>
+              </div>
+            </section>
+          )}
 
           <section className="settings__group">
             <h3 className="settings__group-title">Behaviour</h3>

@@ -20,4 +20,14 @@
     <color name="widget_static_accent">#F87171</color>
     <color name="widget_static_border">#2C3450</color>
     <color name="widget_static_today">#2A1A24</color>
+
+    <!-- The leaf at night: a lighter crimson so the strip still reads as red
+         on the dark card (white on #B8202F is 6.3:1), and the page one step
+         up from the card, as the app's second surface is. -->
+    <color name="widget_head">#B8202F</color>
+    <color name="widget_on_head">#FFFFFF</color>
+    <color name="widget_leaf">#1D2338</color>
+    <color name="widget_static_head">#B8202F</color>
+    <color name="widget_static_on_head">#FFFFFF</color>
+    <color name="widget_static_leaf">#1D2338</color>
 </resources>

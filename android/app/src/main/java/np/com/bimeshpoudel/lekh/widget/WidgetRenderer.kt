@@ -4,7 +4,9 @@ import android.app.PendingIntent
 import android.content.Context
 import android.widget.RemoteViews
 import np.com.bimeshpoudel.lekh.R
+import android.view.View
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 /**
  * Builds the widget's RemoteViews for a given layout.
@@ -27,16 +29,18 @@ import java.time.format.DateTimeFormatter
  * launcher home screen, which is awkward to automate and worse to iterate on —
  * and "awkward to look at" is how a widget ships with the Devanagari clipped.
  *
- * Nepali only, no English toggle. There used to be one, transliterating
- * festival/tithi names through [Roman] — dropped because that table can't
- * keep up with the festival list (some names always came out garbled) and a
- * widget is not where anyone wants to discover that. The app's own
- * translate feature is the real place to ask for English; this just shows
- * the calendar.
+ * Nepali by default, English on request (Settings → Home-screen widget,
+ * since 1.9.60). The first English mode, removed 2026-08-29, transliterated
+ * every festival name and too many came out garbled. This one uses only the
+ * hand-checked names from the web app's festivalsEn.ts (see [FestivalsEn]):
+ * a festival without one is simply not named in English, and the line falls
+ * back to the tithi, which is a closed set a table gets right.
  */
 object WidgetRenderer {
 
-    private val adFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMM yyyy")
+    /* Locale pinned: the default locale's MMM is "अक्टो" on a phone set to
+       Nepali, and this line is the one place the widget promises English. */
+    private val adFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMM yyyy", Locale.ENGLISH)
 
     internal val weekDayIds = intArrayOf(
         R.id.widget_week_d0, R.id.widget_week_d1, R.id.widget_week_d2, R.id.widget_week_d3,
@@ -59,14 +63,18 @@ object WidgetRenderer {
         NepaliCalendar.load(context)
         Panchang.load(context)
 
-        // Only the 5x1 and its expanded form have a widget_next row (see the
-        // XML: widget_next ships visibility="gone" and empty text everywhere
-        // else), and only the expanded form has the week strip. Computing
-        // Panchang.upcoming()'s 60-day walk or the week strip's 7
-        // NepaliDate/Panchang lookups for a size that cannot show either is
-        // pure waste.
-        val showsUpcoming =
-            layoutRes == R.layout.widget_patro_xl || layoutRes == R.layout.widget_patro_xl_expanded
+        // Only the one-row sizes have a widget_next row, and only the expanded
+        // 5x1 has the week strip; the 60-day upcoming() walk and the strip's
+        // seven lookups are skipped for sizes that cannot show them.
+        val english = WidgetTheme.isEnglish(context)
+        if (english) FestivalsEn.load(context)
+        fun num(n: Int) = if (english) n.toString() else NepaliCalendar.toDevanagari(n)
+
+        val square = layoutRes == R.layout.widget_patro
+        // The one-row sizes: leaf, month over "AD · tithi", festival over next.
+        val row = layoutRes == R.layout.widget_patro_wide ||
+            layoutRes == R.layout.widget_patro_xl ||
+            layoutRes == R.layout.widget_patro_xl_expanded
         val showsWeek = layoutRes == R.layout.widget_patro_xl_expanded
 
         val today = NepaliCalendar.today()
@@ -74,43 +82,65 @@ object WidgetRenderer {
         val weekday = NepaliCalendar.weekdayOf(today)
         val views = RemoteViews(context.packageName, layoutRes)
 
-        views.setTextViewText(R.id.widget_day, NepaliCalendar.toDevanagari(today.day))
-        views.setTextViewText(
-            R.id.widget_month,
-            "${NepaliCalendar.monthNames[today.month]} ${NepaliCalendar.toDevanagari(today.year)}",
-        )
-        views.setTextViewText(R.id.widget_weekday, NepaliCalendar.weekdayNames[weekday])
-        views.setTextViewText(
-            R.id.widget_ad,
-            NepaliCalendar.toGregorian(today).format(adFormat),
-        )
-        views.setTextViewText(R.id.widget_tithi, info?.tithi ?: "")
+        val months = if (english) FestivalsEn.monthNames else NepaliCalendar.monthNames
+        val weekdayFull = if (english) FestivalsEn.weekdayNames[weekday] else NepaliCalendar.weekdayNames[weekday]
+        val weekdayShort = if (english) FestivalsEn.weekdayShort[weekday] else NepaliCalendar.weekdayShort[weekday]
+        val tithi = info?.tithi?.let { if (english) FestivalsEn.tithi(it) else it } ?: ""
+        val festivals = info?.festivals?.let { if (english) FestivalsEn.forDay(it) else it } ?: emptyList()
+        val ad = NepaliCalendar.toGregorian(today).format(adFormat)
+
+        views.setTextViewText(R.id.widget_day, num(today.day))
+        views.setTextViewText(R.id.widget_month, "${months[today.month]} ${num(today.year)}")
+        // The leaf's strip: the whole weekday across the 2x2's band, the
+        // short form on the small leaf of every other size.
+        views.setTextViewText(R.id.widget_leaf_head, if (square) weekdayFull else weekdayShort)
+        views.setTextViewText(R.id.widget_weekday, weekdayFull)
+        views.setTextViewText(R.id.widget_tithi, tithi)
+        // On the one-row sizes the tithi rides on the AD line (see the layout).
+        views.setTextViewText(R.id.widget_ad, if (row && tithi.isNotEmpty()) "$ad · $tithi" else ad)
 
         /* The festival line. A festival is what someone actually wants from a
-           calendar widget, so it wins; tithi is the fallback on the sizes with
-           no separate tithi row; and past the tabulated range the widget says
-           so rather than looking like a day with nothing on it. */
-        val subtitle = when {
-            info == null && !Panchang.covers(today.year) -> "पात्रो अद्यावधिक गर्नुहोस्"
-            info != null && info.festivals.isNotEmpty() -> info.festivals.joinToString(" · ")
-            info != null && info.tithi.isNotEmpty() -> info.tithi
+           calendar widget, so it wins. On the 2x2 the tithi is the fallback;
+           on the one-row sizes the tithi is already on the left, so a day
+           with no festival hides the line instead of repeating it. Past the
+           tabulated range the widget says so rather than looking like a day
+           with nothing on it. */
+        val outOfRange = info == null && !Panchang.covers(today.year)
+        val note = when {
+            outOfRange -> if (english) "Update Lekh for this year’s calendar" else "पात्रो अद्यावधिक गर्नुहोस्"
+            // One line on the row sizes, so the English names lose their gloss
+            // there ("Vijaya Dashami — Dashain Tika" → "Vijaya Dashami"); the
+            // 2x2 has two lines and keeps it.
+            festivals.isNotEmpty() && english && row -> festivals.joinToString(" · ") { FestivalsEn.short(it) }
+            festivals.isNotEmpty() -> festivals.joinToString(" · ")
+            square -> tithi
             else -> ""
         }
-        views.setTextViewText(R.id.widget_note, subtitle)
+        views.setTextViewText(R.id.widget_note, note)
+        if (row) views.setViewVisibility(R.id.widget_note, if (note.isEmpty()) View.GONE else View.VISIBLE)
 
-        /* What is coming. Only the 5x1 and its expanded form have a row for
-           this; on every other size the view is gone and the text goes
-           nowhere. */
-        if (showsUpcoming) {
-            val upcoming = Panchang.upcoming(today)
+        /* What is coming. Only the one-row sizes have a row for this. In
+           English only festivals with an English name count, so "Next" never
+           names one it would have to show in Nepali. */
+        if (row) {
+            val upcoming = if (english) {
+                Panchang.upcoming(today) { FestivalsEn.forDay(it.festivals).isNotEmpty() }
+            } else {
+                Panchang.upcoming(today)
+            }
             views.setTextViewText(
                 R.id.widget_next,
                 if (upcoming == null) "" else {
                     val (days, next) = upcoming
-                    val name = next.festivals.first()
-                    val away =
-                        if (days == 1) "भोलि" else "${NepaliCalendar.toDevanagari(days)} दिनमा"
-                    "आगामी · $name · $away"
+                    if (english) {
+                        val name = FestivalsEn.short(FestivalsEn.forDay(next.festivals).first())
+                        // "Fulpati in 3 days": the name first, and no "Next"
+                        // label, which cost the name its last word on a 4x1.
+                        "$name ${if (days == 1) "tomorrow" else "in $days days"}"
+                    } else {
+                        val away = if (days == 1) "भोलि" else "${num(days)} दिनमा"
+                        "आगामी · ${next.festivals.first()} · $away"
+                    }
                 },
             )
         }
@@ -134,7 +164,7 @@ object WidgetRenderer {
         val isOff = NepaliCalendar.isWeeklyOff(today) || (info?.isHoliday == true)
         views.setBoolean(R.id.widget_day, "setEnabled", !isOff)
 
-        if (showsWeek) renderWeek(views, today, WidgetTheme.pill(context))
+        if (showsWeek) renderWeek(views, today, WidgetTheme.pill(context), english)
 
         if (onClick != null) views.setOnClickPendingIntent(R.id.widget_root, onClick)
         // The app's "Wallpaper colours" setting, carried over — see WidgetTheme.
@@ -154,7 +184,7 @@ object WidgetRenderer {
      * doing that leaves yesterday's marker behind when the widget redraws
      * across midnight without being reinflated.
      */
-    private fun renderWeek(views: RemoteViews, today: BsDate, pill: Int) {
+    private fun renderWeek(views: RemoteViews, today: BsDate, pill: Int, english: Boolean) {
         val week = NepaliCalendar.weekOf(today)
 
         for (i in 0..6) {
@@ -165,12 +195,18 @@ object WidgetRenderer {
             // res/color/widget_week_*.xml is resolved by the launcher, a colour
             // resolved here would be resolved against the wrong configuration.
             val off = NepaliCalendar.isWeeklyOff(day) || (Panchang.forDay(day)?.isHoliday == true)
-            views.setTextViewText(weekDayIds[i], NepaliCalendar.toDevanagari(day.day))
+            views.setTextViewText(
+                weekDayIds[i],
+                if (english) day.day.toString() else NepaliCalendar.toDevanagari(day.day),
+            )
             views.setBoolean(weekDayIds[i], "setEnabled", !off)
             views.setBoolean(weekLabelIds[i], "setEnabled", !off)
-            // The weekday letters are already Devanagari in the layout XML;
-            // rewritten here anyway to stay in sync if that ever changes.
-            views.setTextViewText(weekLabelIds[i], NepaliCalendar.weekdayShort[i])
+            // The layout XML holds the Devanagari labels as placeholders; the
+            // language decides what is actually drawn.
+            views.setTextViewText(
+                weekLabelIds[i],
+                if (english) FestivalsEn.weekdayShort[i] else NepaliCalendar.weekdayShort[i],
+            )
             views.setInt(
                 weekCellIds[i],
                 "setBackgroundResource",

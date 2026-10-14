@@ -1,70 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 5x1. The 4x1 strip plus the one thing an extra cell of width buys: what
-     is coming next. Today's festival stays on the accent line; the upcoming
-     one sits under it in muted text with how far off it is, which is what a
-     patro on a home screen is actually consulted for on the other 340 days of
-     the year.
+<!-- 5x1. The 4x1's row (see widget_patro_wide.xml) with a fifth cell of room
+     for the festival and what comes next. A four-column launcher clamps this
+     to four cells rather than hiding it; the weighted right-hand column is
+     what lets it degrade to the 4x1's proportions instead of clipping.
 
-     Three rows in the right-hand column and two everywhere else. That column
-     is the widest, so its rows can be the tightest without wrapping.
-
-     A four-column launcher still offers this size and clamps it to four
-     cells; the right-hand column is weighted so it gives up width first and
-     the two extra rows survive. 4x1 stays anyway — on that grid it is the
-     shape that actually fits, and this one is the denser alternative. -->
+     Dragged taller it becomes widget_patro_xl_expanded: this exact row plus a
+     week strip (see BaseLekhWidgetProvider's EXPANDING ON RESIZE). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:padding="10dp"
+    android:paddingHorizontal="12dp"
+    android:paddingVertical="8dp"
     android:background="@drawable/widget_background">
 
-    <TextView
-        android:id="@+id/widget_day"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="30sp"
-        android:textStyle="bold"
-        android:includeFontPadding="false"
-        android:layout_marginEnd="10dp"
-        android:textColor="@color/widget_day"
-        android:text="२९" />
-
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:id="@+id/widget_leaf"
+        android:layout_width="44dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginEnd="10dp">
+        android:layout_marginEnd="12dp"
+        android:background="@drawable/widget_leaf">
 
         <TextView
-            android:id="@+id/widget_month"
-            android:layout_width="wrap_content"
+            android:id="@+id/widget_leaf_head"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
+            android:gravity="center"
+            android:paddingVertical="1dp"
+            android:textSize="9sp"
+            android:textStyle="bold"
             android:maxLines="1"
-            android:textColor="@color/widget_text"
-            android:text="श्रावण २०८३" />
+            android:textColor="@color/widget_on_head"
+            android:background="@drawable/widget_leaf_head"
+            android:text="बुध" />
 
         <TextView
-            android:id="@+id/widget_weekday"
-            android:layout_width="wrap_content"
+            android:id="@+id/widget_day"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="10sp"
+            android:gravity="center"
+            android:paddingTop="2dp"
+            android:paddingBottom="4dp"
+            android:textSize="21sp"
+            android:textStyle="bold"
+            android:includeFontPadding="false"
             android:maxLines="1"
-            android:textColor="@color/widget_muted"
-            android:text="शुक्रबार" />
+            android:textColor="@color/widget_day"
+            android:text="२८" />
     </LinearLayout>
-
-    <ImageView
-        android:id="@+id/widget_divider1"
-        android:layout_width="1dp"
-        android:layout_height="match_parent"
-        android:layout_marginVertical="4dp"
-        android:layout_marginEnd="10dp"
-        android:contentDescription="@null"
-        android:background="@color/widget_border" />
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -73,23 +59,36 @@
         android:layout_marginEnd="12dp">
 
         <TextView
+            android:id="@+id/widget_month"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:textColor="@color/widget_text"
+            android:text="असोज २०८३" />
+
+        <!-- The AD date, and on this size the tithi after it: WidgetRenderer
+             writes "14 Oct 2026 · चतुर्दशी" here, which frees the right-hand
+             column for the festival and what comes next. -->
+        <TextView
             android:id="@+id/widget_ad"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="10sp"
             android:maxLines="1"
             android:textColor="@color/widget_muted"
-            android:text="14 Aug 2026" />
-
-        <TextView
-            android:id="@+id/widget_tithi"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="10sp"
-            android:maxLines="1"
-            android:textColor="@color/widget_muted"
-            android:text="प्रतिपदा" />
+            android:text="14 Oct 2026 · चतुर्दशी" />
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/widget_divider1"
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:layout_marginVertical="6dp"
+        android:layout_marginEnd="12dp"
+        android:contentDescription="@null"
+        android:background="@color/widget_border" />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -97,16 +96,19 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <!-- Today's festival; hidden (setViewVisibility) on a day with none,
+             because the tithi already shows on the left. -->
         <TextView
             android:id="@+id/widget_note"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="12sp"
+            android:textStyle="bold"
             android:maxLines="1"
             android:ellipsize="end"
             android:gravity="end"
             android:textColor="@color/widget_accent"
-            android:text="गुँलाधर्म आरम्भ" />
+            android:text="घटस्थापना" />
 
         <TextView
             android:id="@+id/widget_next"
@@ -116,8 +118,17 @@
             android:maxLines="1"
             android:ellipsize="end"
             android:gravity="end"
-            android:layout_marginTop="2dp"
+            android:layout_marginTop="1dp"
             android:textColor="@color/widget_muted"
-            android:text="आगामी · हरितालिका तीज · ५ दिनमा" />
+            android:text="आगामी · फूलपाती · ६ दिनमा" />
     </LinearLayout>
+
+    <!-- Present so one renderer can populate every layout. The weekday is in
+         the leaf's strip, and the tithi rides on the AD line. -->
+    <TextView android:id="@+id/widget_weekday"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:visibility="gone" android:text="" />
+    <TextView android:id="@+id/widget_tithi"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:visibility="gone" android:text="" />
 </LinearLayout>

@@ -97,13 +97,21 @@ object Panchang {
      * Walking Gregorian days and converting each one back is deliberate — it
      * cannot run off the end of a BS month, and `fromGregorian` is a few
      * integer sums, so sixty of them at draw time is nothing.
+     *
+     * [accept] narrows what counts: the English widget passes "has a festival
+     * with an English name", so "Next" never names a festival it would then
+     * have to show in Nepali.
      */
-    fun upcoming(after: BsDate, withinDays: Int = 60): Pair<Int, DayPanchang>? {
+    fun upcoming(
+        after: BsDate,
+        withinDays: Int = 60,
+        accept: (DayPanchang) -> Boolean = { it.festivals.isNotEmpty() },
+    ): Pair<Int, DayPanchang>? {
         val start = NepaliCalendar.toGregorian(after)
         for (offset in 1..withinDays) {
             val bs = NepaliCalendar.fromGregorian(start.plusDays(offset.toLong()))
             val info = forDay(bs) ?: continue
-            if (info.festivals.isNotEmpty()) return offset to info
+            if (accept(info)) return offset to info
         }
         return null
     }

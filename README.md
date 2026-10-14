@@ -169,8 +169,9 @@ holidays are set by cabinet decision and do move.
 Lhosars, the national days — with names in common English use and who gets
 the day off taken from the Ministry of Home Affairs' public-holiday notice for
 BS 2083, and what happens from the Nepal Tourism Board and standard
-references. Everything else stays in Nepali only. The widget once had English
-for every name, generated or scraped, and too many came out wrong ("Naaga",
+references. Everything else stays in Nepali only, in Patro and in the
+widget's English mode alike. The widget once had English for every name,
+generated or scraped, and too many came out wrong ("Naaga",
 "Panchamee"); a missing line is better than a wrong one. The almanac has no
 entry called Laxmi Puja or Mha Puja — those days are गाई पूजा and गोरू पूजा —
 so that is where their English lives.
@@ -211,9 +212,13 @@ the only route.
 It shares the web app's calendar data rather than duplicating it
 (`npm run android:assets`), and its date algorithm was validated against
 `nepali-date-converter` over 3,970 conversions. It ships in four sizes — 2x1,
-2x2, 4x1 and 5x1 — and draws in Devanagari only; there was a Latin toggle and
-it was removed, because the transliteration table could not keep up with the
-festival list and a widget is not where anyone wants to find that out. The
+2x2, 4x1 and 5x1 — each built around a small calendar leaf, a crimson strip
+carrying the weekday over the date, taken from the logo's शिरोरेखा. It draws in
+Nepali by default and in English if you choose it in Settings → Home-screen
+widget. The English mode uses only the hand-checked festival names above
+(exported to the widget by `npm run android:assets`); a festival without one is
+not named in English and the widget shows the tithi instead. An earlier English
+mode transliterated every name and was removed for getting too many wrong. The
 5-wide grows a week strip when you make it taller, which is what replaced the
 separate 4x2 and 5x2 sizes. It ships as part of the Capacitor Android app that
 wraps the web app (`capacitor.config.ts`'s `server.url` points at the live

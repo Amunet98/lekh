@@ -11,10 +11,10 @@ import android.os.Bundle
  * be placed at all (`widgetFeatures` — the way newer Android skips this
  * screen when there is nothing to ask — does not exist before API 31).
  *
- * There used to be a real question here (Nepali or English), removed along
- * with the rest of the widget's English mode — see [WidgetRenderer]'s doc
- * comment for why. With nothing left to ask, this just confirms placement
- * immediately and finishes.
+ * There used to be a real question here (Nepali or English). The language
+ * came back in 1.9.60, but as an app-wide choice in the app's Settings rather
+ * than a per-placement screen (see [WidgetTheme.isEnglish]), so there is
+ * still nothing to ask and this confirms placement immediately.
  *
  * A configuration activity is launched *before* the widget exists, and the
  * launcher only commits it if the activity returns RESULT_OK carrying the

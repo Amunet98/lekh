@@ -33,4 +33,15 @@
     <color name="widget_static_accent">#A80D26</color>
     <color name="widget_static_border">#DDE1E9</color>
     <color name="widget_static_today">#FBE9EC</color>
+
+    <!-- The calendar leaf (2026-10-14): a crimson header strip carrying the
+         weekday over the date, the hanging-page logo's शिरोरेखा made into the
+         widget's signature. widget_head is the strip, widget_on_head its
+         text, widget_leaf the page under it. White on #A80D26 is 7.7:1. -->
+    <color name="widget_head">#A80D26</color>
+    <color name="widget_on_head">#FFFFFF</color>
+    <color name="widget_leaf">#FFFFFF</color>
+    <color name="widget_static_head">#A80D26</color>
+    <color name="widget_static_on_head">#FFFFFF</color>
+    <color name="widget_static_leaf">#FFFFFF</color>
 </resources>

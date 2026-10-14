@@ -10,13 +10,17 @@
  * is a second copy of the month-length table in Kotlin, which would drift the
  * first time either side was corrected.
  *
- * Two files are written:
+ * Three files are written:
  *
  *   panchang.json     festivals, holidays and tithi — byte-identical to
  *                     src/data/calendar/panchang.json
  *   bs-calendar.json  the BS month-length table plus the epoch anchor, lifted
  *                     from nepali-date-converter so the Kotlin conversion has
  *                     the same numbers the browser uses
+ *   festivals-en.json the hand-checked English festival names from
+ *                     src/lib/calendar/festivalsEn.ts, for the widget's
+ *                     English mode — the same list Patro shows, never a
+ *                     second one (see that file for why it is short)
  *
  * The epoch is verified here rather than trusted: BS 2000-01-01 is asserted to
  * be AD 1943-04-14, and the table is walked forward to confirm it lands where
@@ -96,10 +100,17 @@ if (!existsSync(panchangSrc)) {
 }
 copyFileSync(panchangSrc, join(assets, 'panchang.json'))
 
+/* Node strips the TypeScript types itself (22.18+/23.6+), so the widget gets
+   the table straight from the module Patro uses. */
+const { festivalNameTable } = await import('../src/lib/calendar/festivalsEn.ts')
+const festivalsEn = festivalNameTable()
+writeFileSync(join(assets, 'festivals-en.json'), JSON.stringify(festivalsEn))
+
 const coverage = JSON.parse(readFileSync(panchangSrc, 'utf8')).coverage
 console.log('wrote android/app/src/main/assets/')
 console.log(`  bs-calendar.json  BS ${years[0]}–${years[years.length - 1]}, epoch ${iso(epochDate)} (both checks passed)`)
 console.log(`  panchang.json     festivals BS ${coverage.from}–${coverage.to}`)
+console.log(`  festivals-en.json ${Object.keys(festivalsEn).length} almanac spellings with English`)
 
 /* The launcher icon used to be rendered here too. It is an adaptive icon now —
    vector layers written by design/logo/build_mark.py, legacy PNGs by

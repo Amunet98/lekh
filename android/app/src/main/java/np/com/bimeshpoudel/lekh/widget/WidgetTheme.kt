@@ -10,7 +10,8 @@ import np.com.bimeshpoudel.lekh.R
 
 /**
  * Whether the widgets wear the wallpaper's colours or Lekh's own Crimson &
- * Paper, following the app's "Wallpaper colours" setting.
+ * Paper, following the app's "Wallpaper colours" setting — and, since
+ * 1.9.60, which language they draw in (isEnglish).
  *
  * The setting lives in the WebView's localStorage, which native code cannot
  * read, so the web side hands it over through DynamicColorPlugin's
@@ -29,6 +30,7 @@ import np.com.bimeshpoudel.lekh.R
 object WidgetTheme {
     private const val PREFS = "lekh_widget"
     private const val KEY_DYNAMIC = "dynamic"
+    private const val KEY_ENGLISH = "english"
 
     fun isDynamic(context: Context): Boolean =
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_DYNAMIC, true)
@@ -38,6 +40,24 @@ object WidgetTheme {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         if (prefs.contains(KEY_DYNAMIC) && prefs.getBoolean(KEY_DYNAMIC, true) == dynamic) return
         prefs.edit().putBoolean(KEY_DYNAMIC, dynamic).apply()
+        refreshAll(context)
+    }
+
+    /**
+     * The widget's language, from the app's Settings → Home-screen widget
+     * (handed over through DynamicColorPlugin.setWidgetLanguage, like the
+     * colour setting above). Default Nepali, and it must stay the default:
+     * changing it would reword every widget already placed on a home screen.
+     * App-wide rather than per widget — one person, one language.
+     */
+    fun isEnglish(context: Context): Boolean =
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_ENGLISH, false)
+
+    /** Stores the language and redraws every placed widget if it changed. */
+    fun setEnglish(context: Context, english: Boolean) {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        if (prefs.getBoolean(KEY_ENGLISH, false) == english) return
+        prefs.edit().putBoolean(KEY_ENGLISH, english).apply()
         refreshAll(context)
     }
 
@@ -59,8 +79,18 @@ object WidgetTheme {
         val wide = layoutRes == R.layout.widget_patro_wide
         val xl = layoutRes == R.layout.widget_patro_xl
         val xlExpanded = layoutRes == R.layout.widget_patro_xl_expanded
+        val square = layoutRes == R.layout.widget_patro
 
         views.setInt(R.id.widget_root, "setBackgroundResource", R.drawable.widget_background_static)
+        // The calendar leaf: on the 2x2 its strip is the card-wide band and
+        // there is no separate page; everywhere else it is a small leaf.
+        if (square) {
+            views.setInt(R.id.widget_leaf_head, "setBackgroundResource", R.drawable.widget_band_static)
+        } else {
+            views.setInt(R.id.widget_leaf, "setBackgroundResource", R.drawable.widget_leaf_static)
+            views.setInt(R.id.widget_leaf_head, "setBackgroundResource", R.drawable.widget_leaf_head_static)
+        }
+        views.setColorStateList(R.id.widget_leaf_head, "setTextColor", R.color.widget_static_on_head)
         views.setColorStateList(R.id.widget_day, "setTextColor", R.color.widget_static_day)
         views.setColorStateList(R.id.widget_month, "setTextColor", R.color.widget_static_text)
         views.setColorStateList(R.id.widget_ad, "setTextColor", R.color.widget_static_muted)
@@ -72,7 +102,7 @@ object WidgetTheme {
         if (wide || xl || xlExpanded) {
             views.setColor(R.id.widget_divider1, "setBackgroundColor", R.color.widget_static_border)
         }
-        if (xl || xlExpanded) {
+        if (wide || xl || xlExpanded) {
             views.setColorStateList(R.id.widget_next, "setTextColor", R.color.widget_static_muted)
         }
         if (xlExpanded) {
@@ -84,7 +114,7 @@ object WidgetTheme {
         }
     }
 
-    private fun refreshAll(context: Context) {
+    internal fun refreshAll(context: Context) {
         val manager = AppWidgetManager.getInstance(context)
         for (provider in listOf(
             LekhWidgetProvider::class.java,

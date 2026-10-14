@@ -97,4 +97,18 @@ public class DynamicColorPlugin extends Plugin {
         WidgetTheme.INSTANCE.setDynamic(getContext(), enabled == null || enabled);
         call.resolve();
     }
+
+    /**
+     * The widget's language, from Settings → Home-screen widget. Lives on this
+     * plugin rather than one of its own because this is already the bridge
+     * the widgets' settings cross: one plugin to keep registered and to gate
+     * on, rather than two. Added in 1.9.60; the web side only offers the
+     * choice on builds that have it (see src/lib/dynamicColor.ts).
+     */
+    @PluginMethod
+    public void setWidgetLanguage(PluginCall call) {
+        Boolean english = call.getBoolean("english", false);
+        WidgetTheme.INSTANCE.setEnglish(getContext(), english != null && english);
+        call.resolve();
+    }
 }
