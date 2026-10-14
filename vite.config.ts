@@ -102,7 +102,7 @@ export default defineConfig({
         //
         // Each entry NEEDS its own `icons`. Without it Android draws a blank
         // grey placeholder in the long-press sheet — it does not fall back to
-        // the app icon, so the shortcuts shipped as three unlabelled squares.
+        // the app icon, so the shortcuts shipped as unlabelled squares.
         // The PNGs come from design/shortcut-icons.html via `npm run icons`;
         // the filenames and the ICONS list in that script have to stay in step
         // with these.
@@ -127,6 +127,13 @@ export default defineConfig({
             description: 'Bikram Sambat calendar with festivals and public holidays',
             url: '/?tab=calendar',
             icons: [{ src: '/shortcut-calendar.png', sizes: '192x192', type: 'image/png' }],
+          },
+          {
+            name: 'Tools',
+            short_name: 'Tools',
+            description: 'Date converter, amounts in words, currency, Preeti ↔ Unicode and a phrasebook',
+            url: '/?tab=tools',
+            icons: [{ src: '/shortcut-tools.png', sizes: '192x192', type: 'image/png' }],
           },
         ],
         icons: [

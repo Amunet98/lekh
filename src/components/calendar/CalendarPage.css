@@ -45,6 +45,29 @@
   background: var(--bg);
   border-bottom: 1px solid var(--border);
 }
+/* A 2px apron of the bar's own background reaching up under the app bar.
+ *
+ * The bar sticks at --bar-h, which counts the app bar's hairline as a full
+ * 1px. A phone does not draw it that way: at a 2.625 device-pixel ratio the
+ * hairline is snapped to 2 device pixels, not 2.625, so the app bar ends a
+ * fraction of a device pixel above where this bar begins — and one row of
+ * device pixels of the scrolling grid showed in between, the weekday labels
+ * flickering through as a dotted line under the header. Measured on an API 36
+ * emulator at 420dpi: border rows, then one row of grid, then this bar.
+ *
+ * Moving the bar up by a pixel would hide its own top edge instead; this
+ * covers the gap whatever the rounding does, and costs nothing when there is
+ * no gap — the app bar paints over it (it is a higher stacking context), and
+ * at rest above the grid it covers only page background. */
+.cal__nav::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: 100%;
+  height: 2px;
+  background: var(--bg);
+  pointer-events: none;
+}
 .cal__title {
   display: flex;
   flex-direction: column;

@@ -8,7 +8,7 @@
   ACTION_VIEW + explicit https://lekh-gamma.vercel.app/?tab=... URL pointed
   at MainActivity, which already knows how to load an incoming intent's data
   straight into the WebView (see MainActivity.handleIntent). Static, not
-  dynamic: these three destinations are fixed and don't depend on runtime
+  dynamic: these four destinations are fixed and don't depend on runtime
   state the way a "reopen this exact note" shortcut might.
 -->
 <shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
@@ -47,5 +47,17 @@
             android:targetPackage="np.com.bimeshpoudel.lekh"
             android:targetClass="np.com.bimeshpoudel.lekh.MainActivity"
             android:data="https://lekh-gamma.vercel.app/?tab=calendar" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="tools"
+        android:enabled="true"
+        android:icon="@drawable/shortcut_tools"
+        android:shortcutShortLabel="@string/shortcut_tools_short"
+        android:shortcutLongLabel="@string/shortcut_tools_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="np.com.bimeshpoudel.lekh"
+            android:targetClass="np.com.bimeshpoudel.lekh.MainActivity"
+            android:data="https://lekh-gamma.vercel.app/?tab=tools" />
     </shortcut>
 </shortcuts>

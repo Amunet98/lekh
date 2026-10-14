@@ -21,7 +21,7 @@ const source = join(root, 'design', 'shortcut-icons.html')
 
 // Must stay in step with the `shortcuts` array in vite.config.ts — these are
 // the hash ids in the source file and the filenames the manifest points at.
-const ICONS = ['type', 'translate', 'calendar']
+const ICONS = ['type', 'translate', 'calendar', 'tools']
 
 const chrome = requireChromium()
 console.log(`chromium  ${chrome}`)

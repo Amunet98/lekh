@@ -28,4 +28,6 @@
          a translation gloss rather than the app's own word for the thing. -->
     <string name="shortcut_patro_short">Patro</string>
     <string name="shortcut_patro_long">Patro</string>
+    <string name="shortcut_tools_short">Tools</string>
+    <string name="shortcut_tools_long">Tools</string>
 </resources>
