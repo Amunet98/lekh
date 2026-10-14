@@ -20,6 +20,10 @@ import type { Tab } from '../components/TabSwitcher'
 
 export type EditorSize = 'md' | 'lg' | 'xl'
 
+/** The Tools tab's tools, in the order its switcher shows them. */
+export const TOOL_IDS = ['date', 'amount', 'currency', 'preeti', 'phrases'] as const
+export type ToolId = (typeof TOOL_IDS)[number]
+
 export interface Prefs {
   /** Editor and translate-pane text size. Scales up only — the default is
    *  already at the 16px floor under which iOS zooms the page on focus. */
@@ -43,6 +47,14 @@ export interface Prefs {
      and it belongs here rather than in its own key because it is exactly what
      this file is for — one boolean the app remembers between launches. */
   seenIntro: boolean
+  /** Which tool the Tools tab opens on — the one used last. */
+  tool: ToolId
+  /** The currency tool's foreign currency, as an ISO code. Validated only as
+   *  the shape of one: the list comes from NRB, and a code it stops quoting
+   *  falls back to the first in the list at render time. */
+  currency: string
+  /** Which way the currency tool converts. */
+  currencyToNpr: boolean
 }
 
 const DEFAULTS: Prefs = {
@@ -54,6 +66,9 @@ const DEFAULTS: Prefs = {
   translateOnDevice: false,
   translateReversed: false,
   seenIntro: false,
+  tool: 'date',
+  currency: 'USD',
+  currencyToNpr: true,
 }
 
 const KEY_PREFIX = 'lekh:pref:'
@@ -68,6 +83,9 @@ const VALIDATORS: { [K in keyof Prefs]: (raw: unknown) => Prefs[K] | undefined }
   translateOnDevice: (raw) => (typeof raw === 'boolean' ? raw : undefined),
   translateReversed: (raw) => (typeof raw === 'boolean' ? raw : undefined),
   seenIntro: (raw) => (typeof raw === 'boolean' ? raw : undefined),
+  tool: (raw) => (TOOL_IDS.includes(raw as ToolId) ? (raw as ToolId) : undefined),
+  currency: (raw) => (typeof raw === 'string' && /^[A-Z]{3}$/.test(raw) ? raw : undefined),
+  currencyToNpr: (raw) => (typeof raw === 'boolean' ? raw : undefined),
 }
 
 export function getPref<K extends keyof Prefs>(key: K): Prefs[K] {

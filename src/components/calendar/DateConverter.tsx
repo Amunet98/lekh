@@ -65,14 +65,7 @@ export function DateConverter() {
 
   return (
     <section className="conv" aria-labelledby="conv-title">
-      {/* The badge is the selected day, so the tile reads like a calendar
-          leaf and changes with the answer. */}
-      <ToolHeader
-        id="conv-title"
-        badge={toDevanagari(safeDay)}
-        ne="मिति परिवर्तन"
-        en="BS ↔ AD date converter"
-      />
+      <ToolHeader id="conv-title" ne="मिति परिवर्तन" en="BS ↔ AD date converter" />
 
       <div className="conv__row">
         <div className="conv__side">

@@ -85,7 +85,7 @@
   padding: var(--sp-3) var(--sp-4);
   border-radius: var(--radius-field);
   background: var(--answer-bg);
-  border-inline-start: 3px solid var(--accent-border);
+  border: 1px solid var(--answer-rule);
 }
 .conv__out p {
   margin: 0;

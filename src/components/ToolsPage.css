@@ -1,24 +1,98 @@
 /* Tools — the same visual language as the rest of the app, not a page of
- * forms. Three things carry it:
- *  - the card head: an --accent-bg tile like Patro's day badges, the Nepali
- *    name in the display face, an English line under it (ToolHeader);
- *  - the answer: tinted with the accent and ruled on the leading edge, which
- *    is exactly how Translate marks its result (.translate-output), so "this
- *    is what you came for" looks the same on every tab;
- *  - copy buttons in the accent's outline, quiet enough to repeat down a list
- *    where a row of filled crimson pills would shout.
+ * forms:
+ *  - a switcher at the top, drawn like the dock on a phone (an --accent-bg
+ *    tile behind the current one), because it is the same kind of control one
+ *    level down;
+ *  - one panel at a time, each a single card headed by its Nepali name;
+ *  - the answer tinted with the accent, so "this is what you came for" looks
+ *    the same in every tool;
+ *  - copy buttons in the accent's outline, quiet enough to repeat down a list.
  * Every colour is a token, so dark mode, Deep black and Material You repaint
  * this tab along with the others. */
 
 .tools {
-  --answer-bg: color-mix(in srgb, var(--accent) 5%, var(--surface));
-  --answer-rule: color-mix(in srgb, var(--accent) 14%, var(--border));
+  --answer-bg: color-mix(in srgb, var(--accent) 6%, var(--surface));
+  --answer-rule: color-mix(in srgb, var(--accent) 16%, var(--border));
   max-width: 720px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: var(--sp-4);
+  gap: var(--sp-3);
 }
+
+/* ---------- the switcher ---------- */
+
+.tools-nav {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 2px;
+  padding: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-rest);
+}
+.tools-nav__tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  min-height: 3.5rem;
+  padding: var(--sp-2) 2px;
+  border: 0;
+  border-radius: calc(var(--radius-card) - 4px);
+  background: transparent;
+  color: var(--muted);
+  font: 600 0.72rem/1.1 var(--sans);
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease),
+    transform var(--dur-fast) var(--ease-expo);
+}
+.tools-nav__tab[aria-selected='true'] {
+  background: var(--accent-bg);
+  color: var(--accent-text);
+}
+@media (hover: hover) {
+  .tools-nav__tab:hover:not([aria-selected='true']) {
+    color: var(--text-h);
+    background: color-mix(in srgb, var(--text) 7%, transparent);
+  }
+}
+.tools-nav__tab:active {
+  transform: scale(0.96);
+}
+.tools-nav__tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.tools-nav__label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A panel coming in rises a few pixels as it fades — enough to say "this
+   replaced that", short enough not to make anyone wait for it. */
+.tools__panel:not([hidden]) {
+  animation: tool-in var(--dur) var(--ease-expo);
+}
+@keyframes tool-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tools__panel:not([hidden]) {
+    animation: none;
+  }
+}
+
+/* ---------- the card ---------- */
 
 .tools__card,
 .tools .conv {
@@ -32,38 +106,15 @@
   box-shadow: var(--shadow-rest);
 }
 
-/* ---------- card head ---------- */
-
 .tool-head {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-3);
-  margin-bottom: var(--sp-1);
-}
-.tool-head__badge {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: var(--radius-field);
-  background: var(--accent-bg);
-  color: var(--accent-text);
-  font-family: var(--display-dev);
-  font-size: 1.05rem;
-  font-weight: 700;
-  line-height: 1;
-}
-.tool-head__title {
-  margin: 0;
+  margin: 0 0 var(--sp-1);
   display: flex;
   flex-direction: column;
   min-width: 0;
 }
 .tool-head__ne {
   font-family: var(--display-dev);
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 700;
   line-height: 1.35;
   color: var(--text-h);
@@ -129,13 +180,22 @@
 .tools__hint:empty {
   display: none;
 }
+.tools__empty {
+  margin: 0;
+  padding: var(--sp-4);
+  border: 1px dashed var(--border-field);
+  border-radius: var(--radius-field);
+  font-size: 0.88rem;
+  color: var(--text);
+  text-align: center;
+}
 
 /* ---------- the answer ---------- */
 
 .tools__answer {
+  border: 1px solid var(--answer-rule);
   border-radius: var(--radius-field);
   background: var(--answer-bg);
-  border-inline-start: 3px solid var(--accent-border);
   overflow: hidden;
 }
 
@@ -229,6 +289,7 @@
   color: var(--muted);
 }
 .tools__chip {
+  flex: 0 0 auto;
   min-height: 2.25rem;
   padding: 0 var(--sp-3);
   border: 1px solid var(--border-field);
@@ -236,7 +297,9 @@
   background: transparent;
   color: var(--text);
   font: 500 0.82rem/1 var(--sans);
+  white-space: nowrap;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
   transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease),
     border-color var(--dur) var(--ease);
 }
@@ -274,7 +337,7 @@
 }
 .tools__out--answer {
   background: var(--answer-bg);
-  border-inline-start: 3px solid var(--accent-border);
+  box-shadow: inset 0 0 0 1px var(--answer-rule);
   font-size: 1.2rem;
   line-height: 1.6;
 }
@@ -287,7 +350,7 @@
   /* Like Translate, this opens on content sitting on the page background,
      so it keeps the top padding the phone layout takes off .page. */
   .tools {
-    padding-block-start: var(--sp-5);
+    padding-block-start: var(--sp-4);
   }
 }
 
@@ -300,70 +363,267 @@
   }
 }
 
-/* ---------- phrasebook ---------- */
+/* ---------- currency ---------- */
 
-.tools__groups {
+/* Two fields with the swap button sitting across the seam between them —
+   the shape every converter has, because it says "this becomes that" without
+   a word. */
+.fx {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-2);
+  flex-direction: column;
 }
-
-.phrases {
-  margin: 0;
-  padding: 0;
-  list-style: none;
+.fx__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: var(--sp-2) var(--sp-3) var(--sp-3) var(--sp-4);
+  border: 1px solid var(--border-field);
   border-radius: var(--radius-field);
+  background: var(--bg);
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.fx__field:has(.fx__amount:focus-visible) {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.fx__field:has(.fx__amount[aria-invalid='true']) {
+  border-color: var(--danger);
+}
+.fx__field--out {
+  border-color: var(--answer-rule);
   background: var(--answer-bg);
-  border-inline-start: 3px solid var(--accent-border);
-  overflow: hidden;
 }
-/* English to recognise it by, the Nepali large, how to say it under that —
-   with Show beside the Nepali, where the thumb reaches for it. */
-.phrase {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 0 var(--sp-3);
-  padding: var(--sp-3) var(--sp-4);
-}
-.phrase + .phrase {
-  border-top: 1px solid var(--answer-rule);
-}
-.phrase__en {
-  grid-column: 1 / -1;
-  font-size: 0.78rem;
-  font-weight: 600;
+.fx__label {
+  font-size: 0.75rem;
+  font-weight: 500;
   color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.phrase__ne {
-  font-family: var(--display-dev);
-  font-size: 1.2rem;
-  font-weight: 700;
-  line-height: 1.45;
+.fx__line {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: 2.75rem;
+}
+.fx__amount,
+.fx__result {
+  flex: 1;
+  min-width: 0;
+  font: 650 1.65rem/1.2 var(--sans);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
   color: var(--text-h);
+}
+.fx__amount {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  outline: none;
+}
+.fx__amount::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+.fx__result {
   overflow-wrap: anywhere;
 }
-.phrase__show {
-  grid-row: 2 / span 2;
-  grid-column: 2;
-}
-.phrase__say {
-  font-size: 0.88rem;
+/* Nothing typed: the answer is for 1, set in the placeholder's colour so it
+   reads as an example rather than a result. */
+.fx__field--example .fx__result {
   color: var(--muted);
 }
-
-/* The numbers you cannot afford to look for: large, in the accent, and links
-   that dial on a phone. */
-.sos {
-  margin-bottom: var(--sp-1);
+.fx__result--loading {
+  display: block;
+  flex: 0 1 9rem;
+  height: 1.6rem;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    var(--surface-2) 0%,
+    color-mix(in srgb, var(--text) 10%, var(--surface-2)) 50%,
+    var(--surface-2) 100%
+  );
+  background-size: 200% 100%;
+  animation: fx-shimmer 1.2s linear infinite;
 }
+@keyframes fx-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* The currency: a pill that shows only the code, with the native select laid
+   invisibly over it — so the list that opens is the platform's own, with full
+   names, while the closed control stays the width of three letters. */
+.fx__cur {
+  position: relative;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  min-height: 2.5rem;
+  padding: 0 0.7rem 0 0.85rem;
+  border: 1px solid var(--border-field);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--text-h);
+  font: 700 0.95rem/1 var(--sans);
+  letter-spacing: 0.03em;
+}
+.fx__cur:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.fx__cur--fixed {
+  padding-inline: 0.85rem;
+  border-color: transparent;
+  background: color-mix(in srgb, var(--text) 6%, transparent);
+  color: var(--text);
+}
+.fx__chev {
+  color: var(--muted);
+}
+.fx__select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  /* 16px or iOS zooms the page when the list opens. */
+  font-size: 16px;
+  cursor: pointer;
+}
+.fx__select:disabled {
+  cursor: progress;
+}
+
+.fx__swap {
+  position: relative;
+  z-index: 1;
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-block: -0.7rem;
+  border: 1px solid var(--border-field);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--accent-text);
+  box-shadow: var(--shadow-rest);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform var(--dur) var(--ease-expo), background-color var(--dur) var(--ease);
+}
+@media (hover: hover) {
+  .fx__swap:hover {
+    background: var(--accent-bg);
+  }
+}
+.fx__swap:active {
+  transform: rotate(180deg) scale(0.94);
+}
+.fx__swap:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.fx__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  min-height: 2.5rem;
+}
+.fx__rate,
+.fx__note {
+  margin: 0;
+  min-width: 0;
+}
+.fx__rate {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.fx__rate-main {
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-h);
+}
+.fx__rate-side {
+  font-weight: 400;
+  color: var(--muted);
+}
+.fx__rate-src,
+.fx__note {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.fx__note--problem {
+  color: var(--danger);
+}
+.fx__meta > .btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+.fx__refresh {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+@media (hover: hover) {
+  .fx__refresh:hover:not(:disabled) {
+    color: var(--text-h);
+    background: color-mix(in srgb, var(--text) 7%, transparent);
+  }
+}
+.fx__refresh:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.fx__refresh:disabled {
+  cursor: progress;
+}
+.fx__refresh:disabled svg {
+  animation: fx-spin 0.9s linear infinite;
+}
+@keyframes fx-spin {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fx__result--loading,
+  .fx__refresh:disabled svg {
+    animation: none;
+  }
+}
+
+/* ---------- phrasebook ---------- */
+
+/* The numbers you cannot afford to look for: one row of four, in the accent,
+   and links that dial on a phone. */
 .sos__title {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
   margin: 0 0 var(--sp-2);
   font-family: var(--sans);
   font-size: 0.75rem;
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
   color: var(--muted);
 }
 .sos__list {
@@ -371,11 +631,9 @@
   padding: 0;
   list-style: none;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--sp-2);
 }
-/* Each item fills its grid cell, so two boxes in a row are always the same
-   height whatever their labels do. */
 .sos__list > li {
   display: flex;
 }
@@ -383,14 +641,15 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.1rem;
-  min-height: 3.5rem;
-  padding: var(--sp-2) var(--sp-3);
+  align-items: flex-start;
+  min-width: 0;
+  padding: var(--sp-2) var(--sp-2) var(--sp-2) 0.6rem;
   border: 1px solid var(--accent-border);
   border-radius: var(--radius-field);
   background: var(--surface);
   color: var(--text);
   text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
   transition: background-color var(--dur) var(--ease);
 }
 @media (hover: hover) {
@@ -401,21 +660,213 @@
 .sos__item:active {
   background: var(--accent-bg);
 }
+.sos__item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
 .sos__number {
-  font-size: 1.35rem;
+  font-size: 1.15rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--accent-text);
-  line-height: 1.2;
+  line-height: 1.25;
 }
 .sos__label {
-  font-size: 0.78rem;
+  max-width: 100%;
+  font-size: 0.7rem;
+  line-height: 1.3;
+  color: var(--text);
+}
+/* The Nepali names only where there is room for them beside the English —
+   at phone width four boxes in a row leave space for one line, and the
+   English is the one a visitor reads. */
+.sos__label--ne {
+  display: none;
+  color: var(--muted);
+}
+@media (min-width: 520px) {
+  .sos__label--ne {
+    display: block;
+  }
+}
+
+.phrase-find {
+  position: relative;
+  display: flex;
+  align-items: center;
+  color: var(--muted);
+}
+.phrase-find > svg {
+  position: absolute;
+  inset-inline-start: 0.8rem;
+  pointer-events: none;
+}
+.phrase-find__input {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0 var(--sp-3) 0 2.35rem;
+  border: 1px solid var(--border-field);
+  border-radius: var(--radius-pill);
+  background: var(--bg);
+  color: var(--text-h);
+  /* 16px or iOS zooms the page on focus. */
+  font: 1rem/1.4 var(--sans);
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.phrase-find__input::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+.phrase-find__input:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+/* One row that scrolls sideways rather than wrapping into two. The swipe
+   between sections measures for sideways scrollers and leaves them alone
+   (useTabSwipe), so this does not fight it. The negative margin lets the row
+   run to the card's edge while its first chip still lines up with the text. */
+.phrase-topics {
+  display: flex;
+  gap: var(--sp-2);
+  margin-inline: calc(-1 * var(--sp-4));
+  padding-inline: var(--sp-4);
+  overflow-x: auto;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+.phrase-topics::-webkit-scrollbar {
+  display: none;
+}
+
+.phrases {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-field);
+  overflow: hidden;
+}
+.phrases > li + li {
+  border-top: 1px solid var(--border);
+}
+
+/* A line of the phrasebook as a table row, and the row is the Show button:
+   the English you find it by, then the Nepali over how to say it, then the
+   glyph that says tapping opens it full screen. */
+.phrase {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.25fr) auto;
+  grid-template-rows: auto auto;
+  column-gap: var(--sp-3);
+  align-items: center;
+  width: 100%;
+  min-height: 3.5rem;
+  padding: var(--sp-2) var(--sp-2) var(--sp-2) var(--sp-3);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--dur-fast) var(--ease);
+}
+@media (hover: hover) {
+  .phrase:hover {
+    background: var(--answer-bg);
+  }
+  .phrase:hover .phrase__show {
+    color: var(--accent-text);
+  }
+}
+.phrase:active {
+  background: var(--accent-bg);
+}
+.phrase:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.phrase__en {
+  grid-row: 1 / span 2;
+  font-size: 0.82rem;
+  font-weight: 500;
   line-height: 1.35;
   color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
-.sos__label--ne {
+.phrase__ne {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: end;
+  font-family: var(--display-dev);
+  font-size: 1.08rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--text-h);
+  overflow-wrap: anywhere;
+}
+.phrase__say {
+  grid-column: 2;
+  grid-row: 2;
+  align-self: start;
+  font-size: 0.78rem;
+  line-height: 1.35;
   color: var(--muted);
+}
+.phrase__show {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  display: inline-flex;
+  padding: var(--sp-2);
+  color: var(--muted);
+  transition: color var(--dur-fast) var(--ease);
+}
+
+/* Wide: the English column at a reading width rather than a third of the
+   card, so the eye does not cross a gulf to reach the Nepali. */
+@media (min-width: 600px) {
+  .phrase {
+    grid-template-columns: 13rem minmax(0, 1fr) auto;
+  }
+}
+
+/* The narrowest phones (320–360px). Five labels in a row lose a letter or
+   two, four emergency boxes lose their labels, and a phrase squeezed into
+   two columns wraps every line — so each of those changes shape instead. */
+@media (max-width: 360px) {
+  .tools-nav__label {
+    font-size: 0.62rem;
+    letter-spacing: 0;
+  }
+  .sos__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .sos__item {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.4rem;
+  }
+  .phrase {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto auto;
+  }
+  .phrase__en {
+    grid-row: 1;
+    grid-column: 1;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+  .phrase__ne {
+    grid-row: 2;
+    grid-column: 1;
+  }
+  .phrase__say {
+    grid-row: 3;
+    grid-column: 1;
+  }
+  .phrase__show {
+    grid-row: 1 / span 3;
+    grid-column: 2;
+  }
 }

@@ -30,7 +30,7 @@ const SECTIONS: { id: Tab; label: string; rest: string; icon: Tab }[] = [
   { id: 'type', icon: 'type', label: 'Type', rest: 'phonetic, as you already text' },
   { id: 'translate', icon: 'translate', label: 'Translate', rest: 'EN ↔ NE, even offline — type it or drop in a photo/PDF' },
   { id: 'calendar', icon: 'calendar', label: 'Patro', rest: 'Bikram Sambat, festivals & holidays' },
-  { id: 'tools', icon: 'tools', label: 'Tools', rest: 'BS ↔ AD dates, amounts in words, Preeti ↔ Unicode' },
+  { id: 'tools', icon: 'tools', label: 'Tools', rest: 'BS ↔ AD dates, amounts in words, currency, Preeti, phrases' },
 ]
 
 
@@ -153,7 +153,7 @@ export function AboutScreen({ onDismiss, onGoTo }: AboutScreenProps) {
               The subtitle is the honest short version. It used to read "nothing
               you type is ever sent anywhere", which online translation makes
               false; typing, OCR and the calendar genuinely are local, and the
-              page one tap away lists the four things that are not. */}
+              page one tap away lists the things that are not. */}
           <a className="sheet-row sheet-row--aside" href="/privacy.html">
             <span className="sheet-row__icon">
               <svg

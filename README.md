@@ -42,13 +42,18 @@ Four tabs — **Type**, **Translate**, **Patro** and **Tools**:
   line on what happens and, where it matters, a note for visitors ("offices,
   banks and many shops close from Fulpati until after Tika") — written by
   hand, see below. No ads, no account.
-- **Tools** — a BS ↔ AD **date converter**; **numbers in words** for a
-  cheque or a price you can't read (`१२,५००.५०` → बाह्र हजार पाँच सय रुपैयाँ पचास
-  पैसा मात्र, in Nepali and English, lakh/crore grouping); **Preeti ↔
-  Unicode**, which also notices romanized Nepali pasted into it; and an
-  **offline phrasebook** for travellers — 43 phrases in five topics, each
-  with its pronunciation and Show, under the emergency numbers (Police 100,
-  Tourist Police 1144, Ambulance 102, Fire 101) as tap-to-dial links.
+- **Tools** — five small tools behind one switcher, so the tab shows the one
+  you picked rather than a long scroll of all of them: a BS ↔ AD **date
+  converter**; **numbers in words** for a cheque or a price you can't read
+  (`१२,५००.५०` → बाह्र हजार पाँच सय रुपैयाँ पचास पैसा मात्र, in Nepali and
+  English, lakh/crore grouping); a **currency converter** at Nepal Rastra
+  Bank's daily rates for the 22 currencies it quotes (the buying rate into
+  rupees, the selling rate out of them, and the last rates kept for offline
+  use); **Preeti ↔ Unicode**, which also notices romanized Nepali pasted into
+  it; and an **offline phrasebook** for travellers — 43 phrases in five
+  topics, searchable, each with its pronunciation and a full-screen Show,
+  under the emergency numbers (Police 100, Tourist Police 1144, Ambulance
+  102, Fire 101) as tap-to-dial links.
 
 ## How the romanization maps
 

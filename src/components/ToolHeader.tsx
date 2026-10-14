@@ -1,24 +1,17 @@
-import type { ReactNode } from 'react'
-
-/* The head of a Tools card: an accent tile, then the name in Nepali over a
- * line of English. The tile is the same shape and weight as Patro's holiday
- * day badges — a rounded square in --accent-bg holding one Devanagari mark —
- * so the new tab reads as part of the same app rather than a page of grey
- * forms. --accent rather than --bida on purpose: the badges mean "holiday"
- * and keep their crimson under Material You, while these are just this app's
- * own colour and should follow the wallpaper with everything else. */
-export function ToolHeader({ id, badge, ne, en }: { id: string; badge: ReactNode; ne: string; en: string }) {
+/* The head of a Tools panel: the name in Nepali over a line of English.
+ *
+ * There used to be an accent tile beside it holding one Devanagari mark, the
+ * same shape as Patro's holiday badges. It went when the tools moved behind a
+ * switcher (ToolsPage): the switcher's tile already says which tool this is,
+ * with a drawn icon, and a second tile directly under it was the same signal
+ * twice. */
+export function ToolHeader({ id, ne, en }: { id: string; ne: string; en: string }) {
   return (
-    <div className="tool-head">
-      <span className="tool-head__badge dev" aria-hidden="true">
-        {badge}
+    <h2 className="tool-head" id={id}>
+      <span className="tool-head__ne dev" lang="ne">
+        {ne}
       </span>
-      <h2 className="tool-head__title" id={id}>
-        <span className="tool-head__ne dev" lang="ne">
-          {ne}
-        </span>
-        <span className="tool-head__en">{en}</span>
-      </h2>
-    </div>
+      <span className="tool-head__en">{en}</span>
+    </h2>
   )
 }
