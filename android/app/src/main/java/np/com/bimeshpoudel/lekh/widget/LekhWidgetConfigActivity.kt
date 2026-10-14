@@ -1,25 +1,32 @@
 package np.com.bimeshpoudel.lekh.widget
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.os.Bundle
+import np.com.bimeshpoudel.lekh.R
 
 /**
- * The widget's configure activity: exists only to satisfy Android 11 and
- * older, which require a declared `configure` activity before a widget can
- * be placed at all (`widgetFeatures` — the way newer Android skips this
- * screen when there is nothing to ask — does not exist before API 31).
+ * The widget's settings screen: the launcher's long-press "Widget settings"
+ * (widgetFeatures="reconfigurable", API 31+) opens it, and it asks one
+ * thing — Nepali or English.
  *
- * There used to be a real question here (Nepali or English). The language
- * came back in 1.9.60, but as an app-wide choice in the app's Settings rather
- * than a per-placement screen (see [WidgetTheme.isEnglish]), so there is
- * still nothing to ask and this confirms placement immediately.
+ * The language is the same app-wide choice as the app's Settings →
+ * Home-screen widget (see [WidgetTheme.isEnglish]), not a per-widget one, so
+ * changing it here rewords every placed widget. The app reads it back from
+ * here on launch (DynamicColorPlugin.getWidgetLanguage), so the two screens
+ * never disagree.
  *
- * A configuration activity is launched *before* the widget exists, and the
- * launcher only commits it if the activity returns RESULT_OK carrying the
- * same appWidgetId it was given. Returning anything else — including the
- * default RESULT_CANCELED — makes the launcher throw the widget away.
+ * Android 11 and older have no reconfigure and no configuration_optional, so
+ * there it opens once, on placement. A configuration activity launched for
+ * placement must return RESULT_OK carrying the appWidgetId it was given or
+ * the launcher throws the widget away — so the result is set up front, and
+ * backing out of the question still keeps the widget (in Nepali, the
+ * default). On reconfigure the launcher ignores the result.
+ *
+ * The activity itself draws nothing (a translucent theme); the question is a
+ * plain DeviceDefault alert so it looks like the OEM's other dialogs.
  */
 class LekhWidgetConfigActivity : Activity() {
 
@@ -29,8 +36,21 @@ class LekhWidgetConfigActivity : Activity() {
         val widgetId = intent?.extras?.getInt(
             AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID,
         ) ?: AppWidgetManager.INVALID_APPWIDGET_ID
-
         setResult(RESULT_OK, Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId))
-        finish()
+
+        // Each option in its own script: a language picker is the one place
+        // a name reads best written in itself.
+        val labels = arrayOf("नेपाली", "English")
+        val current = if (WidgetTheme.isEnglish(this)) 1 else 0
+
+        AlertDialog.Builder(this, R.style.LekhConfigTheme)
+            .setTitle(R.string.widget_config_title)
+            .setSingleChoiceItems(labels, current) { dialog, which ->
+                WidgetTheme.setEnglish(this, which == 1)
+                dialog.dismiss()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .setOnDismissListener { finish() }
+            .show()
     }
 }

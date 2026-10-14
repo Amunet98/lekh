@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 2x1. minWidth/minHeight are the pre-Android-12 sizing, kept because
      minSdk is 26; targetCellWidth/Height are what Android 12+ actually uses. -->
-<!-- configuration_optional is API 31+: it skips the configure activity on
-     placement since there is nothing left for it to ask (no reconfigurable —
-     there is nothing to reconfigure either). Below API 31 the activity opens
-     on placement regardless and just confirms immediately. -->
+<!-- Both flags are API 31+. reconfigurable puts "Widget settings" on the
+     launcher's long-press menu, which opens LekhWidgetConfigActivity (the
+     widget's language); configuration_optional skips that screen on
+     placement, since Nepali is a fine default. Below API 31 neither exists
+     and the screen opens once, on placement. -->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:minWidth="110dp"
     android:minHeight="40dp"
@@ -15,6 +16,6 @@
     android:resizeMode="horizontal"
     android:widgetCategory="home_screen"
     android:configure="np.com.bimeshpoudel.lekh.widget.LekhWidgetConfigActivity"
-    android:widgetFeatures="configuration_optional"
+    android:widgetFeatures="reconfigurable|configuration_optional"
     android:initialLayout="@layout/widget_patro_small"
     android:updatePeriodMillis="0" />

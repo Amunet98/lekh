@@ -26,10 +26,13 @@
         <item name="android:background">@color/launch_background</item>
     </style>
 
-    <!-- The widget config screen's theme. DeviceDefault rather than a theme
-         of our own so it looks like the launcher's other widget dialogs on
-         whatever OEM skin is running; the light/dark split is done with
-         values-night rather than Theme.DeviceDefault.DayNight because that
-         only exists from API 29 and this app supports 26. -->
-    <style name="LekhConfigTheme" parent="@android:style/Theme.DeviceDefault.Light.Dialog" />
+    <!-- The widget settings screen. The activity draws nothing of its own
+         (LekhConfigHost); its one question is an AlertDialog in
+         LekhConfigTheme. DeviceDefault rather than a theme of our own so it
+         looks like the launcher's other widget dialogs on whatever OEM skin
+         is running; the light/dark split is done with values-night rather
+         than Theme.DeviceDefault.DayNight because that only exists from API
+         29 and this app supports 26. -->
+    <style name="LekhConfigHost" parent="@android:style/Theme.Translucent.NoTitleBar" />
+    <style name="LekhConfigTheme" parent="@android:style/Theme.DeviceDefault.Light.Dialog.Alert" />
 </resources>

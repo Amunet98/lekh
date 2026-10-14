@@ -44,21 +44,33 @@ object WidgetTheme {
     }
 
     /**
-     * The widget's language, from the app's Settings → Home-screen widget
-     * (handed over through DynamicColorPlugin.setWidgetLanguage, like the
-     * colour setting above). Default Nepali, and it must stay the default:
+     * The widget's language. Two places set it: the app's Settings →
+     * Home-screen widget (handed over through
+     * DynamicColorPlugin.setWidgetLanguage, like the colour setting above)
+     * and, since 1.9.64, the widget's own long-press "Widget settings"
+     * (LekhWidgetConfigActivity). Once a choice is stored this copy is the
+     * truth: the app reads it back on launch (getWidgetLanguage) rather than
+     * pushing its own over it. Default Nepali, and it must stay the default:
      * changing it would reword every widget already placed on a home screen.
      * App-wide rather than per widget — one person, one language.
      */
     fun isEnglish(context: Context): Boolean =
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_ENGLISH, false)
 
-    /** Stores the language and redraws every placed widget if it changed. */
+    /** Whether a language has ever been stored, as opposed to the default. */
+    fun hasLanguage(context: Context): Boolean =
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).contains(KEY_ENGLISH)
+
+    /**
+     * Stores the language — always, even when it is the default, so that
+     * hasLanguage() records that a choice was made — and redraws every
+     * placed widget if it changed.
+     */
     fun setEnglish(context: Context, english: Boolean) {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-        if (prefs.getBoolean(KEY_ENGLISH, false) == english) return
+        val changed = prefs.getBoolean(KEY_ENGLISH, false) != english
         prefs.edit().putBoolean(KEY_ENGLISH, english).apply()
-        refreshAll(context)
+        if (changed) refreshAll(context)
     }
 
     /** True when the fixed palette has to be applied over the layout's own. */

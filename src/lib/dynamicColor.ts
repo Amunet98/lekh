@@ -51,6 +51,7 @@
  * the resource names on the other side of the bridge say.
  */
 import { Capacitor, registerPlugin } from '@capacitor/core'
+import { getPref, setPref } from './prefs'
 
 /** shade number -> "#RRGGBB", as handed over by DynamicColorPlugin. */
 type Ramp = Record<string, string>
@@ -73,6 +74,8 @@ interface DynamicColorPlugin {
   setWidgetDynamic(options: { enabled: boolean }): Promise<void>
   /** Added for the widgets in app 1.9.60 — see WIDGET_LANGUAGE_BUILD. */
   setWidgetLanguage(options: { english: boolean }): Promise<void>
+  /** Added in app 1.9.64, with the widget's own long-press "Widget settings". */
+  getWidgetLanguage(): Promise<{ english: boolean; chosen: boolean }>
 }
 
 const DynamicColor = registerPlugin<DynamicColorPlugin>('DynamicColor')
@@ -447,6 +450,22 @@ export const WIDGET_LANGUAGE_BUILD = 1009060
 export function syncWidgetLanguage(english: boolean): void {
   if (!Capacitor.isNativePlatform() || !Capacitor.isPluginAvailable('DynamicColor')) return
   DynamicColor.setWidgetLanguage({ english }).catch(() => {})
+}
+
+/* Since app 1.9.64 the widget has its own long-press "Widget settings" that
+   changes the language while this app is closed, so on launch (and on coming
+   back to the app) the widgets' copy is read back and adopted rather than
+   overwritten. `chosen` is false only before any language was ever stored
+   natively; then this side's copy is pushed, as before. An APK older than
+   getWidgetLanguage rejects it as unimplemented and gets the old push. */
+export function reconcileWidgetLanguage(): void {
+  if (!Capacitor.isNativePlatform() || !Capacitor.isPluginAvailable('DynamicColor')) return
+  DynamicColor.getWidgetLanguage()
+    .then(({ english, chosen }) => {
+      if (!chosen) syncWidgetLanguage(getPref('widgetEnglish'))
+      else if (getPref('widgetEnglish') !== english) setPref('widgetEnglish', english)
+    })
+    .catch(() => syncWidgetLanguage(getPref('widgetEnglish')))
 }
 
 /**

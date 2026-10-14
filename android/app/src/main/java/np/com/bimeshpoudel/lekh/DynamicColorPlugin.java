@@ -111,4 +111,21 @@ public class DynamicColorPlugin extends Plugin {
         WidgetTheme.INSTANCE.setEnglish(getContext(), english != null && english);
         call.resolve();
     }
+
+    /**
+     * The widget's language as the widgets have it, for the app to adopt on
+     * launch. Needed since 1.9.64, when the widget's own long-press "Widget
+     * settings" can change it while the app is closed: without reading it
+     * back, the app's launch sync would push its older copy over the choice.
+     * `chosen` is false until a language has been stored at all, and then
+     * the app's copy wins instead (it carries a choice made before this
+     * method existed).
+     */
+    @PluginMethod
+    public void getWidgetLanguage(PluginCall call) {
+        JSObject ret = new JSObject();
+        ret.put("english", WidgetTheme.INSTANCE.isEnglish(getContext()));
+        ret.put("chosen", WidgetTheme.INSTANCE.hasLanguage(getContext()));
+        call.resolve(ret);
+    }
 }

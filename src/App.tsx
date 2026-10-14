@@ -35,8 +35,7 @@ import { useDockDetached } from './hooks/useDockDetached'
 import { useTabSwipe } from './hooks/useTabSwipe'
 import { useToast } from './hooks/useToast'
 import { warmOcrCacheInBackground } from './lib/ocr/prefetch'
-import { refreshDynamicColor, syncWidgetLanguage } from './lib/dynamicColor'
-import { getPref } from './lib/prefs'
+import { reconcileWidgetLanguage, refreshDynamicColor } from './lib/dynamicColor'
 import { tick } from './lib/haptics'
 import './App.css'
 
@@ -330,9 +329,12 @@ function App() {
      last launch's colours until it is killed. */
   useEffect(() => {
     void refreshDynamicColor()
-    syncWidgetLanguage(getPref('widgetEnglish'))
+    reconcileWidgetLanguage()
     const onVisible = () => {
-      if (document.visibilityState === 'visible') void refreshDynamicColor()
+      if (document.visibilityState !== 'visible') return
+      void refreshDynamicColor()
+      // The widget's long-press settings may have changed its language.
+      reconcileWidgetLanguage()
     }
     document.addEventListener('visibilitychange', onVisible)
     return () => document.removeEventListener('visibilitychange', onVisible)
