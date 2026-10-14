@@ -1,4 +1,4 @@
-import { useId, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import { pronounce } from '../../lib/engine/pronounce'
 import {
   englishAmount,
@@ -10,6 +10,7 @@ import {
   toDevanagariDigits,
 } from '../../lib/nepaliNumber'
 import { ToolHeader } from '../ToolHeader'
+import { ClearField } from './ClearField'
 import { CopyButton } from './copy'
 
 interface Row {
@@ -23,6 +24,7 @@ interface Row {
 export function NumberTool() {
   const id = useId()
   const [raw, setRaw] = useState('')
+  const inputRef = useRef<HTMLInputElement>(null)
   const amount = raw.trim() ? parseAmount(raw) : null
   const invalid = raw.trim() !== '' && amount === null
 
@@ -50,19 +52,23 @@ export function NumberTool() {
       <label className="tools__label" htmlFor={`${id}-input`}>
         A number or an amount, in either script
       </label>
-      <input
-        id={`${id}-input`}
-        className="tools__input tools__input--number"
-        type="text"
-        inputMode="decimal"
-        autoComplete="off"
-        spellCheck={false}
-        placeholder="12500 or १२५००"
-        value={raw}
-        aria-invalid={invalid}
-        aria-describedby={`${id}-hint`}
-        onChange={(e) => setRaw(e.target.value)}
-      />
+      <div className="tools__field">
+        <input
+          ref={inputRef}
+          id={`${id}-input`}
+          className="tools__input tools__input--number"
+          type="text"
+          inputMode="decimal"
+          autoComplete="off"
+          spellCheck={false}
+          placeholder="12500 or १२५००"
+          value={raw}
+          aria-invalid={invalid}
+          aria-describedby={`${id}-hint`}
+          onChange={(e) => setRaw(e.target.value)}
+        />
+        <ClearField show={raw !== ''} what="the amount" onClear={() => setRaw('')} inputRef={inputRef} />
+      </div>
       <p className="tools__hint" id={`${id}-hint`} aria-live="polite">
         {invalid
           ? 'Digits only (Nepali or English), commas allowed, and at most two after the point.'

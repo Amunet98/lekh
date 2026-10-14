@@ -13,6 +13,7 @@ import {
   toDevanagari,
 } from '../../lib/calendar/nepaliDate'
 import { ToolHeader } from '../ToolHeader'
+import { tick } from '../../lib/haptics'
 import './DateConverter.css'
 
 function pad(n: number) {
@@ -47,6 +48,7 @@ export function DateConverter() {
   const safeDay = Math.min(bs.day, maxDay)
   const ad = bsToAd(bs.year, bs.month, safeDay)
   const weekday = bsWeekday(bs.year, bs.month, safeDay)
+  const isToday = bs.year === today.year && bs.month === today.month && safeDay === today.day
 
   const setFromAd = (value: string) => {
     const date = fromInputValue(value)
@@ -125,14 +127,33 @@ export function DateConverter() {
 
       {/* Both dates, one over the other — either can be the answer,
           depending on which side was just changed. */}
-      <div className="conv__out" aria-live="polite">
-        <p className="conv__out-bs dev" lang="ne">
-          {NP_WEEKDAYS_FULL[weekday]}, {NP_MONTHS[bs.month]} {toDevanagari(safeDay)}, {toDevanagari(bs.year)}
-        </p>
-        <p className="conv__out-ad">
-          {ad.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-          <span className="conv__out-en"> · {NP_MONTHS_EN[bs.month]} {safeDay}, {bs.year} BS</span>
-        </p>
+      <div className="conv__out">
+        <div className="conv__out-text" aria-live="polite">
+          <p className="conv__out-bs dev" lang="ne">
+            {NP_WEEKDAYS_FULL[weekday]}, {NP_MONTHS[bs.month]} {toDevanagari(safeDay)}, {toDevanagari(bs.year)}
+          </p>
+          <p className="conv__out-ad">
+            {ad.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            <span className="conv__out-en"> · {NP_MONTHS_EN[bs.month]} {safeDay}, {bs.year} BS</span>
+          </p>
+        </div>
+        {/* The date converter's clear: there is never an empty state to go
+            back to — it always shows a date — so the way back is to today,
+            and only once the dates have moved away from it. */}
+        {!isToday && (
+          <button
+            type="button"
+            className="btn conv__today"
+            onClick={() => {
+              tick()
+              setBs({ year: today.year, month: today.month, day: today.day })
+              // The button goes away with the click; keep focus in the tool.
+              document.getElementById('conv-year')?.focus()
+            }}
+          >
+            Today
+          </button>
+        )}
       </div>
     </section>
   )

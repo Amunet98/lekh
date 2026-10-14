@@ -87,8 +87,25 @@
   background: var(--answer-bg);
   border: 1px solid var(--answer-rule);
 }
+.conv__out {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+}
+.conv__out-text {
+  flex: 1;
+  min-width: 0;
+}
 .conv__out p {
   margin: 0;
+}
+/* Back to today — quiet, like Clear on the other tools: the outline skin,
+   not the accent, because it undoes a choice rather than making one. */
+.conv__today {
+  flex: 0 0 auto;
+  min-height: 2.25rem;
+  font-weight: 600;
+  background: var(--surface);
 }
 .conv__out-bs {
   font-family: var(--display-dev);

@@ -4,7 +4,7 @@ import type { ToolId } from '../../lib/prefs'
  * (SectionIcons.tsx): a 24-unit box, 2-unit round stroke, no fill — Lucide's
  * grid, which is what the rest of the app's icons are drawn on. */
 
-type IconName = ToolId | 'swap' | 'expand' | 'search' | 'refresh' | 'phone'
+type IconName = ToolId | 'swap' | 'expand' | 'search' | 'refresh' | 'phone' | 'x'
 
 export function ToolIcon({ name, size = 20 }: { name: IconName; size?: number }) {
   const props = {
@@ -83,6 +83,12 @@ export function ToolIcon({ name, size = 20 }: { name: IconName; size?: number })
           <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
           <path d="M3 21v-5h5M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
           <path d="M21 3v5h-5" />
+        </svg>
+      )
+    case 'x':
+      return (
+        <svg {...props}>
+          <path d="M18 6 6 18M6 6l12 12" />
         </svg>
       )
     case 'phone':

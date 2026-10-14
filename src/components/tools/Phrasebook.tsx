@@ -1,9 +1,10 @@
-import { useId, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import { pronounce } from '../../lib/engine/pronounce'
 import { tick } from '../../lib/haptics'
 import { EMERGENCY_NUMBERS, PHRASE_GROUPS, type Phrase } from '../../data/phrases'
 import type { Shown } from '../translate/ShowScreen'
 import { ToolHeader } from '../ToolHeader'
+import { ClearField } from './ClearField'
 import { ToolIcon } from './ToolIcons'
 
 /* What a visitor needs to say, ready-made and offline — Translate needs a
@@ -34,6 +35,7 @@ export function Phrasebook({ onShow }: { onShow: (shown: Shown) => void }) {
   const id = useId()
   const [groupId, setGroupId] = useState(PHRASE_GROUPS[0].id)
   const [query, setQuery] = useState('')
+  const findRef = useRef<HTMLInputElement>(null)
   const group = PHRASE_GROUPS.find((g) => g.id === groupId) ?? PHRASE_GROUPS[0]
   const q = query.trim()
   const phrases = q ? PHRASE_GROUPS.flatMap((g) => g.phrases).filter((p) => matches(p, q)) : group.phrases
@@ -68,6 +70,7 @@ export function Phrasebook({ onShow }: { onShow: (shown: Shown) => void }) {
           Find a phrase
         </label>
         <input
+          ref={findRef}
           id={`${id}-find`}
           className="phrase-find__input"
           type="search"
@@ -78,6 +81,7 @@ export function Phrasebook({ onShow }: { onShow: (shown: Shown) => void }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
+        <ClearField show={query !== ''} what="the search" onClear={() => setQuery('')} inputRef={findRef} />
       </div>
 
       {!q && (

@@ -1,4 +1,5 @@
-import { useId, useState } from 'react'
+import { useId, useRef, useState } from 'react'
+import { useUndoableClear } from '../../hooks/useUndoableClear'
 import { looksLikeRomanized, looksLikeUnicode, preetiToUnicode, unicodeToPreeti } from '../../lib/preeti'
 import { romanizedToDevanagari } from '../../lib/engine/romanize'
 import { tick } from '../../lib/haptics'
@@ -19,6 +20,8 @@ type ReadAs = 'preeti' | 'roman'
 export function PreetiTool() {
   const id = useId()
   const [text, setText] = useState('')
+  const areaRef = useRef<HTMLTextAreaElement>(null)
+  const cleared = useUndoableClear()
   const [override, setOverride] = useState<ReadAs | null>(null)
   const trimmed = text.trim()
   const unicodeIn = looksLikeUnicode(text)
@@ -43,6 +46,7 @@ export function PreetiTool() {
         Nepali — it works out which way to convert
       </label>
       <textarea
+        ref={areaRef}
         id={`${id}-input`}
         className="tools__input tools__area"
         rows={4}
@@ -52,30 +56,69 @@ export function PreetiTool() {
         spellCheck={false}
         value={text}
         onChange={(e) => {
+          if (cleared.lastCleared !== null) cleared.undo()
           setText(e.target.value)
           if (!e.target.value.trim()) setOverride(null)
         }}
       />
-      {trimmed && !unicodeIn && (
-        <div className="tools__read-as" role="radiogroup" aria-label="Read the text as">
-          <span className="tools__read-as-label" aria-hidden="true">
-            Read as
-          </span>
-          {(['preeti', 'roman'] as const).map((kind) => (
+      {/* Under the box: the Preeti-or-romanized guess on the left, and on the
+          right the same Clear the Type and Translate tabs have — a pasted
+          document is worth an Undo, which takes Clear's place for a few
+          seconds (useUndoableClear). Only there when there is something to
+          clear or to bring back. */}
+      {(text !== '' || cleared.lastCleared !== null) && (
+        <div className="tools__bar">
+          {trimmed && !unicodeIn && (
+            <div className="tools__read-as" role="radiogroup" aria-label="Read the text as">
+              <span className="tools__read-as-label" aria-hidden="true">
+                Read as
+              </span>
+              {(['preeti', 'roman'] as const).map((kind) => (
+                <button
+                  key={kind}
+                  type="button"
+                  role="radio"
+                  aria-checked={readAs === kind}
+                  className={`tools__chip${readAs === kind ? ' tools__chip--on' : ''}`}
+                  onClick={() => {
+                    tick()
+                    setOverride(kind)
+                  }}
+                >
+                  {kind === 'preeti' ? 'Preeti' : 'Romanized'}
+                </button>
+              ))}
+            </div>
+          )}
+          {text !== '' ? (
             <button
-              key={kind}
               type="button"
-              role="radio"
-              aria-checked={readAs === kind}
-              className={`tools__chip${readAs === kind ? ' tools__chip--on' : ''}`}
+              className="btn tools__clear"
               onClick={() => {
                 tick()
-                setOverride(kind)
+                cleared.remember(text)
+                setText('')
+                setOverride(null)
+                areaRef.current?.focus()
               }}
             >
-              {kind === 'preeti' ? 'Preeti' : 'Romanized Nepali'}
+              Clear
             </button>
-          ))}
+          ) : (
+            <button
+              type="button"
+              className="btn tools__clear"
+              onClick={() => {
+                const back = cleared.undo()
+                if (back !== null) {
+                  tick()
+                  setText(back)
+                }
+              }}
+            >
+              Undo clear
+            </button>
+          )}
         </div>
       )}
       {unicode && (

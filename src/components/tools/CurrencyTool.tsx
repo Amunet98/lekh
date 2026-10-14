@@ -4,6 +4,7 @@ import { convert, fetchRates, nepalToday, readCache, type Rate, type RateSheet }
 import { tick } from '../../lib/haptics'
 import { groupNepali, toWesternDigits } from '../../lib/nepaliNumber'
 import { ToolHeader } from '../ToolHeader'
+import { ClearField } from './ClearField'
 import { ToolIcon } from './ToolIcons'
 
 /* Rupees to and from the currencies Nepal Rastra Bank quotes, at NRB's own
@@ -102,6 +103,7 @@ export function CurrencyTool({ active }: { active: boolean }) {
   const [code, setCode] = usePref('currency')
   const [toNpr, setToNpr] = usePref('currencyToNpr')
   const [raw, setRaw] = useState('')
+  const amountRef = useRef<HTMLInputElement>(null)
 
   const rates = sheet?.rates ?? []
   const rate: Rate | undefined = rates.find((r) => r.iso3 === code) ?? rates[0]
@@ -161,6 +163,7 @@ export function CurrencyTool({ active }: { active: boolean }) {
           </label>
           <div className="fx__line">
             <input
+              ref={amountRef}
               id={`${id}-amount`}
               className="fx__amount"
               type="text"
@@ -173,6 +176,7 @@ export function CurrencyTool({ active }: { active: boolean }) {
               aria-describedby={`${id}-rate`}
               onChange={(e) => setRaw(e.target.value)}
             />
+            <ClearField show={raw !== ''} what="the amount" onClear={() => setRaw('')} inputRef={amountRef} />
             {toNpr ? picker : npr}
           </div>
         </div>
