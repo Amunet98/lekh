@@ -10,7 +10,16 @@
     <string name="widget_description">Date, tithi and today\'s festival</string>
     <string name="widget_description_small">Just the Bikram Sambat date</string>
     <string name="widget_description_wide">Date, tithi, festival and what\'s next</string>
-    <string name="widget_description_xl">The same, wider; drag it taller for the week</string>
+    <string name="widget_description_xl">The 4×1, wider; drag it taller for the week</string>
+    <!-- The widget picker's name for each size. Without them all four inherit
+         the app's name and the picker lists "Lekh Patro" four times; on a
+         four-column home screen the 5x1 is clamped to four cells and its
+         preview looks exactly like the 4x1's, so the name is the only thing
+         that tells them apart. -->
+    <string name="widget_label">Today</string>
+    <string name="widget_label_small">Date</string>
+    <string name="widget_label_wide">Date and festival</string>
+    <string name="widget_label_xl">Date, festival and week</string>
     <string name="widget_config_title">Widget language</string>
 
     <!-- Long-press app shortcuts (res/xml/shortcuts.xml). The web manifest's

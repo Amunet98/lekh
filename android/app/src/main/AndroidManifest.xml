@@ -71,6 +71,7 @@
              intent-filter. -->
         <receiver
             android:name=".widget.LekhWidgetProvider"
+            android:label="@string/widget_label"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -89,6 +90,7 @@
              resized by dragging a corner most people never try. -->
         <receiver
             android:name=".widget.LekhWidgetSmallProvider"
+            android:label="@string/widget_label_small"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -103,6 +105,7 @@
 
         <receiver
             android:name=".widget.LekhWidgetWideProvider"
+            android:label="@string/widget_label_wide"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -117,6 +120,7 @@
 
         <receiver
             android:name=".widget.LekhWidgetXlProvider"
+            android:label="@string/widget_label_xl"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

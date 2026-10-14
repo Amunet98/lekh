@@ -42,7 +42,7 @@
             android:maxLines="1"
             android:textColor="@color/widget_on_head"
             android:background="@drawable/widget_leaf_head"
-            android:text="बुध" />
+            android:text="आइत" />
 
         <TextView
             android:id="@+id/widget_day"
@@ -56,7 +56,7 @@
             android:includeFontPadding="false"
             android:maxLines="1"
             android:textColor="@color/widget_day"
-            android:text="२८" />
+            android:text="२५" />
     </LinearLayout>
 
     <LinearLayout
@@ -76,7 +76,7 @@
             android:text="असोज २०८३" />
 
         <!-- The AD date, and on this size the tithi after it: WidgetRenderer
-             writes "14 Oct 2026 · चतुर्दशी" here, which frees the right-hand
+             writes "11 Oct 2026 · प्रतिपदा" here, which frees the right-hand
              column for the festival and what comes next. -->
         <TextView
             android:id="@+id/widget_ad"
@@ -85,7 +85,7 @@
             android:textSize="10sp"
             android:maxLines="1"
             android:textColor="@color/widget_muted"
-            android:text="14 Oct 2026 · चतुर्दशी" />
+            android:text="11 Oct 2026 · प्रतिपदा" />
     </LinearLayout>
 
     <ImageView

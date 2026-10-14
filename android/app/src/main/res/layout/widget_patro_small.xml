@@ -37,7 +37,7 @@
             android:maxLines="1"
             android:textColor="@color/widget_on_head"
             android:background="@drawable/widget_leaf_head"
-            android:text="बुध" />
+            android:text="आइत" />
 
         <TextView
             android:id="@+id/widget_day"
@@ -51,7 +51,7 @@
             android:includeFontPadding="false"
             android:maxLines="1"
             android:textColor="@color/widget_day"
-            android:text="२८" />
+            android:text="२५" />
     </LinearLayout>
 
     <LinearLayout
@@ -78,7 +78,7 @@
             android:textSize="10sp"
             android:maxLines="1"
             android:textColor="@color/widget_muted"
-            android:text="14 Oct 2026" />
+            android:text="11 Oct 2026" />
     </LinearLayout>
 
     <!-- Present so one renderer can populate every layout; no room at 2x1. -->

@@ -49,7 +49,7 @@
             android:maxLines="1"
             android:textColor="@color/widget_on_head"
             android:background="@drawable/widget_leaf_head"
-            android:text="बुध" />
+            android:text="आइत" />
 
         <TextView
             android:id="@+id/widget_day"
@@ -63,7 +63,7 @@
             android:includeFontPadding="false"
             android:maxLines="1"
             android:textColor="@color/widget_day"
-            android:text="२८" />
+            android:text="२५" />
     </LinearLayout>
 
     <LinearLayout
@@ -83,7 +83,7 @@
             android:text="असोज २०८३" />
 
         <!-- The AD date, and on this size the tithi after it: WidgetRenderer
-             writes "14 Oct 2026 · चतुर्दशी" here, which frees the right-hand
+             writes "11 Oct 2026 · प्रतिपदा" here, which frees the right-hand
              column for the festival and what comes next. -->
         <TextView
             android:id="@+id/widget_ad"
@@ -92,7 +92,7 @@
             android:textSize="10sp"
             android:maxLines="1"
             android:textColor="@color/widget_muted"
-            android:text="14 Oct 2026 · चतुर्दशी" />
+            android:text="11 Oct 2026 · प्रतिपदा" />
     </LinearLayout>
 
     <ImageView
@@ -174,7 +174,7 @@
             <TextView android:id="@+id/widget_week_d0"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="13sp" android:textStyle="bold" android:includeFontPadding="false"
-                android:textColor="@color/widget_week_day" android:text="24" />
+                android:textColor="@color/widget_week_day" android:text="२५" />
         </LinearLayout>
 
         <LinearLayout
@@ -190,7 +190,7 @@
             <TextView android:id="@+id/widget_week_d1"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="13sp" android:textStyle="bold" android:includeFontPadding="false"
-                android:textColor="@color/widget_week_day" android:text="25" />
+                android:textColor="@color/widget_week_day" android:text="२६" />
         </LinearLayout>
 
         <LinearLayout
@@ -206,7 +206,7 @@
             <TextView android:id="@+id/widget_week_d2"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="13sp" android:textStyle="bold" android:includeFontPadding="false"
-                android:textColor="@color/widget_week_day" android:text="26" />
+                android:textColor="@color/widget_week_day" android:text="२७" />
         </LinearLayout>
 
         <LinearLayout
@@ -222,7 +222,7 @@
             <TextView android:id="@+id/widget_week_d3"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="13sp" android:textStyle="bold" android:includeFontPadding="false"
-                android:textColor="@color/widget_week_day" android:text="27" />
+                android:textColor="@color/widget_week_day" android:text="२८" />
         </LinearLayout>
 
         <LinearLayout
@@ -238,7 +238,7 @@
             <TextView android:id="@+id/widget_week_d4"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="13sp" android:textStyle="bold" android:includeFontPadding="false"
-                android:textColor="@color/widget_week_day" android:text="28" />
+                android:textColor="@color/widget_week_day" android:text="२९" />
         </LinearLayout>
 
         <LinearLayout
@@ -254,7 +254,7 @@
             <TextView android:id="@+id/widget_week_d5"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="13sp" android:textStyle="bold" android:includeFontPadding="false"
-                android:textColor="@color/widget_week_day" android:text="29" />
+                android:textColor="@color/widget_week_day" android:text="३०" />
         </LinearLayout>
 
         <LinearLayout
@@ -270,7 +270,7 @@
             <TextView android:id="@+id/widget_week_d6"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="13sp" android:textStyle="bold" android:includeFontPadding="false"
-                android:textColor="@color/widget_week_day" android:text="30" />
+                android:textColor="@color/widget_week_day" android:text="३१" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>
