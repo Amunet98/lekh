@@ -14,6 +14,22 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    /* The festival table, published as a plain file at a stable URL for the
+       Android widget's daily refresh (PanchangRefreshWorker.kt), so a
+       corrected date reaches the widget with the deploy instead of waiting
+       for a Play release. Emitted from the same JSON the app bundles, never
+       a second copy. Versioned: a change of shape moves it to v2. */
+    {
+      name: 'calendar-feed',
+      apply: 'build',
+      generateBundle() {
+        this.emitFile({
+          type: 'asset',
+          fileName: 'calendar/v1/panchang.json',
+          source: readFileSync(new URL('./src/data/calendar/panchang.json', import.meta.url), 'utf-8'),
+        })
+      },
+    },
     VitePWA({
       /* 'prompt', not 'autoUpdate'.
        *

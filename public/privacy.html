@@ -122,7 +122,7 @@
   <body>
     <main>
       <h1>Privacy</h1>
-      <p class="updated">Lekh Patro · last updated 14 October 2026</p>
+      <p class="updated">Lekh Patro · last updated 27 October 2026</p>
 
       <p class="lede">
         Lekh Patro has no accounts, no analytics, no advertising and no tracking of any kind. It
@@ -188,6 +188,13 @@
           being viewed and nothing about you beyond your IP address.
         </p>
         <p class="host">raw.githubusercontent.com</p>
+        <p>
+          On Android, while a Lekh Patro widget is on your home screen, the app also downloads Lekh
+          Patro's own copy of that festival list about once a day, from the same site the app is
+          served from, so a corrected date reaches the widget without an app update. It is the same
+          kind of plain file download, and it sends nothing about you beyond your IP address.
+        </p>
+        <p class="host">lekh-gamma.vercel.app</p>
       </div>
 
       <div class="card">
@@ -229,8 +236,9 @@
       <h2>The Android app and widget</h2>
       <p>
         The Android app is the same web app in a wrapper, so everything above applies to it
-        unchanged. The home-screen widget is separate and simpler: it reads only the calendar data
-        bundled inside the app and makes no network requests at all.
+        unchanged. The home-screen widget is separate and simpler: it draws only from calendar data
+        already on the phone, and its one network request is the daily festival-list download
+        described under Calendar updates above.
       </p>
 
       <h2>Children</h2>

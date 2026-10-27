@@ -74,12 +74,14 @@ changing these answers.
 | Online translation | translate.googleapis.com, api.mymemory.translated.net | **Yes** — the text being translated |
 | Webfonts | fonts.googleapis.com, fonts.gstatic.com | No |
 | Calendar refresh | raw.githubusercontent.com | No |
+| Widget calendar refresh (daily, only while a widget is placed) | lekh-gamma.vercel.app | No |
 | Offline model download (opt-in) | huggingface.co | No |
 | Exchange rates (Tools → Currency, when opened) | www.nrb.org.np | No |
 
 Everything else — typing, transliteration, OCR, PDF parsing, the Bikram Sambat
 grid — is local. No accounts, no analytics, no advertising, no cookies. The
-widget makes no network requests at all.
+widget's only request is that daily download of Lekh's own festival list
+(since 1.9.67); it draws from files already on the phone.
 
 Declare: no data collected; text is *shared* with a third party only for the
 online translation feature, transient, not stored, and user-initiated.

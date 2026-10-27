@@ -99,6 +99,9 @@ object NepaliCalendar {
         }
     }
 
+    /** Days in BS [month] (0-based) of [year], or null outside the table. */
+    fun monthLength(year: Int, month: Int): Int? = months[year]?.getOrNull(month)
+
     /** Days from the BS epoch to the given BS date. */
     private fun daysFromEpoch(date: BsDate): Int {
         val base = cumulativeAt(date.year)

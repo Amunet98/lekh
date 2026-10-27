@@ -1,7 +1,7 @@
 {
   "name": "lekh",
   "private": true,
-  "version": "1.9.66",
+  "version": "1.9.67",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -45,6 +45,7 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
+    "astronomy-engine": "^2.1.19",
     "eslint": "^9.39.4",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.2",

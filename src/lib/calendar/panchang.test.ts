@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
-import { buildMonth, nextSaitMonth, parseSaitDays, type RawMonth } from './panchang'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { buildMonth, fetchLiveMonth, getBundledMonth, nextSaitMonth, parseSaitDays, type RawMonth } from './panchang'
 
 describe('parseSaitDays', () => {
   it('reads the days off the source sentence', () => {
@@ -94,5 +94,25 @@ describe('weekend festivals', () => {
   it('trusts the flag on a weekday', () => {
     const built = buildMonth(asoj({ '9': 'अष्टमीव्रत' }, [9]), { year: 2083, month: 5 })
     expect(built.byDay.get(9)!.isHoliday).toBe(true)
+  })
+})
+
+describe('fetchLiveMonth', () => {
+  const kartik = getBundledMonth(2083, 6)!
+  const numeral = (n: number) => String(n).replace(/\d/g, (d) => '०१२३४५६७८९'[Number(d)])
+  const serve = (t: string[]) =>
+    vi.stubGlobal('fetch', async () =>
+      new Response(JSON.stringify({ days: t.map((name, i) => ({ n: numeral(i + 1), f: kartik.f[String(i + 1)] ?? '', t: name })) })),
+    )
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('takes a live month that agrees with the bundle', async () => {
+    serve(kartik.t)
+    expect((await fetchLiveMonth(2083, 6))?.t).toEqual(kartik.t)
+  })
+
+  it('refuses a live month whose tithis are a day out of step with the bundle', async () => {
+    serve([kartik.t[kartik.t.length - 1], ...kartik.t.slice(0, -1)])
+    expect(await fetchLiveMonth(2083, 6)).toBeNull()
   })
 })

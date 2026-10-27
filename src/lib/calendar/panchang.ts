@@ -259,11 +259,27 @@ export function buildMonth(m: RawMonth, at?: { year: number; month: number }): M
   return { byDay, holidays, marriage: [...marriage].sort((a, b) => a - b), bratabandha: [...bratabandha].sort((a, b) => a - b) }
 }
 
+/* The bundled table passed the tithi alignment check at build time
+ * (scripts/lib/tithi-check.mjs): its days line up with the sunrise tithis an
+ * ephemeris gives. Live data cannot be put through that here — the ephemeris
+ * is a build-time dependency — so for a year the bundle covers it is held to
+ * the bundled tithis instead. A published tithi does not move, so a live
+ * month that disagrees on more than a few days is out of step, the way the
+ * grid-order bug made nine months (see upstream.ts), and the bundle wins. */
+const MAX_TITHI_CHANGES = 3
+
+function agreesWithBundle(year: number, month: number, live: RawMonth): boolean {
+  const bundled = getBundledMonth(year, month)
+  if (!bundled) return true
+  return live.t.filter((t, i) => t !== bundled.t[i]).length <= MAX_TITHI_CHANGES
+}
+
 /**
  * One month from upstream. Resolves to null on any failure — offline, a 404
  * for a year not yet published, malformed JSON, or a month-length
  * disagreement. Every one of those is a normal state, not an error worth
- * surfacing: the bundled table is still there.
+ * surfacing: the bundled table is still there. So is a month whose tithis
+ * have drifted from the bundle's — see agreesWithBundle.
  *
  * No caching or retry here on purpose. The service worker gives this URL a
  * StaleWhileRevalidate route (see vite.config.ts), so repeat views are served
@@ -306,13 +322,14 @@ export async function fetchLiveMonth(year: number, month: number): Promise<RawMo
      * months the count runs 11–25 with a median of 15, and never once 0. */
     if (Object.keys(f).length === 0) return null
 
-    return assertMonthLength(year, month, {
+    const live = assertMonthLength(year, month, {
       f,
       h,
       t,
       m: parseSaitDays(json.marriage, t.length),
       b: parseSaitDays(json.bratabandha, t.length),
     })
+    return live && agreesWithBundle(year, month, live) ? live : null
   } catch {
     // Offline, blocked, or CORS — the bundled table covers it.
     return null

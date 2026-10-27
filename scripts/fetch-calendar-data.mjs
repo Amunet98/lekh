@@ -39,6 +39,7 @@ import { dateConfigMap } from 'nepali-date-converter'
 /* Node strips the TypeScript types itself (22.18+/23.6+), so the day ordering
    and the corrections are the very code fetchLiveMonth runs. */
 import { CORRECTIONS, correctedFestivals, monthCells } from '../src/lib/calendar/upstream.ts'
+import { checkMonthTithis } from './lib/tithi-check.mjs'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const RAW = 'https://raw.githubusercontent.com/S4NKALP/nepali-calendar-api/main/data'
@@ -144,6 +145,20 @@ for (let year = FROM; year <= TO; year++) {
       tithis.push((cell.t || '').trim())
     })
 
+    /* The independent check: do the days line up with the sunrise tithis an
+       ephemeris gives? A month a day or two out of step fails here even when
+       its length is right — see scripts/lib/tithi-check.mjs. */
+    const tithiCheck = checkMonthTithis(year, month, tithis)
+    if (tithis.every((t) => t === '')) {
+      // Upstream's placeholder for an almanac not out yet; the empty-year rule below says so.
+    } else if (!tithiCheck.ok) {
+      problems.push(
+        `BS ${year}-${month} (${MONTH_KEYS[month - 1]}): tithis line up best at ${tithiCheck.best} day(s) ` +
+          `(misses at -2..+2: ${tithiCheck.misses.join(' ')}) — DAYS OUT OF STEP`,
+      )
+      rejected.add(year)
+    }
+
     out[year][month] = {
       f: festivals,
       h: holidays,
@@ -190,7 +205,10 @@ if (kept.length === 0) {
 const payload = {
   coverage: { from: kept[0], to: kept[kept.length - 1] },
   source: 'https://github.com/S4NKALP/nepali-calendar-api (MIT, © 2026 Sankalp Tharu)',
-  generated: new Date().toISOString().slice(0, 10),
+  /* To the second, not the day: the Android widget keeps a downloaded copy
+     only when this is newer than its own (Panchang.kt), so two corrections
+     on one day must still compare as two versions. Sorts as a string. */
+  generated: new Date().toISOString().replace(/\.\d+Z$/, 'Z'),
   years: out,
 }
 

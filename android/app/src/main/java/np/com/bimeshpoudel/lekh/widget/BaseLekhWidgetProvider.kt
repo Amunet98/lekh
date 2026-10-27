@@ -84,6 +84,7 @@ abstract class BaseLekhWidgetProvider : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) {
         render(context, manager, ids)
         scheduleMidnight(context)
+        PanchangRefreshWorker.schedule(context)
     }
 
     override fun onAppWidgetOptionsChanged(
@@ -119,6 +120,8 @@ abstract class BaseLekhWidgetProvider : AppWidgetProvider() {
     override fun onDisabled(context: Context) {
         // Last widget of this size removed — stop waking the device for it.
         alarmManager(context).cancel(midnightIntent(context))
+        // And the daily calendar download, once no size is left at all.
+        if (!WidgetTheme.anyPlaced(context)) PanchangRefreshWorker.cancel(context)
     }
 
     /* Placed instances of a size with nothing to expand into render

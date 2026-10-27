@@ -126,14 +126,22 @@ object WidgetTheme {
         }
     }
 
+    private val providers = listOf(
+        LekhWidgetProvider::class.java,
+        LekhWidgetSmallProvider::class.java,
+        LekhWidgetWideProvider::class.java,
+        LekhWidgetXlProvider::class.java,
+    )
+
+    /** Whether any widget of any size is on a home screen. */
+    internal fun anyPlaced(context: Context): Boolean {
+        val manager = AppWidgetManager.getInstance(context)
+        return providers.any { manager.getAppWidgetIds(ComponentName(context, it)).isNotEmpty() }
+    }
+
     internal fun refreshAll(context: Context) {
         val manager = AppWidgetManager.getInstance(context)
-        for (provider in listOf(
-            LekhWidgetProvider::class.java,
-            LekhWidgetSmallProvider::class.java,
-            LekhWidgetWideProvider::class.java,
-            LekhWidgetXlProvider::class.java,
-        )) {
+        for (provider in providers) {
             val ids = manager.getAppWidgetIds(ComponentName(context, provider))
             if (ids.isEmpty()) continue
             context.sendBroadcast(

@@ -9,6 +9,8 @@ ext {
     androidxCoreVersion = '1.17.0'
     androidxFragmentVersion = '1.8.9'
     coreSplashScreenVersion = '1.2.0'
+    // 2.10.x, not 2.11+: those need a Kotlin 2.1 stdlib, this build is on 2.0.21.
+    androidxWorkVersion = '2.10.5'
     androidxWebkitVersion = '1.14.0'
     junitVersion = '4.13.2'
     androidxJunitVersion = '1.3.0'
