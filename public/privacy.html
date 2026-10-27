@@ -77,6 +77,15 @@
         font-size: 1.15rem;
         margin: 2.5rem 0 0.6rem;
       }
+      .back {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
+        margin: -0.75rem 0 0.75rem;
+        color: var(--accent);
+        font-weight: 600;
+        text-decoration: none;
+      }
       .updated {
         color: var(--muted);
         font-size: 0.9rem;
@@ -125,6 +134,7 @@
   </head>
   <body>
     <main>
+      <a class="back" href="/" id="back">&larr; Lekh Patro</a>
       <h1>Privacy</h1>
       <p class="updated">Lekh Patro · last updated 27 October 2026</p>
 
@@ -266,5 +276,30 @@
         <a href="/">← Back to Lekh Patro</a>
       </footer>
     </main>
+    <script>
+      /* The way back. In the Android app this page opens inside the app's own
+         WebView, and Android's Back did nothing here: the app's back handler
+         (src/lib/nativeBack.ts) stays registered natively after the page
+         changes, so the press went to a page that was no longer loaded.
+         Caught on the A024, 2026-10-27. Both the link and Back return to
+         wherever the app was if it brought us here, and open the app if not. */
+      ;(function () {
+        function back() {
+          var fromApp = document.referrer && new URL(document.referrer).origin === location.origin
+          if (fromApp && history.length > 1) history.back()
+          else location.href = '/'
+        }
+        document.getElementById('back').addEventListener('click', function (e) {
+          e.preventDefault()
+          back()
+        })
+        try {
+          var App = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App
+          if (App && App.addListener) App.addListener('backButton', back)
+        } catch (e) {
+          // No bridge: an ordinary browser, where Back already works.
+        }
+      })()
+    </script>
   </body>
 </html>
