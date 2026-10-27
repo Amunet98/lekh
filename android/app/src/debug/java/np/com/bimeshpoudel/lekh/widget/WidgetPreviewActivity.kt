@@ -49,11 +49,31 @@ class WidgetPreviewActivity : Activity() {
            form is what onAppWidgetOptionsChanged switches to once it's
            dragged tall — previewed here at that height since it is not
            reachable by placing a widget at its default size. */
+        /* The 2x2 is drawn three times. 160 is a roomy launcher; 138 is what
+           the Nothing launcher on the test phone (A024) actually gives two
+           cells, measured off a screenshot; 110 is the minHeight the provider
+           declares, the least any launcher may give. Previewing only at 160
+           is how a clipped tithi line shipped (2026-10-27): it fit here and
+           not on the phone. Every size has to fit at its declared minimum. */
         val sizes = listOf(
             Triple("2x1  small", np.com.bimeshpoudel.lekh.R.layout.widget_patro_small, 160 to 70),
             Triple("2x2  medium", np.com.bimeshpoudel.lekh.R.layout.widget_patro, 160 to 160),
+            Triple("2x2  medium, A024 launcher (138dp)", np.com.bimeshpoudel.lekh.R.layout.widget_patro, 138 to 138),
+            Triple("2x2  medium, declared minimum (110dp)", np.com.bimeshpoudel.lekh.R.layout.widget_patro, 110 to 110),
+            Triple("2x2  medium (160dp), long festival day", np.com.bimeshpoudel.lekh.R.layout.widget_patro, 160 to 160),
+            Triple("2x2  medium (138dp), long festival day", np.com.bimeshpoudel.lekh.R.layout.widget_patro, 138 to 138),
+            Triple("2x2  medium (110dp), long festival day", np.com.bimeshpoudel.lekh.R.layout.widget_patro, 110 to 110),
+            // One row on the A024's Nothing launcher is ~61dp, under the 70 above.
+            /* Not previewed at its declared 110x40: that is the pre-Android-12
+               cell formula's floor for one row, which no real launcher gives
+               (rows run ~60dp and up), and the leaf alone needs ~45dp of it.
+               Raising minHeight to fit would make old launchers reserve two
+               rows. The 2x1 is honest from ~57dp. */
+            Triple("2x1  small, A024 launcher (138x61dp)", np.com.bimeshpoudel.lekh.R.layout.widget_patro_small, 138 to 61),
             Triple("4x1  wide", np.com.bimeshpoudel.lekh.R.layout.widget_patro_wide, 330 to 70),
+            Triple("4x1  wide, A024 launcher (61dp)", np.com.bimeshpoudel.lekh.R.layout.widget_patro_wide, 330 to 61),
             Triple("5x1  xl", np.com.bimeshpoudel.lekh.R.layout.widget_patro_xl, 360 to 70),
+            Triple("5x1  xl, A024 launcher (61dp)", np.com.bimeshpoudel.lekh.R.layout.widget_patro_xl, 360 to 61),
             Triple("5x1  xl, expanded", np.com.bimeshpoudel.lekh.R.layout.widget_patro_xl_expanded, 360 to 170),
         )
 
@@ -64,7 +84,14 @@ class WidgetPreviewActivity : Activity() {
                 setPadding(0, dp(14), 0, dp(6))
             })
             val host = FrameLayout(this)
-            host.addView(WidgetRenderer.build(this, layout).apply(applicationContext, host))
+            // Built for the height it is shown at, as the provider builds it.
+            val views = WidgetRenderer.build(this, layout, heightDp = dims.second)
+            /* Kartik 22, 2083 — three festivals, the longest line the 2x2
+               shows that year — so the two-line case is always on screen. */
+            if (label.endsWith("long festival day")) {
+                views.setTextViewText(np.com.bimeshpoudel.lekh.R.id.widget_note, "लक्ष्मी पूजा · कुकुर तिहार · नरक चतुर्दशी")
+            }
+            host.addView(views.apply(applicationContext, host))
             root.addView(host, ViewGroup.LayoutParams(dp(dims.first), dp(dims.second)))
         }
 

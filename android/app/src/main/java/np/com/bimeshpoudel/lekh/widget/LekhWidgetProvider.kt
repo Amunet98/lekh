@@ -12,4 +12,6 @@ import np.com.bimeshpoudel.lekh.R
  */
 class LekhWidgetProvider : BaseLekhWidgetProvider() {
     override val layoutRes = R.layout.widget_patro
+    // Its natural height is more than some launchers give two cells.
+    override val fitsToHeight = true
 }

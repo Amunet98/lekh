@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.widget.RemoteViews
 import np.com.bimeshpoudel.lekh.R
+import android.util.TypedValue
 import android.view.View
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -59,6 +60,8 @@ object WidgetRenderer {
         context: Context,
         layoutRes: Int = R.layout.widget_patro,
         onClick: PendingIntent? = null,
+        /** The placed height in dp, when the provider knows it; 0 = unknown. */
+        heightDp: Int = 0,
     ): RemoteViews {
         NepaliCalendar.load(context)
         Panchang.load(context)
@@ -165,12 +168,45 @@ object WidgetRenderer {
         views.setBoolean(R.id.widget_day, "setEnabled", !isOff)
 
         if (showsWeek) renderWeek(views, today, WidgetTheme.pill(context), english)
+        if (square) fitSquare(context, views, heightDp)
 
         if (onClick != null) views.setOnClickPendingIntent(R.id.widget_root, onClick)
         // The app's "Wallpaper colours" setting, carried over — see WidgetTheme.
         if (WidgetTheme.useStatic(context)) WidgetTheme.applyStatic(views, layoutRes)
         return views
     }
+
+    /**
+     * Fits the 2x2 to the height it was actually given.
+     *
+     * The layout's natural height is about 160dp, and a 2x2 does not always
+     * get that: the Nothing launcher on the test phone gives 138dp, and the
+     * provider's declared minimum is 110dp. A widget cannot scroll and
+     * RemoteViews cannot measure, so what does not fit is simply cut off
+     * at the bottom — which is where the tithi and festival line live, the
+     * one line people read the widget for (shipped clipped until 1.9.68).
+     *
+     * So the date number shrinks first, then the festival line keeps to one
+     * line, then the AD date goes: the order of what matters least, the
+     * festival line last of all. Thresholds measured in the debug preview,
+     * which draws the 2x2 at all three heights, on the phone itself.
+     * Unknown height (0) keeps the full layout, as before.
+     */
+    private fun fitSquare(context: Context, views: RemoteViews, heightDp: Int) {
+        if (heightDp <= 0 || heightDp >= FULL_HEIGHT_DP) return
+        val tight = heightDp < TIGHT_HEIGHT_DP
+        views.setTextViewTextSize(R.id.widget_day, TypedValue.COMPLEX_UNIT_SP, if (tight) 26f else 32f)
+        views.setInt(R.id.widget_note, "setMaxLines", 1)
+        if (!tight) return
+        views.setViewVisibility(R.id.widget_ad, View.GONE)
+        // setViewPadding takes pixels; the layout's own values are 8/5dp.
+        val px = { dp: Int -> (dp * context.resources.displayMetrics.density).toInt() }
+        views.setViewPadding(R.id.widget_body, px(10), 0, px(10), px(2))
+        views.setViewPadding(R.id.widget_leaf_head, px(8), px(3), px(8), px(3))
+    }
+
+    private const val FULL_HEIGHT_DP = 156
+    private const val TIGHT_HEIGHT_DP = 124
 
     /**
      * The expanded xl week strip: Sunday to Saturday around [today], today

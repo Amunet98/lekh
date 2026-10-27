@@ -14,7 +14,7 @@
     android:layout_height="match_parent"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:paddingHorizontal="12dp"
+    android:paddingHorizontal="10dp"
     android:paddingVertical="8dp"
     android:background="@drawable/widget_background">
 
@@ -23,7 +23,7 @@
         android:layout_width="44dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginEnd="10dp"
+        android:layout_marginEnd="8dp"
         android:background="@drawable/widget_leaf">
 
         <TextView
@@ -60,11 +60,21 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <!-- Shrinks to fit rather than ellipsizing. Two cells are only
+             ~138dp on some launchers (the A024's Nothing launcher), which
+             leaves this column ~60dp, and "कार्तिक २०८३" needs ~78dp at 13sp:
+             the year was cut to "कार्तिक २…". Autosize is an XML attribute,
+             so it works through RemoteViews, from API 26 (minSdk). It needs
+             a fixed height, hence 20dp: one bold 13sp Devanagari line. -->
         <TextView
             android:id="@+id/widget_month"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="13sp"
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:gravity="center_vertical"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMinTextSize="9sp"
+            android:autoSizeMaxTextSize="13sp"
+            android:autoSizeStepGranularity="0.5sp"
             android:textStyle="bold"
             android:maxLines="1"
             android:ellipsize="end"

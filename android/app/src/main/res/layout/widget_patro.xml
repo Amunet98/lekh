@@ -32,7 +32,10 @@
         android:background="@drawable/widget_band"
         android:text="आइतबार" />
 
+    <!-- widget_body: WidgetRenderer.fitSquare trims its bottom padding when
+         the widget is placed shorter than this layout's natural height. -->
     <LinearLayout
+        android:id="@+id/widget_body"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"

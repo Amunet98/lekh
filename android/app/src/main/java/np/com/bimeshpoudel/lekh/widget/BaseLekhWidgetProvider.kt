@@ -8,7 +8,9 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.util.SizeF
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
@@ -81,6 +83,11 @@ abstract class BaseLekhWidgetProvider : AppWidgetProvider() {
      */
     protected open val expandedLayoutRes: Int? = null
 
+    /** Whether this size adapts its content to the height it was given —
+     *  the 2x2 does, see WidgetRenderer.fitSquare. Like an expanding size,
+     *  it is then rendered per instance rather than as one batch. */
+    protected open val fitsToHeight: Boolean = false
+
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) {
         render(context, manager, ids)
         scheduleMidnight(context)
@@ -94,10 +101,10 @@ abstract class BaseLekhWidgetProvider : AppWidgetProvider() {
         newOptions: Bundle,
     ) {
         super.onAppWidgetOptionsChanged(context, manager, appWidgetId, newOptions)
-        if (expandedLayoutRes == null) return
+        if (expandedLayoutRes == null && !fitsToHeight) return
         manager.updateAppWidget(
             appWidgetId,
-            WidgetRenderer.build(context, layoutFor(newOptions), openPatro(context)),
+            WidgetRenderer.build(context, layoutFor(newOptions), openPatro(context), heightOf(newOptions)),
         )
     }
 
@@ -132,15 +139,16 @@ abstract class BaseLekhWidgetProvider : AppWidgetProvider() {
        so those go one at a time instead. */
     private fun render(context: Context, manager: AppWidgetManager, ids: IntArray) {
         if (ids.isEmpty()) return
-        if (expandedLayoutRes == null) {
+        if (expandedLayoutRes == null && !fitsToHeight) {
             manager.updateAppWidget(ids, WidgetRenderer.build(context, layoutRes, openPatro(context)))
             return
         }
         val onClick = openPatro(context)
         for (id in ids) {
+            val options = manager.getAppWidgetOptions(id)
             manager.updateAppWidget(
                 id,
-                WidgetRenderer.build(context, layoutFor(manager.getAppWidgetOptions(id)), onClick),
+                WidgetRenderer.build(context, layoutFor(options), onClick, if (fitsToHeight) heightOf(options) else 0),
             )
         }
     }
@@ -169,6 +177,30 @@ abstract class BaseLekhWidgetProvider : AppWidgetProvider() {
             options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 0),
         )
         return if (height >= EXPAND_MIN_HEIGHT_DP) expanded else layoutRes
+    }
+
+    /**
+     * The smallest height this instance is drawn at, in dp, or 0 if the
+     * launcher has not said.
+     *
+     * The smallest, because the point is to never clip: where the launcher
+     * lists its real sizes (API 31+, OPTION_APPWIDGET_SIZES) the least of
+     * them; otherwise the lesser of MIN_HEIGHT (landscape) and MAX_HEIGHT
+     * (portrait). Expanding (layoutFor) asks the opposite question and takes
+     * the larger.
+     */
+    private fun heightOf(options: Bundle): Int {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            @Suppress("DEPRECATION")
+            val sizes = options.getParcelableArrayList<SizeF>(AppWidgetManager.OPTION_APPWIDGET_SIZES)
+            val least = sizes?.minOfOrNull { it.height }
+            if (least != null && least > 0f) return least.toInt()
+        }
+        val reported = listOf(
+            options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 0),
+            options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 0),
+        ).filter { it > 0 }
+        return reported.minOrNull() ?: 0
     }
 
     // Explicit intent naming MainActivity directly, not a bare ACTION_VIEW
