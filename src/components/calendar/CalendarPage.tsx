@@ -389,6 +389,42 @@ export function CalendarPage() {
             )
           })}
         </div>
+
+        {/* What the marks mean. The grid encodes five things — a red numeral,
+            two strengths of fill, a dot and a ring — and until 1.9.71 only the
+            panel below explained any of them, one day at a time. Each swatch
+            is drawn by the same rule as the cell it explains, so the key stays
+            true under Material You and in both themes. The festival and
+            holiday entries need the almanac; a month without data shows only
+            what the calendar knows by rule. */}
+        <ul className="cal__legend" aria-label="Calendar key">
+          <li>
+            <span className="cal__legend-mark cal__legend-mark--off dev" aria-hidden="true">७</span>
+            <span><span className="dev" lang="ne">बिदा</span> Day off</span>
+          </li>
+          {covered && (
+            <li>
+              <span className="cal__legend-mark cal__legend-mark--holiday" aria-hidden="true" />
+              <span><span className="dev" lang="ne">सार्वजनिक बिदा</span> Public holiday</span>
+            </li>
+          )}
+          {covered && namedHolidays.some((h) => h.partialFor) && (
+            <li>
+              <span className="cal__legend-mark cal__legend-mark--partial" aria-hidden="true" />
+              <span><span className="dev" lang="ne">आंशिक बिदा</span> Some people only</span>
+            </li>
+          )}
+          {covered && (
+            <li>
+              <span className="cal__legend-mark cal__legend-mark--dot" aria-hidden="true" />
+              <span><span className="dev" lang="ne">चाडपर्व</span> Festival</span>
+            </li>
+          )}
+          <li>
+            <span className="cal__legend-mark cal__legend-mark--today" aria-hidden="true" />
+            <span><span className="dev" lang="ne">आज</span> Today</span>
+          </li>
+        </ul>
       </div>
 
       {/* The detail panel. This is where a festival name actually gets read,

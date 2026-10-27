@@ -570,6 +570,37 @@
   gap: var(--sp-2);
   margin-left: auto;
 }
+/* Over the foot of the source box instead of between the panes — see
+   TranslatePage.tsx. Opaque, because the text it floats over is what it is
+   talking about and must not show through, and it arrives by fading and
+   rising rather than by growing, so nothing else on the screen moves. */
+.hint-banner--float {
+  position: absolute;
+  left: var(--sp-2);
+  right: var(--sp-2);
+  bottom: var(--sp-2);
+  z-index: 2;
+  margin: 0;
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface-2));
+  box-shadow: var(--shadow-rest, 0 2px 10px rgba(0, 0, 0, 0.12));
+  animation: hint-float-in var(--dur) var(--ease-expo) both;
+}
+@keyframes hint-float-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hint-banner--float {
+    animation: none;
+  }
+}
+/* No room is reserved under the text for it. Padding was tried, and on a
+   phone the box is sized by its content, so the padding grew it and pushed
+   the answer down by the banner's height — the very jump this replaces. The
+   hints only ever appear for a short typed phrase, which sits above the
+   banner, and answering either way takes the banner off. */
 
 /* The engine row — see TranslateActions for why this stopped being a
    disclosure and became a control.
@@ -697,6 +728,25 @@
    restates the name. See the Larger-text note in ToolsPage.css for 468px. */
 @media (max-width: 468px) {
   :root[data-ui-scale='xl'] .lang-picker__script {
+    display: none;
+  }
+}
+/* The same squeeze at Large: 414px is 360 × 1.15 ("Engli…" at 390px). */
+@media (max-width: 414px) {
+  :root[data-ui-scale='lg'] .lang-picker__script {
+    display: none;
+  }
+}
+/* And on the narrowest phones at any setting: at 320px "English" had 36px of
+   the 53 it needs. Below 340px at Larger even that is not enough, and the
+   chevron goes too — the pill is plainly a control without it. */
+@media (max-width: 360px) {
+  .lang-picker__script {
+    display: none;
+  }
+}
+@media (max-width: 340px) {
+  :root[data-ui-scale='xl'] .lang-picker .lang-picker__btn > svg {
     display: none;
   }
 }

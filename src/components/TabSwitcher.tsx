@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { SectionIcon } from './SectionIcons'
 import { tick } from '../lib/haptics'
 import './TabSwitcher.css'
@@ -25,8 +25,33 @@ const TABS: { id: Tab; label: string; icon: ReactNode }[] = [
 ]
 
 export function TabSwitcher({ active, onChange, booting = false }: TabSwitcherProps) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  /* The dock's real height, for the Type page to fill the screen down to it
+     (see .type-page in Editor.css). That used to subtract .page's 4.75rem
+     bottom padding instead, which is the dock plus breathing room for the
+     scrolling sections, so the editor stopped 17px short of the dock and a
+     band of page background sat between the two on every phone. Measured
+     rather than computed: the dock's height moves with the text-size
+     setting, the label font and the gesture-bar inset, and a number written
+     down in CSS was already wrong at the default. */
+  useEffect(() => {
+    const el = ref.current
+    if (!el || typeof ResizeObserver === 'undefined') return
+    const root = document.documentElement
+    const write = () => root.style.setProperty('--dock-h', `${el.getBoundingClientRect().height}px`)
+    write()
+    const observer = new ResizeObserver(write)
+    observer.observe(el)
+    return () => {
+      observer.disconnect()
+      root.style.removeProperty('--dock-h')
+    }
+  }, [])
+
   return (
     <div
+      ref={ref}
       className={`tab-switcher${booting ? ' tab-switcher--is-booting' : ''}`}
       role="tablist"
       aria-label="Section"

@@ -440,6 +440,65 @@
   background: var(--on-accent);
 }
 
+/* The key under the grid. Small and muted: it is read once, by someone
+   meeting the calendar for the first time, and then it should disappear into
+   the page. Each mark repeats the cell rule it explains rather than a
+   lookalike colour, so the two can never drift apart. */
+.cal__legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--sp-2) var(--sp-4);
+  margin: 0;
+  padding: var(--sp-3) var(--sp-3) var(--sp-3);
+  border-top: 1px solid var(--border);
+  list-style: none;
+  font-size: 0.72rem;
+  line-height: 1.3;
+  color: var(--muted);
+}
+.cal__legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.cal__legend .dev {
+  color: var(--text);
+  margin-inline-end: 0.2rem;
+}
+.cal__legend-mark {
+  position: relative;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 5px;
+}
+.cal__legend-mark--off {
+  font-family: var(--display-dev);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--bida);
+}
+.cal__legend-mark--holiday {
+  background: color-mix(in srgb, var(--bida-bg) 70%, var(--surface));
+}
+.cal__legend-mark--partial {
+  background: color-mix(in srgb, var(--bida-bg) 32%, var(--surface));
+}
+.cal__legend-mark--dot::after {
+  content: '';
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--accent);
+}
+.cal__legend-mark--today {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
 /* Selected-day detail */
 /* The day you are looking at.
  *

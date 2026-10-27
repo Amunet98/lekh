@@ -43,35 +43,58 @@ interface EditorProps {
    every clause but the last described something the editor was not doing,
    and what someone in that state needs is the way back. */
 function EditorHint({ nepali }: { nepali: boolean }) {
+  if (!nepali) {
+    return (
+      <p className="editor-hint">
+        Tap <b className="dev">नेपाली</b> to convert as you type · runs entirely on your device
+      </p>
+    )
+  }
   return (
-    <p className="editor-hint">
-      {nepali ? (
-        /* Each clause is one unbreakable run, so a narrow screen breaks the
-           line between clauses — it used to strand the । at the start of the
-           second line, away from the full stop it is the answer to. */
-        <>
-          <span className="editor-hint__clause">
-            <kbd>space</kbd> converts
-          </span>{' '}
-          ·{' '}
-          <span className="editor-hint__clause editor-hint__fine">
-            <kbd>esc</kbd> keeps English
+    <>
+      {/* The lesson as three steps with a worked example, for someone who has
+          never used a romanized keyboard. It replaced one line of four
+          dot-separated tips that a first-time user had to parse before typing
+          anything (1.9.71). Not tappable on purpose — the "Try one" starters
+          that inserted text here were removed at the owner's call. */}
+      <ol className="editor-steps">
+        <li>
+          <span className="editor-steps__n" aria-hidden="true">1</span>
+          <span>
+            Type <kbd>mero naam</kbd>
           </span>
-          <span className="editor-hint__clause editor-hint__coarse">
-            tap <b>(keep)</b> for English
-          </span>{' '}
-          ·{' '}
-          <span className="editor-hint__clause">
-            <kbd>.</kbd> becomes ।
-          </span>{' '}
-          · <span className="editor-hint__clause">runs entirely on your device</span>
-        </>
-      ) : (
-        <>
-          Tap <b className="dev">नेपाली</b> to convert as you type · runs entirely on your device
-        </>
-      )}
-    </p>
+        </li>
+        <li>
+          <span className="editor-steps__n" aria-hidden="true">2</span>
+          <span>
+            Press <kbd>space</kbd> <span aria-hidden="true">→</span>{' '}
+            <span className="dev" lang="ne">
+              मेरो नाम
+            </span>
+          </span>
+        </li>
+        <li>
+          <span className="editor-steps__n" aria-hidden="true">3</span>
+          <span>Copy and paste it into any app</span>
+        </li>
+      </ol>
+      {/* The two finer points, kept, one quiet line under the steps. Each
+          clause is one unbreakable run so a narrow screen breaks between them
+          — it used to strand the । away from the full stop it answers. */}
+      <p className="editor-hint">
+        <span className="editor-hint__clause editor-hint__fine">
+          <kbd>esc</kbd> keeps English
+        </span>
+        <span className="editor-hint__clause editor-hint__coarse">
+          tap <b>(keep)</b> for English
+        </span>{' '}
+        ·{' '}
+        <span className="editor-hint__clause">
+          <kbd>.</kbd> becomes ।
+        </span>{' '}
+        · <span className="editor-hint__clause">works offline</span>
+      </p>
+    </>
   )
 }
 
@@ -277,9 +300,13 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet, booting }: Edito
                   correctly into any app. */}
               <div className="editor-empty__intro">
                 <p className="editor-empty__title">Romanized Nepali Unicode</p>
-                <p className="editor-empty__sub">
-                  Type in English letters, get Nepali Unicode you can paste anywhere.
-                </p>
+                {/* The sub-line only in English mode now: in Nepali mode the
+                    steps below say the same thing, and say how. */}
+                {!editor.nepali && (
+                  <p className="editor-empty__sub">
+                    Type in English letters, get Nepali Unicode you can paste anywhere.
+                  </p>
+                )}
               </div>
               <EditorHint nepali={editor.nepali} />
             </div>
@@ -382,7 +409,7 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet, booting }: Edito
                       <SheetIcon name="undo" size={18} />
                     </span>
                     <span className="btn__text" aria-hidden="true">
-                      Undo
+                      Undo clear
                     </span>
                   </button>
                 </div>

@@ -976,3 +976,17 @@
     gap: 0.4rem;
   }
 }
+/* Narrower still, five labels cannot share one row at the larger settings
+   ("Curren…" again at 360px, three of five cut at 320px), and shrinking the
+   type further would defeat the setting. Two rows instead, three and two:
+   every label whole, at the size the person asked for. */
+@media (max-width: 400px) {
+  :root[data-ui-scale='xl'] .tools-nav {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 360px) {
+  :root[data-ui-scale='lg'] .tools-nav {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

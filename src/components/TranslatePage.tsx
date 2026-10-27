@@ -282,6 +282,35 @@ export function TranslatePage({ t, onShow }: TranslatePageProps) {
               onChange={(e) => t.setSourceText(e.target.value)}
               onPaste={upload.handlePaste}
             />
+            {/* The direction suggestions float over the foot of the box
+                rather than standing between the two panes, where they pushed
+                the answer down the screen mid-read. */}
+              {romanNepali && !romanDismissed && (
+                <div className="hint-banner hint-banner--float" role="status">
+                  <span>This looks like Nepali typed in English letters.</span>
+                  <span className="hint-banner__actions">
+                    <button type="button" className="btn btn--primary" onClick={() => t.setDirectionOnly('ne-en')}>
+                      Translate from Nepali
+                    </button>
+                    <button type="button" className="btn" onClick={() => setRomanDismissed(true)}>
+                      It&rsquo;s English
+                    </button>
+                  </span>
+                </div>
+              )}
+              {english && !englishDismissed && (
+                <div className="hint-banner hint-banner--float" role="status">
+                  <span>This looks like English, but the direction is Nepali → English.</span>
+                  <span className="hint-banner__actions">
+                    <button type="button" className="btn btn--primary" onClick={() => t.setDirectionOnly('en-ne')}>
+                      Translate from English
+                    </button>
+                    <button type="button" className="btn" onClick={() => setEnglishDismissed(true)}>
+                      It&rsquo;s Nepali
+                    </button>
+                  </span>
+                </div>
+              )}
             {/* Shown only over the truly empty, idle pane — once there's
                 text, a file, an in-progress read or an active drag, those
                 already say what's happening and this would just be visual
@@ -324,32 +353,6 @@ export function TranslatePage({ t, onShow }: TranslatePageProps) {
                 </div>
               )}
           </div>
-          {romanNepali && !romanDismissed && (
-            <div className="hint-banner" role="status">
-              <span>This looks like Nepali typed in English letters.</span>
-              <span className="hint-banner__actions">
-                <button type="button" className="btn btn--primary" onClick={() => t.setDirectionOnly('ne-en')}>
-                  Translate from Nepali
-                </button>
-                <button type="button" className="btn" onClick={() => setRomanDismissed(true)}>
-                  It&rsquo;s English
-                </button>
-              </span>
-            </div>
-          )}
-          {english && !englishDismissed && (
-            <div className="hint-banner" role="status">
-              <span>This looks like English, but the direction is Nepali → English.</span>
-              <span className="hint-banner__actions">
-                <button type="button" className="btn btn--primary" onClick={() => t.setDirectionOnly('en-ne')}>
-                  Translate from English
-                </button>
-                <button type="button" className="btn" onClick={() => setEnglishDismissed(true)}>
-                  It&rsquo;s Nepali
-                </button>
-              </span>
-            </div>
-          )}
         </div>
         <TranslateRun t={t} />
         <div className="translate-pane">
