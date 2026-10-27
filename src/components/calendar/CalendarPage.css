@@ -432,6 +432,12 @@
 .cal__cell--selected::before {
   background: var(--accent);
 }
+/* Today, selected — which is how the calendar opens. The fill used to bury
+   the ring, so the one ring the key under the grid points at was the one day
+   it never showed on. An inner ring in the fill's own text colour keeps it. */
+.cal__cell--today.cal__cell--selected::before {
+  box-shadow: inset 0 0 0 2px var(--accent), inset 0 0 0 4px var(--on-accent);
+}
 .cal__cell--selected .cal__bs,
 .cal__cell--selected .cal__ad {
   color: var(--on-accent);

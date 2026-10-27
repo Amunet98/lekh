@@ -20,4 +20,13 @@
   .type-page {
     margin-bottom: calc(var(--dock-h, var(--page-bottom, 4.75rem)) - var(--page-bottom, 4.75rem));
   }
+  /* With the keyboard up the dock slides away (TabSwitcher.css) but its
+     space stayed reserved: a 60px dead band between the toolbar and the
+     keys on the A024, in the one moment screen height is scarcest. The
+     editor takes it, and the margin gives back the whole of .page's
+     padding so the page is still one screen. */
+  .has-keyboard .type-page {
+    min-height: calc(100dvh - var(--bar-h));
+    margin-bottom: calc(0px - var(--page-bottom, 4.75rem));
+  }
 }
