@@ -483,6 +483,17 @@
     content-visibility: hidden;
   }
 }
+/* The one-off idle layout pass — see the Section component. Rendered so the
+   browser lays it out and keeps that state, but drawn nowhere: invisible, no
+   height, so the page around it does not move by a pixel. */
+@supports (content-visibility: hidden) {
+  .section--idle.section--warming {
+    content-visibility: visible;
+    visibility: hidden;
+    height: 0;
+    overflow: hidden;
+  }
+}
 
 /* While a modal sheet is open. See the effect in App.tsx for why.
  *

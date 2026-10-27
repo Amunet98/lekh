@@ -89,8 +89,48 @@ function bootedThisSession(): boolean {
  * depend on either property being implemented the way the spec describes. An
  * off-screen section must not hold a tab stop or answer a screen reader. */
 function Section({ active, children }: { active: boolean; children: ReactNode }) {
+  /* Laid out once while nothing is happening, then hidden again.
+   *
+   * The idle pre-mount below builds a section's DOM, but content-visibility
+   * only keeps rendering state a section has already had, so its first visit
+   * still paid for the whole layout in the frame the tab switch was waiting
+   * on: a 122ms frame arriving at Tools on the A024 at 90Hz, against 11ms for
+   * every visit after it (1.9.75). This does that layout in an idle callback
+   * instead — the section rendered for two frames in place, invisible and at
+   * zero height (.section--warming), so the real visit is a paint.
+   *
+   * No timeout, for the reason the pre-mount gives: better a section left
+   * cold than one laid out over somebody's typing. */
+  const [warming, setWarming] = useState(false)
+  const warmed = useRef(active)
+  useEffect(() => {
+    if (active) {
+      warmed.current = true
+      return
+    }
+    const idle = window.requestIdleCallback
+    if (warmed.current || !idle) return
+    let frame = 0
+    const id = idle(() => {
+      setWarming(true)
+      frame = requestAnimationFrame(() => {
+        frame = requestAnimationFrame(() => {
+          warmed.current = true
+          setWarming(false)
+        })
+      })
+    })
+    return () => {
+      window.cancelIdleCallback?.(id)
+      cancelAnimationFrame(frame)
+    }
+  }, [active])
+
   return (
-    <div className={`section${active ? '' : ' section--idle'}`} inert={!active}>
+    <div
+      className={`section${active ? '' : ' section--idle'}${warming && !active ? ' section--warming' : ''}`}
+      inert={!active}
+    >
       {children}
     </div>
   )

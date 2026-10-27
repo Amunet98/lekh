@@ -2,6 +2,10 @@ import type { TranslateState } from '../../hooks/useTranslateState'
 import { SHARE_AVAILABLE } from '../../lib/share'
 import { fill } from './progressFill'
 import { DownloadActions } from '../DownloadActions'
+import { MoreActions } from '../MoreActions'
+import { useMediaQuery } from '../../hooks/useMediaQuery'
+import { useToast } from '../../hooks/useToast'
+import { DOCK_QUERY } from '../../hooks/useDockDetached'
 import { pronounce } from '../../lib/engine/pronounce'
 import './translate.css'
 
@@ -11,6 +15,12 @@ export function TranslationOutput({ t, onShow }: { t: TranslateState; onShow: ()
   /* Only once the answer is in: a half-finished chunked translation would
      have its pronunciation rewritten under the reader on every chunk. */
   const settled = t.status !== 'loading' && t.translated !== ''
+  // The phone's shared row shape — see the actions below and MoreActions.
+  const compact = useMediaQuery(DOCK_QUERY)
+  const toast = useToast()
+  /* Same as the Type tab's: a share sheet that fails to open has nowhere
+     else to say so. Dismissing it is not a failure (see share.ts). */
+  const share = () => void t.share().catch(() => toast.problem('Could not open the share sheet'))
   return (
     <>
       <div className="translate-output dev" aria-live="polite">
@@ -117,7 +127,29 @@ export function TranslationOutput({ t, onShow }: { t: TranslateState; onShow: ()
           grey Copy and Share under an empty pane on every first visit — two
           controls that could not do anything yet. The pane already says where
           the answer will go. */}
-      {t.translated && (
+      {t.translated && compact && (
+        /* The phone row, the same shape as the Type tab's: the filled Copy,
+           this screen's own Show, and the shared ⋯ sheet holding Share and
+           the three files (MoreActions). It used to be Export, Copy, Share
+           and Show — the same actions in a different arrangement from the
+           tab next door. */
+        <div className="translate-output__actions reveal">
+          <span className="translate-output__spacer" />
+          <button type="button" className="btn btn--primary" onClick={() => void t.copy()}>
+            {t.copied ? 'Copied' : 'Copy'}
+          </button>
+          {/* Full screen, large, to hold up to someone. */}
+          <button type="button" className="btn" onClick={onShow} disabled={!settled}>
+            Show
+          </button>
+          <MoreActions
+            text={t.translated}
+            filenameBase="lekh-translation"
+            onShare={share}
+          />
+        </div>
+      )}
+      {t.translated && !compact && (
         <div className="translate-output__actions reveal">
           {/* Everything you can do with the result, in one row. Export used
               to sit on its own at the foot of the page, below the engine

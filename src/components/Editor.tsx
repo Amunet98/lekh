@@ -1,27 +1,15 @@
-import { useState, type RefObject } from 'react'
+import type { RefObject } from 'react'
 import type { EditorState } from '../hooks/useEditorState'
 import { SHARE_AVAILABLE } from '../lib/share'
-import { isNativeApp } from '../lib/androidApp'
 import { tick } from '../lib/haptics'
 import { useToast } from '../hooks/useToast'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import { useIntroDemo } from '../hooks/useIntroDemo'
 import { DOCK_QUERY } from '../hooks/useDockDetached'
-import { DOWNLOAD_FORMATS, useDownloadActions } from '../hooks/useDownloadActions'
 import { DownloadActions } from './DownloadActions'
-import { ActionSheet, type ActionSheetOption } from './ActionSheet'
+import { MoreActions } from './MoreActions'
 import { SheetIcon } from './SheetIcons'
 import './Editor.css'
-
-function MoreIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
-      <circle cx="5" cy="12" r="1.8" />
-      <circle cx="12" cy="12" r="1.8" />
-      <circle cx="19" cy="12" r="1.8" />
-    </svg>
-  )
-}
 
 /* Exported so App can hand the caret over when the boot screen leaves without
    threading a ref up through TypePage. The ref below is the in-component
@@ -118,20 +106,8 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet, booting }: Edito
    * stranded on a second line and pushing the editor up by a row for the
    * privilege. So below the dock breakpoint the row keeps what is used most
    * (the mode, the cheat sheet, copy) and everything else moves behind one
-   * overflow control.
-   *
-   * Flattened rather than nested: the sheet lists the three formats directly
-   * instead of a "Download" row that opens a second sheet on top of the
-   * first. That is what useDownloadActions was pulled out of DownloadActions
-   * for — the desktop row still renders the pill-with-a-menu, this renders
-   * rows, and both dispatch through the same run(). */
+   * overflow control — MoreActions, which Translate's phone row now shares. */
   const compactActions = useMediaQuery(DOCK_QUERY)
-  const [moreOpen, setMoreOpen] = useState(false)
-  const { busy, run } = useDownloadActions({
-    text: editor.text,
-    filenameBase: 'lekh-nepali',
-  })
-
   const share = () => {
     /* A share that fails has nowhere to say so — the sheet simply never
        appears and the tap looks ignored. Dismissing it is not a failure and
@@ -150,45 +126,6 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet, booting }: Edito
        the boot screen; this is the second caller of the same idea. */
     document.getElementById(EDITOR_ID)?.focus()
   }
-
-  /* Built only for the overflow path. An empty editor has nothing to share or
-     save, so those rows are not offered rather than offered and disabled — a
-     sheet of dead rows is worse than a shorter sheet. Undo is the exception
-     and the reason the button is not simply disabled when empty: clearing
-     leaves the editor empty and the undo is the one thing you might want. */
-  const native = isNativeApp()
-  const moreOptions: ActionSheetOption[] = []
-  if (!isEmpty) {
-    if (SHARE_AVAILABLE) {
-      moreOptions.push({
-        id: 'share',
-        label: 'Share',
-        hint: 'Send to another app',
-        icon: <SheetIcon name="share" />,
-        onSelect: share,
-      })
-    }
-    /* "Save as" is the web's verb, and only the web's. Inside the app
-       saveFile hands the file to the system share sheet (see download.ts —
-       a WebView drops an <a download> silently), so a row promising to save
-       a .txt opened a list of chat apps instead. The sheet is still the right
-       mechanism; the label just has to say which mechanism it is, the way the
-       PDF row already names the print dialog. */
-    for (const f of DOWNLOAD_FORMATS) {
-      moreOptions.push({
-        id: f.id,
-        label: native ? `Export ${f.noun}` : `Save as ${f.noun}`,
-        hint: native && f.id !== 'pdf' ? `${f.hint} · via the share sheet` : f.hint,
-        icon: <SheetIcon name={f.icon} />,
-        onSelect: () => run(f.id),
-      })
-    }
-  }
-  /* Clear and Undo are no longer in here: on the phone they are a button of
-     their own in the toolbar (see below), and the desktop row has always had
-     them inline. A tester's first complaint was having to open ⋯ to find the
-     one action everybody uses, and the sheet now holds only the ways out —
-     share and the files. */
 
   return (
     <div className="editor-shell">
@@ -440,23 +377,7 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet, booting }: Edito
                 <button type="button" className="btn btn--primary" onClick={editor.copy}>
                   {editor.copied ? 'Copied' : 'Copy'}
                 </button>
-                <button
-                  type="button"
-                  className="btn btn--icon"
-                  aria-haspopup="dialog"
-                  aria-label="More actions — share, export"
-                  title="More actions"
-                  disabled={moreOptions.length === 0 || busy}
-                  onClick={() => setMoreOpen(true)}
-                >
-                  <MoreIcon />
-                </button>
-                <ActionSheet
-                  open={moreOpen}
-                  onClose={() => setMoreOpen(false)}
-                  label="Text actions"
-                  options={moreOptions}
-                >
+                <MoreActions text={editor.text} filenameBase="lekh-nepali" onShare={share}>
                   {/* The count lives here on a phone. In the row it was the
                       price of a visible Clear — the row has no width for
                       both — and it is a number people look up, not watch. */}
@@ -464,7 +385,7 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet, booting }: Edito
                     {wordCount} {wordCount === 1 ? 'word' : 'words'} · {editor.text.length}{' '}
                     {editor.text.length === 1 ? 'character' : 'characters'}
                   </p>
-                </ActionSheet>
+                </MoreActions>
               </div>
             )
           ) : (
