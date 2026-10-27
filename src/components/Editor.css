@@ -244,10 +244,9 @@
     flex-direction: column;
     /* Down to the dock itself, not to the end of .page's padding, which
        also carries the scrolling sections' breathing room — see the measure
-       in TabSwitcher.tsx. The negative margin hands that extra room back, so
-       the page is still exactly one screen tall and never scrolls. */
+       in TabSwitcher.tsx, and the margin that hands the extra room back in
+       TypePage.css (it has to sit after that file's own margin rule). */
     min-height: calc(100dvh - var(--bar-h) - var(--dock-h, var(--page-bottom, 4.75rem)));
-    margin-bottom: calc(var(--dock-h, var(--page-bottom, 4.75rem)) - var(--page-bottom, 4.75rem));
   }
   .editor-shell,
   .editor,

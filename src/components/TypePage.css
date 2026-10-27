@@ -10,3 +10,14 @@
   max-width: 780px;
   margin: 0 auto;
 }
+/* The phone page fills the screen to the dock (see .type-page in
+   Editor.css), and .page's bottom padding is taller than the dock — it also
+   gives the scrolling sections room to breathe. This gives the difference
+   back so the Type page is exactly one screen and never scrolls. Here, after
+   the margin above, because the two rules tie and the later one wins: in
+   Editor.css this was silently overridden and the page scrolled 17px. */
+@media (max-width: 767px) {
+  .type-page {
+    margin-bottom: calc(var(--dock-h, var(--page-bottom, 4.75rem)) - var(--page-bottom, 4.75rem));
+  }
+}
