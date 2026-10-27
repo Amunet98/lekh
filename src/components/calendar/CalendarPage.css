@@ -468,41 +468,32 @@
   align-items: center;
   gap: 0.4rem;
 }
-.cal__legend .dev {
+.cal__legend-ne {
   color: var(--text);
   margin-inline-end: 0.2rem;
 }
-.cal__legend-mark {
-  position: relative;
+/* A date from the grid, small. It carries the real .cal__cell state classes,
+   so its numeral colour, fill, dot and ring are the grid's own rules; this
+   only shrinks it and takes away what makes a cell a button. */
+.cal__legend-cell {
   flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.1rem;
-  height: 1.1rem;
-  border-radius: 5px;
+  width: 1.9rem;
+  height: 1.9rem;
+  min-height: 0;
+  aspect-ratio: auto;
+  padding: 0;
+  cursor: default;
+  pointer-events: none;
 }
-.cal__legend-mark--off {
-  font-family: var(--display-dev);
+.cal__legend-cell::before {
+  inset: 1px;
+  border-radius: 7px;
+}
+.cal__legend-cell .cal__bs {
   font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--bida);
 }
-.cal__legend-mark--holiday {
-  background: color-mix(in srgb, var(--bida-bg) 70%, var(--surface));
-}
-.cal__legend-mark--partial {
-  background: color-mix(in srgb, var(--bida-bg) 32%, var(--surface));
-}
-.cal__legend-mark--dot::after {
-  content: '';
-  width: 4px;
-  height: 4px;
-  border-radius: 999px;
-  background: var(--accent);
-}
-.cal__legend-mark--today {
-  box-shadow: inset 0 0 0 2px var(--accent);
+.cal__legend-cell .cal__dot {
+  bottom: 2px;
 }
 
 /* Selected-day detail */

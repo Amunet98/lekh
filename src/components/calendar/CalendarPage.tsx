@@ -398,31 +398,48 @@ export function CalendarPage() {
             holiday entries need the almanac; a month without data shows only
             what the calendar knows by rule. */}
         <ul className="cal__legend" aria-label="Calendar key">
+          {/* Each sample is a miniature date drawn by the grid's own cell
+              classes (see .cal__legend-cell), so the key looks like the
+              calendar it explains. The first version used bare swatches: a
+              grey ७ (a label rule was recolouring it) and a holiday square
+              too faint to see on the dark theme, which left the owner asking
+              what they meant. */}
           <li>
-            <span className="cal__legend-mark cal__legend-mark--off dev" aria-hidden="true">७</span>
-            <span><span className="dev" lang="ne">बिदा</span> Day off</span>
+            <span className="cal__cell cal__cell--off cal__legend-cell" aria-hidden="true">
+              <span className="cal__bs dev">७</span>
+            </span>
+            <span><span className="cal__legend-ne dev" lang="ne">बिदा</span> Day off</span>
           </li>
           {covered && (
             <li>
-              <span className="cal__legend-mark cal__legend-mark--holiday" aria-hidden="true" />
-              <span><span className="dev" lang="ne">सार्वजनिक बिदा</span> Public holiday</span>
+              <span className="cal__cell cal__cell--off cal__cell--holiday cal__legend-cell" aria-hidden="true">
+                <span className="cal__bs dev">१</span>
+              </span>
+              <span><span className="cal__legend-ne dev" lang="ne">सार्वजनिक बिदा</span> Public holiday</span>
             </li>
           )}
           {covered && namedHolidays.some((h) => h.partialFor) && (
             <li>
-              <span className="cal__legend-mark cal__legend-mark--partial" aria-hidden="true" />
-              <span><span className="dev" lang="ne">आंशिक बिदा</span> Some people only</span>
+              <span className="cal__cell cal__cell--partial cal__legend-cell" aria-hidden="true">
+                <span className="cal__bs dev">८</span>
+              </span>
+              <span><span className="cal__legend-ne dev" lang="ne">आंशिक बिदा</span> Some people only</span>
             </li>
           )}
           {covered && (
             <li>
-              <span className="cal__legend-mark cal__legend-mark--dot" aria-hidden="true" />
-              <span><span className="dev" lang="ne">चाडपर्व</span> Festival</span>
+              <span className="cal__cell cal__legend-cell" aria-hidden="true">
+                <span className="cal__bs dev">३</span>
+                <span className="cal__dot" />
+              </span>
+              <span><span className="cal__legend-ne dev" lang="ne">चाडपर्व</span> Festival</span>
             </li>
           )}
           <li>
-            <span className="cal__legend-mark cal__legend-mark--today" aria-hidden="true" />
-            <span><span className="dev" lang="ne">आज</span> Today</span>
+            <span className="cal__cell cal__cell--today cal__legend-cell" aria-hidden="true">
+              <span className="cal__bs dev">१०</span>
+            </span>
+            <span><span className="cal__legend-ne dev" lang="ne">आज</span> Today</span>
           </li>
         </ul>
       </div>
