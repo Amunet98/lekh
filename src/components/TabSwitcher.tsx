@@ -42,7 +42,12 @@ export function TabSwitcher({ active, onChange, booting = false }: TabSwitcherPr
     const write = () => root.style.setProperty('--dock-h', `${el.getBoundingClientRect().height}px`)
     write()
     const observer = new ResizeObserver(write)
-    observer.observe(el)
+    /* border-box, not the default content box. The gesture-bar inset is
+       bottom padding (env(safe-area-inset-bottom)), and on a phone it
+       arrives after the first layout — a content-box observer never saw it,
+       so the dock measured 59px while drawing 83, and the editor's toolbar
+       slid half under it (A024, 1.9.71). */
+    observer.observe(el, { box: 'border-box' })
     return () => {
       observer.disconnect()
       root.style.removeProperty('--dock-h')
