@@ -96,8 +96,8 @@ function Section({ active, children }: { active: boolean; children: ReactNode })
    * still paid for the whole layout in the frame the tab switch was waiting
    * on: a 122ms frame arriving at Tools on the A024 at 90Hz, against 11ms for
    * every visit after it (1.9.75). This does that layout in an idle callback
-   * instead — the section rendered for two frames in place, invisible and at
-   * zero height (.section--warming), so the real visit is a paint.
+   * instead — the section laid out and drawn for two frames, behind the page
+   * and invisible (.section--warming in App.css), so the real visit reuses it.
    *
    * No timeout, for the reason the pre-mount gives: better a section left
    * cold than one laid out over somebody's typing. */

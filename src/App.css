@@ -483,15 +483,21 @@
     content-visibility: hidden;
   }
 }
-/* The one-off idle layout pass — see the Section component. Rendered so the
-   browser lays it out and keeps that state, but drawn nowhere: invisible, no
-   height, so the page around it does not move by a pixel. */
+/* The one-off idle warm-up — see the Section component. Laid out AND drawn,
+   because on the A024 the first visit's cost was not layout (2ms) but the
+   first raster of the section's text: invisible-and-zero-height warmed only
+   the 2ms, and Tools still took 166-177ms. Drawn behind the page at 0.1%
+   opacity (rounds to no visible change on any background), fixed so the page
+   does not move, inert and untappable: 55-66ms over three cold launches. */
 @supports (content-visibility: hidden) {
   .section--idle.section--warming {
     content-visibility: visible;
-    visibility: hidden;
-    height: 0;
+    position: fixed;
+    inset: 0;
+    z-index: -1;
     overflow: hidden;
+    opacity: 0.001;
+    pointer-events: none;
   }
 }
 
