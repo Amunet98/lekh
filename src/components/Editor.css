@@ -764,50 +764,78 @@
   align-self: center;
 }
 
-/* The three steps of the empty state. A left-aligned list centred as a
-   block, so the numbers line up down one edge however long each line is. */
-.editor-steps {
+/* The empty state's moving example — see LiveDemo.tsx. A small field in
+   the editor's own type, so what it shows is what typing here looks like:
+   Devanagari in the writing face, the word still being typed in the mono
+   the pending word takes, and a caret. */
+.live-demo {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  text-align: start;
-  font-size: 0.88rem;
-  line-height: 1.45;
-  color: var(--text);
-}
-.editor-steps li {
-  display: flex;
   align-items: center;
   gap: var(--sp-3);
 }
-.editor-steps__n {
-  flex: 0 0 auto;
-  display: inline-flex;
+.live-demo__field {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  width: 1.6rem;
-  height: 1.6rem;
-  border-radius: 999px;
-  background: var(--accent-bg);
-  color: var(--accent-text);
-  font-size: 0.78rem;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
+  justify-content: flex-start;
+  min-width: min(16rem, 80vw);
+  min-height: 3.6rem;
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-field, 14px);
+  background: var(--surface-2);
+  box-shadow: var(--shadow-rest);
+  font-size: 1.6rem;
+  line-height: 1.3;
+  color: var(--text-h);
+  text-align: start;
 }
-.editor-steps kbd {
+.live-demo__done {
+  font-family: var(--devanagari);
+  font-weight: 500;
+  white-space: pre;
+}
+.live-demo__pending {
   font-family: var(--mono);
-  font-size: 0.8rem;
+  font-size: 1.15rem;
+  color: var(--accent-text);
+}
+.live-demo__caret {
+  flex: 0 0 auto;
+  width: 2px;
+  height: 1.3em;
+  margin-inline-start: 1px;
+  border-radius: 1px;
+  background: var(--accent);
+  animation: live-demo-blink 1.05s steps(1) infinite;
+}
+@keyframes live-demo-blink {
+  50% {
+    opacity: 0;
+  }
+}
+/* Still when motion is reduced, and paused in a section that is not on screen
+   (an infinite animation in a hidden pane otherwise runs for ever). */
+.live-demo__caret--still,
+[inert] .live-demo__caret {
+  animation: none;
+}
+.live-demo__caption {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--text);
+}
+.live-demo__then {
+  display: block;
+  color: var(--muted);
+}
+.live-demo kbd {
+  font-family: var(--mono);
+  font-size: 0.78rem;
   padding: 0.1rem 0.4rem;
   border-radius: 5px;
   background: var(--code-bg);
   border: 1px solid var(--border);
-  color: var(--text-h);
-}
-.editor-steps .dev {
-  font-weight: 600;
   color: var(--text-h);
 }
 

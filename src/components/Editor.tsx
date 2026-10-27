@@ -9,6 +9,7 @@ import { DOCK_QUERY } from '../hooks/useDockDetached'
 import { DownloadActions } from './DownloadActions'
 import { MoreActions } from './MoreActions'
 import { SheetIcon } from './SheetIcons'
+import { LiveDemo } from './LiveDemo'
 import './Editor.css'
 
 /* Exported so App can hand the caret over when the boot screen leaves without
@@ -40,33 +41,12 @@ function EditorHint({ nepali }: { nepali: boolean }) {
   }
   return (
     <>
-      {/* The lesson as three steps with a worked example, for someone who has
-          never used a romanized keyboard. It replaced one line of four
-          dot-separated tips that a first-time user had to parse before typing
-          anything (1.9.71). Not tappable on purpose — the "Try one" starters
-          that inserted text here were removed at the owner's call. */}
-      <ol className="editor-steps">
-        <li>
-          <span className="editor-steps__n" aria-hidden="true">1</span>
-          <span>
-            Type <kbd>mero naam</kbd>
-          </span>
-        </li>
-        <li>
-          <span className="editor-steps__n" aria-hidden="true">2</span>
-          <span>
-            Press <kbd>space</kbd> <span aria-hidden="true">→</span>{' '}
-            <span className="dev" lang="ne">
-              मेरो नाम
-            </span>
-          </span>
-        </li>
-        <li>
-          <span className="editor-steps__n" aria-hidden="true">3</span>
-          <span>Copy and paste it into any app</span>
-        </li>
-      </ol>
-      {/* The two finer points, kept, one quiet line under the steps. Each
+      {/* The lesson, playing itself — see LiveDemo. It replaced a
+          three-step list (1.9.71) at the owner's choice, 2026-10-28. Not
+          tappable: the "Try one" starters that inserted text here were
+          removed at the owner's call. */}
+      <LiveDemo />
+      {/* The two finer points, one quiet line under the demonstration. Each
           clause is one unbreakable run so a narrow screen breaks between them
           — it used to strand the । away from the full stop it answers. */}
       <p className="editor-hint">
@@ -224,12 +204,16 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet, booting }: Edito
             <div className="editor-empty reveal">
               {/* See .editor-mark in Editor.css — aria-hidden texture, a
                   centred mark heading the empty state. */}
-              <span className="editor-mark" aria-hidden="true">
-                <span className="editor-mark__key">a</span>
-                <span className="editor-mark__arrow">→</span>
-                {/* No `dev` class — .editor-mark sets the display face. */}
-                <span className="editor-mark__dev">अ</span>
-              </span>
+              {/* English mode only: in Nepali mode the moving example
+                  below is the picture, and two of them compete. */}
+              {!editor.nepali && (
+                <span className="editor-mark" aria-hidden="true">
+                  <span className="editor-mark__key">a</span>
+                  <span className="editor-mark__arrow">→</span>
+                  {/* No `dev` class — .editor-mark sets the display face. */}
+                  <span className="editor-mark__dev">अ</span>
+                </span>
+              )}
               {/* What the screen is, in the words people search for. "Romanized
                   Nepali Unicode" is the name Nepali typists already know the
                   layout by (see the standing rule in maps.ts), and Unicode is
