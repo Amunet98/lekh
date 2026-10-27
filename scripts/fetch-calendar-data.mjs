@@ -36,6 +36,9 @@ import { writeFileSync, mkdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { dateConfigMap } from 'nepali-date-converter'
+/* Node strips the TypeScript types itself (22.18+/23.6+), so the day ordering
+   and the corrections are the very code fetchLiveMonth runs. */
+import { CORRECTIONS, correctedFestivals, monthCells } from '../src/lib/calendar/upstream.ts'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const RAW = 'https://raw.githubusercontent.com/S4NKALP/nepali-calendar-api/main/data'
@@ -79,6 +82,7 @@ function parseSaitDays(lines, monthLength) {
 }
 
 const rejected = new Set()
+const applied = new Set()
 let festivalCount = 0
 let holidayCount = 0
 
@@ -99,9 +103,13 @@ for (let year = FROM; year <= TO; year++) {
     }
     const json = await res.json()
 
-    /* `days` is a 35- or 42-cell grid including the blank leading cells before
-       the 1st, so the real days are the ones carrying a Devanagari numeral. */
-    const days = json.days.filter((c) => c.n && String(c.n).trim() !== '')
+    // In day order, not grid order — see src/lib/calendar/upstream.ts.
+    const days = monthCells(json.days)
+    if (!days) {
+      problems.push(`BS ${year}-${month}: the day numerals are not 1…N — month left out`)
+      rejected.add(year)
+      continue
+    }
 
     const expectedLen = expected[MONTH_KEYS[month - 1]]
     if (days.length !== expectedLen) {
@@ -118,7 +126,9 @@ for (let year = FROM; year <= TO; year++) {
 
     days.forEach((cell, i) => {
       const day = i + 1
-      const f = (cell.f || '').trim()
+      const upstream = (cell.f || '').trim()
+      const f = correctedFestivals(year, month, day, upstream)
+      if (f !== upstream) applied.add(`${year}-${month}-${day}`)
       if (f) {
         festivals[day] = f
         festivalCount++
@@ -146,6 +156,14 @@ for (let year = FROM; year <= TO; year++) {
 }
 
 for (const year of rejected) delete out[year]
+
+/* A correction whose `was` no longer matches has stopped applying: upstream
+   changed that day. Say so, so someone looks at what it says now. */
+for (const c of CORRECTIONS) {
+  if (c.year >= FROM && c.year <= TO && out[c.year] && !applied.has(`${c.year}-${c.month}-${c.day}`)) {
+    problems.push(`BS ${c.year}-${c.month}-${c.day}: correction no longer matches upstream — check it by hand`)
+  }
+}
 
 /* A year is only shipped whole. Months that 404 (a year upstream has not
    published) or a year with no festival names at all (upstream's placeholder
@@ -186,7 +204,7 @@ console.log(`  BS ${kept[0]}–${kept[kept.length - 1]} · ${festivalCount} fest
 console.log(`  ${(bytes / 1024).toFixed(1)} KB raw`)
 
 if (problems.length) {
-  console.error(`\n${rejected.size} YEAR(S) DROPPED — the two sources disagree on month lengths:`)
+  console.error(`\n${problems.length} PROBLEM(S), ${rejected.size} year(s) dropped:`)
   for (const p of problems) console.error('  ' + p)
   console.error(
     '\nThis is the intended behaviour, not a build failure: shipping a year whose\n' +

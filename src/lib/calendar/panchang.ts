@@ -1,5 +1,6 @@
 import raw from '../../data/calendar/panchang.json'
 import { bsWeekday, daysInBsMonth, isWeeklyOff } from './nepaliDate'
+import { correctedFestivals, monthCells } from './upstream'
 
 /* Festivals, public holidays and tithi.
  *
@@ -280,17 +281,16 @@ export async function fetchLiveMonth(year: number, month: number): Promise<RawMo
     }
     if (!Array.isArray(json.days)) return null
 
-    /* `days` is a 35- or 42-cell grid including the blank leading cells before
-       the 1st, so the real days are the ones carrying a Devanagari numeral. */
-    const days = json.days.filter((c) => c.n && String(c.n).trim() !== '')
-    if (days.length === 0) return null
+    // In day order, not grid order — see upstream.ts.
+    const days = monthCells(json.days)
+    if (!days) return null
 
     const f: Record<string, string> = {}
     const h: number[] = []
     const t: string[] = []
     days.forEach((cell, i) => {
       const day = i + 1
-      const festival = (cell.f || '').trim()
+      const festival = correctedFestivals(year, month + 1, day, (cell.f || '').trim())
       if (festival) f[String(day)] = festival
       if (cell.h === true) h.push(day)
       t.push((cell.t || '').trim())

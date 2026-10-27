@@ -25,9 +25,13 @@
  *    buses and flights sell out).
  *
  * Keys are the almanac's own spellings, every variant it uses (महाअष्टमी and
- * महाष्टमी, गाई पूजा and गाई पुजा). Note that the almanac has no entry called
- * Laxmi Puja or Mha Puja: those days appear as गाई पूजा and गोरू पूजा, so
- * that is where their English lives. */
+ * महाष्टमी, गाई पूजा and गाई पुजा). The almanac has no entry called Mha
+ * Puja: that day appears as गोरू पूजा, so that is where its English lives.
+ * Laxmi Puja is NOT folded into गाई पूजा the same way, though it usually
+ * falls on that day: in 2083 the Samiti put it a day earlier, with Kukur
+ * Tihar, and an English line saying "Laxmi Puja" on Gai Puja sent people to
+ * the wrong evening. It has its own entry, and the almanac's missing ones
+ * are supplied in upstream.ts. */
 
 export interface FestivalInfo {
   /** The name in the English people use for it. */
@@ -93,6 +97,11 @@ const ENTRIES: [string[], FestivalInfo][] = [
     en: 'Kag Tihar — Tihar, day 1',
     about: 'Crows, seen as messengers of Yama, the god of death, are fed on rooftops.',
   }],
+  [['लक्ष्मी पूजा', 'लक्ष्मीपूजा'], {
+    en: 'Laxmi Puja — the main night of Tihar',
+    about: 'At dusk homes are lit with oil lamps and candles to welcome Laxmi, goddess of wealth.',
+    note: 'In the evening children go from house to house singing Bhailo.',
+  }],
   [['कुकुर तिहार'], {
     en: 'Kukur Tihar — Tihar, day 2',
     about: 'Dogs, strays included, are honoured with flower garlands, tika and a good meal.',
@@ -102,9 +111,8 @@ const ENTRIES: [string[], FestivalInfo][] = [
     about: 'The day Krishna is said to have defeated the demon Narakasura; kept together with Kukur Tihar.',
   }],
   [['गाई पूजा', 'गाई पुजा'], {
-    en: 'Gai Puja & Laxmi Puja — Tihar, day 3',
-    about: 'Cows are worshipped in the morning; at dusk homes are lit with oil lamps and candles to welcome Laxmi, goddess of wealth.',
-    note: 'In the evening children go from house to house singing Bhailo.',
+    en: 'Gai Puja — Tihar, day 3',
+    about: 'Cows, seen as a form of Laxmi, are fed and worshipped with garlands and tika.',
   }],
   [['गोरू पूजा'], {
     en: 'Goru Puja & Mha Puja — Tihar, day 4',

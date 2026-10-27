@@ -7,7 +7,12 @@ describe('festivalInfo', () => {
     expect(festivalInfo('घटस्थापना')?.en).toMatch(/^Ghatasthapana/)
     expect(festivalInfo('महाष्टमी')?.en).toBe(festivalInfo('महाअष्टमी')?.en)
     expect(festivalInfo('गाईजात्रा (सापारू)')?.en).toBe('Gai Jatra')
-    expect(festivalInfo('गाई  पूजा')?.en).toMatch(/Laxmi Puja/) // doubled space
+    expect(festivalInfo('गाई  पूजा')?.en).toMatch(/^Gai Puja/) // doubled space
+  })
+
+  it('keeps Laxmi Puja off Gai Puja: they fall on different days in 2083', () => {
+    expect(festivalInfo('गाई पूजा')?.en).not.toMatch(/Laxmi/)
+    expect(festivalInfo('लक्ष्मी पूजा')?.en).toMatch(/^Laxmi Puja/)
   })
 
   it('says nothing about a festival it has not been taught', () => {
