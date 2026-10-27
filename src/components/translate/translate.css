@@ -692,6 +692,14 @@
   background: var(--accent-bg);
   color: var(--accent-text);
 }
+/* At Larger text on a phone the two pills had room for "Nep…" and "Eng…" —
+   the one word each pill exists to show. The script tile goes instead: it
+   restates the name. See the Larger-text note in ToolsPage.css for 468px. */
+@media (max-width: 468px) {
+  :root[data-ui-scale='xl'] .lang-picker__script {
+    display: none;
+  }
+}
 /* On a phone the pills stretch and centre their label; the tile sits at the
    leading edge instead, so the two pills line up tile over tile. */
 @media (max-width: 767px) {

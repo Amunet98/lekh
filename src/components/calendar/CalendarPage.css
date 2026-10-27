@@ -697,6 +697,7 @@
   line-height: 1.6;
 }
 .cal__sait-next {
+  position: relative;
   border: 0;
   background: none;
   padding: 0.25rem 0;
@@ -706,6 +707,14 @@
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+/* Drawn as a link in a line of text, 31px tall — the one target in the app
+   still under 44. Taken there vertically the way .btn::after does (see
+   Editor.css); the rows above and below are 50px off, so nothing overlaps. */
+.cal__sait-next::after {
+  content: '';
+  position: absolute;
+  inset: -7px 0;
 }
 
 .cal__coverage {

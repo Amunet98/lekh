@@ -8,7 +8,7 @@ import { TranslateActions } from './translate/TranslateActions'
 import { TranslateRun } from './translate/TranslateRun'
 import { useOnline } from '../hooks/useOnline'
 import { SectionIcon } from './SectionIcons'
-import { looksLikeRomanNepali } from '../lib/translation/romanNepali'
+import { looksLikeEnglish, looksLikeRomanNepali } from '../lib/translation/romanNepali'
 import './TranslatePage.css'
 
 interface TranslatePageProps {
@@ -64,6 +64,15 @@ export function TranslatePage({ t, onShow }: TranslatePageProps) {
   if (isEmpty && romanDismissed) setRomanDismissed(false)
   const romanNepali = useMemo(
     () => t.direction === 'en-ne' && looksLikeRomanNepali(t.sourceText),
+    [t.direction, t.sourceText],
+  )
+  /* And the mirror case: English typed while the direction says Nepali, which
+     the romanizer turns into Devanagari nonsense before the translator sees
+     it. Its own dismissal, so declining one offer never hides the other. */
+  const [englishDismissed, setEnglishDismissed] = useState(false)
+  if (isEmpty && englishDismissed) setEnglishDismissed(false)
+  const english = useMemo(
+    () => t.direction === 'ne-en' && looksLikeEnglish(t.sourceText),
     [t.direction, t.sourceText],
   )
 
@@ -324,6 +333,19 @@ export function TranslatePage({ t, onShow }: TranslatePageProps) {
                 </button>
                 <button type="button" className="btn" onClick={() => setRomanDismissed(true)}>
                   It&rsquo;s English
+                </button>
+              </span>
+            </div>
+          )}
+          {english && !englishDismissed && (
+            <div className="hint-banner" role="status">
+              <span>This looks like English, but the direction is Nepali → English.</span>
+              <span className="hint-banner__actions">
+                <button type="button" className="btn btn--primary" onClick={() => t.setDirectionOnly('en-ne')}>
+                  Translate from English
+                </button>
+                <button type="button" className="btn" onClick={() => setEnglishDismissed(true)}>
+                  It&rsquo;s Nepali
                 </button>
               </span>
             </div>

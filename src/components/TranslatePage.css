@@ -309,7 +309,11 @@
   width: 32px;
   height: 32px;
   flex-shrink: 0;
-  object-fit: cover;
+  /* contain, not cover: what people upload here is mostly a photo of text,
+     wide and short, and cover cropped it to the white margin in the middle —
+     a blank tile. The whole image, small, is at least the right picture. */
+  object-fit: contain;
+  background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: 6px;
 }

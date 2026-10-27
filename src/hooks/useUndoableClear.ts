@@ -9,41 +9,41 @@ import { useCallback, useEffect, useRef, useState } from 'react'
  * distinct from the 1.6s copy flash and the 350ms conversion flash so it
  * doesn't read as either of them.
  *
- * The value is held in a ref as well as in state: state is what re-renders
- * the button into "undo clear", and the ref is what undo() can read
- * synchronously without a setState-inside-a-setState.
+ * The offer is withdrawn the moment the box has text in it again. Before
+ * 1.9.69 it stayed up for its full six seconds however much was typed
+ * meanwhile, in the very spot Clear had been — so clearing, starting over and
+ * then reaching for Clear again replaced the new text with the old. Only the
+ * Preeti tool guarded against that, by hand; now the hook does it for all
+ * three, adjusted during render rather than in an effect, since it only ever
+ * follows the text.
  */
 
 const WINDOW_MS = 6000
 
-export function useUndoableClear() {
+/** `current` is the box's text as it stands, which is what retires the offer. */
+export function useUndoableClear(current: string) {
   const [lastCleared, setLastCleared] = useState<string | null>(null)
-  const valueRef = useRef<string | null>(null)
   const timeoutRef = useRef<number | undefined>(undefined)
+
+  if (current !== '' && lastCleared !== null) setLastCleared(null)
 
   const remember = useCallback((text: string) => {
     /* Nothing to offer back. Clearing an empty box is not an action anyone
        needs undone, and offering it would replace the clear button with a
        dead one. */
     if (!text) return
-    valueRef.current = text
     setLastCleared(text)
     window.clearTimeout(timeoutRef.current)
-    timeoutRef.current = window.setTimeout(() => {
-      valueRef.current = null
-      setLastCleared(null)
-    }, WINDOW_MS)
+    timeoutRef.current = window.setTimeout(() => setLastCleared(null), WINDOW_MS)
   }, [])
 
-  /** Returns what was cleared, or null if the window has closed. */
+  /** Returns what was cleared, or null if the offer has gone. */
   const undo = useCallback((): string | null => {
-    const value = valueRef.current
-    if (value === null) return null
-    valueRef.current = null
+    if (lastCleared === null) return null
     setLastCleared(null)
     window.clearTimeout(timeoutRef.current)
-    return value
-  }, [])
+    return lastCleared
+  }, [lastCleared])
 
   useEffect(() => () => window.clearTimeout(timeoutRef.current), [])
 

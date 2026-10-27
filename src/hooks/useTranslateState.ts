@@ -355,7 +355,7 @@ export function useTranslateState() {
      screen had the same button doing the same irreversible thing with no way
      back. Only the text returns — a cleared upload's thumbnail does not,
      because the recognized text is the part worth six seconds. */
-  const undoable = useUndoableClear()
+  const undoable = useUndoableClear(sourceText)
 
   const clearSource = useCallback(() => {
     undoable.remember(sourceText)

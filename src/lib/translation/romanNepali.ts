@@ -40,3 +40,22 @@ export function looksLikeRomanNepali(text: string): boolean {
   const nepali = words.filter((w) => NEPALI_KEYS.has(w)).length
   return nepali >= 2 && nepali * 2 >= words.length
 }
+
+/* The same question the other way round. With the direction set to Nepali →
+ * English, Latin letters are read as romanized Nepali, so English typed there
+ * was respelled into Devanagari nonsense first ("hello my friend" → हेलो म्य
+ * फृएन्द) and the translator answered "Hey, hey, hey, hey, hey". Found on the
+ * A024, 2026-10-27, after swapping the direction and typing English.
+ *
+ * English glue is the evidence, as above — at least as many glue words as
+ * dictionary hits, so a romanized sentence with one English word in it
+ * ("ma ghar jaanchhu please") is still Nepali. Same cheap-either-way stakes:
+ * the answer only decides whether a one-tap suggestion appears. */
+export function looksLikeEnglish(text: string): boolean {
+  const words = text.toLowerCase().match(/[a-z]+/g)
+  if (!words || words.length < 2) return false
+  if (/[ऀ-ॿ]/.test(text)) return false
+  const glue = words.filter((w) => ENGLISH_GLUE.has(w)).length
+  const nepali = words.filter((w) => NEPALI_KEYS.has(w) && !ENGLISH_GLUE.has(w)).length
+  return glue >= 1 && glue >= nepali
+}

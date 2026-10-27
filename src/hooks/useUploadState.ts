@@ -20,7 +20,8 @@ export const FILE_ACCEPT = 'image/*,.pdf,.docx,.txt'
 // canvas can be several megapixels and isn't kept around after OCR reads it,
 // so this is generated once up front, small enough to sit inline as a data
 // URL without holding onto real image memory for the rest of the session.
-function makeThumbnail(canvas: HTMLCanvasElement, size = 40): string {
+// 96 because the chip draws it 32px wide on a 3x screen; 40 was a smudge.
+function makeThumbnail(canvas: HTMLCanvasElement, size = 96): string {
   const scale = Math.min(1, size / Math.max(canvas.width, canvas.height))
   const w = Math.max(1, Math.round(canvas.width * scale))
   const h = Math.max(1, Math.round(canvas.height * scale))

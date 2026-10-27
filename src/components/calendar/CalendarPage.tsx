@@ -198,9 +198,14 @@ export function CalendarPage() {
   const covered = panchang !== null
   const sundayOff = monthHasSundayOff(view.year, view.month)
 
+  /* The selection moves with the page: today in today's month, the 1st in
+     any other. It used to stay behind, so paging from Kartik to Mangsir left
+     the panel headed "कार्तिक २२" while reading Mangsir's data for it — and
+     announcing "No festival listed" for Laxmi Puja. */
   const goto = (delta: number) => {
     const next = stepMonth(view.year, view.month, delta)
     setView(next)
+    setSelected(next.year === today.year && next.month === today.month ? today : { ...next, day: 1 })
   }
 
   /* Named holidays only. The source flags a lot of bare weekend days as
@@ -216,8 +221,9 @@ export function CalendarPage() {
 
   const selectedAd = bsToAd(selected.year, selected.month, selected.day)
   /* Read from the month currently on screen rather than re-deriving. Selecting
-     a day always happens inside the visible month, and going back to the data
-     layer for it would miss a live refresh that has landed here. */
+     a day always happens inside the visible month (goto moves it along), and
+     going back to the data layer for it would miss a live refresh that has
+     landed here. */
   const selectedInfo =
     selected.year === view.year && selected.month === view.month
       ? panchang?.byDay.get(selected.day)

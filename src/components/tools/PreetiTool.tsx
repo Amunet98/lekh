@@ -21,7 +21,7 @@ export function PreetiTool() {
   const id = useId()
   const [text, setText] = useState('')
   const areaRef = useRef<HTMLTextAreaElement>(null)
-  const cleared = useUndoableClear()
+  const cleared = useUndoableClear(text)
   const [override, setOverride] = useState<ReadAs | null>(null)
   const trimmed = text.trim()
   const unicodeIn = looksLikeUnicode(text)
@@ -56,7 +56,6 @@ export function PreetiTool() {
         spellCheck={false}
         value={text}
         onChange={(e) => {
-          if (cleared.lastCleared !== null) cleared.undo()
           setText(e.target.value)
           if (!e.target.value.trim()) setOverride(null)
         }}

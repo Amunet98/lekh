@@ -55,7 +55,7 @@ export function useEditorState(textareaRef?: RefObject<HTMLTextAreaElement | nul
   const [copied, setCopied] = useState(false)
   const [flashing, setFlashing] = useState(false)
   // Shared with Translate, which had no undo at all — see useUndoableClear.
-  const undoable = useUndoableClear()
+  const undoable = useUndoableClear(text)
 
   useEffect(() => {
     try {

@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Privacy — Lekh Patro</title>
     <meta
       name="description"
@@ -49,7 +49,11 @@
       }
       body {
         margin: 0;
-        padding: 2.5rem 1.25rem 4rem;
+        /* viewport-fit=cover and the inset: in the Android app this page opens
+           in the same edge-to-edge WebView as the app, and without them the
+           area behind the status bar was the native window — a grey band
+           over a navy page. */
+        padding: calc(2.5rem + env(safe-area-inset-top, 0px)) 1.25rem 4rem;
         background: var(--bg);
         color: var(--text);
         font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;

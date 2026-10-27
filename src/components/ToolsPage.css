@@ -955,3 +955,24 @@
     grid-column: 2;
   }
 }
+
+/* Larger text on an ordinary phone is that same narrow phone. At 1.3×, a
+   420px screen has the room a 323px one has at 1×, and the labels went the
+   same way: "Curren…", and "Ambulanc" with its last letter under the card's
+   edge (A024, 2026-10-27). A media query cannot see the setting, so this keys
+   off the attribute App.tsx writes, as .actions .count in Editor.css does.
+   468px is 360 × 1.3; at Large (1.15×) a 420px phone still fits. */
+@media (max-width: 468px) {
+  :root[data-ui-scale='xl'] .tools-nav__label {
+    font-size: 0.62rem;
+    letter-spacing: 0;
+  }
+  :root[data-ui-scale='xl'] .sos__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  :root[data-ui-scale='xl'] .sos__item {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.4rem;
+  }
+}
