@@ -140,6 +140,7 @@ export const VERBS: Record<string, string> = {
   basne: 'बस्ने',
   basyo: 'बस्यो',
   basnus: 'बस्नुस्',
+  basnuhos: 'बस्नुहोस्',
   bas: 'बस',
   // पाउनु — to get
   paunu: 'पाउनु',

@@ -24,6 +24,12 @@ describe('convert', () => {
     expect(convert('namaskar')).toBe(DICT['namaskar'])
   })
 
+  it('spells the two misses found against nepali-type (2026-10-29)', () => {
+    // The pattern alone gives कृश्न (sh = श) and drops the final halant.
+    expect(convert('krishna')).toBe('कृष्ण')
+    expect(convert('basnuhos')).toBe('बस्नुहोस्')
+  })
+
   it('returns the dictionary spelling for every single entry', () => {
     // The sweep behind the single case above: no entry may be shadowed or
     // unreachable, whatever the phonetic parser would have said instead.

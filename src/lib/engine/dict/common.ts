@@ -79,6 +79,7 @@ export const COMMON: Record<string, string> = {
   bhagwan: 'भगवान',
   bhagawan: 'भगवान',
   dharma: 'धर्म',
+  krishna: 'कृष्ण',
   shanti: 'शान्ति',
   santi: 'शान्ति',
   yatra: 'यात्रा',
