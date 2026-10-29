@@ -26,6 +26,7 @@ import { openCalendarEvent } from '../../lib/calendarEvent'
 import { isNativeApp } from '../../lib/androidApp'
 import { tick } from '../../lib/haptics'
 import { useToast } from '../../hooks/useToast'
+import { MonthPicker } from './MonthPicker'
 import './CalendarPage.css'
 
 function ChevronIcon({ dir }: { dir: 'left' | 'right' }) {
@@ -191,6 +192,7 @@ export function CalendarPage() {
   const today = useMemo(() => todayBs(), [])
   const [view, setView] = useState({ year: today.year, month: today.month })
   const [selected, setSelected] = useState<BsDate>(today)
+  const [picking, setPicking] = useState(false)
 
   const monthLength = daysInBsMonth(view.year, view.month)
   const leadingBlanks = bsWeekday(view.year, view.month, 1)
@@ -202,11 +204,11 @@ export function CalendarPage() {
      any other. It used to stay behind, so paging from Kartik to Mangsir left
      the panel headed "कार्तिक २२" while reading Mangsir's data for it — and
      announcing "No festival listed" for Laxmi Puja. */
-  const goto = (delta: number) => {
-    const next = stepMonth(view.year, view.month, delta)
+  const show = (next: { year: number; month: number }) => {
     setView(next)
     setSelected(next.year === today.year && next.month === today.month ? today : { ...next, day: 1 })
   }
+  const goto = (delta: number) => show(stepMonth(view.year, view.month, delta))
 
   /* Named holidays only. The source flags a lot of bare weekend days as
      holidays — inconsistently, at that: 29 of 53 Saturdays in BS 2081 but 48
@@ -248,8 +250,25 @@ export function CalendarPage() {
           sticky bar is the way back, which is what the line was for. */}
       <div className="cal__nav">
         <div className="cal__title">
+          {/* The title is the way to any other month: a tap opens the year
+              and month picker. A caret is the only mark it adds to the bar —
+              no second control beside the arrows. The button sits inside the
+              heading because a heading cannot sit inside a button. */}
           <h2 className="cal__month dev">
-            {NP_MONTHS[view.month]} {toDevanagari(view.year)}
+            <button
+              type="button"
+              className="cal__month-btn"
+              aria-haspopup="dialog"
+              aria-label={`${NP_MONTHS_EN[view.month]} ${view.year}, choose another month or year`}
+              onClick={() => setPicking(true)}
+            >
+              {NP_MONTHS[view.month]} {toDevanagari(view.year)}
+              <svg className="cal__month-caret" viewBox="0 0 24 24" width="16" height="16" fill="none"
+                   stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"
+                   aria-hidden="true">
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
           </h2>
           <p className="cal__sub">
             {NP_MONTHS_EN[view.month]}
@@ -286,6 +305,14 @@ export function CalendarPage() {
           </div>
         </div>
       </div>
+
+      <MonthPicker
+        open={picking}
+        onClose={() => setPicking(false)}
+        view={view}
+        today={today}
+        onPick={(year, month) => show({ year, month })}
+      />
 
       <div className="cal__grid" role="grid" aria-label={`${NP_MONTHS_EN[view.month]} ${view.year}`}>
         <div className="cal__weekdays" role="row">
