@@ -3,6 +3,10 @@ import { DICT } from './engine/dict'
 import { looksLikeRomanized, looksLikeUnicode, preetiToUnicode, unicodeToPreeti } from './preeti'
 
 describe('preetiToUnicode', () => {
+  it('reads ¥ as the eyelash र्‍', () => {
+    expect(preetiToUnicode('u¥of]')).toBe('गर्‍यो')
+  })
+
   it('reads plain letters and vowel signs', () => {
     expect(preetiToUnicode('g]kfn')).toBe('नेपाल')
     expect(preetiToUnicode('g]kfnL efiff')).toBe('नेपाली भाषा')
@@ -31,6 +35,32 @@ describe('preetiToUnicode', () => {
 })
 
 describe('unicodeToPreeti', () => {
+  /* Each of these was checked by rendering it in the Preeti font itself. */
+  it('writes the eyelash र्‍ as ¥, not as a reph', () => {
+    expect(unicodeToPreeti('गर्‍यो')).toBe('u¥of]')
+    expect(unicodeToPreeti('र्‍याली')).toBe('¥ofnL')
+    // the plain reph is still a reph
+    expect(unicodeToPreeti('गर्यो')).toBe('uof]{')
+  })
+
+  it("uses the font's conjunct glyphs instead of halant pairs", () => {
+    expect(unicodeToPreeti('द्वारा')).toBe('åf/f')
+    expect(unicodeToPreeti('पट्टी')).toBe('k§L')
+    expect(unicodeToPreeti('चिठ्ठी')).toBe('lr¶L')
+    expect(unicodeToPreeti('अड्डा')).toBe('c•f')
+    expect(unicodeToPreeti('सङ्गीत')).toBe(';ËLt')
+    expect(unicodeToPreeti('अङ्क')).toBe('cÍ')
+    expect(unicodeToPreeti('हृदय')).toBe('Åbo')
+    expect(unicodeToPreeti('इन्द्र')).toBe('OG›')
+  })
+
+  it('hangs ्र on round letters with « and ्य with Ø', () => {
+    expect(unicodeToPreeti('ट्र्याक्टर')).toBe('6«ØfS6/')
+    expect(unicodeToPreeti('ड्राइभर')).toBe('8«fOe/')
+    expect(unicodeToPreeti('प्रेम')).toBe('k|]d')
+    expect(unicodeToPreeti('ठ्याक्कै')).toBe('7ØfSs}')
+  })
+
   it('writes the keys a Preeti typist would', () => {
     expect(unicodeToPreeti('नेपाल')).toBe('g]kfn')
     expect(unicodeToPreeti('धर्म')).toBe('wd{')

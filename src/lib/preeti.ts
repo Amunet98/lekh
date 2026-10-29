@@ -17,7 +17,9 @@
  * So each direction is a character table plus a reordering pass.
  *
  * The table is the font's layout (the old Nepali typewriter's), written out
- * here and checked key by key against the mapping published with npttf2utf. */
+ * here and checked key by key against the mapping published with npttf2utf —
+ * which has ¥ wrong. Rendered in the font itself, ¥ is the eyelash र्‍
+ * (u¥of] draws गर्‍यो), not a second ्र; the font wins. */
 
 const PREETI_TO_UNICODE: Record<string, string> = {
   // number row
@@ -41,7 +43,7 @@ const PREETI_TO_UNICODE: Record<string, string> = {
   '>': 'श्र', '?': 'रु',
   // the font's extra glyphs, reached with Alt codes
   'ˆ': 'फ्', '‰': 'झ्', '•': 'ड्ड', '˜': 'ऽ', '›': 'द्र', '¡': 'ज्ञ्', '£': 'घ्',
-  '¤': 'झ्', '¥': '्र', '§': 'ट्ट', '©': 'र', 'ª': 'ङ', '«': '्र', '±': '+',
+  '¤': 'झ्', '¥': 'र्\u200d', '§': 'ट्ट', '©': 'र', 'ª': 'ङ', '«': '्र', '±': '+',
   '´': 'झ', '¶': 'ठ्ठ', '¿': 'रू', 'Å': 'हृ', 'Ë': 'ङ्ग', 'Ì': 'न्न', 'Í': 'ङ्क',
   'Î': 'ङ्ख', 'Ö': '=', '×': '×', 'Ø': '्य', 'Ù': ';', 'Û': '!', 'Ü': '%',
   'Ý': 'ट्ठ', 'ß': 'द्म', 'å': 'द्व', 'ç': 'ॐ', '÷': '/', 'æ': '“', 'Æ': '”',
@@ -132,7 +134,9 @@ const HALF: Record<string, string> = {
   ल: 'N', व: 'J', श: 'Z', ष: 'i', स: ':', ह: 'X',
 }
 
-/* Whole clusters with a glyph of their own, longest first. */
+/* Whole clusters with a glyph of their own, longest first. Most live on Alt
+   codes; writing them as halant pairs (b\j for द्व) is legible but is not
+   what a Preeti document looks like. */
 const CONJUNCTS: [string, string][] = [
   ['क्ष', 'If'],
   ['ज्ञ', '1'],
@@ -144,7 +148,30 @@ const CONJUNCTS: [string, string][] = [
   ['द्ध', '4'],
   ['द्य', 'B'],
   ['श्र', '>'],
+  ['द्व', 'å'],
+  ['द्म', 'ß'],
+  ['द्र', '›'],
+  ['द्घ', '¢'],
+  ['ध्र', '„'],
+  ['ट्ट', '§'],
+  ['ट्ठ', 'Ý'],
+  ['ठ्ठ', '¶'],
+  ['ड्ड', '•'],
+  ['न्न', 'Ì'],
+  ['ङ्क', 'Í'],
+  ['ङ्ख', 'Î'],
+  ['ङ्ग', 'Ë'],
+  ['ङ्घ', '‹'],
+  ['ङ्ढ', '°'],
 ]
+
+/* ्र hangs off a vertical stem (k| = प्र); the round letters, which have
+   none, take the angled « instead — 6| draws a broken ढ, not ट्र. */
+const ROUND_RA = 'टठडढछङ'
+
+/* The eyelash र्‍ (गर्‍यो), held as one character so the ZWJ that makes it can
+   be stripped from everything else. */
+const EYELASH = '\ue001'
 
 const MATRA: Record<string, string> = {
   'ा': 'f', 'ि': 'l', 'ी': 'L', 'ु': "'", 'ू': '"', 'ृ': '[', 'े': ']',
@@ -192,10 +219,18 @@ function clusterKeys(letters: string[], endsInHalant: boolean): string {
       }
     }
     const letter = letters[i]
+    const last = letters.length - 1
     // ्र under the last letter is a mark on the full letter, not a half one:
-    // प्र is k|, not K|.
-    if (letters[i + 1] === 'र' && i + 1 === letters.length - 1 && !endsInHalant) {
-      out += FULL[letter] + '|'
+    // प्र is k|, not K|. ट्र्य keeps it and adds the hanging ya: 6«Ø.
+    const raThenYa = letters[i + 2] === 'य' && i + 2 === last
+    if (letters[i + 1] === 'र' && (i + 1 === last || raThenYa) && !endsInHalant) {
+      out += FULL[letter] + (ROUND_RA.includes(letter) ? '«' : '|') + (raThenYa ? 'Ø' : '')
+      i += raThenYa ? 3 : 2
+      continue
+    }
+    // A letter with no half form takes य as the hanging Ø: ट्य is 6Ø, not 6\o.
+    if (letters[i + 1] === 'य' && i + 1 === last && !endsInHalant && !Object.hasOwn(HALF, letter)) {
+      out += FULL[letter] + 'Ø'
       i += 2
       continue
     }
@@ -207,11 +242,16 @@ function clusterKeys(letters: string[], endsInHalant: boolean): string {
 }
 
 export function unicodeToPreeti(input: string): string {
-  const chars = [...input.replace(/\u200c|\u200d/g, '')]
+  const chars = [...input.replaceAll('र्\u200d', EYELASH).replace(/\u200c|\u200d/g, '')]
   let out = ''
   let i = 0
   while (i < chars.length) {
     const ch = chars[i]
+    if (ch === EYELASH) {
+      out += '¥'
+      i++
+      continue
+    }
     if (isLetter(ch)) {
       // A reph: र् at the head of a cluster.
       let reph = false
@@ -242,6 +282,11 @@ export function unicodeToPreeti(input: string): string {
         i++
       }
       let keys = (iSign ? 'l' : '') + clusterKeys(letters, endsInHalant)
+      // हृ is one glyph.
+      if (letters.join('') === 'ह' && !iSign && signs.startsWith('ृ')) {
+        keys = 'Å'
+        signs = signs.slice(1)
+      }
       // रु and रू have glyphs of their own.
       if (letters.join('') === 'र' && !iSign && (signs.startsWith('ु') || signs.startsWith('ू'))) {
         keys = signs.startsWith('ु') ? '?' : '¿'
