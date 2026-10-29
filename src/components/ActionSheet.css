@@ -19,6 +19,19 @@
   margin: 0;
   overflow: hidden;
 }
+/* The page under an open sheet stays put. A modal dialog makes the page inert
+   but does not stop it scrolling: a swipe on the dim, or on any part of the
+   sheet that does not scroll itself, carried through to the page — the Patro
+   picker's month grid dragged the calendar behind it by 280px a swipe.
+   Hidden on the root scroller, which keeps its offset, so closing the sheet
+   leaves the page exactly where it was. The gutter stays reserved so a
+   desktop scrollbar going away does not shift the page sideways. (No :has()
+   before Safari 15.4, where the page simply scrolls as it did before.) */
+html:has(.action-sheet[open]) {
+  overflow: hidden;
+  scrollbar-gutter: stable;
+}
+
 .action-sheet::backdrop {
   /* 0.6, up from 0.45. A sheet needs the page behind it to recede or the two
      read as one flat grey field — which is exactly how this looked on a phone
