@@ -5,7 +5,7 @@ import { confirm, tick } from '../lib/haptics'
 import { getPref } from '../lib/prefs'
 import { useUndoableClear } from './useUndoableClear'
 import { shareText } from '../lib/share'
-import { commitAt, insertAt, pendingAt, type Edit } from '../lib/caretCommit'
+import { commitAt, insertAt, pendingAt, revertAt, type Conversion, type Edit } from '../lib/caretCommit'
 
 const TEXT_KEY = 'lekh:editor-text'
 
@@ -48,6 +48,13 @@ export function useEditorState(textareaRef?: RefObject<HTMLTextAreaElement | nul
      every programmatic edit would otherwise throw someone typing in the
      middle of a paragraph to the bottom of it. */
   const caretAfterRender = useRef<number | null>(null)
+  /* The last word that converted, for backspace-gives-the-letters-back. A
+     ref, not state: nothing renders from it. */
+  const lastConversion = useRef<Conversion | null>(null)
+  /* A revert the browser would not let beforeinput cancel. Android keyboards
+     send non-cancelable deletes, so the delete lands anyway and the change
+     that follows is swapped for the revert instead. */
+  const revertOnChange = useRef<Edit | null>(null)
   /* Read once, at mount, rather than subscribed: this is what the editor
      *starts* as, and having a settings change silently flip the mode under
      someone mid-sentence would be worse than making them tap EN/नेपाली. */
@@ -78,6 +85,34 @@ export function useEditorState(textareaRef?: RefObject<HTMLTextAreaElement | nul
     setText(edit.text)
   }, [])
 
+  const commit = useCallback(
+    (edit: ReturnType<typeof commitAt>) => {
+      lastConversion.current = edit.converted
+      apply(edit)
+    },
+    [apply],
+  )
+
+  useEffect(() => {
+    const el = textareaRef?.current
+    if (!el || !nepali) return
+    const onBeforeInput = (e: InputEvent) => {
+      revertOnChange.current = null
+      if (e.inputType !== 'deleteContentBackward' || el.selectionStart !== el.selectionEnd) return
+      const revert = revertAt(el.value, el.selectionEnd, lastConversion.current)
+      if (!revert) return
+      lastConversion.current = null
+      if (e.cancelable) {
+        e.preventDefault()
+        apply(revert)
+      } else {
+        revertOnChange.current = revert
+      }
+    }
+    el.addEventListener('beforeinput', onBeforeInput)
+    return () => el.removeEventListener('beforeinput', onBeforeInput)
+  }, [textareaRef, nepali, apply])
+
   useLayoutEffect(() => {
     const at = caretAfterRender.current
     const el = textareaRef?.current
@@ -105,7 +140,7 @@ export function useEditorState(textareaRef?: RefObject<HTMLTextAreaElement | nul
       const commitWith = (suffix: string) => {
         e.preventDefault()
         if (pendingAt(el.value, at)) triggerFlash()
-        apply(commitAt(el.value, at, suffix))
+        commit(commitAt(el.value, at, suffix))
       }
       if (e.key === ' ') commitWith(' ')
       else if (e.key === '.') commitWith('।')
@@ -115,7 +150,7 @@ export function useEditorState(textareaRef?: RefObject<HTMLTextAreaElement | nul
         apply(insertAt(el.value, at, ' ')) // keep the English word as-is
       }
     },
-    [nepali, triggerFlash, apply],
+    [nepali, triggerFlash, apply, commit],
   )
 
   // Android IME keyboards (Gboard) fire keydown with key='Unidentified'
@@ -131,6 +166,12 @@ export function useEditorState(textareaRef?: RefObject<HTMLTextAreaElement | nul
         setText(newValue)
         return
       }
+      const revert = revertOnChange.current
+      revertOnChange.current = null
+      if (revert && newValue.length < text.length) {
+        apply(revert)
+        return
+      }
       /* The character just typed is the one before the caret, wherever the
          caret is — not the last character of the text. */
       const grew = newValue.length >= text.length
@@ -139,13 +180,13 @@ export function useEditorState(textareaRef?: RefObject<HTMLTextAreaElement | nul
         const withoutTrigger = newValue.slice(0, selectionEnd - 1) + newValue.slice(selectionEnd)
         const at = selectionEnd - 1
         if (pendingAt(withoutTrigger, at)) triggerFlash()
-        apply(commitAt(withoutTrigger, at, typed === '.' ? '।' : typed))
+        commit(commitAt(withoutTrigger, at, typed === '.' ? '।' : typed))
         return
       }
       setCaret(selectionEnd)
       setText(newValue)
     },
-    [nepali, text, triggerFlash, apply],
+    [nepali, text, triggerFlash, apply, commit],
   )
 
   /* Caret moves that change no text — a tap elsewhere in the paragraph, the
@@ -159,9 +200,9 @@ export function useEditorState(textareaRef?: RefObject<HTMLTextAreaElement | nul
     (chipText: string) => {
       triggerFlash()
       tick()
-      apply(commitAt(text, Math.min(caret, text.length), ' ', chipText))
+      commit(commitAt(text, Math.min(caret, text.length), ' ', chipText))
     },
-    [triggerFlash, apply, text, caret],
+    [triggerFlash, commit, text, caret],
   )
 
   const keepRaw = useCallback(() => {
@@ -172,6 +213,7 @@ export function useEditorState(textareaRef?: RefObject<HTMLTextAreaElement | nul
 
   const clear = useCallback(() => {
     undoable.remember(text)
+    lastConversion.current = null
     setCaret(0)
     setText('')
   }, [text, undoable])
