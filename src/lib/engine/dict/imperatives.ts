@@ -11,7 +11,9 @@
  *
  * Stems ending in a joined consonant keep their inherent a before -नु
  * (पर्खनुहोस्, सम्झनुहोस्); every other stem takes the virama (बोल्नुहोस्).
- * Lekh's existing spellings win where one was already there (जाऔं, सञ्चै). */
+ * Lekh's existing spellings win where one was already there (जाऔं, सञ्चै),
+ * and so does the layout: `au` stays the vowel औ the cheat sheet teaches, so
+ * आऊ is `aau` only. */
 export const IMPERATIVES: Record<string, string> = {
   // Polite commands (तपाईं): -नुहोस्
   bolnuhos: 'बोल्नुहोस्',
@@ -170,7 +172,6 @@ export const IMPERATIVES: Record<string, string> = {
   nahalnuhos: 'नहाल्नुहोस्',
   nachhodnuhos: 'नछोड्नुहोस्',
   // Familiar commands (तिमी) that end in a vowel; consonant stems are the bare stem, which the engine already spells
-  au: 'आऊ',
   khau: 'खाऊ',
   deu: 'देऊ',
   leu: 'लेऊ',

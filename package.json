@@ -1,7 +1,7 @@
 {
   "name": "lekh",
   "private": true,
-  "version": "1.9.110",
+  "version": "1.9.111",
   "type": "module",
   "scripts": {
     "dev": "vite",
