@@ -1,6 +1,7 @@
 import { GREETINGS } from './greetings'
 import { PRONOUNS } from './pronouns'
 import { VERBS } from './verbs'
+import { IMPERATIVES } from './imperatives'
 import { PARTICLES } from './particles'
 import { QUESTION } from './question'
 import { TIME } from './time'
@@ -28,6 +29,7 @@ export const DICT: Record<string, string> = {
   ...GREETINGS,
   ...PRONOUNS,
   ...VERBS,
+  ...IMPERATIVES,
   ...PARTICLES,
   ...QUESTION,
   ...TIME,
