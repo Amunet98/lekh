@@ -22,4 +22,5 @@ export const VARIANTS: Record<string, string[]> = {
   dudh: ['दुध'],
   rukh: ['रुख'],
   bhanda: ['भाँडा'], // भन्दा (than) vs भाँडा (pot)
+  jau: ['जौ'], // जाऊ (go, familiar) vs जौ (barley)
 }
