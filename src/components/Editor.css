@@ -935,13 +935,6 @@
   }
 }
 
-/* "0 words" on an empty editor is a count of nothing. Hidden rather than
-   removed so the slot keeps its width and copy does not shift on the first
-   keystroke. */
-.count--empty {
-  visibility: hidden;
-}
-
 /* Pasted Preeti: the offer to convert it, then Undo (see Editor.tsx). Floats
    over the foot of the field, opaque, and arrives by fading and rising, so
    nothing else on the screen moves. The same shape as Translate's direction

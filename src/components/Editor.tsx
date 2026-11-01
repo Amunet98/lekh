@@ -610,23 +610,20 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
                 </MoreActions>
               </div>
             )
-          ) : (
-            <>
-              {/* Disabled on an empty editor, like clear beside it. Copying
-                  nothing silently "succeeds" — the label even flips to
-                  "copied" — which teaches someone the button is broken. */}
-              <button
-                type="button"
-                className="btn btn--primary"
-                disabled={isEmpty}
-                onClick={editor.copy}
-              >
+          ) : isEmpty ? null : (
+            /* The desktop row, now the same rule as the phone's (1.9.104):
+               nothing until there is something to act on. It used to show a
+               disabled Copy and Download over an empty editor, which on the
+               dark theme read as a glitch, an empty smudge of buttons
+               (owner, 2026-11-02). They arrive with the first character. */
+            <div className="actions__end reveal">
+              <button type="button" className="btn btn--primary" onClick={editor.copy}>
                 {editor.copied ? 'Copied' : 'Copy'}
               </button>
               {/* Feature-detected, not just tried-and-caught — a browser with
                   no navigator.share has no share sheet to fail into. */}
               {SHARE_AVAILABLE && (
-                <button type="button" className="btn" disabled={isEmpty} onClick={share}>
+                <button type="button" className="btn" onClick={share}>
                   Share
                 </button>
               )}
@@ -638,11 +635,11 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
               />
               {/* The character count carries its unit or it does not
                   appear; a bare trailing number read as a cut-off label. */}
-              <span className={`count${wordCount === 0 ? ' count--empty' : ''}`}>
+              <span className="count">
                 {wordCount} {wordCount === 1 ? 'word' : 'words'}
                 <span className="count__chars"> · {editor.text.length} characters</span>
               </span>
-            </>
+            </div>
           )}
         </div>
       </div>
