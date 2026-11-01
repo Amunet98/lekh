@@ -1070,3 +1070,48 @@
     display: none;
   }
 }
+
+/* The toolbar at the larger text sizes on narrow phones (1.9.97). At Larger
+   it needed 338px where a 320px phone gives it 289 (and still 9px short at
+   360), at Large 7px short at 320, so Copy and ⋯ wrapped onto a second row.
+   The text keeps the size the person chose; what tightens is the air around
+   it: the row's side padding and gap, the segment's and the buttons' inner
+   padding, and the minimum widths that were sized for short labels at the
+   default size. Every target stays at least 44px tall and wide. Measured
+   320-412px x three sizes, no wrap. */
+@media (max-width: 374.98px) {
+  :root[data-ui-scale='xl'] .actions {
+    padding-inline: var(--sp-2);
+    column-gap: 3px;
+  }
+  :root[data-ui-scale='xl'] .lang-seg__opt {
+    min-width: 2.25rem;
+    padding: 0 0.4rem;
+  }
+  :root[data-ui-scale='xl'] .actions .btn--letters {
+    min-width: 2.6rem;
+    padding: 0 0.35rem;
+  }
+  :root[data-ui-scale='xl'] .actions .btn--primary {
+    padding-inline: 0.6rem;
+  }
+  :root[data-ui-scale='xl'] .actions .btn--icon {
+    min-width: 2.5rem;
+  }
+}
+@media (max-width: 339.98px) {
+  :root[data-ui-scale='lg'] .actions {
+    padding-inline: var(--sp-2);
+    column-gap: 3px;
+  }
+  /* 320px at Larger is 14px tighter again. */
+  :root[data-ui-scale='xl'] .lang-seg__opt {
+    padding: 0 0.3rem;
+  }
+  :root[data-ui-scale='xl'] .actions .btn--primary {
+    padding-inline: 0.45rem;
+  }
+  :root[data-ui-scale='xl'] .actions .btn--icon {
+    min-width: 2.15rem;
+  }
+}
