@@ -303,9 +303,15 @@
   /* Patro: the month bar draws its own bottom hairline, then the page gap,
      then the grid draws a top one, which on a phone left a 16px strip of page
      ruled off at both edges between the bar and the weekday names. The bar
-     already separates the two, so the grid tucks up under it. Only when they
-     are adjacent: with the today button between them the gap is doing work. */
-  .page .cal__nav + .cal__grid {
+     already separates the two, so the grid tucks up under it.
+
+     ~ and not +. This was + (adjacent only) until eeb5cbe put MonthPicker
+     between the two in the DOM: its closed <dialog> is display: none and takes
+     no flex gap, but it still breaks adjacency, so the rule silently stopped
+     matching and the ruled-off strip came back (owner spotted it on the phone,
+     2026-11-01). Nothing visible sits between them any more — the today button
+     lives inside the bar now — so any later sibling is fine. */
+  .page .cal__nav ~ .cal__grid {
     margin-block-start: calc(-1 * var(--sp-4));
     border-block-start: 0;
   }
