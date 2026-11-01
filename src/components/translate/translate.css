@@ -800,3 +800,18 @@
     background: var(--accent-bg);
   }
 }
+
+/* Under an on-device answer that still looks invented (invented.ts): small,
+   in the warning colour, inside the answer it is about. */
+.translate-output__caution {
+  display: block;
+  margin-top: var(--sp-3);
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--radius-field);
+  background: color-mix(in srgb, var(--warn) 12%, transparent);
+  color: var(--text-h);
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  white-space: normal;
+}

@@ -1,6 +1,7 @@
 import type { TranslationProvider, TranslateOptions, ModelLoadProgress } from './provider'
 
 import { MODEL_ID } from './onDeviceModel'
+import { inventedMarkers } from './invented'
 const CONFIRM_KEY = 'lekh:ondevice-model-confirmed'
 const DOWNLOADED_KEY = 'lekh:ondevice-model-downloaded'
 
@@ -320,16 +321,22 @@ export const onDeviceProvider: TranslationProvider = {
      * literal-loop failure mode within whatever length is now allowed. */
     const maxNewTokens = Math.min(1024, Math.max(64, text.length * 2))
     // Runs in the worker: the page keeps painting "Translating…" meanwhile.
-    return ask({
-      type: 'translate',
-      text,
-      options: {
-        src_lang: source.nllb,
-        tgt_lang: target.nllb,
-        max_new_tokens: maxNewTokens,
-        repetition_penalty: 1.3,
-        no_repeat_ngram_size: 3,
-      },
-    })
+    const generation = {
+      src_lang: source.nllb,
+      tgt_lang: target.nllb,
+      max_new_tokens: maxNewTokens,
+      repetition_penalty: 1.3,
+      no_repeat_ngram_size: 3,
+    }
+    const first = await ask({ type: 'translate', text, options: generation })
+    /* Invented scripture (see invented.ts): one retry with exactly those
+       words banned. Beam search would be the textbook fix, but
+       transformers.js 3.8 does not implement it (its generate() has a "TODO:
+       Support beam search"). If the retry still has them the page says so;
+       it does not pretend the answer is clean. */
+    const invented = inventedMarkers(text, first)
+    if (invented.length === 0) return first
+    const retry = await ask({ type: 'translate', text, options: { ...generation, bad_words: invented } })
+    return inventedMarkers(text, retry).length < invented.length ? retry : first
   },
 }

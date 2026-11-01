@@ -25,14 +25,19 @@ type TranslateOptions = {
   max_new_tokens: number
   repetition_penalty: number
   no_repeat_ngram_size: number
+  /** Words the answer must not contain (a retry after invented scripture,
+   *  see invented.ts); turned into token ids here, where the tokenizer is. */
+  bad_words?: string[]
 }
 type Request =
   | { id: number; type: 'load' }
   | { id: number; type: 'translate'; text: string; options: TranslateOptions }
-type Pipeline = (
+type Pipeline = ((
   text: string,
-  options: TranslateOptions,
-) => Promise<Array<{ translation_text: string }> | { translation_text: string }>
+  options: Omit<TranslateOptions, 'bad_words'> & { bad_words_ids?: number[][] },
+) => Promise<Array<{ translation_text: string }> | { translation_text: string }>) & {
+  tokenizer: { encode: (text: string, options?: { add_special_tokens?: boolean }) => number[] }
+}
 
 const scope = self as unknown as DedicatedWorkerGlobalScope
 let loading: Promise<Pipeline> | null = null
@@ -69,7 +74,16 @@ scope.onmessage = async (event: MessageEvent<Request>) => {
       scope.postMessage({ id: msg.id, type: 'ready' })
       return
     }
-    const out = await translate(msg.text, msg.options)
+    const { bad_words, ...options } = msg.options
+    /* Each word banned with and without its leading space: SentencePiece
+       spells "Bible" mid-sentence as ▁Bible, a different token. */
+    const bad_words_ids = bad_words?.length
+      ? bad_words
+          .flatMap((w) => [w, ` ${w}`])
+          .map((w) => translate.tokenizer.encode(w, { add_special_tokens: false }))
+          .filter((ids) => ids.length > 0)
+      : undefined
+    const out = await translate(msg.text, bad_words_ids ? { ...options, bad_words_ids } : options)
     const first = Array.isArray(out) ? out[0] : out
     scope.postMessage({ id: msg.id, type: 'result', text: first.translation_text })
   } catch (err) {

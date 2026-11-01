@@ -10,6 +10,7 @@ import {
   hasDownloadedModel,
   isModelCached,
 } from '../lib/translation/onDeviceProvider'
+import { inventedMarkers } from '../lib/translation/invented'
 import { romanizedToDevanagari } from '../lib/engine/romanize'
 import { memoryTier } from '../lib/translation/deviceMemory'
 import type { ModelLoadProgress } from '../lib/translation/provider'
@@ -125,6 +126,8 @@ export function useTranslateState() {
   )
   const [status, setStatus] = useState<Status>('idle')
   const [error, setError] = useState<string | null>(null)
+  /* The on-device answer still looks invented after its retry (invented.ts). */
+  const [caution, setCaution] = useState(false)
   const [modelLoad, setModelLoad] = useState<ModelLoadProgress | null>(null)
   const [showConfirm, setShowConfirm] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -206,6 +209,7 @@ export function useTranslateState() {
   const runOnline = useCallback(async (text: string, source: Language, target: Language, dir: Direction) => {
     if (!text.trim()) {
       setTranslated('')
+      setCaution(false)
       setStatus('idle')
       return
     }
@@ -219,6 +223,7 @@ export function useTranslateState() {
     const requestId = ++requestIdRef.current
     setStatus('loading')
     setTranslated('')
+    setCaution(false)
     if (chunks.length > 1) setChunkProgress({ current: 0, total: chunks.length })
     try {
       const results: string[] = []
@@ -265,6 +270,7 @@ export function useTranslateState() {
     const runId = ++deviceRunRef.current
     setStatus('loading')
     setError(null)
+    setCaution(false)
     setTranslated('')
     if (chunks.length > 1) setChunkProgress({ current: 0, total: chunks.length })
     try {
@@ -277,6 +283,7 @@ export function useTranslateState() {
         })
         if (runId !== deviceRunRef.current) return
         results.push(piece)
+        if (inventedMarkers(chunk, piece).length > 0) setCaution(true)
         setTranslated(results.join('\n\n'))
         if (chunks.length > 1) setChunkProgress({ current: results.length, total: chunks.length })
       }
@@ -347,6 +354,7 @@ export function useTranslateState() {
     deviceRunRef.current++
     requestIdRef.current++
     setTranslated('')
+    setCaution(false)
     setError(null)
     setStatus('idle')
   }, [])
@@ -400,6 +408,7 @@ export function useTranslateState() {
     // existing source text left a stale online result on screen looking like
     // it had already been translated on-device, when nothing had run yet.
     setTranslated('')
+    setCaution(false)
   }, [])
 
   const switchToOnline = useCallback(() => {
@@ -444,6 +453,7 @@ export function useTranslateState() {
     setSourceText: updateSourceText,
     translated,
     interpretedAs,
+    caution,
     mode,
     status,
     error,

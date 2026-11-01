@@ -118,6 +118,15 @@ export function TranslationOutput({ t, onShow }: { t: TranslateState; onShow: ()
                 {pronounce(t.translated)}
               </span>
             )}
+            {/* The offline model's answer still looks like invented scripture
+                after its retry (see invented.ts): say so rather than hand it
+                over as a clean translation. */}
+            {t.caution && (
+              <span className="translate-output__caution" role="note">
+                The offline model may have added words that aren’t in your text. Check it, or try
+                Online for this one.
+              </span>
+            )}
           </>
         ) : (
           <span className="sugg-hint translate-output__empty">Translation</span>
