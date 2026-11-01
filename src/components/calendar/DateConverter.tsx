@@ -214,8 +214,12 @@ export function DateConverter() {
             {NP_WEEKDAYS_FULL[weekday]}, {NP_MONTHS[bs.month]} {toDevanagari(safeDay)}, {toDevanagari(bs.year)}
           </p>
           <p className="conv__out-ad">
-            {ad.toLocaleDateString('en-GB', { weekday: 'long' })}, {toInputValue(ad)}
-            <span className="conv__out-en"> · {NP_MONTHS_EN[bs.month]} {safeDay}, {bs.year} BS</span>
+            {/* Each date kept whole on a narrow line: YYYY-MM-DD otherwise broke
+                at its own hyphen ("2026-11-" / "02"). */}
+            {ad.toLocaleDateString('en-GB', { weekday: 'long' })}, <span className="conv__whole">{toInputValue(ad)}</span>
+            <span className="conv__out-en">
+              {' '}· <span className="conv__whole">{NP_MONTHS_EN[bs.month]} {safeDay}, {bs.year} BS</span>
+            </span>
           </p>
         </div>
         {/* The date converter's clear: there is never an empty state to go

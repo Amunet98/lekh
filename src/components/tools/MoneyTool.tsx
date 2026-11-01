@@ -255,12 +255,14 @@ export function MoneyTool({ active }: { active: boolean }) {
       <div className="fx__meta">
         <p className="fx__rate">
           <span className="fx__rate-main">
-            {rate.unit} {rate.iso3} = रु {(side === 'buy' ? rate.buy : rate.sell).toFixed(2)}
+            {rate.unit} {rate.iso3} ={' '}
+            <span className="money__num">रु {(side === 'buy' ? rate.buy : rate.sell).toFixed(2)}</span>
             <span className="fx__rate-side"> {side === 'buy' ? 'buying' : 'selling'}</span>
           </span>
           <span className="fx__rate-src">
-            {side === 'buy' ? 'Selling' : 'Buying'} रु {(side === 'buy' ? rate.sell : rate.buy).toFixed(2)} · NRB,{' '}
-            {formatDay(sheet!.date)}
+            {side === 'buy' ? 'Selling' : 'Buying'}{' '}
+            <span className="money__num">रु {(side === 'buy' ? rate.sell : rate.buy).toFixed(2)}</span> · NRB,{' '}
+            <span className="money__num">{formatDay(sheet!.date)}</span>
             {status === 'stale' && ' · saved, offline'}
             {status === 'loading' && ' · checking…'}
           </span>
@@ -335,7 +337,15 @@ export function MoneyTool({ active }: { active: boolean }) {
             <span className="money__eq" aria-hidden="true">
               =
             </span>{' '}
-            {inRate ? `रु ${formatNpr(convert(value ?? 1, inRate, 'toNpr'))}` : '—'}
+            {/* The symbol may go to its own line on a narrow phone; the figure
+                never breaks inside itself ("6,17,62,50" / "0.00" did). */}
+            {inRate ? (
+              <>
+                रु <span className="money__num">{formatNpr(convert(value ?? 1, inRate, 'toNpr'))}</span>
+              </>
+            ) : (
+              '—'
+            )}
           </output>
           {rateMeta(inRate, 'buy')}
         </div>

@@ -1063,10 +1063,20 @@
   overflow-wrap: anywhere;
   user-select: text;
 }
-/* Narrow at the larger sizes the hint goes before anything else does. */
+/* Where it does not fit whole, the hint goes before anything else does
+   (measured: cut at 320px default and at 412px Larger). */
+@media (max-width: 340px) {
+  .editor-preeti-strip__hint {
+    display: none;
+  }
+}
 @media (max-width: 400px) {
-  :root[data-ui-scale='xl'] .editor-preeti-strip__hint,
   :root[data-ui-scale='lg'] .editor-preeti-strip__hint {
+    display: none;
+  }
+}
+@media (max-width: 440px) {
+  :root[data-ui-scale='xl'] .editor-preeti-strip__hint {
     display: none;
   }
 }

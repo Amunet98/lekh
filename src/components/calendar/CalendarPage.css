@@ -129,6 +129,14 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* At Larger on the narrowest phones even the short form ("Kartik · Oct–Nov
+   2026") ran off its end; there it takes a second line rather than losing the
+   Gregorian year (1.9.99). */
+@media (max-width: 359.98px) {
+  :root[data-ui-scale='xl'] .cal__sub {
+    white-space: normal;
+  }
+}
 /* The BS year in Latin digits, for a reader who cannot read २०८३ — the
    first thing to go on the narrowest phones, where the line would otherwise
    lose the Gregorian months off its end. */
@@ -281,9 +289,13 @@
    * length. */
   isolation: isolate;
 }
+/* minmax(0, 1fr), not 1fr: a plain 1fr track will not go below its cell's
+   minimum, and the cells' 2.75rem min-height carried through aspect-ratio
+   into a minimum width. At Larger that is ~57px x 7 = 400px, so on a 320px
+   phone Saturday ran off the right edge, clipped by the grid (1.9.99). */
 .cal__weekdays {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   border-bottom: 1px solid var(--border);
 }
 /* No fill. A --surface-2 header band over a --surface grid is the same
@@ -307,7 +319,7 @@
 
 .cal__days {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
 }
 
 .cal__cell {
@@ -321,6 +333,13 @@
      width on a phone without a media query per size. */
   aspect-ratio: 1 / 1;
   min-height: 2.75rem;
+  /* The width is the column's, stated. Left to aspect-ratio, the 2.75rem
+     min-height came back as a WIDTH (57px at Larger in a 45.7px column) and
+     the week ran off the grid: up to 390px at Large/Larger the Saturday
+     column was clipped (measured, 1.9.99). With the width fixed, a cell that
+     is short of 2.75rem just comes out a little taller than wide. */
+  width: 100%;
+  min-width: 0;
   padding: 0.2rem;
   border: 0;
   background: var(--surface);

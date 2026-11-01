@@ -551,7 +551,10 @@
   font: 700 0.95rem/1 var(--sans);
   letter-spacing: 0.03em;
 }
-.fx__cur:focus-within {
+/* Keyboard focus only. This was :focus-within, and a native select keeps
+   focus after the list closes, so on a phone the chip stayed ringed in the
+   accent after every pick until something else was tapped (owner, 1.9.99). */
+.fx__cur:has(.fx__select:focus-visible) {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
@@ -1144,4 +1147,35 @@
   :root[data-ui-scale='xl'] .money__box > .clear-field {
     display: none;
   }
+}
+
+/* Figures never break inside themselves, and on narrow phones at the larger
+   text sizes they step down to fit rather than wrapping or cutting: the vw
+   term only wins where the rem one would not fit (at the default size it is
+   the same 20.8px at 320px). A foreign amount at Larger on a 320px phone did
+   not fit its box beside a three-letter chip (1.9.99). */
+.money__num {
+  white-space: nowrap;
+}
+.money__fig {
+  font-size: min(1.6rem, 8.5vw);
+  overflow-wrap: normal;
+}
+.money__side-fig {
+  font-size: min(1.35rem, 8vw);
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+.money__box .tools__input--number {
+  font-size: min(1.3rem, 6.5vw);
+}
+
+/* Search placeholders: the room for the clear button is only kept while
+   there is something to clear, and what still does not fit ends in an
+   ellipsis instead of a cut word ("Find a phras", 320px / Larger). */
+.phrase-find__input:placeholder-shown {
+  padding-inline-end: 0.9rem;
+}
+.phrase-find__input {
+  text-overflow: ellipsis;
 }

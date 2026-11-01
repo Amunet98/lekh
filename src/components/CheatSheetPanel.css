@@ -283,6 +283,8 @@
   color: var(--text-h);
   font-family: var(--sans);
   font-size: 1rem;
+  /* What does not fit ends in an ellipsis, not a cut word (1.9.99). */
+  text-overflow: ellipsis;
 }
 .cheat-panel__search input:focus {
   outline: none;

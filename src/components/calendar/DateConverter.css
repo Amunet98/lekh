@@ -160,3 +160,21 @@
   color: var(--muted);
   font-size: 0.85rem;
 }
+
+.conv__whole {
+  white-space: nowrap;
+}
+/* Narrow phones at the larger text sizes: three BS selects in one row cut
+   their own values (कार्तिक shown as "काति", the day as a bare caret). Year
+   and month share the first row and the day goes under the year, so every
+   value reads whole. Measured 320-412px x three sizes (1.9.99). */
+@media (max-width: 420px) {
+  :root[data-ui-scale='xl'] .conv__bs {
+    grid-template-columns: 1fr 1.4fr;
+  }
+}
+@media (max-width: 359.98px) {
+  :root[data-ui-scale='lg'] .conv__bs {
+    grid-template-columns: 1fr 1.4fr;
+  }
+}

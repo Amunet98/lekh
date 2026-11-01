@@ -77,7 +77,7 @@ export function Phrasebook({ onShow }: { onShow: (shown: Shown) => void }) {
           enterKeyHint="search"
           autoComplete="off"
           spellCheck={false}
-          placeholder="Find a phrase — toilet, water…"
+          placeholder="Find a phrase — water…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />

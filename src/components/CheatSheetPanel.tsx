@@ -257,7 +257,7 @@ export function CheatSheetPanel({ open, onClose, onInsert, text }: CheatSheetPan
             /* "tr", not "tra" — the key for त्र is tr, and the empty state
                a failed search lands on says so too. The placeholder was
                offering an example that returned "Nothing matches “tra”". */
-            placeholder="Search — type a sound, e.g. kh or tr"
+            placeholder="Search a sound — kh, tr"
             aria-label="Search the cheat sheet"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
