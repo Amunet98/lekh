@@ -41,12 +41,6 @@ export interface Prefs {
   translateOnDevice: boolean
   /** Remember which way the translation was pointing. */
   translateReversed: boolean
-  /* Whether the one-time first-run demonstration has played (see
-     useIntroDemo). App.tsx notes that the redesign deleted the old
-     lekh-seen-landing flag and never replaced it; this is the replacement,
-     and it belongs here rather than in its own key because it is exactly what
-     this file is for — one boolean the app remembers between launches. */
-  seenIntro: boolean
   /** Which tool the Tools tab opens on — the one used last. */
   tool: ToolId
   /** The currency tool's foreign currency, as an ISO code. Validated only as
@@ -69,7 +63,6 @@ const DEFAULTS: Prefs = {
   amoled: false,
   translateOnDevice: false,
   translateReversed: false,
-  seenIntro: false,
   tool: 'date',
   currency: 'USD',
   currencyToNpr: true,
@@ -87,7 +80,6 @@ const VALIDATORS: { [K in keyof Prefs]: (raw: unknown) => Prefs[K] | undefined }
   amoled: (raw) => (typeof raw === 'boolean' ? raw : undefined),
   translateOnDevice: (raw) => (typeof raw === 'boolean' ? raw : undefined),
   translateReversed: (raw) => (typeof raw === 'boolean' ? raw : undefined),
-  seenIntro: (raw) => (typeof raw === 'boolean' ? raw : undefined),
   tool: (raw) => (TOOL_IDS.includes(raw as ToolId) ? (raw as ToolId) : undefined),
   currency: (raw) => (typeof raw === 'string' && /^[A-Z]{3}$/.test(raw) ? raw : undefined),
   currencyToNpr: (raw) => (typeof raw === 'boolean' ? raw : undefined),

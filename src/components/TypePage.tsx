@@ -6,12 +6,6 @@ import { CheatSheetPanel } from './CheatSheetPanel'
 import './TypePage.css'
 
 interface TypePageProps {
-  /* Whether the splash is still up. Only the first-run demonstration cares:
-     the boot screen is once-per-session, so on a fresh install it is covering
-     this screen, and starting the demo behind it would spend the one showing
-     it ever gets on frames nobody sees. Timed against the real state rather
-     than against BootScreen's own constants, which are free to change. */
-  booting: boolean
   /* The cheat sheet's open state lives in App, not here, because it is a
      history entry now and not just a boolean — Back has to be able to close
      it. See useAppNavigation. */
@@ -21,7 +15,6 @@ interface TypePageProps {
 }
 
 export function TypePage({
-  booting,
   cheatOpen,
   onOpenCheatSheet,
   onCloseCheatSheet,
@@ -83,7 +76,6 @@ export function TypePage({
           editor={editor}
           textareaRef={textareaRef}
           onOpenCheatSheet={onOpenCheatSheet}
-          booting={booting}
         />
       </div>
 

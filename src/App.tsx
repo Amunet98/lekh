@@ -427,7 +427,6 @@ function App() {
         {visited.includes('type') && (
           <Section active={tab === 'type'}>
             <TypePage
-              booting={booting}
               cheatOpen={sheet === 'cheatsheet'}
               onOpenCheatSheet={() => openSheet('cheatsheet')}
               onCloseCheatSheet={closeSheet}
@@ -488,7 +487,6 @@ function App() {
           open={sheet === 'settings' || sheet === 'about'}
           onDismiss={closeSheet}
           onOpenAbout={() => openSheet('about', { stack: true })}
-          onGoTo={goToTab}
           t={translateState}
         />
         <AboutScreen onDismiss={closeSheet} onGoTo={goToTab} />

@@ -693,10 +693,9 @@
  * the first letter of the alphabet the app writes.
  *
  * `a → अ` rather than अ alone, and that arrow is the whole point of the
- * change. The first-run demonstration types one word and then sets seenIntro
- * for good, so from the second launch onwards this mark was the largest thing
- * on an empty screen and it said only "Devanagari happens here" — true, and
- * not the thing a new user cannot guess. The key that produces the letter is
+ * change. The first-run demonstration (since removed) played once, so from
+ * the second launch onwards this mark was the largest thing on an empty
+ * screen and it said only "Devanagari happens here" — true, and not the thing a new user cannot guess. The key that produces the letter is
  * the lesson, it costs no layout (this is still one absolutely-positioned
  * layer behind the field), and it is legible to someone who has never been
  * shown the app, every time they open it rather than once.

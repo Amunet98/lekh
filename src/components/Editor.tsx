@@ -4,7 +4,6 @@ import { SHARE_AVAILABLE } from '../lib/share'
 import { tick } from '../lib/haptics'
 import { useToast } from '../hooks/useToast'
 import { useMediaQuery } from '../hooks/useMediaQuery'
-import { useIntroDemo } from '../hooks/useIntroDemo'
 import { DOCK_QUERY } from '../hooks/useDockDetached'
 import { DownloadActions } from './DownloadActions'
 import { MoreActions } from './MoreActions'
@@ -22,8 +21,6 @@ interface EditorProps {
   editor: EditorState
   textareaRef: RefObject<HTMLTextAreaElement | null>
   onOpenCheatSheet: () => void
-  /** Splash still up — see TypePage, and useIntroDemo for who cares. */
-  booting: boolean
 }
 
 /* The one-line legend. Its pointer-type halves are both rendered and swapped
@@ -68,15 +65,12 @@ function EditorHint({ nepali }: { nepali: boolean }) {
 
 const PLACEHOLDER = 'namaste — start typing, press space to convert…'
 
-export function Editor({ editor, textareaRef, onOpenCheatSheet, booting }: EditorProps) {
+export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
   const toast = useToast()
   const isEmpty = editor.text.length === 0
-
-  /* The one-time first-run demonstration. It drives the placeholder, so it is
-     already impossible for it to cover anything the user has written; the
-     emptiness argument is a snapshot taken at mount, and is about never
-     *starting* for someone who arrived with a draft. See useIntroDemo. */
-  const intro = useIntroDemo(!booting, isEmpty)
+  /* The first-run demonstration that typed "namaste" into the placeholder
+     (useIntroDemo) is gone, with its Settings replay row: LiveDemo in the
+     empty state shows the same thing on every launch (owner's call, 1.9.85). */
   const wordCount = editor.text.trim() === '' ? 0 : editor.text.trim().split(/\s+/).length
 
   /* Eight controls do not fit one row on a phone.
@@ -109,7 +103,7 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet, booting }: Edito
 
   return (
     <div className="editor-shell">
-      <div className={`editor${editor.flashing || intro.flashing ? ' editor--flash' : ''}`}>
+      <div className={`editor${editor.flashing ? ' editor--flash' : ''}`}>
         {/*
           The strip keeps its reserved height whether or not it has chips —
           letting it collapse would jump the textarea by a row as you type —
@@ -168,19 +162,10 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet, booting }: Edito
           autoCapitalize="off"
           autoCorrect="off"
           aria-label="Nepali editor — type romanized Nepali"
-          placeholder={intro.text ?? PLACEHOLDER}
+          placeholder={PLACEHOLDER}
           value={editor.text}
           onChange={(e) => editor.handleChange(e.target.value, e.target.selectionEnd)}
-          /* Typing already ends the demonstration on its own — a placeholder is
-             gone the moment there is a character in the field — but a tap that
-             only moves the caret does not, and sitting there animating under
-             someone's cursor is its own kind of wrong. Both handlers still run
-             their real work; stop() is idempotent and a no-op once it has. */
-          onKeyDown={(e) => {
-            intro.stop()
-            editor.handleKeyDown(e)
-          }}
-          onPointerDown={intro.stop}
+          onKeyDown={editor.handleKeyDown}
           /* Caret moves change which word is pending (and so the
              suggestions), even when no text changes. */
           onSelect={(e) => editor.handleSelect(e.currentTarget.selectionEnd)}
@@ -198,9 +183,8 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet, booting }: Edito
               named above them they were clutter.
 
               Transparent to the pointer, so a tap anywhere lands in the field
-              and raises the keyboard. Held back while the demonstration runs,
-              so the first thing on screen is one word typing itself. */}
-          {isEmpty && !intro.active && (
+              and raises the keyboard. */}
+          {isEmpty && (
             <div className="editor-empty reveal">
               {/* See .editor-mark in Editor.css — aria-hidden texture, a
                   centred mark heading the empty state. */}

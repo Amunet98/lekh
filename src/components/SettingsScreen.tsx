@@ -10,12 +10,10 @@ import { clearHeavyCaches, estimateHeavyCaches, formatBytes } from '../lib/stora
 import { useToast } from '../hooks/useToast'
 import { useNativeInfo } from '../hooks/useNativeInfo'
 import { versionLine } from '../lib/report'
-import { replayIntro } from '../hooks/useIntroDemo'
 import { EngineStatus } from './translate/TranslateControls'
 import type { TranslateState } from '../hooks/useTranslateState'
 import type { Theme } from '../lib/theme'
 import type { EditorSize } from '../lib/prefs'
-import type { Tab } from './TabSwitcher'
 
 import './sheet.css'
 import { RowChevron } from './SheetIcons'
@@ -53,12 +51,6 @@ interface SettingsScreenProps {
      byline do not belong among switches, and the version string is easier to
      find at the end of a short list than buried under toggles. */
   onOpenAbout: () => void
-  /* The one row in here that has somewhere to go. Replaying the typing
-     demonstration means showing it in the editor, which means leaving this
-     screen and landing on Type — a row that silently played an animation two
-     screens away would look like a row that did nothing. Same callback the
-     dock and the About screen use. */
-  onGoTo: (tab: Tab) => void
   /* The translation engine is a preference, and this is where preferences
      live — the file header above already lists "translation mode" among the
      things that were scattered when this screen was written. It reached
@@ -164,7 +156,7 @@ function SwitchRow({
   )
 }
 
-export function SettingsScreen({ open, onDismiss, onOpenAbout, onGoTo, t }: SettingsScreenProps) {
+export function SettingsScreen({ open, onDismiss, onOpenAbout, t }: SettingsScreenProps) {
   const toast = useToast()
   const [theme, setTheme] = useTheme()
   const [editorSize, setEditorSize] = usePref('editorSize')
@@ -348,35 +340,6 @@ export function SettingsScreen({ open, onDismiss, onOpenAbout, onGoTo, t }: Sett
                 checked={startNepali}
                 onChange={setStartNepali}
               />
-              {/* Not a switch: there is nothing to leave on. The app explains
-                  itself exactly once, in about three seconds, on the first
-                  launch after install — and then never again, for the life of
-                  the install. This is the way back to it, and it is in
-                  Behaviour rather than in About because it changes what the
-                  app does rather than describing it.
-
-                  Order matters in the two calls: send the screen away first,
-                  then ask. replayIntro() reaches the live editor immediately
-                  (see useIntroDemo), so asking first would spend the opening
-                  beat behind a full-screen panel that is still sliding out. */}
-              <button
-                type="button"
-                className="sheet-row sheet-row--aside"
-                onClick={() => {
-                  tick()
-                  onGoTo('type')
-                  onDismiss()
-                  replayIntro()
-                }}
-              >
-                <span className="sheet-row__text">
-                  <b>Show the typing demo</b>
-                  <span className="sheet-row__rest">plays the one-word introduction again</span>
-                </span>
-                <span className="sheet-row__go" aria-hidden="true">
-                  <RowChevron />
-                </span>
-              </button>
             </div>
           </section>
 
