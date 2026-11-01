@@ -5,6 +5,7 @@ import { bootDynamicColor } from './lib/dynamicColor'
 import { applyAmoled, applyTheme, getAmoled, getInitialTheme, watchSystemTheme } from './lib/theme'
 import { installNativeBackHandler } from './lib/nativeBack'
 import { watchForErrors } from './lib/lastError'
+import { trackInputModality } from './lib/inputModality'
 import { loadNativeInfo } from './lib/nativeInfo'
 import { ToastProvider } from './components/Toast'
 import { ErrorBoundary } from './components/ErrorBoundary'
@@ -21,6 +22,7 @@ bootDynamicColor()
    an OCR worker, a translation fetch, the Capacitor bridge. Both feed the one
    buffer that About's "Report a problem" hands over. */
 watchForErrors()
+trackInputModality()
 
 /* Both of these used to be a component's job and neither should have been.
  *

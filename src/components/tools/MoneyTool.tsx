@@ -205,7 +205,13 @@ export function MoneyTool({ active }: { active: boolean }) {
   const [lastForeign, setLastForeign] = usePref('currency')
   const [cur, setCur] = useState(NPR)
   const [sideOpen, setSideOpen] = useState(false)
-  const { sheet, status, reload } = useRates(active && (cur !== NPR || sideOpen))
+  /* Rates are fetched when a conversion needs them, and once on opening the
+     tool if none have ever been saved: without a list the chip could offer
+     only NPR and the remembered currency, so a first-time user after INR had
+     to pick USD first (seen on a fresh install, 1.9.99). After that the saved
+     list fills the chip, and a cheque amount sends nothing. */
+  const [cachedAtStart] = useState(() => readCache() !== null)
+  const { sheet, status, reload } = useRates(active && (cur !== NPR || sideOpen || !cachedAtStart))
   const [raw, setRaw] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
 

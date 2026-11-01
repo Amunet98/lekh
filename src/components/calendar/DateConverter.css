@@ -66,10 +66,17 @@
 .conv__select.dev {
   font-family: var(--display-dev);
 }
-.conv__select:focus-visible,
+/* The selects ring only after a key (see lib/inputModality.ts): Android's
+   WebView leaves a select :focus-visible after a tap-and-pick, so the ring
+   stuck on. The text field rings whenever it is focused, since that is
+   where you type. */
+:root:not([data-input='pointer']) .conv__select:focus-visible,
 .conv__date:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
+}
+.conv__select:focus {
+  outline: none;
 }
 /* The AD date as text, always YYYY-MM-DD, with the calendar button beside
    it; the native date input behind the button is only there to be opened
