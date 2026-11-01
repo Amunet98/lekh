@@ -590,6 +590,75 @@
    hints only ever appear for a short typed phrase, which sits above the
    banner, and answering either way takes the banner off. */
 
+/* The engine line, restored 1.9.103 inside the empty source box under the
+   tiles (see EngineLine.tsx). Small print with a verb and a chevron, which is
+   what makes it read as tappable rather than as a status line. */
+.engine-pick {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: var(--sp-1) var(--sp-2);
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  text-align: left;
+  cursor: pointer;
+  border-radius: var(--radius-field);
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.engine-pick__label {
+  min-width: 0;
+  color: var(--text);
+}
+.engine-pick__change {
+  margin-inline-start: auto;
+  color: var(--accent-text);
+  font-weight: 600;
+}
+.engine-pick__chevron {
+  flex: none;
+  color: var(--accent-text);
+}
+@media (hover: hover) {
+  .engine-pick:hover {
+    background: var(--surface-2);
+  }
+  .engine-pick:hover .engine-pick__label {
+    color: var(--text-h);
+  }
+}
+.engine-pick:active {
+  background: var(--surface-2);
+}
+.engine-pick:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+/* The state dot: the dot carries the engine, the label names it, so it is
+   never colour alone. */
+.privacy-note__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+}
+.privacy-note__dot--online {
+  background: var(--warn);
+}
+.privacy-note__dot--ondevice {
+  background: var(--ok);
+}
+/* Inside the box: under the tiles, sharing their inset. */
+.translate-engine {
+  padding: 0 var(--sp-2) var(--sp-2);
+  margin-top: calc(-1 * var(--sp-1));
+}
+
 /* The translation in plain Latin letters, under the Nepali and inside the
    same box — see pronounce.ts and TranslationOutput. */
 .translate-output__say {

@@ -6,6 +6,7 @@ import { DirectionToggle } from './translate/TranslateControls'
 import { TranslationOutput } from './translate/TranslationOutput'
 import { fill } from './translate/progressFill'
 import { TranslateRun } from './translate/TranslateRun'
+import { EngineLine } from './translate/EngineLine'
 import { useOnline } from '../hooks/useOnline'
 import { SectionIcon } from './SectionIcons'
 import { SheetIcon } from './SheetIcons'
@@ -370,6 +371,7 @@ export function TranslatePage({ t, onShow }: TranslatePageProps) {
               </div>
             )}
             {showTiles ? (
+              <>
               <div className="translate-tiles">
                 {/* Paste at the caret, as a long-press paste would. */}
                 {PASTE_AVAILABLE && (
@@ -401,6 +403,12 @@ export function TranslatePage({ t, onShow }: TranslatePageProps) {
                   <span aria-hidden="true">Upload</span>
                 </button>
               </div>
+              {/* Which engine translates, and the way to change it, while the
+                  box is empty (see EngineLine). */}
+              <div className="translate-engine">
+                <EngineLine t={t} />
+              </div>
+              </>
             ) : (
               /* With text in the box, only Clear: replacing it with a paste or
                  a scan is Clear first (or a long-press paste). Hidden while a
