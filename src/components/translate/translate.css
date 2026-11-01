@@ -610,14 +610,16 @@
  * secondary actions under the answer take the accent's outline, as Tools'
  * Copy buttons do. */
 
-/* The two pickers as plain words with a caret since 1.9.90: no outline, no
-   fill, no script tile. They are the only names the two sides have now, so
-   they carry the heading colour and weight; the 44px target is unchanged and
-   the ground only appears under a finger, a pointer or an open menu. */
+/* The two pickers: a word and a caret in an outlined pill, with no fill
+   and no script tile. 1.9.90 dropped the outline as well; the owner wanted
+   it back (1.9.92) because bare words did not read as controls. They are
+   the only names the two sides have now, so they carry the heading colour
+   and weight. The ground only appears under a finger, a pointer or an open
+   menu. */
 .lang-picker .lang-picker__btn {
   gap: 0.4rem;
   padding-inline: 0.9rem;
-  border-color: transparent;
+  border-color: var(--border-field);
   background: transparent;
   font-size: 0.95rem;
   font-weight: 600;
@@ -633,7 +635,7 @@
 }
 @media (hover: hover) {
   .lang-picker .lang-picker__btn:hover {
-    border-color: transparent;
+    border-color: var(--accent);
     background: var(--surface-2);
   }
 }
@@ -647,8 +649,11 @@
   text-overflow: ellipsis;
 }
 
-/* The hinge between them: the accent on the glyph only, no disc. */
+/* The hinge between them: an outlined circle the same edge as the pickers,
+   with the accent on the glyph only, so it still reads as the hinge and not
+   as a third language. */
 .swap-btn {
+  border-color: var(--border-field);
   color: var(--accent-text);
 }
 
