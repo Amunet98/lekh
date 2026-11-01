@@ -65,7 +65,9 @@ function EditorHint({ nepali }: { nepali: boolean }) {
   )
 }
 
-const PLACEHOLDER = 'namaste — start typing, press space to convert…'
+/* No placeholder since 1.9.93 (owner: remove it). The empty state below the
+   field (LiveDemo plus one steps line) already shows what typing does, so
+   "namaste — start typing, press space to convert…" said it a second time. */
 
 export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
   const toast = useToast()
@@ -221,7 +223,6 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
           autoCapitalize="off"
           autoCorrect="off"
           aria-label="Nepali editor — type romanized Nepali"
-          placeholder={PLACEHOLDER}
           value={editor.text}
           onChange={(e) => editor.handleChange(e.target.value, e.target.selectionEnd)}
           onKeyDown={editor.handleKeyDown}

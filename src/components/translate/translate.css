@@ -621,7 +621,7 @@
   padding-inline: 0.9rem;
   border-color: var(--border-field);
   background: transparent;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: var(--text-h);
   -webkit-tap-highlight-color: transparent;
@@ -647,6 +647,65 @@
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.lang-picker__script {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  color: var(--text);
+  font-family: var(--display-dev);
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.lang-picker__btn--target .lang-picker__script {
+  background: var(--accent-bg);
+  color: var(--accent-text);
+}
+/* When a pill is too narrow for tile, word and caret, the caret goes first
+   (the outline already says it is a control), then the tile; the word is
+   the one thing the pill exists to show. Breakpoints measured headless,
+   width x text size, 2026-11-02: label cut below these. */
+@media (max-width: 339.98px) {
+  .lang-picker .lang-picker__btn > svg {
+    display: none;
+  }
+}
+@media (max-width: 374.98px) {
+  :root[data-ui-scale='lg'] .lang-picker .lang-picker__btn > svg {
+    display: none;
+  }
+}
+@media (max-width: 429.98px) {
+  :root[data-ui-scale='xl'] .lang-picker .lang-picker__btn > svg {
+    display: none;
+  }
+}
+@media (max-width: 339.98px) {
+  :root[data-ui-scale='lg'] .lang-picker__script {
+    display: none;
+  }
+}
+@media (max-width: 389.98px) {
+  :root[data-ui-scale='xl'] .lang-picker__script {
+    display: none;
+  }
+}
+/* On a phone the pills stretch: the tile sits at the leading edge and the
+   caret at the trailing one, so the two pills line up tile over tile. */
+@media (max-width: 767px) {
+  .lang-picker .lang-picker__btn {
+    justify-content: flex-start;
+    padding-inline: 0.4rem 0.75rem;
+  }
+  .lang-picker .lang-picker__btn > svg {
+    margin-inline-start: auto;
+  }
 }
 
 /* The hinge between them: an outlined circle the same edge as the pickers,

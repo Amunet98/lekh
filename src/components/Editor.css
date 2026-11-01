@@ -686,11 +686,12 @@
     display: none;
   }
 }
-/* The smallest phones at the largest setting: even the steps do not fit
-   under a placeholder that wraps to three lines. The placeholder alone
-   teaches there ("namaste — start typing, press space to convert…"). */
+/* The smallest phones at the largest setting used to drop the whole empty
+   state here, leaving the placeholder to teach alone. The placeholder is
+   gone (1.9.93), so the demo and its steps stay and only the title goes:
+   at 320x600 / Larger the steps otherwise ran into the EN/नेपाली toggle. */
 @media (max-width: 767px) and (max-height: 620px) {
-  :root[data-ui-scale='xl'] .editor-empty {
+  :root[data-ui-scale='xl'] .editor-empty .editor-empty__intro {
     display: none;
   }
 }
