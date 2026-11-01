@@ -135,7 +135,7 @@ export function SheetIcon({ name, size = 18 }: { name: SheetIconName; size?: num
 /* The trailing mark on a row that goes somewhere — Settings, About. A drawn
    chevron at the icon stroke weight rather than a typed →, which set in the
    body face came out thin, small and sitting on the baseline, unlike every
-   other glyph in the row; the same shape TranslateActions uses for Change. */
+   other glyph in the row. */
 export function RowChevron() {
   return (
     <svg

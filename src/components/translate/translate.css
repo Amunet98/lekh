@@ -290,28 +290,32 @@
   grid-template-columns: 1fr;
 }
 
-.translate-input,
-.translate-output {
-  flex: 1 1 auto;
+/* The source box is the wrapper, not the textarea (1.9.90): it holds the
+   text and the tools along its foot, so the edge, ground and focus ring are
+   drawn here and the textarea inside is bare. --border-field, because it is a
+   region a user has to locate, and a 1.26:1 hairline does not clear the 3:1
+   floor for that. */
+.translate-input-wrap {
   background: var(--surface);
-  /* --border-field on both, including the read-only output: it is a distinct
-     region a user has to locate, and a 1.26:1 hairline does not clear the 3:1
-     floor for that. */
   border: 1px solid var(--border-field);
   border-radius: var(--radius-card);
-  padding: var(--sp-4);
-  font-size: 1.1rem;
-  line-height: 1.75;
-  min-height: 11rem;
   transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
 }
 .translate-input {
+  flex: 1 1 auto;
+  display: block;
+  min-height: 8rem;
+  padding: var(--sp-4);
+  border: 0;
+  border-radius: var(--radius-card);
+  background: transparent;
   resize: vertical;
   color: var(--text-h);
   font-family: var(--devanagari);
+  font-size: 1.1rem;
+  line-height: 1.75;
 }
-/* No drag grip on touch — see the same rule and the same reasoning on the
-   Type editor (Editor.css). */
+/* No resize grip on touch, same as the Type editor (Editor.css). */
 @media (pointer: coarse) {
   .translate-input {
     resize: none;
@@ -319,58 +323,43 @@
 }
 .translate-input:focus {
   outline: none;
+}
+.translate-input-wrap:has(.translate-input:focus) {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
 }
-/* Same reason the editor drops its ring on a phone — see Editor.css. */
 @media (max-width: 767px) {
-  .translate-input:focus {
+  .translate-input-wrap:has(.translate-input:focus) {
     box-shadow: none;
   }
 }
-/* The output is not editable and it should not look like it is — but the
- * previous answer to that said two wrong things at once. A dashed edge means
- * placeholder or dropzone everywhere else in UI, and a grey fill is the
- * disabled convention, so the one thing on this screen the user actually came
- * for was drawn as something broken and switched off.
- *
- * Read-only is now said the way print says it: the result sits on the surface
- * with a rule down its leading edge, the shape of a quotation. Nothing about
- * it invites a caret, and nothing about it looks like a fault. */
+
+/* The answer's own ground: 5% of the accent mixed into the surface, which
+   reads as warmth rather than as a state, and is the cheapest way to make the
+   answer look like the answer. Copy, Show and ⋯ sit inside it now, so the
+   result and what you do with it are one object. The 3px leading rule that
+   used to mark it as a quotation went in 1.9.90; the ground alone says it.
+   Both tokens are repainted by Material You, so the relationship holds on
+   Android. */
+.translate-pane.translate-pane--target {
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  background: color-mix(in srgb, var(--accent) 5%, var(--surface));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+}
 .translate-output {
+  flex: 1 1 auto;
+  min-height: 5rem;
   color: var(--text-h);
+  font-size: 1.1rem;
+  line-height: 1.75;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-  /* A ground of its own, and barely — 5% of the accent mixed into the same
-     surface the source sits on.
-   *
-     Measured at 390px before this: .translate-input and .translate-output both
-     computed to rgb(21, 26, 43). The two halves of the screen, the thing you
-     typed and the thing you came for, were the same colour separated by a
-     hairline. The old comment below is right that a *grey* fill would say
-     "disabled" — this is not that. It is the app's own accent at a strength
-     you would not name as a colour if asked, which reads as warmth rather than
-     as a state, and it is the cheapest way to make the answer look like the
-     answer. Both tokens are repainted by Material You, so the relationship
-     holds on Android rather than the tint drifting off the palette. */
-  background: color-mix(in srgb, var(--accent) 5%, var(--surface));
-  border-color: var(--border);
-  border-inline-start: 3px solid var(--accent-border);
-  /* The same quotation rule, as a shadow rather than a border, because on a
-     phone the border is not there.
-   *
-     `.page :is(… .translate-output …)` in App.css sets `border-inline: 0` so
-     these surfaces can run edge to edge, which is right — but it takes the
-     leading rule with it, and that rule is the whole of what the comment above
-     calls "the shape of a quotation". So the one mark that said *result* was
-     present on a desktop and silently gone on the device most people read
-     this on. An inset shadow is not a border and survives the bleed.
-
-     Doubled harmlessly where the border does exist: the shadow sits under it
-     at the same width and colour. */
-  box-shadow: inset 3px 0 0 var(--accent-border);
 }
-
+.translate-output__empty {
+  font-size: 1rem;
+}
 .chunk-partial {
   margin: var(--sp-3) 0 0;
   white-space: pre-wrap;
@@ -381,7 +370,6 @@
   display: flex;
   align-items: center;
   gap: var(--sp-2);
-  margin-top: var(--sp-1);
 }
 .translate-output__spacer {
   flex: 1 1 auto;
@@ -602,76 +590,6 @@
    hints only ever appear for a short typed phrase, which sits above the
    banner, and answering either way takes the banner off. */
 
-/* The engine row — see TranslateActions for why this stopped being a
-   disclosure and became a control.
- *
-   It keeps the small-print scale of the line it replaces, because it still
-   sits at the foot of the page under the panes and should not compete with
-   copy and share above it. What makes it read as tappable is not weight: it is
-   the two things a status line does not have, a verb and a chevron. */
-.engine-pick {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  width: 100%;
-  /* A real target, unlike the summary it replaces — that one deliberately
-     stayed at 2rem on the grounds that it was small print that happened to
-     open. This is a control someone is meant to find. */
-  min-height: 2.75rem;
-  padding: var(--sp-1);
-  border: 0;
-  background: transparent;
-  color: var(--muted);
-  font-family: var(--sans);
-  font-size: 0.8rem;
-  text-align: left;
-  cursor: pointer;
-  border-radius: var(--radius-field);
-  transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
-}
-.engine-pick__label {
-  color: var(--text);
-}
-/* The verb, and the reason a new user knows this line does anything at all.
-   Pushed to the trailing edge with the chevron, which is where a row keeps
-   what it does rather than what it is. */
-.engine-pick__change {
-  margin-inline-start: auto;
-  color: var(--accent-text);
-  font-weight: 600;
-}
-.engine-pick__chevron {
-  flex: none;
-  color: var(--accent-text);
-}
-@media (hover: hover) {
-  .engine-pick:hover {
-    background: var(--surface-2);
-  }
-  .engine-pick:hover .engine-pick__label {
-    color: var(--text-h);
-  }
-}
-.engine-pick:active {
-  background: var(--surface-2);
-}
-
-/* The state dot, kept from the disclosure this replaced: the dot carries the
-   engine, the label names it, so it is never colour alone. */
-
-.privacy-note__dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 999px;
-  flex: 0 0 auto;
-}
-.privacy-note__dot--online {
-  background: var(--warn);
-}
-.privacy-note__dot--ondevice {
-  background: var(--ok);
-}
-
 /* The translation in plain Latin letters, under the Nepali and inside the
    same box — see pronounce.ts and TranslationOutput. */
 .translate-output__say {
@@ -692,96 +610,45 @@
  * secondary actions under the answer take the accent's outline, as Tools'
  * Copy buttons do. */
 
+/* The two pickers as plain words with a caret since 1.9.90: no outline, no
+   fill, no script tile. They are the only names the two sides have now, so
+   they carry the heading colour and weight; the 44px target is unchanged and
+   the ground only appears under a finger, a pointer or an open menu. */
 .lang-picker .lang-picker__btn {
-  gap: 0.55rem;
-  padding-inline: 0.45rem 0.9rem;
-  font-size: 0.88rem;
+  gap: 0.4rem;
+  padding-inline: 0.9rem;
+  border-color: transparent;
+  background: transparent;
+  font-size: 0.95rem;
   font-weight: 600;
   color: var(--text-h);
+  -webkit-tap-highlight-color: transparent;
+}
+.lang-picker .lang-picker__btn > svg {
+  color: var(--muted);
+}
+.lang-picker .lang-picker__btn[aria-expanded='true'],
+.lang-picker .lang-picker__btn:active {
+  background: var(--surface-2);
+}
+@media (hover: hover) {
+  .lang-picker .lang-picker__btn:hover {
+    border-color: transparent;
+    background: var(--surface-2);
+  }
+}
+.lang-picker .lang-picker__btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 0;
 }
 .lang-picker__name {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.lang-picker__script {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.9rem;
-  height: 1.9rem;
-  border-radius: var(--radius-pill);
-  background: var(--surface-2);
-  color: var(--text);
-  font-family: var(--display-dev);
-  font-size: 0.9rem;
-  font-weight: 700;
-  line-height: 1;
-}
-.lang-picker__btn--target .lang-picker__script {
-  background: var(--accent-bg);
-  color: var(--accent-text);
-}
-/* At Larger text on a phone the two pills had room for "Nep…" and "Eng…" —
-   the one word each pill exists to show. The script tile goes instead: it
-   restates the name. See the Larger-text note in ToolsPage.css for 468px. */
-@media (max-width: 468px) {
-  :root[data-ui-scale='xl'] .lang-picker__script {
-    display: none;
-  }
-}
-/* The same squeeze at Large: 414px is 360 × 1.15 ("Engli…" at 390px). */
-@media (max-width: 414px) {
-  :root[data-ui-scale='lg'] .lang-picker__script {
-    display: none;
-  }
-}
-/* And on the narrowest phones at any setting: at 320px "English" had 36px of
-   the 53 it needs. Below 340px at Larger even that is not enough, and the
-   chevron goes too — the pill is plainly a control without it. */
-@media (max-width: 360px) {
-  .lang-picker__script {
-    display: none;
-  }
-}
-@media (max-width: 340px) {
-  :root[data-ui-scale='xl'] .lang-picker .lang-picker__btn > svg {
-    display: none;
-  }
-}
-/* On a phone the pills stretch and centre their label; the tile sits at the
-   leading edge instead, so the two pills line up tile over tile. */
-@media (max-width: 767px) {
-  .lang-picker .lang-picker__btn {
-    justify-content: flex-start;
-  }
-  .lang-picker .lang-picker__btn > svg {
-    margin-inline-start: auto;
-  }
-}
 
-/* The hinge between them, in the accent at rest now — tinted rather than
-   outlined, so it still does not read as a third pill. */
+/* The hinge between them: the accent on the glyph only, no disc. */
 .swap-btn {
-  background: var(--accent-bg);
-  color: var(--accent-text);
-}
-
-/* Two classes: TranslatePage.css loads after this file and its plain
-   .translate-pane__label would otherwise win the tie. */
-.translate-pane .translate-pane__label--target {
-  color: var(--accent-text);
-}
-
-/* Upload and camera keep their neutral pill (see TranslatePage.css for why
-   they stopped being filled); their icons take the accent so the two read as
-   the photo/document feature rather than as two more grey buttons. */
-.pane-upload-btn svg,
-.pane-camera-btn svg {
-  color: var(--accent-text);
-}
-.upload-hint__or svg {
   color: var(--accent-text);
 }
 

@@ -5,7 +5,6 @@ import { useUploadState, FILE_ACCEPT } from '../hooks/useUploadState'
 import { DirectionToggle } from './translate/TranslateControls'
 import { TranslationOutput } from './translate/TranslationOutput'
 import { fill } from './translate/progressFill'
-import { TranslateActions } from './translate/TranslateActions'
 import { TranslateRun } from './translate/TranslateRun'
 import { useOnline } from '../hooks/useOnline'
 import { SectionIcon } from './SectionIcons'
@@ -145,7 +144,10 @@ export function TranslatePage({ t, onShow }: TranslatePageProps) {
           EngineStatus): it is a setting set once or never, and at full width
           on a phone it was the second-loudest thing on a screen whose job is
           to show you a translation. What is left is the one control that
-          changes per use. */}
+          changes per use. The "Online translation · Change" line that
+          replaced it under the answer went too (1.9.90): Settings has the
+          choice, and the offline and error banners below still offer
+          on-device at the one moment it matters. */}
       <div className="translate-toolbar">
         <DirectionToggle t={t} />
       </div>
@@ -185,7 +187,7 @@ export function TranslatePage({ t, onShow }: TranslatePageProps) {
 
       <div className="translate-panes">
         <div
-          className={`translate-pane${upload.dragging ? ' translate-pane--dragging' : ''}${
+          className={`translate-pane translate-pane--source${upload.dragging ? ' translate-pane--dragging' : ''}${
             upload.readStatus === 'reading' ? ' translate-pane--reading' : ''
           }`}
           onDragEnter={upload.onDragEnter}
@@ -193,102 +195,14 @@ export function TranslatePage({ t, onShow }: TranslatePageProps) {
           onDragLeave={upload.onDragLeave}
           onDrop={upload.onDrop}
         >
-          <div className="translate-pane__header">
-            {/* The language in its own script — see `native` in
-                languages.ts. The header names the text below it, and that
-                text is Devanagari, so a Latin label on top of it was the one
-                thing on the pane written for somebody else. */}
-            <label
-              className="translate-pane__label"
-              htmlFor="translate-source"
-              lang={t.sourceLang.code}
-            >
-              {t.sourceLang.native}
-            </label>
-            <div className="translate-pane__header-actions">
-              <button
-                type="button"
-                className="btn pane-upload-btn"
-                title="Upload a photo or document"
-                aria-label="Upload a photo or document"
-                onClick={upload.openFilePicker}
-              >
-                <SectionIcon name="upload" size={14} />
-                Upload
-              </button>
-              {/* A second capture-mode input rather than a second visible
-                  affordance for "browse" vs "camera" — most phones already
-                  offer camera as one of the file-picker's own options, this
-                  button just skips that extra tap and jumps straight to it.
-
-                  Labelled "Scan" since 2026-11-01 (owner: the bare camera
-                  square read as confusing). Scan is what it does — a photo
-                  whose text is read off it — where "Camera" would only name
-                  the hardware. Touch devices only (see .pane-camera-btn): a
-                  desktop browser ignores `capture`, so there it opened the
-                  same file picker as Upload beside it, and a Scan button that
-                  does not scan is worse than the icon was. */}
-              <button
-                type="button"
-                className="btn pane-camera-btn"
-                title="Scan a page with the camera"
-                aria-label="Scan a page with the camera"
-                onClick={() => cameraInputRef.current?.click()}
-              >
-                <CameraIcon size={14} />
-                <span aria-hidden="true">Scan</span>
-              </button>
-              {/* Paste, square like the camera beside it. Hidden while a file
-                  is loaded, for the same reason Clear is: the box then holds
-                  the file's text, and the chip below owns that. */}
-              {PASTE_AVAILABLE && !upload.currentFile && (
-                <button
-                  type="button"
-                  className="btn pane-paste-btn"
-                  title="Paste"
-                  aria-label="Paste"
-                  onClick={() => void pasteSource()}
-                >
-                  <SheetIcon name="paste" size={14} />
-                </button>
-              )}
-              {/* Hidden once a file's uploaded — the "remove" button on its
-                  filename chip below does the exact same thing, and showing
-                  both reads as two controls where there's only one action. */}
-              {/* Same swap the editor does: for six seconds after a clear, the
-                  button in the same place offers it back. Icon and word, the
-                  same pair the Type editor's Clear carries (2026-11-01). */}
-              {!upload.currentFile &&
-                (t.lastClearedSource !== null ? (
-                  /* "Undo", not "Undo clear", here only (owner's call,
-                     2026-11-01). With its icon the long form is ~40px wider
-                     than Clear, which knocked the row under the label and
-                     dropped the text box 28–52px on 360–420px phones right
-                     after a clear — and back up six seconds later. The arrow,
-                     the slot and the moment say what it undoes; the
-                     accessible name still says it in full. */
-                  <button
-                    type="button"
-                    className="btn pane-clear-btn"
-                    aria-label="Undo clear"
-                    onClick={t.undoClearSource}
-                  >
-                    <SheetIcon name="undo" size={14} />
-                    <ClearLabel shown="Undo" />
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className="btn pane-clear-btn"
-                    disabled={isEmpty}
-                    onClick={upload.clearUpload}
-                  >
-                    <SheetIcon name="trash" size={14} />
-                    <ClearLabel shown="Clear" />
-                  </button>
-                ))}
-            </div>
-          </div>
+          {/* No visible pane name since 1.9.90. The language row directly
+              above already says which side is which, and a label on each
+              pane plus the hint inside it was each language named three
+              times on one screen (owner: "cluttered", option A of the
+              2026-11-02 distill). Screen readers still get a name. */}
+          <label className="sr-only" htmlFor="translate-source">
+            {`${t.sourceLang.label} text`}
+          </label>
           <input
             ref={fileInputRef}
             type="file"
@@ -369,6 +283,11 @@ export function TranslatePage({ t, onShow }: TranslatePageProps) {
             </div>
           )}
 
+          {/* The box is the wrapper, not the textarea: it holds the text and,
+              along its foot, the ways to fill or empty it. They were four
+              pills in a header row above an empty field (Upload · Scan ·
+              Paste · a greyed-out Clear), the loudest thing on the screen
+              before anything had been typed. */}
           <div className="translate-input-wrap">
             <textarea
               id="translate-source"
@@ -382,92 +301,125 @@ export function TranslatePage({ t, onShow }: TranslatePageProps) {
             {/* The direction suggestions float over the foot of the box
                 rather than standing between the two panes, where they pushed
                 the answer down the screen mid-read. */}
-              {romanNepali && !romanDismissed && (
-                <div className="hint-banner hint-banner--float" role="status">
-                  <span>This looks like Nepali typed in English letters.</span>
-                  <span className="hint-banner__actions">
-                    <button type="button" className="btn btn--primary" onClick={() => t.setDirectionOnly('ne-en')}>
-                      Translate from Nepali
-                    </button>
-                    <button type="button" className="btn" onClick={() => setRomanDismissed(true)}>
-                      It&rsquo;s English
-                    </button>
-                  </span>
-                </div>
-              )}
-              {english && !englishDismissed && (
-                <div className="hint-banner hint-banner--float" role="status">
-                  <span>This looks like English, but the direction is Nepali → English.</span>
-                  <span className="hint-banner__actions">
-                    <button type="button" className="btn btn--primary" onClick={() => t.setDirectionOnly('en-ne')}>
-                      Translate from English
-                    </button>
-                    <button type="button" className="btn" onClick={() => setEnglishDismissed(true)}>
-                      It&rsquo;s Nepali
-                    </button>
-                  </span>
-                </div>
-              )}
-            {/* Shown only over the truly empty, idle pane — once there's
-                text, a file, an in-progress read or an active drag, those
-                already say what's happening and this would just be visual
-                noise stacked on top. pointer-events: none lets a click here
-                still land on and focus the textarea underneath. */}
+            {romanNepali && !romanDismissed && (
+              <div className="hint-banner hint-banner--float" role="status">
+                <span>This looks like Nepali typed in English letters.</span>
+                <span className="hint-banner__actions">
+                  <button type="button" className="btn btn--primary" onClick={() => t.setDirectionOnly('ne-en')}>
+                    Translate from Nepali
+                  </button>
+                  <button type="button" className="btn" onClick={() => setRomanDismissed(true)}>
+                    It&rsquo;s English
+                  </button>
+                </span>
+              </div>
+            )}
+            {english && !englishDismissed && (
+              <div className="hint-banner hint-banner--float" role="status">
+                <span>This looks like English, but the direction is Nepali → English.</span>
+                <span className="hint-banner__actions">
+                  <button type="button" className="btn btn--primary" onClick={() => t.setDirectionOnly('en-ne')}>
+                    Translate from English
+                  </button>
+                  <button type="button" className="btn" onClick={() => setEnglishDismissed(true)}>
+                    It&rsquo;s Nepali
+                  </button>
+                </span>
+              </div>
+            )}
+            {/* Shown only over the truly empty, idle box, and set where the
+                text will start so it reads as the field's own placeholder.
+                One sentence and its gloss: the tools along the foot say the
+                rest, so the old "or upload a file or scan a page" line, which
+                described two buttons already on screen, is gone. Desktop
+                keeps one clause about dropping a file, the one way in that
+                has no button. pointer-events: none lets a tap land on the
+                textarea underneath. */}
             {isEmpty &&
               !upload.currentFile &&
               upload.readStatus === 'idle' &&
               !upload.dragging && (
                 <div className="upload-hint" id="translate-source-hint">
-                  <p className="upload-hint__type">
-                    Type English or Nepali — romanized works too, like &lsquo;mero naam&rsquo;
+                  <p className="upload-hint__type">Type English or Nepali</p>
+                  <p className="upload-hint__sub">
+                    Romanized works too, like &lsquo;mero naam&rsquo;
+                    <span className="upload-hint__fine">. Or drop a photo or document here.</span>
                   </p>
-                  {/* Two wordings, the same split the editor hint uses (see
-                      Editor.tsx) and for the same reason: "drop" and "paste"
-                      name gestures a touch device does not have, and on a
-                      phone the upload button this sentence is describing is
-                      already on screen two rows above it. Pointing at it beats
-                      listing three ways in. */}
-                  <div className="upload-hint__or">
-                    <SectionIcon name="upload" size={18} />
-                    <span className="upload-hint__fine">
-                      or drop, paste, or upload a photo or document
-                    </span>
-                    <span className="upload-hint__coarse">
-                      or <b>upload</b> a file or <b>scan</b> a page
-                    </span>
-                  </div>
-                  {/* Desktop only. It belongs to the dropzone framing above —
-                      what you may drag in here — and a phone is not dragging
-                      anything: the file picker already filters to exactly
-                      these, so on touch it is four filenames to read before
-                      tapping a button that would have told you anyway. */}
-                  <div className="upload-hint__formats">
-                    <span>image</span>
-                    <span>.pdf</span>
-                    <span>.docx</span>
-                    <span>.txt</span>
-                  </div>
                 </div>
               )}
+            <div className="translate-tools">
+              {/* Paste at the caret, as a long-press paste would. Hidden while
+                  a file is loaded: the box then holds the file's text, and the
+                  chip above owns it. */}
+              {PASTE_AVAILABLE && !upload.currentFile && (
+                <button
+                  type="button"
+                  className="translate-tool"
+                  title="Paste"
+                  aria-label="Paste"
+                  onClick={() => void pasteSource()}
+                >
+                  <SheetIcon name="paste" size={20} />
+                </button>
+              )}
+              {/* A second, capture-mode input rather than a separate "camera"
+                  feature: most phones offer the camera inside the file picker
+                  already, this skips that tap. Touch devices only (see
+                  .translate-tool--scan): a desktop browser ignores `capture`
+                  and it would be a second Upload. */}
+              <button
+                type="button"
+                className="translate-tool translate-tool--scan"
+                title="Scan a page with the camera"
+                aria-label="Scan a page with the camera"
+                onClick={() => cameraInputRef.current?.click()}
+              >
+                <CameraIcon size={20} />
+              </button>
+              <button
+                type="button"
+                className="translate-tool"
+                title="Upload a photo or document"
+                aria-label="Upload a photo or document"
+                onClick={upload.openFilePicker}
+              >
+                <SectionIcon name="upload" size={20} />
+              </button>
+              {/* Clear only once there is something to clear: a greyed-out
+                  Clear over an empty box was one more control that could do
+                  nothing. For six seconds after a clear the same place offers
+                  it back, as the editor does. Hidden while a file is loaded,
+                  since the chip's Remove is the same action. */}
+              {!upload.currentFile &&
+                (t.lastClearedSource !== null ? (
+                  <button
+                    type="button"
+                    className="btn pane-clear-btn"
+                    aria-label="Undo clear"
+                    onClick={t.undoClearSource}
+                  >
+                    <SheetIcon name="undo" size={16} />
+                    <ClearLabel shown="Undo" />
+                  </button>
+                ) : (
+                  !isEmpty && (
+                    <button type="button" className="btn pane-clear-btn" onClick={upload.clearUpload}>
+                      <SheetIcon name="trash" size={16} />
+                      <ClearLabel shown="Clear" />
+                    </button>
+                  )
+                ))}
+            </div>
           </div>
         </div>
         <TranslateRun t={t} />
-        <div className="translate-pane">
-          {/* Wrapped in the same header class as the source pane (even with
-              no buttons of its own) so both headers reserve the same height
-              — otherwise this pane's box started higher than the source
-              textarea's, since its header was only ever as tall as a bare
-              label. */}
-          <div className="translate-pane__header">
-            <span className="translate-pane__label translate-pane__label--target" lang={t.targetLang.code}>
-              {t.targetLang.native}
-            </span>
-          </div>
+        {/* The answer on its own ground, with what you can do with it inside
+            the same box. No visible name: the language row says it. */}
+        <div className="translate-pane translate-pane--target">
+          <span className="sr-only">{`${t.targetLang.label} translation`}</span>
           <TranslationOutput t={t} onShow={onShow} />
         </div>
       </div>
-
-      <TranslateActions t={t} />
     </section>
   )
 }

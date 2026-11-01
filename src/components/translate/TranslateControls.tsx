@@ -72,12 +72,6 @@ function LangPicker({ label, side, current, isOpen, asSheet, onToggle, onClose, 
         aria-label={`${label}, ${current.label}`}
         onClick={onToggle}
       >
-        {/* The script as a tile, the way Tools heads its cards: grey for what
-            you have, the accent for what you are getting — the same colour as
-            the answer box it fills. */}
-        <span className="lang-picker__script" aria-hidden="true">
-          {current.script}
-        </span>
         <span className="lang-picker__name">{current.label}</span>
         <CaretIcon />
       </button>

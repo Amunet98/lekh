@@ -238,7 +238,7 @@
     padding-block-start: 0;
   }
   .translate-page {
-    padding-block-start: var(--sp-5);
+    padding-block-start: var(--sp-2);
   }
 
   /* The dock slides off the bottom of the screen while the keyboard is up (see
@@ -280,7 +280,7 @@
      is not paying a gutter. The content started hard against the left edge and
      overran the right by the same 16px. A surface that has moved into the top
      layer has to leave this list. */
-  .page :is(.editor, .translate-input, .translate-output, .cal__grid, .cal__detail,
+  .page :is(.editor, .translate-input-wrap, .translate-pane--target, .cal__grid, .cal__detail,
       .cal__holidays ul) {
     margin-inline: calc(-1 * var(--gutter));
     border-inline: 0;

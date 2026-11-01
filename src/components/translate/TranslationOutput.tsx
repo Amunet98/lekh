@@ -120,7 +120,7 @@ export function TranslationOutput({ t, onShow }: { t: TranslateState; onShow: ()
             )}
           </>
         ) : (
-          <span className="sugg-hint">Translation appears here.</span>
+          <span className="sugg-hint translate-output__empty">Translation</span>
         )}
       </div>
       {/* Not rendered until there is something to act on. Disabled, they were a
