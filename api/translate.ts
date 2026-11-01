@@ -86,6 +86,9 @@ export async function POST(request: Request): Promise<Response> {
   } catch (error) {
     // Name and message only: never the text someone was translating.
     console.error('translate failed:', error instanceof Error ? `${error.name}: ${error.message}` : 'unknown')
-    return reply({ error: 'unavailable' }, 502)
+    /* The error's class name only (e.g. GatewayAuthenticationError), so a
+       failure can be told apart from outside without the logs: never its
+       message, which can echo request details. */
+    return reply({ error: 'unavailable', reason: error instanceof Error ? error.name : 'unknown' }, 502)
   }
 }
