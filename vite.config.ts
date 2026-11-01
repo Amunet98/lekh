@@ -252,6 +252,12 @@ export default defineConfig({
       },
     }),
   ],
+  /* The on-device model runs in a module worker (onDevice.worker.ts) that
+     dynamically imports transformers.js; the default 'iife' worker format
+     cannot code-split, so workers are ES modules. */
+  worker: {
+    format: 'es',
+  },
   build: {
     // Forces Vite to output JavaScript compatible with older WebKit/Safari engines
     target: ['es2020', 'safari14'],

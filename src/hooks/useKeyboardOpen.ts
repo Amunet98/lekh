@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 /* Is the on-screen keyboard covering the bottom of the screen?
  *
@@ -43,7 +43,7 @@ const NON_TEXT_INPUTS = new Set([
   'submit',
 ])
 
-function opensKeyboard(el: Element | null): boolean {
+export function opensKeyboard(el: Element | null): boolean {
   if (!(el instanceof HTMLElement)) return false
   if (el.isContentEditable) return true
   if (el.tagName === 'TEXTAREA') return true
@@ -112,4 +112,64 @@ export function useKeyboardOpen(): boolean {
   }, [])
 
   return open
+}
+
+/* The keyboard is about to open (1.9.107): <html class="kb-coming"> from the
+ * moment a text field takes focus on a touch screen, until the keyboard has
+ * opened and closed again, focus has left, or it never came.
+ *
+ * Why: has-keyboard can only be known after the WebView has already shrunk
+ * to make room for the keys, and a fixed dock is re-laid at the new bottom
+ * first, so it rode up on top of the keyboard and only then slid away. The
+ * owner saw it on every page as "the bottom strip goes up and vanishes".
+ * Starting the dock's exit on the tap means it is gone before the resize.
+ *
+ * Cleared, so the dock can never be stranded off-screen: when focus leaves
+ * (after the same 400ms grace useKeyboardOpen gives a blur, so a tap on Copy
+ * lands), when the keyboard closes while the field keeps focus (Android's
+ * back gesture does that), and when no keyboard arrives within 900ms (a
+ * hardware keyboard). */
+export function useKeyboardComing(keyboardOpen: boolean): void {
+  const wasOpen = useRef(false)
+  const timer = useRef(0)
+
+  useEffect(() => {
+    const root = document.documentElement
+    const coarse = window.matchMedia('(pointer: coarse)')
+    const clear = () => {
+      window.clearTimeout(timer.current)
+      root.classList.remove('kb-coming')
+    }
+    const onFocusIn = (e: FocusEvent) => {
+      if (!coarse.matches || !opensKeyboard(e.target as Element | null)) return
+      window.clearTimeout(timer.current)
+      root.classList.add('kb-coming')
+      // If no keyboard shows up, give the dock back.
+      timer.current = window.setTimeout(() => {
+        if (!root.classList.contains('has-keyboard')) clear()
+      }, 900)
+    }
+    const onFocusOut = () => {
+      window.clearTimeout(timer.current)
+      timer.current = window.setTimeout(() => {
+        if (!opensKeyboard(document.activeElement)) clear()
+      }, 400)
+    }
+    document.addEventListener('focusin', onFocusIn)
+    document.addEventListener('focusout', onFocusOut)
+    return () => {
+      document.removeEventListener('focusin', onFocusIn)
+      document.removeEventListener('focusout', onFocusOut)
+      clear()
+    }
+  }, [])
+
+  // Open → closed with focus still in the field: the keys went away.
+  useEffect(() => {
+    if (wasOpen.current && !keyboardOpen) {
+      window.clearTimeout(timer.current)
+      document.documentElement.classList.remove('kb-coming')
+    }
+    wasOpen.current = keyboardOpen
+  }, [keyboardOpen])
 }

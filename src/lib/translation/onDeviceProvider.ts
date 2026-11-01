@@ -1,6 +1,6 @@
 import type { TranslationProvider, TranslateOptions, ModelLoadProgress } from './provider'
 
-const MODEL_ID = 'Xenova/nllb-200-distilled-600M'
+import { MODEL_ID } from './onDeviceModel'
 const CONFIRM_KEY = 'lekh:ondevice-model-confirmed'
 const DOWNLOADED_KEY = 'lekh:ondevice-model-downloaded'
 
@@ -59,24 +59,60 @@ export async function isModelCached(): Promise<boolean> {
   }
 }
 
-type TranslationPipeline = (
-  text: string,
-  options: {
-    src_lang: string
-    tgt_lang: string
-    no_repeat_ngram_size?: number
-    repetition_penalty?: number
-    max_new_tokens?: number
-  },
-) => Promise<Array<{ translation_text: string }> | { translation_text: string }>
+/* The model lives in a Web Worker (onDevice.worker.ts, 1.9.107); this side
+   only talks to it. `ready` once the worker reports the pipeline loaded. */
+let ready = false
+let loadingPromise: Promise<void> | null = null
+let worker: Worker | null = null
+let nextId = 1
+const pending = new Map<number, { resolve: (v: string) => void; reject: (e: Error) => void }>()
+/* Progress events from the worker go to whichever load is listening. */
+let onWorkerProgress: ((info: ProgressEvent) => void) | null = null
 
-let translator: TranslationPipeline | null = null
-let loadingPromise: Promise<TranslationPipeline> | null = null
+function getWorker(): Worker {
+  if (worker) return worker
+  const w = new Worker(new URL('./onDevice.worker.ts', import.meta.url), { type: 'module' })
+  w.onmessage = (event: MessageEvent) => {
+    const msg = event.data as
+      | { type: 'progress'; info: ProgressEvent }
+      | { type: 'ready'; id: number }
+      | { type: 'result'; id: number; text: string }
+      | { type: 'error'; id: number; message: string }
+    if (msg.type === 'progress') {
+      onWorkerProgress?.(msg.info)
+      return
+    }
+    const job = pending.get(msg.id)
+    if (!job) return
+    pending.delete(msg.id)
+    if (msg.type === 'error') job.reject(new Error(msg.message))
+    else job.resolve(msg.type === 'result' ? msg.text : '')
+  }
+  /* The worker itself failed (its script would not load, or it was killed
+     for memory). Everything waiting fails, and the next attempt starts a
+     fresh worker and a fresh load rather than talking to a dead one. */
+  w.onerror = (event) => {
+    event.preventDefault()
+    const err = new Error(event.message || 'On-device worker failed')
+    for (const job of pending.values()) job.reject(err)
+    pending.clear()
+    w.terminate()
+    worker = null
+    ready = false
+    loadingPromise = null
+  }
+  worker = w
+  return w
+}
 
-// getTranslator() dedupes concurrent loads onto one loadingPromise, but a
-// caller that joins an in-flight load still needs its own progress updates —
-// so every active caller's onProgress lives here for the load's duration,
-// and loadPipeline() broadcasts to all of them instead of a single callback.
+function ask(message: Record<string, unknown>): Promise<string> {
+  const id = nextId++
+  return new Promise<string>((resolve, reject) => {
+    pending.set(id, { resolve, reject })
+    getWorker().postMessage({ ...message, id })
+  })
+}
+
 const progressListeners = new Set<(p: ModelLoadProgress) => void>()
 
 function broadcastProgress(p: ModelLoadProgress): void {
@@ -128,7 +164,7 @@ const STALL_MS = 1200
  * translation model small enough to fall below this would not need the bar. */
 const MIN_REPORTABLE_TOTAL = 100e6
 
-async function loadPipeline(): Promise<TranslationPipeline> {
+async function loadPipeline(): Promise<void> {
   // Files fire per-file initiate/progress/done events; aggregate them into one
   // honest overall byte count. totalBytes grows as later files initiate, so
   // the bar can dip early on — acceptable trade-off for real numbers.
@@ -180,48 +216,41 @@ async function loadPipeline(): Promise<TranslationPipeline> {
 
   broadcastProgress({ phase: 'preparing' })
 
-  // Dynamically imported so the ~21MB onnxruntime-web WASM runtime and the
-  // rest of transformers.js only ever load when on-device mode is actually
-  // engaged, not bundled into the default online-translation path.
-  const { pipeline } = await import('@huggingface/transformers')
-  // device/dtype are pinned: WebGPU's default is fp32 (a ~2.4GB download with
-  // brutal session-init time), and its compute is silently unreliable on some
-  // GPUs. WASM + q8 is the reliable-everywhere configuration.
-  const p = await pipeline('translation', MODEL_ID, {
-    device: 'wasm',
-    dtype: 'q8',
-    progress_callback: (info: ProgressEvent) => {
-      if (!info.file) return
-      const entry = files.get(info.file) ?? { loaded: 0, total: 0, done: false }
-      if (info.status === 'initiate') {
-        files.set(info.file, entry)
-      } else if (info.status === 'progress') {
-        entry.loaded = info.loaded ?? entry.loaded
-        entry.total = info.total ?? entry.total
-        files.set(info.file, entry)
-      } else if (info.status === 'done') {
-        entry.done = true
-        entry.loaded = entry.total
-        files.set(info.file, entry)
-      } else {
-        return
-      }
-      emit()
-    },
-  }).finally(() => {
+  /* The worker does the loading (and imports transformers.js, so the ~21MB
+     runtime still only loads when on-device mode is engaged); it forwards
+     transformers.js's per-file progress events, aggregated here as before. */
+  onWorkerProgress = (info: ProgressEvent) => {
+    if (!info.file) return
+    const entry = files.get(info.file) ?? { loaded: 0, total: 0, done: false }
+    if (info.status === 'initiate') {
+      files.set(info.file, entry)
+    } else if (info.status === 'progress') {
+      entry.loaded = info.loaded ?? entry.loaded
+      entry.total = info.total ?? entry.total
+      files.set(info.file, entry)
+    } else if (info.status === 'done') {
+      entry.done = true
+      entry.loaded = entry.total
+      files.set(info.file, entry)
+    } else {
+      return
+    }
+    emit()
+  }
+  try {
+    await ask({ type: 'load' })
+  } finally {
     // Whatever happens next, nothing more is loading — a stall broadcast
     // after this point would put a progress bar back on a finished screen.
+    onWorkerProgress = null
     clearTimeout(stallTimer)
-  })
+  }
   broadcastProgress({ phase: 'done' })
   setDownloadedModel()
-  return p as unknown as TranslationPipeline
 }
 
-async function getTranslator(
-  onProgress?: (p: ModelLoadProgress) => void,
-): Promise<TranslationPipeline> {
-  if (translator) return translator
+async function getTranslator(onProgress?: (p: ModelLoadProgress) => void): Promise<void> {
+  if (ready) return
   if (onProgress) progressListeners.add(onProgress)
   try {
     if (!loadingPromise) {
@@ -232,8 +261,8 @@ async function getTranslator(
         throw err
       })
     }
-    translator = await loadingPromise
-    return translator
+    await loadingPromise
+    ready = true
   } finally {
     if (onProgress) progressListeners.delete(onProgress)
   }
@@ -263,7 +292,7 @@ export async function preloadModel(
 export const onDeviceProvider: TranslationProvider = {
   id: 'ondevice',
   async translate(text, source, target, options?: TranslateOptions) {
-    const t = await getTranslator(options?.onModelProgress)
+    await getTranslator(options?.onModelProgress)
     /* Confirmed on-device on a real phone, twice now, on the actual WASM
      * backend (onnxruntime-web) that production runs on — NOT reproducible
      * on the same model/input via the Node/CPU backend, which stops at a
@@ -290,14 +319,17 @@ export const onDeviceProvider: TranslationProvider = {
      * and repetition_penalty both stay on as defense in depth against the
      * literal-loop failure mode within whatever length is now allowed. */
     const maxNewTokens = Math.min(1024, Math.max(64, text.length * 2))
-    const out = await t(text, {
-      src_lang: source.nllb,
-      tgt_lang: target.nllb,
-      max_new_tokens: maxNewTokens,
-      repetition_penalty: 1.3,
-      no_repeat_ngram_size: 3,
+    // Runs in the worker: the page keeps painting "Translating…" meanwhile.
+    return ask({
+      type: 'translate',
+      text,
+      options: {
+        src_lang: source.nllb,
+        tgt_lang: target.nllb,
+        max_new_tokens: maxNewTokens,
+        repetition_penalty: 1.3,
+        no_repeat_ngram_size: 3,
+      },
     })
-    const first = Array.isArray(out) ? out[0] : out
-    return first.translation_text
   },
 }

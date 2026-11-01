@@ -158,14 +158,20 @@
       opacity var(--dur) var(--ease-expo),
       visibility 0s linear 0s;
   }
+  /* .kb-coming starts this on the tap into a field, before the keyboard has
+     made the WebView shrink (see useKeyboardComing): waiting for has-keyboard
+     meant the dock was first re-laid on top of the keys and then slid away,
+     a jump up and a vanish. Quicker than the return, so it is gone by the
+     time the resize lands. */
+  .kb-coming .tab-switcher,
   .has-keyboard .tab-switcher {
     transform: translateY(100%);
     opacity: 0;
     visibility: hidden;
     transition:
-      transform var(--dur) var(--ease-expo),
-      opacity var(--dur) var(--ease-expo),
-      visibility 0s linear var(--dur);
+      transform var(--dur-fast) var(--ease-expo),
+      opacity var(--dur-fast) var(--ease-expo),
+      visibility 0s linear var(--dur-fast);
   }
   /* The splash covers the dock but sets pointer-events: none on itself, so
      without this the dock is invisible and still tappable — it used to
@@ -178,6 +184,7 @@
     .tab-switcher {
       transition: none;
     }
+    .kb-coming .tab-switcher,
     .has-keyboard .tab-switcher {
       transition: none;
     }

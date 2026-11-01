@@ -30,7 +30,7 @@ import { UpdatePrompt } from './components/UpdatePrompt'
 import { WebAppNotice } from './components/WebAppNotice'
 import { usePref } from './hooks/usePref'
 import { useOnline } from './hooks/useOnline'
-import { useKeyboardOpen } from './hooks/useKeyboardOpen'
+import { useKeyboardComing, useKeyboardOpen } from './hooks/useKeyboardOpen'
 import { useDockDetached } from './hooks/useDockDetached'
 import { useTabSwipe } from './hooks/useTabSwipe'
 import { useToast } from './hooks/useToast'
@@ -189,6 +189,7 @@ function App() {
      one moment nobody wants to. Hiding it while the keyboard is up also gives
      the editor back two rows of screen. */
   const keyboardOpen = useKeyboardOpen()
+  useKeyboardComing(keyboardOpen)
   useEffect(() => {
     document.documentElement.classList.toggle('has-keyboard', keyboardOpen)
   }, [keyboardOpen])
