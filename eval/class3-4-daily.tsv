@@ -1,0 +1,97 @@
+# Everyday sentences for Lekh's translation tests.
+# Source: English sentences with Nepali translations prepared and checked by a
+# teacher at a Nepali government school for class 3 and 4 students, shared with
+# the Lekh owner on 2026-11-02. Register: teacher to child, so the Nepali uses
+# the familiar तिमी forms and plain imperatives (कृपया बस, हात धोऊ). A model that
+# answers in the polite तपाईं forms is not wrong, and the scoring allows for it.
+# Columns: section<TAB>english<TAB>nepali
+greetings	Good morning.	शुभप्रभात।
+greetings	Good afternoon.	शुभ दिउँसो।
+greetings	Good evening.	शुभ साँझ।
+greetings	How are you?	तिमीलाई कस्तो छ?
+greetings	I am fine.	मलाई सन्चै छ।
+greetings	What is your name?	तिम्रो नाम के हो?
+greetings	My name is Ram.	मेरो नाम राम हो।
+greetings	Nice to meet you.	तिमीलाई भेटेर खुसी लाग्यो।
+greetings	See you tomorrow.	भोलि भेटौँला।
+greetings	Goodbye.	बिदा।
+classroom	May I come in, sir?	सर, म भित्र आउन सक्छु?
+classroom	May I go out?	म बाहिर जान सक्छु?
+classroom	May I drink water?	म पानी पिउन सक्छु?
+classroom	Please sit down.	कृपया बस।
+classroom	Please stand up.	कृपया उठ।
+classroom	Open your book.	आफ्नो किताब खोल।
+classroom	Close your book.	आफ्नो किताब बन्द गर।
+classroom	Listen carefully.	ध्यान दिएर सुन।
+classroom	Look at the board.	बोर्डमा हेर।
+classroom	Raise your hand.	आफ्नो हात उठाऊ।
+classroom	Please repeat.	कृपया दोहोर्‍याऊ।
+classroom	I have a question.	मेरो एउटा प्रश्न छ।
+classroom	I know the answer.	मलाई उत्तर थाहा छ।
+classroom	I don't understand.	मैले बुझिनँ।
+classroom	Please help me.	कृपया मलाई सहयोग गर्नुहोस्।
+daily	What are you doing?	तिमी के गर्दै छौ?
+daily	I am reading.	म पढ्दै छु।
+daily	I am writing.	म लेख्दै छु।
+daily	Where are you going?	तिमी कहाँ जाँदै छौ?
+daily	I am going to school.	म विद्यालय जाँदै छु।
+daily	Come here, please.	कृपया यहाँ आऊ।
+daily	Wait for me.	मलाई पर्ख।
+daily	Let's play together.	सँगै खेलौँ।
+daily	What happened?	के भयो?
+daily	Nothing happened.	केही भएन।
+daily	Are you ready?	के तिमी तयार छौ?
+daily	Yes, I am ready.	हो, म तयार छु।
+daily	What is this?	यो के हो?
+daily	This is my book.	यो मेरो किताब हो।
+daily	Whose pen is this?	यो कसको कलम हो?
+polite	Please give me a pen.	कृपया मलाई एउटा कलम दिनुहोस्।
+polite	Thank you very much.	धेरै धेरै धन्यवाद।
+polite	You are welcome.	स्वागत छ।
+polite	I am sorry.	मलाई माफ गर्नुहोस्।
+polite	Excuse me.	माफ गर्नुहोस्।
+polite	Please forgive me.	कृपया मलाई माफ गर्नुहोस्।
+polite	No problem.	कुनै समस्या छैन।
+polite	That's all right.	ठिकै छ।
+polite	Can you help me?	के तिमी मलाई सहयोग गर्न सक्छौ?
+polite	Don't worry.	चिन्ता नगर।
+home	Wake up early.	चाँडै उठ।
+home	Brush your teeth.	दाँत माझ।
+home	Wash your hands.	हात धोऊ।
+home	Take your breakfast.	बिहानको खाना खाऊ।
+home	Get ready for school.	विद्यालय जान तयार होऊ।
+home	Help your mother.	आमालाई सहयोग गर।
+home	Keep your room clean.	आफ्नो कोठा सफा राख।
+home	Do your homework.	गृहकार्य गर।
+home	Don't make a noise.	हल्ला नगर।
+home	Go to bed early.	चाँडै सुत्न जाऊ।
+qa	How old are you?	तिम्रो उमेर कति हो?
+qa	I am eight years old.	म आठ वर्षको हुँ।
+qa	Where do you live?	तिमी कहाँ बस्छौ?
+qa	I live in Bardibas.	म बर्दिबासमा बस्छु।
+qa	Which class are you in?	तिमी कुन कक्षामा पढ्छौ?
+qa	I am in class three.	म कक्षा तीनमा पढ्छु।
+qa	Who is your best friend?	तिम्रो मिल्ने साथी को हो?
+qa	Ram is my best friend.	राम मेरो मिल्ने साथी हो।
+qa	What is your favourite game?	तिम्रो मनपर्ने खेल के हो?
+qa	My favourite game is football.	मेरो मनपर्ने खेल फुटबल हो।
+qa	What is your father's name?	तिम्रो बुबाको नाम के हो?
+qa	My father's name is Hari.	मेरो बुबाको नाम हरि हो।
+qa	Do you like English?	के तिमीलाई अंग्रेजी मन पर्छ?
+qa	Yes, I do.	हो, मन पर्छ।
+qa	Can you read English?	के तिमी अंग्रेजी पढ्न सक्छौ?
+qa	Yes, I can.	हो, सक्छु।
+qa	Are you happy?	के तिमी खुसी छौ?
+qa	Yes, I am happy.	हो, म खुसी छु।
+qa	What is the time?	कति बज्यो?
+qa	It is ten o'clock.	दस बज्यो।
+more	I am hungry.	मलाई भोक लागेको छ।
+more	I am thirsty.	मलाई तिर्खा लागेको छ।
+more	I am tired.	म थाकेको छु।
+more	I am happy today.	म आज खुसी छु।
+more	It is very hot.	धेरै गर्मी छ।
+more	It is raining.	पानी परिरहेको छ।
+more	Please speak slowly.	कृपया बिस्तारै बोल्नुहोस्।
+more	Speak in English.	अंग्रेजीमा बोल।
+more	Try again.	फेरि प्रयास गर।
+more	Well done!	धेरै राम्रो!

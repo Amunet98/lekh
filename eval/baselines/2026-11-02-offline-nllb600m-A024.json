@@ -1,0 +1,1621 @@
+[
+ {
+  "dir": "en-ne",
+  "section": "greetings",
+  "en": "Good morning.",
+  "ne": "शुभप्रभात।",
+  "out": "TIMEOUT",
+  "ms": 123233
+ },
+ {
+  "dir": "en-ne",
+  "section": "greetings",
+  "en": "Good afternoon.",
+  "ne": "शुभ दिउँसो।",
+  "out": "शुभ दोपहर।",
+  "ms": 1835,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "greetings",
+  "en": "Good evening.",
+  "ne": "शुभ साँझ।",
+  "out": "शुभ साँझ ।",
+  "ms": 1226,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "greetings",
+  "en": "How are you?",
+  "ne": "तिमीलाई कस्तो छ?",
+  "out": "- कस्तो छ?",
+  "ms": 1223,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "greetings",
+  "en": "I am fine.",
+  "ne": "मलाई सन्चै छ।",
+  "out": "म ठीक छु ।",
+  "ms": 1226,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "greetings",
+  "en": "What is your name?",
+  "ne": "तिम्रो नाम के हो?",
+  "out": "तपाईंको नाम के हो?",
+  "ms": 1223,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "greetings",
+  "en": "My name is Ram.",
+  "ne": "मेरो नाम राम हो।",
+  "out": "मेरो नाम राम हो ।",
+  "ms": 1231,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "greetings",
+  "en": "Nice to meet you.",
+  "ne": "तिमीलाई भेटेर खुसी लाग्यो।",
+  "out": "भेटेर खुसी लाग्यो।",
+  "ms": 1224,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "greetings",
+  "en": "See you tomorrow.",
+  "ne": "भोलि भेटौँला।",
+  "out": "कल मिलिएगा..!",
+  "ms": 1528,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "greetings",
+  "en": "Goodbye.",
+  "ne": "बिदा।",
+  "out": "अलविदा, म जान्छु ।",
+  "ms": 1837,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "classroom",
+  "en": "May I come in, sir?",
+  "ne": "सर, म भित्र आउन सक्छु?",
+  "out": "म भित्र आउन सक्छु, सर?",
+  "ms": 1532,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "classroom",
+  "en": "May I go out?",
+  "ne": "म बाहिर जान सक्छु?",
+  "out": "म बाहिर जान सक्छु?",
+  "ms": 1220,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "classroom",
+  "en": "May I drink water?",
+  "ne": "म पानी पिउन सक्छु?",
+  "out": "के म पानी पिउन सक्छु?",
+  "ms": 1543,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "classroom",
+  "en": "Please sit down.",
+  "ne": "कृपया बस।",
+  "out": "कृपया बस्नुहोस्।",
+  "ms": 1225,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "classroom",
+  "en": "Please stand up.",
+  "ne": "कृपया उठ।",
+  "out": "कृपया उठ्नुहोस्।",
+  "ms": 1223,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "classroom",
+  "en": "Open your book.",
+  "ne": "आफ्नो किताब खोल।",
+  "out": "आफ्नो पुस्तक खोल्नुहोस्।",
+  "ms": 1532,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "classroom",
+  "en": "Close your book.",
+  "ne": "आफ्नो किताब बन्द गर।",
+  "out": "आफ्नो पुस्तक बन्द गर्नुहोस्।",
+  "ms": 1224,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "classroom",
+  "en": "Listen carefully.",
+  "ne": "ध्यान दिएर सुन।",
+  "out": "ध्यान दिएर सुन्नुहोस्।",
+  "ms": 1527,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "classroom",
+  "en": "Look at the board.",
+  "ne": "बोर्डमा हेर।",
+  "out": "बोर्डमा हेर ।",
+  "ms": 1229,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "classroom",
+  "en": "Raise your hand.",
+  "ne": "आफ्नो हात उठाऊ।",
+  "out": "हात उठाउ।",
+  "ms": 1226,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "classroom",
+  "en": "Please repeat.",
+  "ne": "कृपया दोहोर्‍याऊ।",
+  "out": "कृपया दोहोर्याउनुहोस्।",
+  "ms": 1528,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "classroom",
+  "en": "I have a question.",
+  "ne": "मेरो एउटा प्रश्न छ।",
+  "out": "एउटा प्रश्न छ ।",
+  "ms": 1217,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "classroom",
+  "en": "I know the answer.",
+  "ne": "मलाई उत्तर थाहा छ।",
+  "out": "मलाई यसको जवाफ थाहा छ।",
+  "ms": 1522,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "classroom",
+  "en": "I don't understand.",
+  "ne": "मैले बुझिनँ।",
+  "out": "मैले बुझिनँ ।",
+  "ms": 1226,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "classroom",
+  "en": "Please help me.",
+  "ne": "कृपया मलाई सहयोग गर्नुहोस्।",
+  "out": "कृपया मलाई मद्दत गर्नुहोस्।",
+  "ms": 1223,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "daily",
+  "en": "What are you doing?",
+  "ne": "तिमी के गर्दै छौ?",
+  "out": "के गर्दैछौ?!",
+  "ms": 1525,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "daily",
+  "en": "I am reading.",
+  "ne": "म पढ्दै छु।",
+  "out": "म पढ्दै छु।",
+  "ms": 1224,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "daily",
+  "en": "I am writing.",
+  "ne": "म लेख्दै छु।",
+  "out": "म लेख्दै छु।",
+  "ms": 1217,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "daily",
+  "en": "Where are you going?",
+  "ne": "तिमी कहाँ जाँदै छौ?",
+  "out": "कहाँ जादैछौ?",
+  "ms": 1526,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "daily",
+  "en": "I am going to school.",
+  "ne": "म विद्यालय जाँदै छु।",
+  "out": "म स्कुल जान्छु ।",
+  "ms": 1527,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "daily",
+  "en": "Come here, please.",
+  "ne": "कृपया यहाँ आऊ।",
+  "out": "यहाँ आऊ, कृपया.",
+  "ms": 1231,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "daily",
+  "en": "Wait for me.",
+  "ne": "मलाई पर्ख।",
+  "out": "मलाई पर्ख।",
+  "ms": 1220,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "daily",
+  "en": "Let's play together.",
+  "ne": "सँगै खेलौँ।",
+  "out": "हामी सँगै खेल्नेछौं।",
+  "ms": 1832,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "daily",
+  "en": "What happened?",
+  "ne": "के भयो?",
+  "out": "के भयो?",
+  "ms": 915,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "daily",
+  "en": "Nothing happened.",
+  "ne": "केही भएन।",
+  "out": "केही पनि भएन ।",
+  "ms": 1221,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "daily",
+  "en": "Are you ready?",
+  "ne": "के तिमी तयार छौ?",
+  "out": "के तिमी तयार छौ?",
+  "ms": 1532,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "daily",
+  "en": "Yes, I am ready.",
+  "ne": "हो, म तयार छु।",
+  "out": "हो, म तयार छु।",
+  "ms": 1524,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "daily",
+  "en": "What is this?",
+  "ne": "यो के हो?",
+  "out": "यो के हो?",
+  "ms": 1222,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "daily",
+  "en": "This is my book.",
+  "ne": "यो मेरो किताब हो।",
+  "out": "यो मेरो किताब हो ।",
+  "ms": 1221,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "daily",
+  "en": "Whose pen is this?",
+  "ne": "यो कसको कलम हो?",
+  "out": "यो कलम कसको हो?",
+  "ms": 1526,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "polite",
+  "en": "Please give me a pen.",
+  "ne": "कृपया मलाई एउटा कलम दिनुहोस्।",
+  "out": "कृपया मलाई कलम दिनुहोस्।",
+  "ms": 1533,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "polite",
+  "en": "Thank you very much.",
+  "ne": "धेरै धेरै धन्यवाद।",
+  "out": "धेरै धन्यवाद ।",
+  "ms": 918,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "polite",
+  "en": "You are welcome.",
+  "ne": "स्वागत छ।",
+  "out": "स्वागत छ ।",
+  "ms": 928,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "polite",
+  "en": "I am sorry.",
+  "ne": "मलाई माफ गर्नुहोस्।",
+  "out": "मलाई माफ गर्नुहोस्।",
+  "ms": 1226,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "polite",
+  "en": "Excuse me.",
+  "ne": "माफ गर्नुहोस्।",
+  "out": "माफ गर्नुहोस्।",
+  "ms": 918,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "polite",
+  "en": "Please forgive me.",
+  "ne": "कृपया मलाई माफ गर्नुहोस्।",
+  "out": "मलाई माफ गर्नुहोस्।",
+  "ms": 1225,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "polite",
+  "en": "No problem.",
+  "ne": "कुनै समस्या छैन।",
+  "out": "कुनै समस्या छैन ।",
+  "ms": 1226,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "polite",
+  "en": "That's all right.",
+  "ne": "ठिकै छ।",
+  "out": "त्यो ठीक छ।",
+  "ms": 1230,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "polite",
+  "en": "Can you help me?",
+  "ne": "के तिमी मलाई सहयोग गर्न सक्छौ?",
+  "out": "के तपाई मलाई मद्दत गर्न सक्नुहुन्छ?",
+  "ms": 1531,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "polite",
+  "en": "Don't worry.",
+  "ne": "चिन्ता नगर।",
+  "out": "चिन्ता नगर्नुस् ।",
+  "ms": 1223,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "home",
+  "en": "Wake up early.",
+  "ne": "चाँडै उठ।",
+  "out": "बिहान उठ्नुस् ।",
+  "ms": 1220,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "home",
+  "en": "Brush your teeth.",
+  "ne": "दाँत माझ।",
+  "out": "दाँत धुनुस् ।",
+  "ms": 1524,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "home",
+  "en": "Wash your hands.",
+  "ne": "हात धोऊ।",
+  "out": "हात धुनुहोस्।",
+  "ms": 1221,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "home",
+  "en": "Take your breakfast.",
+  "ne": "बिहानको खाना खाऊ।",
+  "out": "आफ्नो बिहानको खाना लिनुहोस्।",
+  "ms": 1526,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "home",
+  "en": "Get ready for school.",
+  "ne": "विद्यालय जान तयार होऊ।",
+  "out": "स्कुलको तयारी गर ।",
+  "ms": 1531,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "home",
+  "en": "Help your mother.",
+  "ne": "आमालाई सहयोग गर।",
+  "out": "आफ्नी आमालाई मद्दत गर्नुहोस्।",
+  "ms": 1534,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "home",
+  "en": "Keep your room clean.",
+  "ne": "आफ्नो कोठा सफा राख।",
+  "out": "आफ्नो कोठा सफा राख्नुहोस्।",
+  "ms": 1532,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "home",
+  "en": "Do your homework.",
+  "ne": "गृहकार्य गर।",
+  "out": "आफ्नो गृहकार्य गर्नुहोस्।",
+  "ms": 1229,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "home",
+  "en": "Don't make a noise.",
+  "ne": "हल्ला नगर।",
+  "out": "कुनै हल्ला नगर्नुस् ।",
+  "ms": 1530,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "home",
+  "en": "Go to bed early.",
+  "ne": "चाँडै सुत्न जाऊ।",
+  "out": "बिहानै सुत्नुस् ।",
+  "ms": 1535,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "qa",
+  "en": "How old are you?",
+  "ne": "तिम्रो उमेर कति हो?",
+  "out": "तिमी कति वर्षको हौ?",
+  "ms": 1222,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "qa",
+  "en": "I am eight years old.",
+  "ne": "म आठ वर्षको हुँ।",
+  "out": "म ८ वर्षको छु ।",
+  "ms": 1219,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "qa",
+  "en": "Where do you live?",
+  "ne": "तिमी कहाँ बस्छौ?",
+  "out": "तिमी कहाँ बस्छौ?",
+  "ms": 1528,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "qa",
+  "en": "I live in Bardibas.",
+  "ne": "म बर्दिबासमा बस्छु।",
+  "out": "म बार्दिबासमा बस्छु।",
+  "ms": 2140,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "qa",
+  "en": "Which class are you in?",
+  "ne": "तिमी कुन कक्षामा पढ्छौ?",
+  "out": "तपाई कुन कक्षामा हुनुहुन्छ?",
+  "ms": 1530,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "qa",
+  "en": "I am in class three.",
+  "ne": "म कक्षा तीनमा पढ्छु।",
+  "out": "म कक्षा ३ मा छु ।",
+  "ms": 1533,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "qa",
+  "en": "Who is your best friend?",
+  "ne": "तिम्रो मिल्ने साथी को हो?",
+  "out": "तपाईंको सबैभन्दा मिल्ने साथी को हो?",
+  "ms": 1836,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "qa",
+  "en": "Ram is my best friend.",
+  "ne": "राम मेरो मिल्ने साथी हो।",
+  "out": "राम मेरो सबैभन्दा मिल्ने साथी हुन् ।",
+  "ms": 1841,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "qa",
+  "en": "What is your favourite game?",
+  "ne": "तिम्रो मनपर्ने खेल के हो?",
+  "out": "तपाईको मनपर्ने खेल कुन हो?",
+  "ms": 1529,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "qa",
+  "en": "My favourite game is football.",
+  "ne": "मेरो मनपर्ने खेल फुटबल हो।",
+  "out": "मेरो मनपर्ने खेल फुटबल हो।",
+  "ms": 1835,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "qa",
+  "en": "What is your father's name?",
+  "ne": "तिम्रो बुबाको नाम के हो?",
+  "out": "तिम्रो बुबाको नाम के हो?",
+  "ms": 1839,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "qa",
+  "en": "My father's name is Hari.",
+  "ne": "मेरो बुबाको नाम हरि हो।",
+  "out": "मेरो बुबाको नाम हरि हो।",
+  "ms": 1541,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "qa",
+  "en": "Do you like English?",
+  "ne": "के तिमीलाई अंग्रेजी मन पर्छ?",
+  "out": "के तिमीलाई अंग्रेजी मन पर्छ?",
+  "ms": 1528,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "qa",
+  "en": "Yes, I do.",
+  "ne": "हो, मन पर्छ।",
+  "out": "हो, म जान्दछु।",
+  "ms": 1833,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "qa",
+  "en": "Can you read English?",
+  "ne": "के तिमी अंग्रेजी पढ्न सक्छौ?",
+  "out": "के तिमी अंग्रेजी पढ्न सक्छौ?",
+  "ms": 1832,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "qa",
+  "en": "Yes, I can.",
+  "ne": "हो, सक्छु।",
+  "out": "हो, म जान सक्छु।",
+  "ms": 1538,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "qa",
+  "en": "Are you happy?",
+  "ne": "के तिमी खुसी छौ?",
+  "out": "तिमी खुसी छौ?",
+  "ms": 1228,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "qa",
+  "en": "Yes, I am happy.",
+  "ne": "हो, म खुसी छु।",
+  "out": "हो, म खुसी छु।",
+  "ms": 1528,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "qa",
+  "en": "What is the time?",
+  "ne": "कति बज्यो?",
+  "out": "कति बजेको छ?",
+  "ms": 1223,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "qa",
+  "en": "It is ten o'clock.",
+  "ne": "दस बज्यो।",
+  "out": "यो दस बजेको छ।",
+  "ms": 1524,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "more",
+  "en": "I am hungry.",
+  "ne": "मलाई भोक लागेको छ।",
+  "out": "मलाई भोक लागेको छ ।",
+  "ms": 1525,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "more",
+  "en": "I am thirsty.",
+  "ne": "मलाई तिर्खा लागेको छ।",
+  "out": "म तातो छु ।",
+  "ms": 1538,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "more",
+  "en": "I am tired.",
+  "ne": "म थाकेको छु।",
+  "out": "म थकित छु।",
+  "ms": 1222,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "more",
+  "en": "I am happy today.",
+  "ne": "म आज खुसी छु।",
+  "out": "म आज खुसी छु।",
+  "ms": 1223,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "more",
+  "en": "It is very hot.",
+  "ne": "धेरै गर्मी छ।",
+  "out": "यो एकदमै तातो छ।",
+  "ms": 1828,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "more",
+  "en": "It is raining.",
+  "ne": "पानी परिरहेको छ।",
+  "out": "वर्षा भइरहेको छ ।",
+  "ms": 1226,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "more",
+  "en": "Please speak slowly.",
+  "ne": "कृपया बिस्तारै बोल्नुहोस्।",
+  "out": "कृपया ढिलो बोल्नुहोस्।",
+  "ms": 1534,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "more",
+  "en": "Speak in English.",
+  "ne": "अंग्रेजीमा बोल।",
+  "out": "अंग्रेजीमा बोल्नुहोस्।",
+  "ms": 1530,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "more",
+  "en": "Try again.",
+  "ne": "फेरि प्रयास गर।",
+  "out": "फेरि प्रयास गर्नुहोस्।",
+  "ms": 1227,
+  "caution": false
+ },
+ {
+  "dir": "en-ne",
+  "section": "more",
+  "en": "Well done!",
+  "ne": "धेरै राम्रो!",
+  "out": "राम्रो काम!",
+  "ms": 921,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "greetings",
+  "en": "Good morning.",
+  "ne": "शुभप्रभात।",
+  "out": "Good morning, please.",
+  "ms": 1222,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "greetings",
+  "en": "Good afternoon.",
+  "ne": "शुभ दिउँसो।",
+  "out": "Good afternoon.",
+  "ms": 916,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "greetings",
+  "en": "Good evening.",
+  "ne": "शुभ साँझ।",
+  "out": "Good afternoon.",
+  "ms": 919,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "greetings",
+  "en": "How are you?",
+  "ne": "तिमीलाई कस्तो छ?",
+  "out": "How are you?",
+  "ms": 1225,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "greetings",
+  "en": "I am fine.",
+  "ne": "मलाई सन्चै छ।",
+  "out": "I have a doubt.",
+  "ms": 1222,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "greetings",
+  "en": "What is your name?",
+  "ne": "तिम्रो नाम के हो?",
+  "out": "What is your name?",
+  "ms": 1226,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "greetings",
+  "en": "My name is Ram.",
+  "ne": "मेरो नाम राम हो।",
+  "out": "My name is Ram.",
+  "ms": 1227,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "greetings",
+  "en": "Nice to meet you.",
+  "ne": "तिमीलाई भेटेर खुसी लाग्यो।",
+  "out": "It was nice to meet you.",
+  "ms": 1530,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "greetings",
+  "en": "See you tomorrow.",
+  "ne": "भोलि भेटौँला।",
+  "out": "I'll see you tomorrow.",
+  "ms": 1532,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "greetings",
+  "en": "Goodbye.",
+  "ne": "बिदा।",
+  "out": "The holiday.",
+  "ms": 918,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "classroom",
+  "en": "May I come in, sir?",
+  "ne": "सर, म भित्र आउन सक्छु?",
+  "out": "Sir, can I come in?",
+  "ms": 1840,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "classroom",
+  "en": "May I go out?",
+  "ne": "म बाहिर जान सक्छु?",
+  "out": "Can I go outside?",
+  "ms": 1221,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "classroom",
+  "en": "May I drink water?",
+  "ne": "म पानी पिउन सक्छु?",
+  "out": "Can I drink some water?",
+  "ms": 1530,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "classroom",
+  "en": "Please sit down.",
+  "ne": "कृपया बस।",
+  "out": "Please just go.",
+  "ms": 1225,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "classroom",
+  "en": "Please stand up.",
+  "ne": "कृपया उठ।",
+  "out": "Please stand up.",
+  "ms": 1223,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "classroom",
+  "en": "Open your book.",
+  "ne": "आफ्नो किताब खोल।",
+  "out": "Open your book.",
+  "ms": 1224,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "classroom",
+  "en": "Close your book.",
+  "ne": "आफ्नो किताब बन्द गर।",
+  "out": "Close your book.",
+  "ms": 1218,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "classroom",
+  "en": "Listen carefully.",
+  "ne": "ध्यान दिएर सुन।",
+  "out": "Listen carefully.",
+  "ms": 1237,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "classroom",
+  "en": "Look at the board.",
+  "ne": "बोर्डमा हेर।",
+  "out": "Look at the board.",
+  "ms": 1220,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "classroom",
+  "en": "Raise your hand.",
+  "ne": "आफ्नो हात उठाऊ।",
+  "out": "Raise your hand.",
+  "ms": 1527,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "classroom",
+  "en": "Please repeat.",
+  "ne": "कृपया दोहोर्‍याऊ।",
+  "out": "Please repeat.",
+  "ms": 1225,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "classroom",
+  "en": "I have a question.",
+  "ne": "मेरो एउटा प्रश्न छ।",
+  "out": "I have a question.",
+  "ms": 1222,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "classroom",
+  "en": "I know the answer.",
+  "ne": "मलाई उत्तर थाहा छ।",
+  "out": "I know the answer.",
+  "ms": 1525,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "classroom",
+  "en": "I don't understand.",
+  "ne": "मैले बुझिनँ।",
+  "out": "I don't understand. What is it?",
+  "ms": 2140,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "classroom",
+  "en": "Please help me.",
+  "ne": "कृपया मलाई सहयोग गर्नुहोस्।",
+  "out": "Please help me.",
+  "ms": 1223,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "daily",
+  "en": "What are you doing?",
+  "ne": "तिमी के गर्दै छौ?",
+  "out": "What are you doing?",
+  "ms": 1220,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "daily",
+  "en": "I am reading.",
+  "ne": "म पढ्दै छु।",
+  "out": "I am reading.",
+  "ms": 1221,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "daily",
+  "en": "I am writing.",
+  "ne": "म लेख्दै छु।",
+  "out": "I am writing.",
+  "ms": 1220,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "daily",
+  "en": "Where are you going?",
+  "ne": "तिमी कहाँ जाँदै छौ?",
+  "out": "Where are you going?",
+  "ms": 1524,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "daily",
+  "en": "I am going to school.",
+  "ne": "म विद्यालय जाँदै छु।",
+  "out": "I'm going to school.",
+  "ms": 1829,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "daily",
+  "en": "Come here, please.",
+  "ne": "कृपया यहाँ आऊ।",
+  "out": "Please come here.",
+  "ms": 1220,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "daily",
+  "en": "Wait for me.",
+  "ne": "मलाई पर्ख।",
+  "out": "Wait for me.",
+  "ms": 1220,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "daily",
+  "en": "Let's play together.",
+  "ne": "सँगै खेलौँ।",
+  "out": "Play together.",
+  "ms": 927,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "daily",
+  "en": "What happened?",
+  "ne": "के भयो?",
+  "out": "What happened?",
+  "ms": 920,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "daily",
+  "en": "Nothing happened.",
+  "ne": "केही भएन।",
+  "out": "It's all right.",
+  "ms": 1523,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "daily",
+  "en": "Are you ready?",
+  "ne": "के तिमी तयार छौ?",
+  "out": "What is the meaning of this article?",
+  "ms": 1829,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "daily",
+  "en": "Yes, I am ready.",
+  "ne": "हो, म तयार छु।",
+  "out": "Yes, I am ready.",
+  "ms": 1522,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "daily",
+  "en": "What is this?",
+  "ne": "यो के हो?",
+  "out": "What is it?",
+  "ms": 1219,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "daily",
+  "en": "This is my book.",
+  "ne": "यो मेरो किताब हो।",
+  "out": "This is my book.",
+  "ms": 1531,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "daily",
+  "en": "Whose pen is this?",
+  "ne": "यो कसको कलम हो?",
+  "out": "Whose pen is this?",
+  "ms": 1529,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "polite",
+  "en": "Please give me a pen.",
+  "ne": "कृपया मलाई एउटा कलम दिनुहोस्।",
+  "out": "Please give me a pen.",
+  "ms": 1527,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "polite",
+  "en": "Thank you very much.",
+  "ne": "धेरै धेरै धन्यवाद।",
+  "out": "Thank you very much.",
+  "ms": 1218,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "polite",
+  "en": "You are welcome.",
+  "ne": "स्वागत छ।",
+  "out": "Welcome to the house.",
+  "ms": 1218,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "polite",
+  "en": "I am sorry.",
+  "ne": "मलाई माफ गर्नुहोस्।",
+  "out": "I'm sorry about that.",
+  "ms": 1527,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "polite",
+  "en": "Excuse me.",
+  "ne": "माफ गर्नुहोस्।",
+  "out": "I'm sorry. What is it?",
+  "ms": 1859,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "polite",
+  "en": "Please forgive me.",
+  "ne": "कृपया मलाई माफ गर्नुहोस्।",
+  "out": "Please forgive me.",
+  "ms": 1222,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "polite",
+  "en": "No problem.",
+  "ne": "कुनै समस्या छैन।",
+  "out": "There is no problem.",
+  "ms": 1224,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "polite",
+  "en": "That's all right.",
+  "ne": "ठिकै छ।",
+  "out": "I'm going to be fine.",
+  "ms": 1829,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "polite",
+  "en": "Can you help me?",
+  "ne": "के तिमी मलाई सहयोग गर्न सक्छौ?",
+  "out": "Can you help me? I'm not sure.",
+  "ms": 2445,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "polite",
+  "en": "Don't worry.",
+  "ne": "चिन्ता नगर।",
+  "out": "Do not worry.",
+  "ms": 1222,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "home",
+  "en": "Wake up early.",
+  "ne": "चाँडै उठ।",
+  "out": "Get up early.",
+  "ms": 1224,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "home",
+  "en": "Brush your teeth.",
+  "ne": "दाँत माझ।",
+  "out": "My teeth.",
+  "ms": 921,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "home",
+  "en": "Wash your hands.",
+  "ne": "हात धोऊ।",
+  "out": "Wash your hands.",
+  "ms": 1233,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "home",
+  "en": "Take your breakfast.",
+  "ne": "बिहानको खाना खाऊ।",
+  "out": "Eat breakfast.",
+  "ms": 923,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "home",
+  "en": "Get ready for school.",
+  "ne": "विद्यालय जान तयार होऊ।",
+  "out": "Get ready to go to school.",
+  "ms": 1529,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "home",
+  "en": "Help your mother.",
+  "ne": "आमालाई सहयोग गर।",
+  "out": "Help your mother.",
+  "ms": 1226,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "home",
+  "en": "Keep your room clean.",
+  "ne": "आफ्नो कोठा सफा राख।",
+  "out": "Keep your room clean.",
+  "ms": 1227,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "home",
+  "en": "Do your homework.",
+  "ne": "गृहकार्य गर।",
+  "out": "Do your homework.",
+  "ms": 1239,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "home",
+  "en": "Don't make a noise.",
+  "ne": "हल्ला नगर।",
+  "out": "Do not shout.",
+  "ms": 1228,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "home",
+  "en": "Go to bed early.",
+  "ne": "चाँडै सुत्न जाऊ।",
+  "out": "Go to bed early.",
+  "ms": 1528,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "qa",
+  "en": "How old are you?",
+  "ne": "तिम्रो उमेर कति हो?",
+  "out": "How old are you?",
+  "ms": 1227,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "qa",
+  "en": "I am eight years old.",
+  "ne": "म आठ वर्षको हुँ।",
+  "out": "I am eight years old.",
+  "ms": 1526,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "qa",
+  "en": "Where do you live?",
+  "ne": "तिमी कहाँ बस्छौ?",
+  "out": "Where do you live?",
+  "ms": 1223,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "qa",
+  "en": "I live in Bardibas.",
+  "ne": "म बर्दिबासमा बस्छु।",
+  "out": "I live in Barbados.",
+  "ms": 1531,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "qa",
+  "en": "Which class are you in?",
+  "ne": "तिमी कुन कक्षामा पढ्छौ?",
+  "out": "What class do you attend?",
+  "ms": 1525,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "qa",
+  "en": "I am in class three.",
+  "ne": "म कक्षा तीनमा पढ्छु।",
+  "out": "I am in the third grade.",
+  "ms": 1832,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "qa",
+  "en": "Who is your best friend?",
+  "ne": "तिम्रो मिल्ने साथी को हो?",
+  "out": "Who is your best friend?",
+  "ms": 1531,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "qa",
+  "en": "Ram is my best friend.",
+  "ne": "राम मेरो मिल्ने साथी हो।",
+  "out": "Ram is my best friend.",
+  "ms": 1529,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "qa",
+  "en": "What is your favourite game?",
+  "ne": "तिम्रो मनपर्ने खेल के हो?",
+  "out": "What is your favorite game?",
+  "ms": 1531,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "qa",
+  "en": "My favourite game is football.",
+  "ne": "मेरो मनपर्ने खेल फुटबल हो।",
+  "out": "My favorite sport is football.",
+  "ms": 1529,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "qa",
+  "en": "What is your father's name?",
+  "ne": "तिम्रो बुबाको नाम के हो?",
+  "out": "What is your father's name?",
+  "ms": 1838,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "qa",
+  "en": "My father's name is Hari.",
+  "ne": "मेरो बुबाको नाम हरि हो।",
+  "out": "My father's name is Hari.",
+  "ms": 1836,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "qa",
+  "en": "Do you like English?",
+  "ne": "के तिमीलाई अंग्रेजी मन पर्छ?",
+  "out": "Do you like English?",
+  "ms": 1231,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "qa",
+  "en": "Yes, I do.",
+  "ne": "हो, मन पर्छ।",
+  "out": "Yes, I would.",
+  "ms": 1223,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "qa",
+  "en": "Can you read English?",
+  "ne": "के तिमी अंग्रेजी पढ्न सक्छौ?",
+  "out": "Can you read English?",
+  "ms": 1534,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "qa",
+  "en": "Yes, I can.",
+  "ne": "हो, सक्छु।",
+  "out": "Yes, I can.",
+  "ms": 1228,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "qa",
+  "en": "Are you happy?",
+  "ne": "के तिमी खुसी छौ?",
+  "out": "What is your happiness?",
+  "ms": 1217,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "qa",
+  "en": "Yes, I am happy.",
+  "ne": "हो, म खुसी छु।",
+  "out": "Yes, I am happy.",
+  "ms": 1531,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "qa",
+  "en": "What is the time?",
+  "ne": "कति बज्यो?",
+  "out": "What time is it?",
+  "ms": 1222,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "qa",
+  "en": "It is ten o'clock.",
+  "ne": "दस बज्यो।",
+  "out": "It's ten o'clock.",
+  "ms": 1852,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "more",
+  "en": "I am hungry.",
+  "ne": "मलाई भोक लागेको छ।",
+  "out": "I'm hungry.",
+  "ms": 1532,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "more",
+  "en": "I am thirsty.",
+  "ne": "मलाई तिर्खा लागेको छ।",
+  "out": "I am thirsty.",
+  "ms": 1531,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "more",
+  "en": "I am tired.",
+  "ne": "म थाकेको छु।",
+  "out": "I'm tired of it.",
+  "ms": 1525,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "more",
+  "en": "I am happy today.",
+  "ne": "म आज खुसी छु।",
+  "out": "I am happy today.",
+  "ms": 1225,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "more",
+  "en": "It is very hot.",
+  "ne": "धेरै गर्मी छ।",
+  "out": "It's too hot.",
+  "ms": 1528,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "more",
+  "en": "It is raining.",
+  "ne": "पानी परिरहेको छ।",
+  "out": "The water is flowing.",
+  "ms": 1534,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "more",
+  "en": "Please speak slowly.",
+  "ne": "कृपया बिस्तारै बोल्नुहोस्।",
+  "out": "Please speak slowly.",
+  "ms": 1530,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "more",
+  "en": "Speak in English.",
+  "ne": "अंग्रेजीमा बोल।",
+  "out": "Speak English.",
+  "ms": 1226,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "more",
+  "en": "Try again.",
+  "ne": "फेरि प्रयास गर।",
+  "out": "Try again.",
+  "ms": 918,
+  "caution": false
+ },
+ {
+  "dir": "ne-en",
+  "section": "more",
+  "en": "Well done!",
+  "ne": "धेरै राम्रो!",
+  "out": "That's very good!",
+  "ms": 1532,
+  "caution": false
+ }
+]
