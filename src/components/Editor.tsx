@@ -1,6 +1,8 @@
 import type { RefObject } from 'react'
+import { flushSync } from 'react-dom'
 import type { EditorState } from '../hooks/useEditorState'
 import { SHARE_AVAILABLE } from '../lib/share'
+import { PASTE_AVAILABLE, readClipboardText } from '../lib/clipboard'
 import { tick } from '../lib/haptics'
 import { useToast } from '../hooks/useToast'
 import { useMediaQuery } from '../hooks/useMediaQuery'
@@ -100,6 +102,45 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
        the boot screen; this is the second caller of the same idea. */
     document.getElementById(EDITOR_ID)?.focus()
   }
+  /* Paste exactly as a long-press paste would: the clipboard text replaces
+     the selection and goes through handleChange, the same path the native
+     paste takes, so a trailing space or full stop converts the word before
+     it here just as it does there.
+
+     Selection is read before the await, while it is still the one the user
+     left. Focus goes in before handleChange because useEditorState only
+     places the caret on a focused field. Then the caret is put back by its
+     distance from the END of the text: everything after the paste point is
+     untouched, so that distance survives a conversion that changes the
+     length of what came before it, where an index from the start would not. */
+  const paste = async () => {
+    const el = textareaRef.current
+    if (!el) return
+    const start = el.selectionStart
+    const end = el.selectionEnd
+    let clip: string
+    try {
+      clip = await readClipboardText()
+    } catch {
+      toast.problem('Could not read the clipboard')
+      return
+    }
+    if (!clip) {
+      toast.problem('Nothing to paste')
+      return
+    }
+    tick()
+    const next = editor.text.slice(0, start) + clip + editor.text.slice(end)
+    const tail = editor.text.length - end
+    el.focus()
+    /* flushSync, not a requestAnimationFrame: after the await this update is
+       scheduled as a separate task, and on the A024's WebView the frame came
+       first — the caret was placed, then React wrote the value and threw it
+       to the end. Measured: a mid-text paste left the caret at 17, not 12. */
+    flushSync(() => editor.handleChange(next, start + clip.length))
+    const at = el.value.length - tail
+    el.setSelectionRange(at, at)
+  }
 
   return (
     <div className="editor-shell">
@@ -120,6 +161,12 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
           state — the editor is behaving differently from how it looks, and
           this is the only thing that says so.
         */}
+        {/* The strip and Paste share the editor's top edge: Paste sits in the
+            field's top-right corner, the way the reference editor the owner
+            pointed at (nepali-type.pages.dev) anchors its clipboard actions
+            to the text rather than to a toolbar. A row of its own so the
+            chips keep scrolling sideways underneath without pushing it off. */}
+        <div className="editor-top">
         <div className="sugg" aria-live="polite">
           {!editor.nepali ? (
             <span className="sugg-hint">Nepali conversion is off — typing plain English.</span>
@@ -150,6 +197,18 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
                 {editor.pending} (keep)
               </button>
             </>
+          )}
+        </div>
+          {PASTE_AVAILABLE && (
+            <button
+              type="button"
+              className="btn btn--icon editor-paste"
+              aria-label="Paste"
+              title="Paste"
+              onClick={() => void paste()}
+            >
+              <SheetIcon name="paste" size={18} />
+            </button>
           )}
         </div>
 
@@ -217,6 +276,50 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
             </div>
           )}
         </div>
+
+        {/* Clear, at the foot of the text it clears, in the text box's
+            bottom-right corner — the nepali-type arrangement the owner chose
+            (2026-11-01), mirroring Paste at the top-right. It left the toolbar
+            because with its icon and word both showing (owner's call, so the
+            control has one look on every phone) the phone row wrapped onto two
+            lines below 380px at the default text size and on almost every
+            phone at the larger ones. Measured; the row now holds only the mode,
+            Letters, Copy and ⋯.
+
+            One slot, two states, as before: Clear becomes Undo the moment it
+            is used, so a mis-tap costs one more tap rather than the text. The
+            row exists only while one of them applies, so an empty editor
+            still opens on nothing to press. Desktop too: its toolbar used to
+            carry its own word-only Clear, and one control in one place at
+            every width is the point of this change. */}
+        {(!isEmpty || editor.lastCleared !== null) && (
+          <div className="editor-foot reveal">
+            {isEmpty ? (
+              <button
+                type="button"
+                className="btn btn--clear"
+                aria-label="Undo clear"
+                onClick={editor.undoClear}
+              >
+                <span className="btn__icon" aria-hidden="true">
+                  <SheetIcon name="undo" size={18} />
+                </span>
+                <span className="btn__text" aria-hidden="true">
+                  Undo clear
+                </span>
+              </button>
+            ) : (
+              <button type="button" className="btn btn--clear" aria-label="Clear" onClick={clear}>
+                <span className="btn__icon" aria-hidden="true">
+                  <SheetIcon name="trash" size={18} />
+                </span>
+                <span className="btn__text" aria-hidden="true">
+                  Clear
+                </span>
+              </button>
+            )}
+          </div>
+        )}
 
         <div className="actions">
           {/*
@@ -301,45 +404,11 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
                on a first launch is three things that look broken. They arrive
                with the first character, into the empty end of the row, so
                nothing a thumb is already on moves. */
-            isEmpty ? (
-              editor.lastCleared !== null && (
-                <div className="actions__end reveal">
-                  <button
-                    type="button"
-                    className="btn btn--clear"
-                    aria-label="Undo clear"
-                    onClick={editor.undoClear}
-                  >
-                    <span className="btn__icon" aria-hidden="true">
-                      <SheetIcon name="undo" size={18} />
-                    </span>
-                    <span className="btn__text" aria-hidden="true">
-                      Undo clear
-                    </span>
-                  </button>
-                </div>
-              )
-            ) : (
-              /* One group, so that if the row ever has to wrap (the largest
-                 text size on a narrow phone) the three go to the next line
-                 together, right-aligned, instead of ⋯ dropping on its own. */
+            isEmpty ? null : (
+              /* One group, so that if the row ever has to wrap the two go to
+                 the next line together, right-aligned, instead of ⋯ dropping
+                 on its own. Clear is not in it any more — see .editor-foot. */
               <div className="actions__end reveal">
-                {/* Out of the ⋯ sheet, where a tester could not find it. It
-                    becomes Undo in the same slot the moment it is used, so a
-                    mis-tap costs one more tap rather than the text. Below a
-                    certain row width it drops its word for the icon — see the
-                    @container rule on .actions. */}
-                <button
-                  type="button"
-                  className="btn btn--clear"
-                  aria-label="Clear"
-                  onClick={clear}
-                >
-                  <span className="btn__icon" aria-hidden="true">
-                    <SheetIcon name="trash" size={18} />
-                  </span>
-                  <span className="btn__text" aria-hidden="true">Clear</span>
-                </button>
                 {/* The filled one — getting the Devanagari out is what someone
                     came here to do. See .btn--primary. */}
                 <button type="button" className="btn btn--primary" onClick={editor.copy}>
@@ -382,15 +451,6 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
                 label="your text"
                 compact
               />
-              {editor.lastCleared !== null ? (
-                <button type="button" className="btn" onClick={editor.undoClear}>
-                  Undo clear
-                </button>
-              ) : (
-                <button type="button" className="btn" disabled={isEmpty} onClick={clear}>
-                  Clear
-                </button>
-              )}
               {/* The character count carries its unit or it does not
                   appear; a bare trailing number read as a cut-off label. */}
               <span className={`count${wordCount === 0 ? ' count--empty' : ''}`}>

@@ -129,6 +129,39 @@
 .sugg::-webkit-scrollbar {
   display: none;
 }
+
+/* The editor's top edge: the suggestion strip, and Paste in the corner.
+   The strip takes the width and keeps its own sideways scroll (min-width: 0
+   is what lets a flex child shrink below its chips' width so that scroll can
+   happen); Paste never shrinks, so a long row of chips slides under nothing
+   and never pushes it off the edge. */
+.editor-top {
+  display: flex;
+  align-items: center;
+}
+.editor-top .sugg {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+/* The text box's foot: Clear (or Undo clear) in the bottom-right corner,
+   right under the text it acts on. No padding above — it belongs to the
+   field, not to the toolbar below it — and the same inline inset as Paste
+   at the top-right, so the two corner controls share a right edge. */
+.editor-foot {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 var(--sp-2) 0 var(--sp-3);
+}
+.editor-paste {
+  flex: none;
+  margin-inline-end: var(--sp-2);
+  color: var(--muted);
+}
+@media (hover: hover) {
+  .editor-paste:hover {
+    color: var(--text-h);
+  }
+}
 .sugg-hint {
   font-size: 0.82rem;
   color: var(--muted);
@@ -500,37 +533,25 @@
   font-weight: 600;
 }
 
-/* Clear, with a word where the row has room and an icon where it does not.
+/* Clear: the trash icon and the word, at every width.
  *
- * The phone row is the mode switch, Letters, Clear, Copy and ⋯ — 322px of
- * controls at the default text size, against 336px of row on a 360px phone.
- * At a larger text size every one of them grows and the row would wrap, which
- * is the failure this toolbar was rebuilt around. So the row is a size
- * container and Clear gives up its label below the width the whole set needs.
- * The threshold is in rem, so it moves with the text-size setting the same
- * way the buttons do: 20.875rem is the 322px plus room for "Copied". */
-.actions {
-  container: actions / inline-size;
-}
+ * It used to give up one or the other depending on how wide the row was —
+ * the word where there was room, a bare icon below a container width — so the
+ * same control looked like two different ones on two phones, and the bare
+ * bin was the form a first-time user met where room was tightest. Owner's
+ * call (2026-11-01) after the nepali-type comparison: one stable form, icon
+ * and word. With both showing it no longer fit the phone toolbar (the row
+ * wrapped below 380px at the default text size), so it lives at the foot of
+ * the text instead — see .editor-foot and the comment above it in Editor.tsx. */
 .btn--clear {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.3rem;
+  padding-inline: 0.65rem 0.8rem;
 }
 .btn--clear .btn__icon {
-  display: none;
-}
-@container actions (max-width: 20.875rem) {
-  .btn--clear {
-    min-width: 2.75rem;
-    padding: 0;
-  }
-  .btn--clear .btn__icon {
-    display: inline-flex;
-  }
-  .btn--clear .btn__text {
-    display: none;
-  }
+  display: inline-flex;
 }
 
 .btn--icon {

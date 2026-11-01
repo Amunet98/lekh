@@ -19,6 +19,7 @@ export type SheetIconName =
   | 'pdf'
   | 'trash'
   | 'undo'
+  | 'paste'
   | 'cloud'
   | 'device'
 
@@ -103,6 +104,16 @@ export function SheetIcon({ name, size = 18 }: { name: SheetIconName; size?: num
         <svg {...p}>
           <path d="M4 9h11a5 5 0 0 1 0 10h-6" />
           <path d="M8 5 4 9l4 4" />
+        </svg>
+      )
+    case 'paste':
+      /* A clipboard: the clip as its own small rounded rect over the board,
+         the board's outline breaking either side of it. Same shape the
+         reference editor the owner pointed at uses, and Lucide's. */
+      return (
+        <svg {...p}>
+          <rect x="8" y="3" width="8" height="4" rx="1" />
+          <path d="M16 5h1a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h1" />
         </svg>
       )
     case 'cloud':

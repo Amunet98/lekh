@@ -30,3 +30,6 @@ dist-ssr
 # cannot repeat that by being created under a name nobody thought to add.
 CLAUDE.md
 lekh-*.md
+
+# impeccable design-review snapshots (local only)
+.impeccable/
