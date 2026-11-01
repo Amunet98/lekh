@@ -138,6 +138,12 @@
 .editor-top {
   display: flex;
   align-items: center;
+  /* A text caret over the empty part: a press there focuses the text (see
+     Editor.tsx). The chips and Paste keep the pointer. */
+  cursor: text;
+}
+.editor-top button {
+  cursor: pointer;
 }
 .editor-top .sugg {
   flex: 1 1 auto;

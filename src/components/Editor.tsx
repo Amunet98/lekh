@@ -254,7 +254,21 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
             pointed at (nepali-type.pages.dev) anchors its clipboard actions
             to the text rather than to a toolbar. A row of its own so the
             chips keep scrolling sideways underneath without pushing it off. */}
-        <div className="editor-top">
+        {/* The strip's empty part is part of the writing surface: a press
+            there puts the caret in the text, like a press anywhere else in
+            the box. It keeps its height whether or not chips are showing (so
+            the text never jumps), and a click on it used to do nothing at
+            all, with no caret appearing: it read as a glitch (owner,
+            1.9.105). preventDefault keeps focus from landing on the strip
+            first; chips and Paste are buttons and are left alone. */}
+        <div
+          className="editor-top"
+          onMouseDown={(e) => {
+            if ((e.target as Element).closest('button')) return
+            e.preventDefault()
+            textareaRef.current?.focus()
+          }}
+        >
         <div className="sugg" aria-live="polite">
           {!editor.nepali ? (
             <span className="sugg-hint">Nepali conversion is off — typing plain English.</span>
