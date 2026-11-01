@@ -155,7 +155,11 @@ export const CheatSheet = memo(function CheatSheet({ onInsert, query }: CheatShe
       <div className="cells-words">
         <Cells group={COMMON_WORDS} onInsert={onInsert} />
       </div>
-      <p className="map-caption">The label under each word is what you would type to get it.</p>
+      <p className="map-caption">
+        The label under each word is what you would type to get it. Suggestions above the text also
+        offer common words from Nepali Wikipedia, so a loose spelling like{' '}
+        <span className="dev">bikas</span> still finds विकास (word list CC BY-SA 4.0).
+      </p>
     </section>
   )
 })

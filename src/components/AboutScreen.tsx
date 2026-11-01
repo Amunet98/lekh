@@ -207,6 +207,15 @@ export function AboutScreen({ onDismiss, onGoTo }: AboutScreenProps) {
               running and the app version says what shell it is running in, and
               a bug can be in either. In a browser there is no shell and the
               line is unchanged. */}
+          {/* Wikipedia's licence asks for credit wherever its derived word
+              list is used (src/data/wikiWords.txt, engine/wiki.ts). */}
+          <p className="about__meta">
+            Word suggestions include common words from{' '}
+            <a href="https://ne.wikipedia.org" target="_blank" rel="noopener noreferrer">
+              Nepali Wikipedia
+            </a>{' '}
+            (CC BY-SA 4.0).
+          </p>
           <p className="about__meta">
             Lekh Patro · {versionLine(native)} · ©{' '}
             {new Date().getFullYear()}

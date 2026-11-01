@@ -117,6 +117,10 @@ export const CONJUNCTS: CheatGroup = {
     { glyph: 'त्र', insert: 'त्र', romanized: 'tr' },
     { glyph: 'ज्ञ', insert: 'ज्ञ', romanized: 'gy' },
     { glyph: 'श्र', insert: 'श्र', romanized: 'shr' },
+    { glyph: 'कृ', insert: 'कृ', romanized: 'kri' },
+    { glyph: 'क्रि', insert: 'क्रि', romanized: 'kri^' },
+    { glyph: 'न्य', insert: 'न्य', romanized: 'ny' },
+    { glyph: 'ॐ', insert: 'ॐ', romanized: 'om' },
   ],
 }
 

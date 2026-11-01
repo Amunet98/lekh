@@ -326,6 +326,20 @@ Worth knowing before changing the look, all learned by measuring:
   per-element, so 76 cheat-sheet cells each carrying their own blur would be 76
   blur passes. The cells are plain opaque surfaces now, which is cheaper still.
 
+## Credits
+
+- **Word suggestions** include the 45,000 most common words of the
+  [Nepali Wikipedia](https://ne.wikipedia.org) (`src/data/wikiWords.txt`, built
+  by `scripts/build-wiki-words.mjs` from the public dump). Wikipedia text is
+  [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), and that
+  word list is shared under the same licence; the rest of Lekh is MIT.
+- The idea of ranking frequency-sorted Wikipedia words below a curated list
+  comes from [nepali-type](https://github.com/ChandanShakya/nepali-type) by
+  Chandan Shakya (MIT). Lekh's script and list are its own.
+- Typing follows the romanized layout of
+  [ashesh.com.np](https://www.ashesh.com.np/nepali-unicode.php); Lekh's
+  dictionary is its own.
+
 ## Stack
 
 React 19 · TypeScript · Vite · Tailwind CSS v4 · Tesseract.js ·

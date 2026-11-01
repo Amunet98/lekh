@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react'
+import { loadWikiWords } from '../lib/engine/wiki'
 import { convert, suggest } from '../lib/engine'
 import type { Chip } from '../lib/engine/types'
 import { confirm, tick } from '../lib/haptics'
@@ -132,7 +133,24 @@ export function useEditorState(textareaRef?: RefObject<HTMLTextAreaElement | nul
     setTimeout(() => setFlashing(false), 350)
   }, [])
 
-  const chips = useMemo<Chip[]>(() => suggest(pending), [pending])
+  /* The Nepali Wikipedia word list (engine/wiki.ts) loads once the editor is
+     idle, so the first paint never waits on its ~1MB chunk. The tick
+     recomputes the chips when it lands, in case a word is already pending. */
+  const [wikiTick, setWikiTick] = useState(0)
+  useEffect(() => {
+    let cancelled = false
+    const start = () => void loadWikiWords().then(() => !cancelled && setWikiTick((n) => n + 1))
+    const idle = window.requestIdleCallback
+      ? window.requestIdleCallback(start, { timeout: 4000 })
+      : window.setTimeout(start, 1500)
+    return () => {
+      cancelled = true
+      if (window.cancelIdleCallback) window.cancelIdleCallback(idle)
+      else window.clearTimeout(idle)
+    }
+  }, [])
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- wikiTick only signals "the list arrived"
+  const chips = useMemo<Chip[]>(() => suggest(pending), [pending, wikiTick])
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {

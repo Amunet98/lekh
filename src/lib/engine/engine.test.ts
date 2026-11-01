@@ -307,3 +307,19 @@ describe('the tables themselves', () => {
     expect(drifted).toEqual([])
   })
 })
+
+import { setWikiWords, skeleton } from './wiki'
+import { suggest as suggestChips } from './suggest'
+describe('Wikipedia suggestions', () => {
+  it('folds the sounds people do not tell apart', () => {
+    expect(skeleton('विद्यालय')).toBe(skeleton('बिद्यालय'))
+    expect(skeleton('दिउँसो')).toBe(skeleton('दिउन्सो'))
+    expect(skeleton('आमालाई')).toBe(skeleton('अमलै'))
+  })
+  it('adds words as chips without changing the primary conversion', () => {
+    setWikiWords('# header\nसरकार\nसरकारी\nविकास')
+    const chips = suggestChips('sarkar')
+    expect(chips[0].primary).toBe(true)
+    expect(chips.map((c) => c.text)).toContain('सरकार')
+  })
+})
