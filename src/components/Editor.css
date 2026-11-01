@@ -150,7 +150,13 @@
 .editor-foot {
   display: flex;
   justify-content: flex-end;
+  gap: var(--sp-2);
   padding: 0 var(--sp-2) 0 var(--sp-3);
+}
+/* The Preeti chip takes the left of the row, Clear keeps the right. */
+.editor-foot > .editor-preeti-chip {
+  margin-inline-end: auto;
+  margin-inline-start: calc(-1 * var(--sp-1));
 }
 .editor-paste {
   flex: none;
@@ -997,4 +1003,70 @@
 }
 .editor-preeti--done {
   padding-block: var(--sp-2);
+}
+
+/* The Preeti strip (1.9.96): the text as Preeti keys, live, between the box
+   and the toolbar. A quiet ground of its own, so it reads as a second view
+   of the same words rather than as a second place to type. The keys are
+   Latin gibberish by nature, so they are set in the mono face, which says
+   "codes" rather than "words", and scroll inside the strip past three lines
+   so a long text never pushes the toolbar off the screen. */
+.editor-preeti-strip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  margin: 0 var(--sp-2) var(--sp-1);
+  padding: var(--sp-2) var(--sp-2) var(--sp-2) var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-field);
+  background: var(--surface-2);
+}
+.editor-preeti-strip__head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+.editor-preeti-strip__label {
+  font: 600 0.78rem/1 var(--sans);
+  letter-spacing: 0.04em;
+  color: var(--text-h);
+}
+.editor-preeti-strip__hint {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.editor-preeti-strip__copy {
+  min-height: 2rem;
+  margin-inline-start: auto;
+  font-weight: 600;
+}
+.editor-preeti-strip__close {
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+}
+.editor-preeti-strip__text {
+  margin: 0;
+  max-height: calc(3 * 1.55em);
+  overflow-y: auto;
+  font: 500 0.95rem/1.55 var(--mono);
+  color: var(--text-h);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  user-select: text;
+}
+/* Narrow at the larger sizes the hint goes before anything else does. */
+@media (max-width: 400px) {
+  :root[data-ui-scale='xl'] .editor-preeti-strip__hint,
+  :root[data-ui-scale='lg'] .editor-preeti-strip__hint {
+    display: none;
+  }
 }

@@ -268,8 +268,14 @@ export function useEditorState(textareaRef?: RefObject<HTMLTextAreaElement | nul
     await shareText(committed)
   }, [commitForExport])
 
+  /* The text as it would leave the editor (the trailing Latin run
+     converted), without committing it: for the Preeti strip, which reads
+     live as you type. */
+  const committed = useMemo(() => (nepali ? commitText(text) : text), [nepali, text])
+
   return {
     text,
+    committed,
     setText,
     nepali,
     pending,

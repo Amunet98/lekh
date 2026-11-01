@@ -1,10 +1,12 @@
-import { useEffect, useState, type RefObject } from 'react'
+import { useEffect, useMemo, useState, type RefObject } from 'react'
 import { flushSync } from 'react-dom'
 import type { EditorState } from '../hooks/useEditorState'
 import { SHARE_AVAILABLE } from '../lib/share'
 import { PASTE_AVAILABLE, readClipboardText } from '../lib/clipboard'
 import { tick } from '../lib/haptics'
-import { looksLikePreeti, preetiToUnicode } from '../lib/preeti'
+import { looksLikePreeti, preetiToUnicode, unicodeToPreeti } from '../lib/preeti'
+import { usePref } from '../hooks/usePref'
+import { ToolIcon } from './tools/ToolIcons'
 import { useToast } from '../hooks/useToast'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import { DOCK_QUERY } from '../hooks/useDockDetached'
@@ -162,6 +164,27 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
     const out = preetiToUnicode(preetiOffer.raw).replace(/\s+/g, ' ').trim()
     return out.length > 48 ? `${out.slice(0, 48).trimEnd()}…` : out
   })()
+
+  /* The other direction (1.9.96): what you typed, as Preeti keys, for the
+     old Preeti-font Word files and forms that still want it. It used to mean
+     Copy, Tools → Preeti, paste, copy again, and many people never found the
+     tool. Two ways in, both quiet: "Copy as Preeti" in ⋯, and a Preeti chip
+     at the foot of the box that opens a live strip under the text (owner
+     chose both; an always-on panel like nepali-type's was declined as one
+     more box on every visit). The strip's open state is remembered. */
+  const [preetiStrip, setPreetiStrip] = usePref('preetiStrip')
+  const preetiKeys = useMemo(
+    () => (preetiStrip ? unicodeToPreeti(editor.committed) : ''),
+    [preetiStrip, editor.committed],
+  )
+  const copyPreeti = async () => {
+    try {
+      await navigator.clipboard.writeText(unicodeToPreeti(editor.committed))
+      toast.done('Copied in Preeti')
+    } catch {
+      toast.problem('Could not copy')
+    }
+  }
 
   /* Paste exactly as a long-press paste would: the clipboard text replaces
      the selection and goes through handleChange, the same path the native
@@ -396,8 +419,53 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
             still opens on nothing to press. Desktop too: its toolbar used to
             carry its own word-only Clear, and one control in one place at
             every width is the point of this change. */}
+        {preetiStrip && !isEmpty && (
+          <div className="editor-preeti-strip reveal">
+            <div className="editor-preeti-strip__head">
+              <span className="editor-preeti-strip__label">Preeti</span>
+              <span className="editor-preeti-strip__hint">for Preeti-font documents</span>
+              <button type="button" className="btn editor-preeti-strip__copy" onClick={() => void copyPreeti()}>
+                Copy
+              </button>
+              <button
+                type="button"
+                className="btn btn--icon editor-preeti-strip__close"
+                aria-label="Hide Preeti"
+                title="Hide Preeti"
+                onClick={() => {
+                  tick()
+                  setPreetiStrip(false)
+                }}
+              >
+                <ToolIcon name="x" size={16} />
+              </button>
+            </div>
+            {/* translate="no": the browser's own translator would otherwise
+                offer to "translate" a line of Preeti keys from Latin. */}
+            <p className="editor-preeti-strip__text" translate="no">
+              {preetiKeys}
+            </p>
+          </div>
+        )}
+
         {(!isEmpty || editor.lastCleared !== null) && (
           <div className="editor-foot reveal">
+            {!isEmpty && !preetiStrip && (
+              <button
+                type="button"
+                className="btn btn--clear editor-preeti-chip"
+                title="Show this text in Preeti keys"
+                onClick={() => {
+                  tick()
+                  setPreetiStrip(true)
+                }}
+              >
+                <span className="btn__icon" aria-hidden="true">
+                  <ToolIcon name="preeti" size={18} />
+                </span>
+                <span className="btn__text">Preeti</span>
+              </button>
+            )}
             {isEmpty ? (
               <button
                 type="button"
@@ -518,7 +586,20 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
                 <button type="button" className="btn btn--primary" onClick={editor.copy}>
                   {editor.copied ? 'Copied' : 'Copy'}
                 </button>
-                <MoreActions text={editor.text} filenameBase="lekh-nepali" onShare={share}>
+                <MoreActions
+                  text={editor.text}
+                  filenameBase="lekh-nepali"
+                  onShare={share}
+                  extra={[
+                    {
+                      id: 'preeti',
+                      label: 'Copy as Preeti',
+                      hint: 'For documents in the Preeti font',
+                      icon: <ToolIcon name="preeti" size={20} />,
+                      onSelect: () => void copyPreeti(),
+                    },
+                  ]}
+                >
                   {/* The count lives here on a phone. In the row it was the
                       price of a visible Clear — the row has no width for
                       both — and it is a number people look up, not watch. */}

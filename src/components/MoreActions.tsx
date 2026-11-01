@@ -21,6 +21,8 @@ interface MoreActionsProps {
   onShare: () => void
   /** Anything the sheet should say above its rows — the Type tab's count. */
   children?: ReactNode
+  /** Rows of the caller's own, listed first: Type's Copy as Preeti. */
+  extra?: ActionSheetOption[]
 }
 
 /* The phone's ⋯ — every way out for a piece of text, in one sheet.
@@ -38,13 +40,14 @@ interface MoreActionsProps {
  *
  * An empty text offers nothing rather than dead rows: the button disables
  * itself, the way Copy beside it does. */
-export function MoreActions({ text, filenameBase, onShare, children }: MoreActionsProps) {
+export function MoreActions({ text, filenameBase, onShare, children, extra }: MoreActionsProps) {
   const [open, setOpen] = useState(false)
   const { busy, run } = useDownloadActions({ text, filenameBase })
   const native = isNativeApp()
 
   const options: ActionSheetOption[] = []
   if (text) {
+    if (extra) options.push(...extra)
     if (SHARE_AVAILABLE) {
       options.push({
         id: 'share',

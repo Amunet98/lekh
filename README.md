@@ -24,7 +24,9 @@ Four tabs — **Type**, **Translate**, **Patro** and **Tools**:
   तपाईंलाई, `vayo` → भयो). A searchable Devanagari cheat sheet covers the long
   tail, and tapping a cell echoes the result inside the sheet so you can see
   the letter land without closing it. Paste text copied out of an old Preeti
-  document and it offers to convert it to Unicode on the spot. Works with
+  document and it offers to convert it to Unicode on the spot; going the
+  other way, "Copy as Preeti" (or a live Preeti strip under the text) gives
+  you the keys for an old Preeti-font file. Works with
   mobile keyboards/IMEs (Gboard-style commit flow).
 - **Translate** — English ↔ Nepali with a Google-style language switcher.
   Type directly or drop in a photo, PDF, DOCX, or TXT file — OCR happens

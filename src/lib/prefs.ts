@@ -51,6 +51,8 @@ export interface Prefs {
    *  widgets keep their own copy (they cannot read localStorage); see
    *  syncWidgetLanguage in dynamicColor.ts. */
   widgetEnglish: boolean
+  /** Type: the strip under the text showing it in Preeti keys (1.9.96). */
+  preetiStrip: boolean
 }
 
 const DEFAULTS: Prefs = {
@@ -64,6 +66,7 @@ const DEFAULTS: Prefs = {
   tool: 'date',
   currency: 'USD',
   widgetEnglish: false,
+  preetiStrip: false,
 }
 
 const KEY_PREFIX = 'lekh:pref:'
@@ -87,6 +90,7 @@ const VALIDATORS: { [K in keyof Prefs]: (raw: unknown) => Prefs[K] | undefined }
         : undefined,
   currency: (raw) => (typeof raw === 'string' && /^[A-Z]{3}$/.test(raw) ? raw : undefined),
   widgetEnglish: (raw) => (typeof raw === 'boolean' ? raw : undefined),
+  preetiStrip: (raw) => (typeof raw === 'boolean' ? raw : undefined),
 }
 
 export function getPref<K extends keyof Prefs>(key: K): Prefs[K] {
