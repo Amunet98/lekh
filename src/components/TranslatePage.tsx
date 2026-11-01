@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import type { TranslateState } from '../hooks/useTranslateState'
 import { useUploadState, FILE_ACCEPT } from '../hooks/useUploadState'
 import { DirectionToggle } from './translate/TranslateControls'
@@ -8,6 +9,10 @@ import { TranslateActions } from './translate/TranslateActions'
 import { TranslateRun } from './translate/TranslateRun'
 import { useOnline } from '../hooks/useOnline'
 import { SectionIcon } from './SectionIcons'
+import { SheetIcon } from './SheetIcons'
+import { useToast } from '../hooks/useToast'
+import { tick } from '../lib/haptics'
+import { PASTE_AVAILABLE, readClipboardText } from '../lib/clipboard'
 import { looksLikeEnglish, looksLikeRomanNepali } from '../lib/translation/romanNepali'
 import './TranslatePage.css'
 
@@ -48,12 +53,61 @@ function CameraIcon({ size = 16 }: { size?: number }) {
  * file picker, plus drag-and-drop directly onto the pane — see useUploadState
  * for the mechanics this page hands off to.
  */
+/* Clear and Undo share one slot, and the two words are different widths at
+   every text size — so whichever is shown, the other is laid in the same grid
+   cell invisibly and the button is always as wide as the wider of them. With
+   only the shown word, the swap moved the text box: "Undo" is narrower than
+   "Clear" at 360px / Large, and the row came back up beside the label, 32px,
+   then went down again six seconds later. Measured, 2026-11-01. */
+function ClearLabel({ shown }: { shown: 'Clear' | 'Undo' }) {
+  const other = shown === 'Clear' ? 'Undo' : 'Clear'
+  return (
+    <span className="pane-clear-btn__label">
+      <span aria-hidden={shown === 'Undo' ? true : undefined}>{shown}</span>
+      <span className="pane-clear-btn__ghost" aria-hidden="true">
+        {other}
+      </span>
+    </span>
+  )
+}
+
 export function TranslatePage({ t, onShow }: TranslatePageProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
   const upload = useUploadState(t, fileInputRef)
   const online = useOnline()
   const isEmpty = t.sourceText.length === 0
+  const toast = useToast()
+
+  /* Paste into the source box, at the caret, as a long-press paste would —
+     the usual reason to open Translate is a message someone sent, and that
+     was a long-press away. Same clipboard route as the Type editor (see
+     lib/clipboard.ts: the APK's WebView refuses readText, so the app reads
+     through the native plugin). No conversion runs on this box, so the caret
+     goes straight after the pasted text; flushSync so React has written the
+     value before it is placed (see Editor.tsx for the race this avoids). */
+  const pasteSource = async () => {
+    const el = document.getElementById('translate-source') as HTMLTextAreaElement | null
+    if (!el) return
+    const start = el.selectionStart
+    const end = el.selectionEnd
+    let clip: string
+    try {
+      clip = await readClipboardText()
+    } catch {
+      toast.problem('Could not read the clipboard')
+      return
+    }
+    if (!clip) {
+      toast.problem('Nothing to paste')
+      return
+    }
+    tick()
+    const text = t.sourceText
+    el.focus()
+    flushSync(() => t.setSourceText(text.slice(0, start) + clip + text.slice(end)))
+    el.setSelectionRange(start + clip.length, start + clip.length)
+  }
 
   /* Nepali typed in English letters while the direction says English: the
      translator would only respell it (मलाइ ढेरै भोक लग्यो), so offer the
@@ -165,29 +219,72 @@ export function TranslatePage({ t, onShow }: TranslatePageProps) {
               {/* A second capture-mode input rather than a second visible
                   affordance for "browse" vs "camera" — most phones already
                   offer camera as one of the file-picker's own options, this
-                  button just skips that extra tap and jumps straight to it. */}
+                  button just skips that extra tap and jumps straight to it.
+
+                  Labelled "Scan" since 2026-11-01 (owner: the bare camera
+                  square read as confusing). Scan is what it does — a photo
+                  whose text is read off it — where "Camera" would only name
+                  the hardware. Touch devices only (see .pane-camera-btn): a
+                  desktop browser ignores `capture`, so there it opened the
+                  same file picker as Upload beside it, and a Scan button that
+                  does not scan is worse than the icon was. */}
               <button
                 type="button"
                 className="btn pane-camera-btn"
-                title="Take a photo"
-                aria-label="Take a photo"
+                title="Scan a page with the camera"
+                aria-label="Scan a page with the camera"
                 onClick={() => cameraInputRef.current?.click()}
               >
                 <CameraIcon size={14} />
+                <span aria-hidden="true">Scan</span>
               </button>
+              {/* Paste, square like the camera beside it. Hidden while a file
+                  is loaded, for the same reason Clear is: the box then holds
+                  the file's text, and the chip below owns that. */}
+              {PASTE_AVAILABLE && !upload.currentFile && (
+                <button
+                  type="button"
+                  className="btn pane-paste-btn"
+                  title="Paste"
+                  aria-label="Paste"
+                  onClick={() => void pasteSource()}
+                >
+                  <SheetIcon name="paste" size={14} />
+                </button>
+              )}
               {/* Hidden once a file's uploaded — the "remove" button on its
                   filename chip below does the exact same thing, and showing
                   both reads as two controls where there's only one action. */}
-              {/* Same swap the editor's toolbar does: for six seconds after a
-                  clear, the button in the same place offers it back. */}
+              {/* Same swap the editor does: for six seconds after a clear, the
+                  button in the same place offers it back. Icon and word, the
+                  same pair the Type editor's Clear carries (2026-11-01). */}
               {!upload.currentFile &&
                 (t.lastClearedSource !== null ? (
-                  <button type="button" className="btn" onClick={t.undoClearSource}>
-                    Undo clear
+                  /* "Undo", not "Undo clear", here only (owner's call,
+                     2026-11-01). With its icon the long form is ~40px wider
+                     than Clear, which knocked the row under the label and
+                     dropped the text box 28–52px on 360–420px phones right
+                     after a clear — and back up six seconds later. The arrow,
+                     the slot and the moment say what it undoes; the
+                     accessible name still says it in full. */
+                  <button
+                    type="button"
+                    className="btn pane-clear-btn"
+                    aria-label="Undo clear"
+                    onClick={t.undoClearSource}
+                  >
+                    <SheetIcon name="undo" size={14} />
+                    <ClearLabel shown="Undo" />
                   </button>
                 ) : (
-                  <button type="button" className="btn" disabled={isEmpty} onClick={upload.clearUpload}>
-                    Clear
+                  <button
+                    type="button"
+                    className="btn pane-clear-btn"
+                    disabled={isEmpty}
+                    onClick={upload.clearUpload}
+                  >
+                    <SheetIcon name="trash" size={14} />
+                    <ClearLabel shown="Clear" />
                   </button>
                 ))}
             </div>
@@ -336,7 +433,7 @@ export function TranslatePage({ t, onShow }: TranslatePageProps) {
                       or drop, paste, or upload a photo or document
                     </span>
                     <span className="upload-hint__coarse">
-                      or <b>upload</b> a photo, PDF or document
+                      or <b>upload</b> a file or <b>scan</b> a page
                     </span>
                   </div>
                   {/* Desktop only. It belongs to the dropzone framing above —

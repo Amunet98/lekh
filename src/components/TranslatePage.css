@@ -103,6 +103,38 @@
   display: flex;
   align-items: center;
   gap: var(--sp-1);
+  /* Right-aligned whether it shares the label's line or has dropped below it
+     (see the wrap on the header). */
+  margin-inline-start: auto;
+  /* Last resort, 320px at Larger only (2px short even on a line of its own):
+     Clear goes down a line rather than being clipped. */
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  row-gap: var(--sp-1);
+}
+/* With Paste added and Clear carrying its icon (2026-11-01), the source
+   header's controls need ~297px at the default text size and ~350px at the
+   largest, beside the language label. Without a wrap they ran past the pane
+   and were clipped by it, unseen — Clear cut off 17px at 360px / Larger,
+   measured by right edge, since the clip hides it from a scrollWidth check.
+   Wrapping moves the whole group under the label as one row, the way the
+   editor's Copy and ⋯ go down together, instead of anything being lost. */
+.translate-pane__header {
+  flex-wrap: wrap;
+  row-gap: var(--sp-1);
+}
+/* Upload, Scan and Clear (icon + word each) a touch tighter than a stock
+   .btn: 0.45rem inline padding and a 0.25rem icon gap. Measured at 360px,
+   the most common Android width, with Scan labelled the row needed 330px of
+   a 328px header and dropped under the label on every such phone; this
+   gives back ~10px so it stays beside it. Paste keeps its fixed square. */
+.translate-pane__header-actions .btn:not(.pane-paste-btn) {
+  padding-inline: 0.45rem;
+}
+.pane-upload-btn,
+.pane-camera-btn,
+.pane-clear-btn {
+  column-gap: 0.25rem;
 }
 
 /* Icon-only read as a cryptic square next to "clear" — the label is what
@@ -122,7 +154,6 @@
 .pane-upload-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
 }
 @media (hover: hover) {
   .pane-upload-btn:hover:not(:disabled) {
@@ -132,14 +163,19 @@
   }
 }
 
-/* A second, icon-only button next to "upload" — square instead of
-   padded-with-a-label, since a camera glyph reads on its own. */
+/* Scan: the camera glyph and the word, like Upload beside it. It was an
+   icon-only square on the theory that a camera reads on its own; the owner
+   found it confusing (2026-11-01), and the glyph names the hardware, not what
+   happens — the photo's text is read. Touch devices only: a desktop browser
+   ignores `capture`, so there it was a second Upload. */
 .pane-camera-btn {
-  display: inline-flex;
+  display: none;
   align-items: center;
-  justify-content: center;
-  width: 36px;
-  padding: 0;
+}
+@media (pointer: coarse) {
+  .pane-camera-btn {
+    display: inline-flex;
+  }
 }
 @media (hover: hover) {
   .pane-camera-btn:hover:not(:disabled) {
@@ -147,6 +183,33 @@
     color: var(--on-accent);
     border-color: var(--accent);
   }
+}
+
+/* Paste: the camera's square, without the accent icon — it is not part of
+   the photo feature, just the clipboard. */
+.pane-paste-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  padding: 0;
+}
+/* Clear and Undo clear: icon and word, like the Type editor's. Both words
+   sit in one grid cell so the button keeps one width through the swap (see
+   ClearLabel in TranslatePage.tsx). */
+.pane-clear-btn {
+  display: inline-flex;
+  align-items: center;
+}
+.pane-clear-btn__label {
+  display: inline-grid;
+  justify-items: start;
+}
+.pane-clear-btn__label > * {
+  grid-area: 1 / 1;
+}
+.pane-clear-btn__ghost {
+  visibility: hidden;
 }
 
 /* Dragging a file over the source pane — same accent highlight FileUpload's
