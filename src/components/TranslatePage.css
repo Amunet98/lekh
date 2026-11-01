@@ -27,17 +27,22 @@
 /* The phone page fills the screen to the dock, as Type does (see .type-page
    in Editor.css and TypePage.css for the --dock-h arithmetic), and splits it
    between the box you type in and the answer. Without this the answer ended
-   two-thirds of the way down and the rest of the screen was empty page. With
-   the keyboard up both go back to their natural height. */
+   two-thirds of the way down and the rest of the screen was empty page. */
 @media (max-width: 767px) {
   .translate-page {
     gap: var(--sp-2);
     min-height: calc(100dvh - var(--bar-h) - var(--dock-h, var(--page-bottom, 4.75rem)));
     margin-bottom: calc(var(--dock-h, var(--page-bottom, 4.75rem)) - var(--page-bottom, 4.75rem));
   }
+  /* With the keyboard up the page fills down to it too, the way Type does
+     (TypePage.css): the dock slides away, and the margin gives back the whole
+     of .page's padding. This used to drop to natural height, which left a
+     50-70px band of empty page between the box and the keys (owner, measured
+     on the SM-A075F: content ended at 485 and 467 of a 536px viewport). The
+     empty box, or the answer when there is one, takes that space. */
   .has-keyboard .translate-page {
-    min-height: 0;
-    margin-bottom: 0;
+    min-height: calc(100dvh - var(--bar-h));
+    margin-bottom: calc(0px - var(--page-bottom, 4.75rem));
   }
   .translate-panes {
     display: flex;
