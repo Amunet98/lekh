@@ -327,8 +327,18 @@
 }
 
 /* At the narrowest sizes पात्रो is the first thing that can go: लेख alone
-   still identifies the app, and the room is worth more to the actions. */
-@media (max-width: 380px) {
+   still identifies the app, and the room is worth more to the actions.
+
+   270px, not the 380px this used to be. 380 dated from a fuller bar, and it
+   caught ordinary phones whenever Android's Display size was turned up (which
+   shrinks the CSS viewport) — the owner saw पात्रो vanish on their own phone,
+   2026-11-01, on a bar holding nothing but the wordmark and the gear.
+   Measured worst case: an Android *browser* tab (so the Get app button is
+   there too, icon-only below 360px) at the largest text size still leaves
+   16px free at 280px and 23px at 300px. The installed app has no Get app
+   button at all. So this is now only a safety net for screens narrower than
+   any real phone. */
+@media (max-width: 270px) {
   .app-bar__brand-slash,
   .app-bar__brand-patro {
     display: none;
