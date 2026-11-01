@@ -1,6 +1,7 @@
-# Lekh Patro (लेख) — Nepali Typing, Translation, Calendar & Tools
+# Lekh Patro — Nepali Typing, Translation, Calendar & Tools
 
 [![Live](https://img.shields.io/badge/Live-lekh--gamma.vercel.app-facc15)](https://lekh-gamma.vercel.app)
+[![Google Play](https://img.shields.io/badge/Google_Play-get_the_app-34a853?logo=googleplay&logoColor=white)](https://play.google.com/store/apps/details?id=np.com.bimeshpoudel.lekh)
 [![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Vite](https://img.shields.io/badge/Vite-646cff?logo=vite&logoColor=white)](https://vite.dev)
@@ -8,17 +9,24 @@
 [![PWA](https://img.shields.io/badge/PWA-installable-5a0fc8)](https://lekh-gamma.vercel.app)
 
 Type Nepali without a Nepali keyboard: write romanized Nepali — `kasto chha`
-— and Lekh Patro converts it to Devanagari — कस्तो छ — as you type, IME-style,
-right in the browser.
+— and Lekh Patro converts it to Devanagari — कस्तो छ — as you type, IME-style.
+It also translates English ↔ Nepali (photos and documents too), carries a
+Bikram Sambat calendar with festivals, and has a Tools tab for dates, money,
+Preeti and a phrasebook.
 
-**Live (install from there):** https://lekh-gamma.vercel.app
+- **Web:** https://lekh-gamma.vercel.app — installable, works offline
+- **Android:** [Lekh Patro on Google Play](https://play.google.com/store/apps/details?id=np.com.bimeshpoudel.lekh) — the same app, plus
+  home-screen calendar widgets
 
 ## What it does
 
 Four tabs — **Type**, **Translate**, **Patro** and **Tools**:
 
-- **Type** — a phonetic transliteration engine backed by an 887-entry
+- **Type** — a phonetic transliteration engine backed by a 1,174-entry
   dictionary shows suggestion chips (with spelling variants) as you type.
+  The chips also draw on the 45,000 most common words of the Nepali
+  Wikipedia, matched by sound, so a loose spelling still finds the word
+  (`bikas` → विकास, `diunso` → दिउँसो).
   The dictionary knows the English words people mix in (`school` → स्कुल,
   `facebook` → फेसबुक) and the way people actually text (`tapaailai` →
   तपाईंलाई, `vayo` → भयो). A searchable Devanagari cheat sheet covers the long
