@@ -71,14 +71,49 @@
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
-/* Safari renders type="date" with its own inner padding and an off-palette
-   indicator; this keeps it in line with the selects beside it. */
-.conv__date::-webkit-calendar-picker-indicator {
-  cursor: pointer;
-  opacity: 0.6;
+/* The AD date as text, always YYYY-MM-DD, with the calendar button beside
+   it; the native date input behind the button is only there to be opened
+   (see DateConverter.tsx). */
+.conv__ad {
+  position: relative;
+  display: flex;
+  gap: var(--sp-2);
+  min-width: 0;
 }
-.conv__date::-webkit-date-and-time-value {
-  text-align: left;
+.conv__date {
+  flex: 1 1 auto;
+  width: 100%;
+  cursor: text;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+.conv__date--bad {
+  border-color: var(--danger);
+}
+.conv__pick {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  color: var(--text-h);
+}
+.conv__picker {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+  border: 0;
+  padding: 0;
+}
+.conv__format {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.conv__ad:has(.conv__date--bad) + .conv__format {
+  color: var(--danger);
 }
 
 .conv__out {

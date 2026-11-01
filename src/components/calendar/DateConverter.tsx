@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import {
   BS_MAX_YEAR,
   BS_MIN_YEAR,
@@ -20,7 +20,8 @@ function pad(n: number) {
   return String(n).padStart(2, '0')
 }
 
-/** A Date → the `yyyy-mm-dd` an <input type="date"> expects, in local time. */
+/** A Date → `yyyy-mm-dd`, in local time: what the AD field shows and what an
+ *  <input type="date"> expects. */
 function toInputValue(d: Date): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 }
@@ -34,7 +35,23 @@ function fromInputValue(v: string): Date | null {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v)
   if (!m) return null
   const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]))
-  return Number.isNaN(d.getTime()) ? null : d
+  /* new Date(2026, 1, 31) rolls over to 3 March rather than failing, so a
+     typed 2026-02-31 would quietly become another date. Reject it instead. */
+  if (Number.isNaN(d.getTime()) || d.getMonth() !== Number(m[2]) - 1) return null
+  return d
+}
+
+/* What someone types into the AD field, shaped as they go: digits only, with
+   the dashes put in for them, so "20261102" reads 2026-11-02. Devanagari
+   digits count too. */
+function shapeTyped(raw: string): string {
+  const digits = raw
+    .replace(/[०-९]/g, (c) => String(c.charCodeAt(0) - 0x0966))
+    .replace(/\D/g, '')
+    .slice(0, 8)
+  if (digits.length <= 4) return digits
+  if (digits.length <= 6) return `${digits.slice(0, 4)}-${digits.slice(4)}`
+  return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6)}`
 }
 
 export function DateConverter() {
@@ -50,15 +67,42 @@ export function DateConverter() {
   const weekday = bsWeekday(bs.year, bs.month, safeDay)
   const isToday = bs.year === today.year && bs.month === today.month && safeDay === today.day
 
-  const setFromAd = (value: string) => {
+  /* The AD field is text, always YYYY-MM-DD (1.9.98, owner's ask). It was an
+     <input type="date">, which draws the date in the phone's own regional
+     format, 11/02/2026 on one phone and 02/11/2026 on another, and a page
+     cannot change that. A draft holds what is being typed until it is a
+     whole, real date in the table's range; until then the field says it is
+     not one yet, and leaving it puts the last good date back. */
+  const [draft, setDraft] = useState<string | null>(null)
+  const pickerRef = useRef<HTMLInputElement>(null)
+
+  const setFromAd = (value: string): boolean => {
     const date = fromInputValue(value)
-    if (!date) return
+    if (!date) return false
     try {
       const next = adToBs(date)
-      if (next.year < BS_MIN_YEAR || next.year > BS_MAX_YEAR) return
+      if (next.year < BS_MIN_YEAR || next.year > BS_MAX_YEAR) return false
       setBs(next)
+      return true
     } catch {
       // Outside the conversion table — leave the last good value in place.
+      return false
+    }
+  }
+  const adShown = draft ?? toInputValue(ad)
+  const draftBad = draft !== null && draft.length === 10
+
+  /* The phone's own date picker is still one tap away, behind the calendar
+     button: showPicker() on a date input kept out of sight. */
+  const openPicker = () => {
+    const el = pickerRef.current
+    if (!el) return
+    tick()
+    try {
+      if (typeof el.showPicker === 'function') el.showPicker()
+      else el.click()
+    } catch {
+      el.focus()
     }
   }
 
@@ -113,15 +157,52 @@ export function DateConverter() {
 
         <div className="conv__side">
           <label className="conv__label" htmlFor="conv-ad">Gregorian (AD)</label>
-          {/* A real date input, so mobile gets the native picker and the
-              keyboard that goes with it rather than three more dropdowns. */}
-          <input
-            id="conv-ad"
-            type="date"
-            className="conv__date"
-            value={toInputValue(ad)}
-            onChange={(e) => setFromAd(e.target.value)}
-          />
+          <div className="conv__ad">
+            <input
+              id="conv-ad"
+              type="text"
+              className={`conv__date${draftBad ? ' conv__date--bad' : ''}`}
+              inputMode="numeric"
+              autoComplete="off"
+              spellCheck={false}
+              placeholder="YYYY-MM-DD"
+              maxLength={10}
+              value={adShown}
+              aria-invalid={draftBad}
+              aria-describedby="conv-ad-format"
+              onChange={(e) => {
+                const shaped = shapeTyped(e.target.value)
+                setDraft(shaped.length === 10 && setFromAd(shaped) ? null : shaped)
+              }}
+              onBlur={() => setDraft(null)}
+            />
+            <button
+              type="button"
+              className="btn btn--icon conv__pick"
+              aria-label="Pick the AD date from a calendar"
+              title="Pick from a calendar"
+              onClick={openPicker}
+            >
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <path d="M16 2v4M8 2v4M3 10h18" />
+              </svg>
+            </button>
+            <input
+              ref={pickerRef}
+              type="date"
+              className="conv__picker"
+              tabIndex={-1}
+              aria-hidden="true"
+              value={toInputValue(ad)}
+              onChange={(e) => {
+                if (setFromAd(e.target.value)) setDraft(null)
+              }}
+            />
+          </div>
+          <span className="conv__format" id="conv-ad-format">
+            {draftBad ? 'Not a valid date in this calendar’s range' : 'Year-month-day'}
+          </span>
         </div>
       </div>
 
@@ -133,7 +214,7 @@ export function DateConverter() {
             {NP_WEEKDAYS_FULL[weekday]}, {NP_MONTHS[bs.month]} {toDevanagari(safeDay)}, {toDevanagari(bs.year)}
           </p>
           <p className="conv__out-ad">
-            {ad.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            {ad.toLocaleDateString('en-GB', { weekday: 'long' })}, {toInputValue(ad)}
             <span className="conv__out-en"> · {NP_MONTHS_EN[bs.month]} {safeDay}, {bs.year} BS</span>
           </p>
         </div>
