@@ -21,7 +21,7 @@ import type { Tab } from '../components/TabSwitcher'
 export type EditorSize = 'md' | 'lg' | 'xl'
 
 /** The Tools tab's tools, in the order its switcher shows them. */
-export const TOOL_IDS = ['date', 'amount', 'currency', 'preeti', 'phrases'] as const
+export const TOOL_IDS = ['date', 'money', 'preeti', 'phrases'] as const
 export type ToolId = (typeof TOOL_IDS)[number]
 
 export interface Prefs {
@@ -43,12 +43,10 @@ export interface Prefs {
   translateReversed: boolean
   /** Which tool the Tools tab opens on — the one used last. */
   tool: ToolId
-  /** The currency tool's foreign currency, as an ISO code. Validated only as
-   *  the shape of one: the list comes from NRB, and a code it stops quoting
-   *  falls back to the first in the list at render time. */
+  /** The Money tool's last foreign currency, as an ISO code. Validated only
+   *  as the shape of one: the list comes from NRB, and a code it stops
+   *  quoting falls back to USD or the first in the list at render time. */
   currency: string
-  /** Which way the currency tool converts. */
-  currencyToNpr: boolean
   /** Draw the Android home-screen widgets in English rather than Nepali. The
    *  widgets keep their own copy (they cannot read localStorage); see
    *  syncWidgetLanguage in dynamicColor.ts. */
@@ -65,7 +63,6 @@ const DEFAULTS: Prefs = {
   translateReversed: false,
   tool: 'date',
   currency: 'USD',
-  currencyToNpr: true,
   widgetEnglish: false,
 }
 
@@ -80,9 +77,15 @@ const VALIDATORS: { [K in keyof Prefs]: (raw: unknown) => Prefs[K] | undefined }
   amoled: (raw) => (typeof raw === 'boolean' ? raw : undefined),
   translateOnDevice: (raw) => (typeof raw === 'boolean' ? raw : undefined),
   translateReversed: (raw) => (typeof raw === 'boolean' ? raw : undefined),
-  tool: (raw) => (TOOL_IDS.includes(raw as ToolId) ? (raw as ToolId) : undefined),
+  /* Amount and Currency merged into Money in 1.9.94; someone who last used
+     either still opens on it. */
+  tool: (raw) =>
+    raw === 'amount' || raw === 'currency'
+      ? 'money'
+      : TOOL_IDS.includes(raw as ToolId)
+        ? (raw as ToolId)
+        : undefined,
   currency: (raw) => (typeof raw === 'string' && /^[A-Z]{3}$/.test(raw) ? raw : undefined),
-  currencyToNpr: (raw) => (typeof raw === 'boolean' ? raw : undefined),
   widgetEnglish: (raw) => (typeof raw === 'boolean' ? raw : undefined),
 }
 

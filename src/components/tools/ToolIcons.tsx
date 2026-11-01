@@ -28,15 +28,7 @@ export function ToolIcon({ name, size = 20 }: { name: IconName; size?: number })
           <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01" />
         </svg>
       )
-    case 'amount':
-      // A receipt with lines of writing: an amount written out.
-      return (
-        <svg {...props}>
-          <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z" />
-          <path d="M14 8H8M16 12H8M13 16H8" />
-        </svg>
-      )
-    case 'currency':
+    case 'money':
       return (
         <svg {...props}>
           <circle cx="8" cy="8" r="6" />

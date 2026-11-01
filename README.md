@@ -23,8 +23,9 @@ Four tabs — **Type**, **Translate**, **Patro** and **Tools**:
   `facebook` → फेसबुक) and the way people actually text (`tapaailai` →
   तपाईंलाई, `vayo` → भयो). A searchable Devanagari cheat sheet covers the long
   tail, and tapping a cell echoes the result inside the sheet so you can see
-  the letter land without closing it. Works with mobile keyboards/IMEs
-  (Gboard-style commit flow).
+  the letter land without closing it. Paste text copied out of an old Preeti
+  document and it offers to convert it to Unicode on the spot. Works with
+  mobile keyboards/IMEs (Gboard-style commit flow).
 - **Translate** — English ↔ Nepali with a Google-style language switcher.
   Type directly or drop in a photo, PDF, DOCX, or TXT file — OCR happens
   **entirely in the browser** via
@@ -42,15 +43,15 @@ Four tabs — **Type**, **Translate**, **Patro** and **Tools**:
   line on what happens and, where it matters, a note for visitors ("offices,
   banks and many shops close from Fulpati until after Tika") — written by
   hand, see below. No ads, no account.
-- **Tools** — five small tools behind one switcher, so the tab shows the one
+- **Tools** — four small tools behind one switcher, so the tab shows the one
   you picked rather than a long scroll of all of them: a BS ↔ AD **date
-  converter**; **numbers in words** for a cheque or a price you can't read
-  (`१२,५००.५०` → बाह्र हजार पाँच सय रुपैयाँ पचास पैसा मात्र, in Nepali and
-  English, lakh/crore grouping); a **currency converter** at Nepal Rastra
-  Bank's daily rates for the 22 currencies it quotes (the buying rate into
-  rupees, the selling rate out of them, and the last rates kept for offline
-  use); **Preeti ↔ Unicode**, which also notices romanized Nepali pasted into
-  it; and an **offline phrasebook** for travellers — 43 phrases in five
+  converter**; **Money**, which writes an amount out in words for a cheque or
+  reads a price you can't (`१२,५००.५०` → बाह्र हजार पाँच सय रुपैयाँ पचास पैसा
+  मात्र, in Nepali and English, lakh/crore grouping) and converts at Nepal
+  Rastra Bank's daily rates for the 22 currencies it quotes (the buying rate
+  into rupees, the selling rate out of them, the rupee figure in words too,
+  and the last rates kept for offline use); **Preeti ↔ Unicode**, which
+  also notices romanized Nepali pasted into it; and an **offline phrasebook** for travellers — 43 phrases in five
   topics, searchable, each with its pronunciation and a full-screen Show,
   under the emergency numbers (Police 100, Tourist Police 1144, Ambulance
   102, Fire 101) as tap-to-dial links.

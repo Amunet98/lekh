@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { DICT } from './engine/dict'
-import { looksLikeRomanized, looksLikeUnicode, preetiToUnicode, unicodeToPreeti } from './preeti'
+import { looksLikePreeti, looksLikeRomanized, looksLikeUnicode, preetiToUnicode, unicodeToPreeti } from './preeti'
 
 describe('preetiToUnicode', () => {
   it('reads ¥ as the eyelash र्‍', () => {
@@ -98,5 +98,47 @@ describe('looksLikeRomanized', () => {
     expect(looksLikeRomanized('d]/f] gfd sdn xf]')).toBe(false)
     expect(looksLikeRomanized('?k}ofF')).toBe(false)
     expect(looksLikeRomanized('नेपाल')).toBe(false)
+  })
+})
+
+describe('looksLikePreeti (the Type editor paste offer)', () => {
+  it('spots pasted Preeti', () => {
+    for (const t of ['g]kfn ;/sf/ cy{ dGqfno', 'd]/f] gfd sdn xf]', 'tkfO{nfO{ s:tf] 5', 'g]kfn ;/sf/']) {
+      expect(looksLikePreeti(t), t).toBe(true)
+    }
+  })
+  it('catches most four-word dictionary runs written in Preeti', () => {
+    const words = Object.values(DICT).map(unicodeToPreeti)
+    const runs: string[] = []
+    for (let i = 0; i + 4 <= words.length; i += 4) runs.push(words.slice(i, i + 4).join(' '))
+    expect(runs.filter(looksLikePreeti).length / runs.length).toBeGreaterThan(0.97)
+  })
+  it('leaves English, romanized Nepali, addresses and Unicode alone', () => {
+    for (const t of [
+      'Meeting at 3pm, room 204 :)',
+      "don't forget it's Tuesday",
+      'Hello, how are you?',
+      'BBC CNN SMS',
+      'Shh hmm',
+      'A/C no: 1234',
+      'and/or',
+      'km/hr',
+      'price: Rs 500/-',
+      'See https://lekh-gamma.vercel.app/privacy.html',
+      'mail me at social@bimeshpoudel.com.np',
+      'C:\\Users\\name\\file.txt',
+      'mero naam kamal ho',
+      'tapailai kasto chha',
+      'नेपाल सरकार',
+    ]) {
+      expect(looksLikePreeti(t), t).toBe(false)
+    }
+  })
+  it('never flags a romanized dictionary run', () => {
+    const keys = Object.keys(DICT)
+    for (let i = 0; i + 4 <= keys.length; i += 4) {
+      const run = keys.slice(i, i + 4).join(' ')
+      expect(looksLikePreeti(run), run).toBe(false)
+    }
   })
 })

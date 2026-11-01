@@ -4,23 +4,22 @@ import { tick } from '../lib/haptics'
 import { TOOL_IDS, type ToolId } from '../lib/prefs'
 import { DateConverter } from './calendar/DateConverter'
 import type { Shown } from './translate/ShowScreen'
-import { CurrencyTool } from './tools/CurrencyTool'
-import { NumberTool } from './tools/NumberTool'
+import { MoneyTool } from './tools/MoneyTool'
 import { Phrasebook } from './tools/Phrasebook'
 import { PreetiTool } from './tools/PreetiTool'
 import { ToolIcon } from './tools/ToolIcons'
 import './ToolsPage.css'
 
 /* Small jobs that kept sending people to other websites: converting a date
- * between BS and AD, writing an amount out in words, converting money at
- * Nepal Rastra Bank's rates, moving text between Preeti and Unicode, and a
- * phrasebook for visitors.
+ * between BS and AD, writing an amount out in words and converting money at
+ * Nepal Rastra Bank's rates (one Money tool since 1.9.94, it was two), moving
+ * text between Preeti and Unicode, and a phrasebook for visitors.
  *
  * ONE TOOL AT A TIME
  *
  * They used to be stacked, card under card, which made the tab a long scroll
  * to reach the phrasebook at the bottom — and every tool you did not want sat
- * between you and the one you did. Now a switcher at the top names all five
+ * between you and the one you did. Now a switcher at the top names all four
  * and shows one. It is drawn like the dock (an --accent-bg tile on the
  * current one), because it is the same kind of control one level down.
  *
@@ -31,8 +30,7 @@ import './ToolsPage.css'
 
 const LABELS: Record<ToolId, string> = {
   date: 'Date',
-  amount: 'Amount',
-  currency: 'Currency',
+  money: 'Money',
   preeti: 'Preeti',
   phrases: 'Phrases',
 }
@@ -99,8 +97,7 @@ export function ToolsPage({ onShow }: { onShow: (shown: Shown) => void }) {
           hidden={t !== tool}
         >
           {t === 'date' && <DateConverter />}
-          {t === 'amount' && <NumberTool />}
-          {t === 'currency' && <CurrencyTool active={tool === 'currency'} />}
+          {t === 'money' && <MoneyTool active={tool === 'money'} />}
           {t === 'preeti' && <PreetiTool />}
           {t === 'phrases' && <Phrasebook onShow={onShow} />}
         </div>

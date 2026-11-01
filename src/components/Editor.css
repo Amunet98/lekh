@@ -935,3 +935,66 @@
 .count--empty {
   visibility: hidden;
 }
+
+/* Pasted Preeti: the offer to convert it, then Undo (see Editor.tsx). Floats
+   over the foot of the field, opaque, and arrives by fading and rising, so
+   nothing else on the screen moves. The same shape as Translate's direction
+   hints, in the accent because it is a suggestion, not an error. */
+.editor-preeti {
+  position: absolute;
+  left: var(--sp-2);
+  right: var(--sp-2);
+  bottom: var(--sp-2);
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2) var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: var(--radius-field);
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface-2));
+  box-shadow: var(--shadow-rest);
+  color: var(--text-h);
+  font: 0.88rem/1.45 var(--sans);
+  animation: editor-preeti-in var(--dur) var(--ease-expo) both;
+}
+@keyframes editor-preeti-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .editor-preeti {
+    animation: none;
+  }
+}
+.editor-preeti__text {
+  flex: 1 1 12rem;
+  min-width: 0;
+  margin: 0;
+}
+.editor-preeti__preview {
+  display: block;
+  margin-top: 0.1rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text);
+  font-family: var(--devanagari);
+  font-size: 0.92rem;
+}
+.editor-preeti__actions {
+  display: flex;
+  gap: var(--sp-2);
+  margin-inline-start: auto;
+}
+.editor-preeti__actions .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.editor-preeti--done {
+  padding-block: var(--sp-2);
+}

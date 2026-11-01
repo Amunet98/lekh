@@ -1,9 +1,10 @@
-import type { RefObject } from 'react'
+import { useEffect, useState, type RefObject } from 'react'
 import { flushSync } from 'react-dom'
 import type { EditorState } from '../hooks/useEditorState'
 import { SHARE_AVAILABLE } from '../lib/share'
 import { PASTE_AVAILABLE, readClipboardText } from '../lib/clipboard'
 import { tick } from '../lib/haptics'
+import { looksLikePreeti, preetiToUnicode } from '../lib/preeti'
 import { useToast } from '../hooks/useToast'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import { DOCK_QUERY } from '../hooks/useDockDetached'
@@ -104,6 +105,64 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
        the boot screen; this is the second caller of the same idea. */
     document.getElementById(EDITOR_ID)?.focus()
   }
+  /* Pasted Preeti (1.9.94). Text copied out of an old Word file or a
+     government PDF often arrives in Preeti, which is Latin gibberish here
+     (g]kfn for नेपाल), and going through handleChange a trailing space
+     would even convert its last word as if it were romanized. So a paste
+     that reads as Preeti (looksLikePreeti, which only flags it when it is
+     fairly sure) goes in untouched and the box offers, once, to convert
+     that run. Converting turns the offer into Undo for six seconds, the
+     same window Clear's Undo gets. */
+  const [preetiOffer, setPreetiOffer] = useState<{ start: number; raw: string } | null>(null)
+  const [preetiDone, setPreetiDone] = useState<{ before: string; caret: number } | null>(null)
+  /* The offer is about one run of text; once that run is no longer what is
+     in the box (typed over, cleared, undone), it goes. Adjusted during
+     render, since it only ever follows the text. */
+  if (
+    preetiOffer &&
+    editor.text.slice(preetiOffer.start, preetiOffer.start + preetiOffer.raw.length) !== preetiOffer.raw
+  ) {
+    setPreetiOffer(null)
+  }
+  useEffect(() => {
+    if (!preetiDone) return
+    const timer = setTimeout(() => setPreetiDone(null), 6000)
+    return () => clearTimeout(timer)
+  }, [preetiDone])
+
+  const insertPreeti = (el: HTMLTextAreaElement, start: number, end: number, clip: string) => {
+    const next = editor.text.slice(0, start) + clip + editor.text.slice(end)
+    el.focus()
+    flushSync(() => editor.setText(next))
+    el.setSelectionRange(start + clip.length, start + clip.length)
+    setPreetiDone(null)
+    setPreetiOffer({ start, raw: clip })
+  }
+  const convertPreeti = () => {
+    if (!preetiOffer) return
+    const before = editor.text
+    const unicode = preetiToUnicode(preetiOffer.raw)
+    const end = preetiOffer.start + preetiOffer.raw.length
+    const at = preetiOffer.start + unicode.length
+    tick()
+    flushSync(() => editor.setText(before.slice(0, preetiOffer.start) + unicode + before.slice(end)))
+    textareaRef.current?.setSelectionRange(at, at)
+    setPreetiOffer(null)
+    setPreetiDone({ before, caret: end })
+  }
+  const undoPreeti = () => {
+    if (!preetiDone) return
+    tick()
+    flushSync(() => editor.setText(preetiDone.before))
+    textareaRef.current?.setSelectionRange(preetiDone.caret, preetiDone.caret)
+    setPreetiDone(null)
+  }
+  const preetiPreview = (() => {
+    if (!preetiOffer) return ''
+    const out = preetiToUnicode(preetiOffer.raw).replace(/\s+/g, ' ').trim()
+    return out.length > 48 ? `${out.slice(0, 48).trimEnd()}…` : out
+  })()
+
   /* Paste exactly as a long-press paste would: the clipboard text replaces
      the selection and goes through handleChange, the same path the native
      paste takes, so a trailing space or full stop converts the word before
@@ -132,6 +191,10 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
       return
     }
     tick()
+    if (looksLikePreeti(clip)) {
+      insertPreeti(el, start, end, clip)
+      return
+    }
     const next = editor.text.slice(0, start) + clip + editor.text.slice(end)
     const tail = editor.text.length - end
     el.focus()
@@ -224,12 +287,52 @@ export function Editor({ editor, textareaRef, onOpenCheatSheet }: EditorProps) {
           autoCorrect="off"
           aria-label="Nepali editor — type romanized Nepali"
           value={editor.text}
-          onChange={(e) => editor.handleChange(e.target.value, e.target.selectionEnd)}
+          onChange={(e) => {
+            if (preetiDone) setPreetiDone(null)
+            editor.handleChange(e.target.value, e.target.selectionEnd)
+          }}
+          onPaste={(e) => {
+            const clip = e.clipboardData.getData('text')
+            if (!clip || !looksLikePreeti(clip)) return
+            e.preventDefault()
+            const el = e.currentTarget
+            insertPreeti(el, el.selectionStart, el.selectionEnd, clip)
+          }}
           onKeyDown={editor.handleKeyDown}
           /* Caret moves change which word is pending (and so the
              suggestions), even when no text changes. */
           onSelect={(e) => editor.handleSelect(e.currentTarget.selectionEnd)}
         />
+
+          {preetiOffer && (
+            <div className="editor-preeti" role="status">
+              <p className="editor-preeti__text">
+                This looks like Preeti text.
+                <span className="editor-preeti__preview dev" lang="ne">
+                  {preetiPreview}
+                </span>
+              </p>
+              <span className="editor-preeti__actions">
+                <button type="button" className="btn" onClick={() => setPreetiOffer(null)}>
+                  Keep as is
+                </button>
+                <button type="button" className="btn btn--primary" onClick={convertPreeti}>
+                  Convert to Unicode
+                </button>
+              </span>
+            </div>
+          )}
+          {preetiDone && !preetiOffer && (
+            <div className="editor-preeti editor-preeti--done" role="status">
+              <p className="editor-preeti__text">Converted from Preeti</p>
+              <span className="editor-preeti__actions">
+                <button type="button" className="btn" onClick={undoPreeti}>
+                  <SheetIcon name="undo" size={16} />
+                  Undo
+                </button>
+              </span>
+            </div>
+          )}
 
           {/* The empty state, inside the writing surface rather than under it:
               the mark, what the screen is, and the one-line legend, centred in

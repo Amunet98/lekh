@@ -336,3 +336,45 @@ export function looksLikeRomanized(text: string): boolean {
   const vowels = text.match(/[aeiou]/g)?.length ?? 0
   return vowels / letters.length >= 0.25
 }
+
+/* A pasted word that is an address, not language: a URL, a domain, an email,
+   a Windows path. Their slashes, colons and dots are Preeti signs by
+   accident. */
+const NOT_WORDS = /^(?:https?:|www\.)|@|\.(?:com|org|net|np|io|dev|app)\b|^[a-zA-Z]:\\/i
+/* English contractions: Preeti uses ' for ु, so "don't" would otherwise
+   carry a Preeti sign. */
+const CONTRACTION = /([a-zA-Z])'(t|s|re|ll|ve|d|m)\b/g
+const SIGN_HITS = new RegExp(`${PREETI_SIGNS.source}|[a-zA-Z]\\d|\\d[a-zA-Z]`, 'g')
+
+/** Pasted Latin text that is Preeti, for the Type editor's offer to convert
+ *  it (1.9.94). Stricter than "not romanized", because a wrong guess here
+ *  interrupts someone with a banner, where a missed one costs nothing (the
+ *  Preeti tool is still in Tools). A word reads as Preeti if it carries one
+ *  of its signs, a digit inside the word (5 is छ, 7 is ट), or no vowel at
+ *  all while not being an all-caps abbreviation (Preeti spells हाल as xfn).
+ *  Half the words must, and a paste of one or two words needs two signs.
+ *  Measured 2026-11-02: 98.6% of four-word dictionary runs and phrasebook
+ *  lines caught, no romanized run or English sentence flagged; single words
+ *  are caught about a third of the time, which is the safe side to miss on.
+ *  Cases in preeti.test.ts. */
+export function looksLikePreeti(text: string): boolean {
+  if (looksLikeUnicode(text)) return false
+  const words = text
+    .replace(CONTRACTION, '$1$2')
+    .split(/\s+/)
+    .filter((w) => /[a-zA-Z]/.test(w) && !NOT_WORDS.test(w))
+  if (words.length === 0) return false
+  const joined = words.join(' ')
+  if (joined.replace(/[^a-zA-Z]/g, '').length < 3) return false
+  const preetiWord = (w: string) => {
+    const l = w.replace(/[^a-zA-Z]/g, '')
+    return (
+      PREETI_SIGNS.test(w) ||
+      /[a-zA-Z]\d|\d[a-zA-Z]/.test(w) ||
+      (l.length >= 2 && l !== l.toUpperCase() && !/[aeiouy]/i.test(l))
+    )
+  }
+  if (words.filter(preetiWord).length / words.length < 0.5) return false
+  if (words.length < 3 && (joined.match(SIGN_HITS)?.length ?? 0) < 2) return false
+  return true
+}
