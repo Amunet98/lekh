@@ -76,6 +76,12 @@ export function TranslatePage({ t, onShow }: TranslatePageProps) {
   const upload = useUploadState(t, fileInputRef)
   const online = useOnline()
   const isEmpty = t.sourceText.length === 0
+  /* Option B of the 2026-11-02 distill (1.9.91): while the box is empty its
+     foot is three labelled tiles, the ways in; once there is text they go and
+     the answer appears. The answer pane is not drawn over an empty box at all,
+     so the first screen is one box and its tools. */
+  const showTiles = isEmpty && !upload.currentFile && upload.readStatus !== 'reading'
+  const showAnswer = !isEmpty || t.translated !== '' || t.status === 'loading'
   const toast = useToast()
 
   /* Paste into the source box, at the caret, as a long-press paste would —
@@ -185,9 +191,9 @@ export function TranslatePage({ t, onShow }: TranslatePageProps) {
         </div>
       )}
 
-      <div className="translate-panes">
+      <div className={`translate-panes${showAnswer ? '' : ' translate-panes--single'}`}>
         <div
-          className={`translate-pane translate-pane--source${upload.dragging ? ' translate-pane--dragging' : ''}${
+          className={`translate-pane translate-pane--source${showAnswer ? '' : ' translate-pane--alone'}${upload.dragging ? ' translate-pane--dragging' : ''}${
             upload.readStatus === 'reading' ? ' translate-pane--reading' : ''
           }`}
           onDragEnter={upload.onDragEnter}
@@ -298,9 +304,9 @@ export function TranslatePage({ t, onShow }: TranslatePageProps) {
               onChange={(e) => t.setSourceText(e.target.value)}
               onPaste={upload.handlePaste}
             />
-            {/* The direction suggestions float over the foot of the box
-                rather than standing between the two panes, where they pushed
-                the answer down the screen mid-read. */}
+            {/* The direction suggestions, under the text inside the box (see
+                .hint-banner--float in TranslatePage.css for why they no
+                longer float over it). */}
             {romanNepali && !romanDismissed && (
               <div className="hint-banner hint-banner--float" role="status">
                 <span>This looks like Nepali typed in English letters.</span>
@@ -347,78 +353,79 @@ export function TranslatePage({ t, onShow }: TranslatePageProps) {
                   </p>
                 </div>
               )}
-            <div className="translate-tools">
-              {/* Paste at the caret, as a long-press paste would. Hidden while
-                  a file is loaded: the box then holds the file's text, and the
-                  chip above owns it. */}
-              {PASTE_AVAILABLE && !upload.currentFile && (
+            {/* For six seconds after a clear the box offers it back, as the
+                editor does. It sits above the tiles here, since the cleared
+                box is showing them. */}
+            {!upload.currentFile && t.lastClearedSource !== null && (
+              <div className="translate-tools translate-tools--undo">
                 <button
                   type="button"
-                  className="translate-tool"
-                  title="Paste"
-                  aria-label="Paste"
-                  onClick={() => void pasteSource()}
+                  className="btn pane-clear-btn"
+                  aria-label="Undo clear"
+                  onClick={t.undoClearSource}
                 >
-                  <SheetIcon name="paste" size={20} />
+                  <SheetIcon name="undo" size={16} />
+                  <ClearLabel shown="Undo" />
                 </button>
-              )}
-              {/* A second, capture-mode input rather than a separate "camera"
-                  feature: most phones offer the camera inside the file picker
-                  already, this skips that tap. Touch devices only (see
-                  .translate-tool--scan): a desktop browser ignores `capture`
-                  and it would be a second Upload. */}
-              <button
-                type="button"
-                className="translate-tool translate-tool--scan"
-                title="Scan a page with the camera"
-                aria-label="Scan a page with the camera"
-                onClick={() => cameraInputRef.current?.click()}
-              >
-                <CameraIcon size={20} />
-              </button>
-              <button
-                type="button"
-                className="translate-tool"
-                title="Upload a photo or document"
-                aria-label="Upload a photo or document"
-                onClick={upload.openFilePicker}
-              >
-                <SectionIcon name="upload" size={20} />
-              </button>
-              {/* Clear only once there is something to clear: a greyed-out
-                  Clear over an empty box was one more control that could do
-                  nothing. For six seconds after a clear the same place offers
-                  it back, as the editor does. Hidden while a file is loaded,
-                  since the chip's Remove is the same action. */}
-              {!upload.currentFile &&
-                (t.lastClearedSource !== null ? (
-                  <button
-                    type="button"
-                    className="btn pane-clear-btn"
-                    aria-label="Undo clear"
-                    onClick={t.undoClearSource}
-                  >
-                    <SheetIcon name="undo" size={16} />
-                    <ClearLabel shown="Undo" />
+              </div>
+            )}
+            {showTiles ? (
+              <div className="translate-tiles">
+                {/* Paste at the caret, as a long-press paste would. */}
+                {PASTE_AVAILABLE && (
+                  <button type="button" className="translate-tile" onClick={() => void pasteSource()}>
+                    <SheetIcon name="paste" size={20} />
+                    Paste
                   </button>
-                ) : (
-                  !isEmpty && (
-                    <button type="button" className="btn pane-clear-btn" onClick={upload.clearUpload}>
-                      <SheetIcon name="trash" size={16} />
-                      <ClearLabel shown="Clear" />
-                    </button>
-                  )
-                ))}
-            </div>
+                )}
+                {/* A second, capture-mode input: most phones offer the camera
+                    inside the file picker already, this skips that tap. Touch
+                    devices only (see .translate-tile--scan): a desktop browser
+                    ignores `capture` and it would be a second Upload. */}
+                <button
+                  type="button"
+                  className="translate-tile translate-tile--scan"
+                  aria-label="Scan a page with the camera"
+                  onClick={() => cameraInputRef.current?.click()}
+                >
+                  <CameraIcon size={20} />
+                  <span aria-hidden="true">Scan</span>
+                </button>
+                <button
+                  type="button"
+                  className="translate-tile"
+                  aria-label="Upload a photo or document"
+                  onClick={upload.openFilePicker}
+                >
+                  <SectionIcon name="upload" size={20} />
+                  <span aria-hidden="true">Upload</span>
+                </button>
+              </div>
+            ) : (
+              /* With text in the box, only Clear: replacing it with a paste or
+                 a scan is Clear first (or a long-press paste). Hidden while a
+                 file is loaded, since the chip's Remove is the same action. */
+              !isEmpty &&
+              !upload.currentFile && (
+                <div className="translate-tools">
+                  <button type="button" className="btn pane-clear-btn" onClick={upload.clearUpload}>
+                    <SheetIcon name="trash" size={16} />
+                    <ClearLabel shown="Clear" />
+                  </button>
+                </div>
+              )
+            )}
           </div>
         </div>
-        <TranslateRun t={t} />
+        {showAnswer && <TranslateRun t={t} />}
         {/* The answer on its own ground, with what you can do with it inside
             the same box. No visible name: the language row says it. */}
-        <div className="translate-pane translate-pane--target">
-          <span className="sr-only">{`${t.targetLang.label} translation`}</span>
-          <TranslationOutput t={t} onShow={onShow} />
-        </div>
+        {showAnswer && (
+          <div className="translate-pane translate-pane--target reveal">
+            <span className="sr-only">{`${t.targetLang.label} translation`}</span>
+            <TranslationOutput t={t} onShow={onShow} />
+          </div>
+        )}
       </div>
     </section>
   )

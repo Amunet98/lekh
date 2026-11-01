@@ -45,9 +45,22 @@
     flex: 1 1 auto;
     gap: 0;
   }
-  .translate-pane--source,
+  /* Alone, the source box fills the screen with its tiles at the foot; with
+     an answer it keeps its natural height and the answer takes the rest, so
+     the thing you came for gets the room. */
+  .translate-pane--alone {
+    flex: 1 1 auto;
+  }
   .translate-pane--target {
-    flex: 1 1 0;
+    flex: 1 1 auto;
+  }
+  /* With an answer below it, the box grows with what is typed instead of
+     holding six rows open: a short phrase leaves the answer most of the
+     screen, a long paste scrolls inside the box past 40% of it. */
+  .translate-pane--source:not(.translate-pane--alone) .translate-input {
+    field-sizing: content;
+    min-height: 6rem;
+    max-height: 40dvh;
   }
   /* Edge to edge (App.css), so the source box bottom hairline is the line
      between the two halves; a second one on top of the answer would stack
@@ -67,64 +80,77 @@
   gap: var(--sp-1);
 }
 
-/* The tools along the foot of the source box: Paste, Scan, Upload as quiet
-   icons on the left, Clear (or Undo) on the right once there is text.
+/* The foot of the source box.
  *
- * They were four labelled pills in a header row above the box (2026-11-01).
- * Owner chose option A of the 2026-11-02 distill: the same layout with half
- * the chrome, accepting icon-only tools. Each still has an accessible name
- * and a title. In flow, not floated over the text, so a long paste can
- * never run underneath them. */
+ * Empty: three labelled tiles, Paste · Scan · Upload, which are the ways in
+ * and also the whole of the hint about them. With text: only Clear, at the
+ * trailing edge. Option B of the 2026-11-02 distill (1.9.91), chosen by the
+ * owner over A's icon-only row, which went live for an hour as 1.9.90.
+ * They were four labelled pills in a header row above the box before that
+ * (2026-11-01). In flow, not floated over the text, so a long paste never
+ * runs underneath them. */
 .translate-tools {
   display: flex;
   align-items: center;
-  gap: var(--sp-1);
+  justify-content: flex-end;
   padding: 0 var(--sp-2) var(--sp-2);
 }
-.translate-tool {
+.translate-tiles {
+  display: flex;
+  gap: var(--sp-2);
+  padding: 0 var(--sp-3) var(--sp-3);
+}
+.translate-tile {
   position: relative;
+  flex: 1 1 0;
+  max-width: 12rem;
+  min-width: 0;
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  flex: none;
-  padding: 0;
+  gap: 0.35rem;
+  min-height: 4.5rem;
+  padding: var(--sp-2);
   border: 0;
-  border-radius: var(--radius-pill);
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease),
-    transform var(--dur-fast) var(--ease-expo);
-}
-@media (hover: hover) {
-  .translate-tool:hover {
-    background: var(--surface-2);
-    color: var(--text-h);
-  }
-}
-.translate-tool:active {
+  border-radius: var(--radius-field);
   background: var(--surface-2);
   color: var(--text-h);
-  transform: scale(0.94);
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease-expo);
 }
-.translate-tool:focus-visible {
+.translate-tile svg {
+  color: var(--accent-text);
+}
+@media (hover: hover) {
+  .translate-tile:hover {
+    background: color-mix(in srgb, var(--text) 8%, var(--surface-2));
+  }
+}
+.translate-tile:active {
+  background: color-mix(in srgb, var(--text) 8%, var(--surface-2));
+  transform: scale(0.97);
+}
+.translate-tile:focus-visible {
   outline: 2px solid var(--accent);
-  outline-offset: 0;
-  color: var(--text-h);
+  outline-offset: 2px;
 }
 /* Scan: touch devices only. A desktop browser ignores `capture`, so there it
    opened the same file picker as Upload beside it. */
-.translate-tool--scan {
+.translate-tile--scan {
   display: none;
 }
 @media (pointer: coarse) {
-  .translate-tool--scan {
+  .translate-tile--scan {
     display: inline-flex;
   }
 }
+/* Larger text at 320px: three tiles still fit (~85px each), the words are
+   short; the icon and word stay stacked so no label is cut. */
 
 /* Clear and Undo: icon and word, like the Type editor's Clear, but without
    the pill's fill and edge, so it reads as part of the box. Both words sit in
@@ -134,7 +160,6 @@
   display: inline-flex;
   align-items: center;
   column-gap: 0.35rem;
-  margin-inline-start: auto;
   min-height: 2.75rem;
   padding-inline: 0.7rem;
   border-color: transparent;
@@ -327,8 +352,12 @@
   color: var(--text-h);
 }
 
-/* The direction suggestions float over the foot of the text, above the tool
-   row rather than over it, so Clear stays reachable while one is showing. */
+/* The direction suggestions, in the box's flow under the text since 1.9.91.
+   They used to float over the foot of a six-row box; the box now grows with
+   what is typed, so a floating banner covered the very phrase it was about.
+   In flow it pushes the answer down by its own height, but the answer pane
+   fills to the dock, so what moves is its empty lower half. */
 .translate-input-wrap > .hint-banner--float {
-  bottom: calc(2.75rem + var(--sp-2) + var(--sp-1));
+  position: static;
+  margin: 0 var(--sp-2) var(--sp-2);
 }
