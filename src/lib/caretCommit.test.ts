@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { commitAt, insertAt, pendingAt, revertAt } from './caretCommit'
+import { commitAt, insertAt, pendingAt, revertAt, revertFrom, type Conversion } from './caretCommit'
 import { convert } from './engine'
 
 describe('pendingAt', () => {
@@ -105,5 +105,34 @@ describe('revertAt', () => {
     const typed = commitAt('नमस्ते', 6, ' ')
     expect(typed.converted).toBeNull()
     expect(revertAt('नमस्ते', 6, typed.converted)).toBeNull()
+  })
+})
+
+describe('revertFrom (every word, not just the last)', () => {
+  it('gives back mero after naam, backspacing through मेरो नाम', () => {
+    const history: Conversion[] = []
+    const one = commitAt('mero', 4, ' ')
+    history.push(one.converted!)
+    const two = commitAt(one.text + 'naam', one.text.length + 4, ' ')
+    history.push(two.converted!)
+    expect(two.text).toBe('मेरो नाम ')
+
+    // ⌫ the space, then ⌫ again: नाम gives back naam
+    let text = two.text.slice(0, -1)
+    let found = revertFrom(text, text.length, history)!
+    expect(found.edit.text).toBe('मेरो naam')
+    history.splice(found.index, 1)
+
+    // ⌫ ×4 deletes naam, ⌫ the space, then ⌫: मेरो gives back mero
+    text = 'मेरो'
+    found = revertFrom(text, text.length, history)!
+    expect(found.edit).toEqual({ text: 'mero', caret: 4 })
+    history.splice(found.index, 1)
+    expect(history).toHaveLength(0)
+  })
+
+  it('skips a word that has since changed', () => {
+    const one = commitAt('mero', 4, ' ')
+    expect(revertFrom('मेर', 3, [one.converted!])).toBeNull()
   })
 })

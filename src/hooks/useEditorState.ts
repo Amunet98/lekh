@@ -5,7 +5,7 @@ import { confirm, tick } from '../lib/haptics'
 import { getPref } from '../lib/prefs'
 import { useUndoableClear } from './useUndoableClear'
 import { shareText } from '../lib/share'
-import { commitAt, insertAt, pendingAt, revertAt, type Conversion, type Edit } from '../lib/caretCommit'
+import { commitAt, insertAt, pendingAt, revertFrom, type Conversion, type Edit } from '../lib/caretCommit'
 
 const TEXT_KEY = 'lekh:editor-text'
 
@@ -48,9 +48,11 @@ export function useEditorState(textareaRef?: RefObject<HTMLTextAreaElement | nul
      every programmatic edit would otherwise throw someone typing in the
      middle of a paragraph to the bottom of it. */
   const caretAfterRender = useRef<number | null>(null)
-  /* The last word that converted, for backspace-gives-the-letters-back. A
-     ref, not state: nothing renders from it. */
-  const lastConversion = useRef<Conversion | null>(null)
+  /* The words that converted, newest last, for backspace-gives-the-letters-
+     back: every word, not only the last (see revertFrom). Capped, since only
+     the recent ones can still match the text. A ref, not state: nothing
+     renders from it. */
+  const conversions = useRef<Conversion[]>([])
   /* A revert the browser would not let beforeinput cancel. Android keyboards
      send non-cancelable deletes, so the delete lands anyway and the change
      that follows is swapped for the revert instead. */
@@ -87,7 +89,10 @@ export function useEditorState(textareaRef?: RefObject<HTMLTextAreaElement | nul
 
   const commit = useCallback(
     (edit: ReturnType<typeof commitAt>) => {
-      lastConversion.current = edit.converted
+      if (edit.converted) {
+        conversions.current.push(edit.converted)
+        if (conversions.current.length > 64) conversions.current.shift()
+      }
       apply(edit)
     },
     [apply],
@@ -99,9 +104,10 @@ export function useEditorState(textareaRef?: RefObject<HTMLTextAreaElement | nul
     const onBeforeInput = (e: InputEvent) => {
       revertOnChange.current = null
       if (e.inputType !== 'deleteContentBackward' || el.selectionStart !== el.selectionEnd) return
-      const revert = revertAt(el.value, el.selectionEnd, lastConversion.current)
-      if (!revert) return
-      lastConversion.current = null
+      const found = revertFrom(el.value, el.selectionEnd, conversions.current)
+      if (!found) return
+      conversions.current.splice(found.index, 1)
+      const revert = found.edit
       if (e.cancelable) {
         e.preventDefault()
         apply(revert)
@@ -213,7 +219,7 @@ export function useEditorState(textareaRef?: RefObject<HTMLTextAreaElement | nul
 
   const clear = useCallback(() => {
     undoable.remember(text)
-    lastConversion.current = null
+    conversions.current = []
     setCaret(0)
     setText('')
   }, [text, undoable])

@@ -74,6 +74,27 @@ export function revertAt(text: string, caret: number, last: Conversion | null): 
   return { text: text.slice(0, from) + last.latin + text.slice(last.end), caret: from + last.latin.length }
 }
 
+/**
+ * revertAt against every word converted this session, newest first, so the
+ * letters come back for each word in turn and not just the last one. Typing
+ * मेरो नाम and backspacing used to give back `naam` and then delete मेरो one
+ * mark at a time (owner report, 2026-11-02). Each entry still has to match the
+ * text where it says it ends, so a word that has since been edited, or moved
+ * by an edit before it, simply stops offering its letters. Returns the edit
+ * and which entry it used, so the caller can drop it.
+ */
+export function revertFrom(
+  text: string,
+  caret: number,
+  history: readonly Conversion[],
+): { edit: Edit; index: number } | null {
+  for (let i = history.length - 1; i >= 0; i--) {
+    const edit = revertAt(text, caret, history[i])
+    if (edit) return { edit, index: i }
+  }
+  return null
+}
+
 /** Inserts `s` at the caret with no conversion. */
 export function insertAt(text: string, caret: number, s: string): Edit {
   return { text: text.slice(0, caret) + s + text.slice(caret), caret: caret + s.length }
