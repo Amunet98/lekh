@@ -32,7 +32,9 @@ Four tabs — **Type**, **Translate**, **Patro** and **Tools**:
   Type directly or drop in a photo, PDF, DOCX, or TXT file — OCR happens
   **entirely in the browser** via
   [Tesseract.js](https://github.com/naptha/tesseract.js), and nothing is
-  uploaded to any server. Online translation by default, plus an optional
+  uploaded to any server. Online translation by default (Google's free
+  endpoint first; when it refuses, Lekh's own `/api/translate` function
+  translates through Vercel AI Gateway, then MyMemory), plus an optional
   **fully on-device** NLLB-200 model
   ([Transformers.js](https://github.com/huggingface/transformers.js)) —
   private and offline-capable once cached (large download, fetched in

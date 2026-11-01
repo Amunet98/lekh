@@ -1,5 +1,6 @@
 import type { TranslationProvider } from './provider'
 import { googleProvider } from './googleProvider'
+import { lekhProvider } from './lekhProvider'
 import { myMemoryProvider } from './myMemoryProvider'
 import { phrasebookMatch } from './phrasebookMatch'
 
@@ -31,8 +32,16 @@ export const onlineProvider: TranslationProvider = {
     // The hand-checked phrasebook first, for exactly the phrases it holds.
     const fromPhrasebook = phrasebookMatch(text, source.code === 'ne' ? 'ne' : 'en')
     if (fromPhrasebook) return fromPhrasebook
+    /* Google first: fast and free. Then Lekh's own server (api/translate.ts,
+       1.9.101), which does not share Google's habit of blocking a whole
+       network. MyMemory last, with the script check below. */
     try {
       return await googleProvider.translate(text, source, target, options)
+    } catch {
+      // fall through to Lekh's server
+    }
+    try {
+      return await lekhProvider.translate(text, source, target, options)
     } catch {
       const result = await myMemoryProvider.translate(text, source, target, options)
       // MyMemory can return HTTP 200 with an empty translation (bad memory

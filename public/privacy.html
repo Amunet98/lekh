@@ -136,7 +136,7 @@
     <main>
       <a class="back" href="/" id="back">&larr; Lekh Patro</a>
       <h1>Privacy</h1>
-      <p class="updated">Lekh Patro · last updated 27 October 2026</p>
+      <p class="updated">Lekh Patro · last updated 2 November 2026</p>
 
       <p class="lede">
         Lekh Patro has no accounts, no analytics, no advertising and no tracking of any kind. It
@@ -174,10 +174,17 @@
         <h3>1. Online translation — this one includes your text</h3>
         <p>
           If you use the Translate tab with the online engine, the text you are translating is sent
-          to a third-party translation service to be translated. Their handling of it is governed by
-          their policies, not this one.
+          to a third-party translation service to be translated. Lekh Patro asks Google Translate
+          first. If Google does not answer, the text goes to Lekh Patro's own server, which passes
+          it to an AI model (Google Gemini, through Vercel's AI Gateway) to translate and keeps no
+          copy of it; the models used are ones whose providers do not train on requests. If that
+          fails too, it goes to MyMemory. Each service's handling of the text is governed by its
+          own policies, not this one.
         </p>
-        <p class="host">translate.googleapis.com · api.mymemory.translated.net</p>
+        <p class="host">
+          translate.googleapis.com · lekh-gamma.vercel.app → Vercel AI Gateway → Google Gemini ·
+          api.mymemory.translated.net
+        </p>
         <p>
           This is the only feature that transmits anything you have written. Choosing the on-device
           engine avoids it entirely.

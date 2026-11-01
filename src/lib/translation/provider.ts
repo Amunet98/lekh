@@ -17,7 +17,7 @@ export interface TranslateOptions {
 // branches on which implementation is active (online vs on-device) except
 // for user-facing copy/messaging.
 export interface TranslationProvider {
-  readonly id: 'google' | 'mymemory' | 'online' | 'ondevice'
+  readonly id: 'google' | 'lekh' | 'mymemory' | 'online' | 'ondevice'
   translate(
     text: string,
     source: Language,

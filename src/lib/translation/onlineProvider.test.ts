@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { ENGLISH, NEPALI } from './languages'
 import { googleProvider } from './googleProvider'
+import { lekhProvider } from './lekhProvider'
 import { myMemoryProvider } from './myMemoryProvider'
 import { inTargetScript, onlineProvider } from './onlineProvider'
 import { phrasebookMatch } from './phrasebookMatch'
@@ -41,14 +42,31 @@ describe('inTargetScript', () => {
 })
 
 describe('onlineProvider', () => {
+  it('asks Lekh\'s server when Google refuses, before MyMemory', async () => {
+    vi.spyOn(googleProvider, 'translate').mockRejectedValue(new Error('429'))
+    vi.spyOn(lekhProvider, 'translate').mockResolvedValue('मेरो')
+    const mymemory = vi.spyOn(myMemoryProvider, 'translate')
+    await expect(onlineProvider.translate('my', ENGLISH, NEPALI)).resolves.toBe('मेरो')
+    expect(mymemory).not.toHaveBeenCalled()
+  })
+
+  it('does not ask Lekh\'s server when Google answers', async () => {
+    vi.spyOn(googleProvider, 'translate').mockResolvedValue('मेरो')
+    const lekh = vi.spyOn(lekhProvider, 'translate')
+    await expect(onlineProvider.translate('my', ENGLISH, NEPALI)).resolves.toBe('मेरो')
+    expect(lekh).not.toHaveBeenCalled()
+  })
+
   it('refuses a fallback answer that is not in the target script', async () => {
     vi.spyOn(googleProvider, 'translate').mockRejectedValue(new Error('rate limited'))
+    vi.spyOn(lekhProvider, 'translate').mockRejectedValue(new Error('502'))
     vi.spyOn(myMemoryProvider, 'translate').mockResolvedValue('Good morning')
     await expect(onlineProvider.translate('Good morning', ENGLISH, NEPALI)).rejects.toThrow(/untranslated/)
   })
 
   it('takes a good fallback answer', async () => {
     vi.spyOn(googleProvider, 'translate').mockRejectedValue(new Error('rate limited'))
+    vi.spyOn(lekhProvider, 'translate').mockRejectedValue(new Error('502'))
     vi.spyOn(myMemoryProvider, 'translate').mockResolvedValue('शुभ रात्री')
     await expect(onlineProvider.translate('Good night', ENGLISH, NEPALI)).resolves.toBe('शुभ रात्री')
   })
