@@ -89,6 +89,6 @@ export async function POST(request: Request): Promise<Response> {
     /* The error's class name only (e.g. GatewayAuthenticationError), so a
        failure can be told apart from outside without the logs: never its
        message, which can echo request details. */
-    return reply({ error: 'unavailable', reason: error instanceof Error ? error.name : 'unknown', TEMP_DEBUG: error instanceof Error ? error.message.slice(0, 400) : '' }, 502)
+    return reply({ error: 'unavailable', reason: error instanceof Error ? error.name : 'unknown' }, 502)
   }
 }
