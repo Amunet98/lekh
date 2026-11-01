@@ -176,13 +176,12 @@
           If you use the Translate tab with the online engine, the text you are translating is sent
           to a third-party translation service to be translated. Lekh Patro asks Google Translate
           first. If Google does not answer, the text goes to Lekh Patro's own server, which passes
-          it to an AI model (Google Gemini, through Vercel's AI Gateway) to translate and keeps no
-          copy of it; the models used are ones whose providers do not train on requests. If that
-          fails too, it goes to MyMemory. Each service's handling of the text is governed by its
+          it to an open AI model running on Groq to translate and keeps no copy of it; Groq does
+          not use requests to train models. If that fails too, it goes to MyMemory. Each service's handling of the text is governed by its
           own policies, not this one.
         </p>
         <p class="host">
-          translate.googleapis.com · lekh-gamma.vercel.app → Vercel AI Gateway → Google Gemini ·
+          translate.googleapis.com · lekh-gamma.vercel.app → api.groq.com ·
           api.mymemory.translated.net
         </p>
         <p>
