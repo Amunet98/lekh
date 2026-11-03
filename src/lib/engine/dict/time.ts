@@ -28,7 +28,7 @@ export const TIME: Record<string, string> = {
   mangalbar: 'मङ्गलबार',
   budhabar: 'बुधबार',
   budhbar: 'बुधबार',
-  bihibar: 'बिहिबार',
+  bihibar: 'बिहीबार',
   sukrabar: 'शुक्रबार',
   shukrabar: 'शुक्रबार',
   sanibar: 'शनिबार',
