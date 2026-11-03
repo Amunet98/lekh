@@ -101,7 +101,7 @@
             android:maxLines="1" android:textColor="@color/widget_week_label" android:text="बुध" />
         <TextView android:id="@+id/widget_m_h4" android:layout_width="0dp" android:layout_weight="1"
             android:layout_height="wrap_content" android:gravity="center" android:textSize="11sp"
-            android:maxLines="1" android:textColor="@color/widget_week_label" android:text="बिहि" />
+            android:maxLines="1" android:textColor="@color/widget_week_label" android:text="बिही" />
         <TextView android:id="@+id/widget_m_h5" android:layout_width="0dp" android:layout_weight="1"
             android:layout_height="wrap_content" android:gravity="center" android:textSize="11sp"
             android:maxLines="1" android:textColor="@color/widget_week_label" android:text="शुक्र" />

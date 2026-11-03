@@ -1,6 +1,7 @@
 import raw from '../../data/calendar/panchang.json'
 import { bsWeekday, daysInBsMonth, isWeeklyOff } from './nepaliDate'
 import { correctedFestivals, monthCells } from './upstream'
+import { fixFestivalText, fixTithi } from './spelling.ts'
 
 /* Festivals, public holidays and tithi.
  *
@@ -306,10 +307,10 @@ export async function fetchLiveMonth(year: number, month: number): Promise<RawMo
     const t: string[] = []
     days.forEach((cell, i) => {
       const day = i + 1
-      const festival = correctedFestivals(year, month + 1, day, (cell.f || '').trim())
+      const festival = fixFestivalText(correctedFestivals(year, month + 1, day, (cell.f || '').trim()))
       if (festival) f[String(day)] = festival
       if (cell.h === true) h.push(day)
-      t.push((cell.t || '').trim())
+      t.push(fixTithi(cell.t || ''))
     })
 
     /* A month with no festival names at all means the source has published

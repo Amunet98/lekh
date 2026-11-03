@@ -39,6 +39,7 @@ import { dateConfigMap } from 'nepali-date-converter'
 /* Node strips the TypeScript types itself (22.18+/23.6+), so the day ordering
    and the corrections are the very code fetchLiveMonth runs. */
 import { CORRECTIONS, correctedFestivals, monthCells } from '../src/lib/calendar/upstream.ts'
+import { fixFestivalText, fixTithi } from '../src/lib/calendar/spelling.ts'
 import { checkMonthTithis } from './lib/tithi-check.mjs'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
@@ -128,8 +129,10 @@ for (let year = FROM; year <= TO; year++) {
     days.forEach((cell, i) => {
       const day = i + 1
       const upstream = (cell.f || '').trim()
-      const f = correctedFestivals(year, month, day, upstream)
-      if (f !== upstream) applied.add(`${year}-${month}-${day}`)
+      const corrected = correctedFestivals(year, month, day, upstream)
+      if (corrected !== upstream) applied.add(`${year}-${month}-${day}`)
+      // Spelling last: CORRECTIONS match upstream's own text (spelling.ts).
+      const f = fixFestivalText(corrected)
       if (f) {
         festivals[day] = f
         festivalCount++
@@ -142,7 +145,7 @@ for (let year = FROM; year <= TO; year++) {
         holidays.push(day)
         holidayCount++
       }
-      tithis.push((cell.t || '').trim())
+      tithis.push(fixTithi(cell.t || ''))
     })
 
     /* The independent check: do the days line up with the sunrise tithis an

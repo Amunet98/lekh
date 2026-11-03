@@ -28,9 +28,9 @@ export const NP_MONTHS_EN = [
 /* The Nepali week starts on Sunday, and Saturday — not Sunday — is the weekly
    day off. That is why शनि is styled like a holiday in the grid and आइत is
    not; getting it the Western way round would be wrong on every single row. */
-export const NP_WEEKDAYS_SHORT = ['आइत', 'सोम', 'मङ्गल', 'बुध', 'बिहि', 'शुक्र', 'शनि'] as const
+export const NP_WEEKDAYS_SHORT = ['आइत', 'सोम', 'मङ्गल', 'बुध', 'बिही', 'शुक्र', 'शनि'] as const
 export const NP_WEEKDAYS_FULL = [
-  'आइतबार', 'सोमबार', 'मङ्गलबार', 'बुधबार', 'बिहिबार', 'शुक्रबार', 'शनिबार',
+  'आइतबार', 'सोमबार', 'मङ्गलबार', 'बुधबार', 'बिहीबार', 'शुक्रबार', 'शनिबार',
 ] as const
 export const SUNDAY = 0
 export const SATURDAY = 6

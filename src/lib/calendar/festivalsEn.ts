@@ -33,6 +33,10 @@
  * the wrong evening. It has its own entry, and the almanac's missing ones
  * are supplied in upstream.ts. */
 
+// With the extension: scripts/export-android-assets.mjs runs this file in
+// plain Node, which resolves no extensionless relative imports.
+import { fixFestivalText } from './spelling.ts'
+
 export interface FestivalInfo {
   /** The name in the English people use for it. */
   en: string
@@ -89,7 +93,7 @@ const ENTRIES: [string[], FestivalInfo][] = [
   }],
 
   // ---------- Tihar ----------
-  [['धन्तेरस', 'धनत्रयोदशी'], {
+  [['धनतेरस', 'धनत्रयोदशी'], {
     en: 'Dhanteras',
     about: 'A lucky day to buy gold, silver or new kitchen utensils, just before Tihar.',
   }],
@@ -265,12 +269,12 @@ const ENTRIES: [string[], FestivalInfo][] = [
     en: 'Ram Navami',
     about: 'Birth of Lord Ram, celebrated above all in Janakpur.',
   }],
-  [['वसन्तश्रवण श्रीपञ्यमी सरस्वती पूजा'], {
+  [['वसन्त श्रवण श्रीपञ्चमी सरस्वती पूजा'], {
     en: 'Basanta Panchami — Saraswati Puja',
     about: 'Day of Saraswati, goddess of learning; small children write their first letters.',
     note: 'Holiday for schools and colleges.',
   }],
-  [['गुरूनानक जयन्ती'], {
+  [['गुरु नानक जयन्ती'], {
     en: 'Guru Nanak Jayanti',
     about: 'Birth of Guru Nanak, founder of Sikhism.',
     note: 'Holiday for Sikhs.',
@@ -349,10 +353,12 @@ const ENTRIES: [string[], FestivalInfo][] = [
 const BY_NAME = new Map<string, FestivalInfo>()
 for (const [names, info] of ENTRIES) for (const name of names) BY_NAME.set(normalize(name), info)
 
-/* The almanac's spacing drifts — "काय  अष्टमी" with two spaces next to
-   "काय अष्टमी" — so lookups collapse runs of whitespace on both sides. */
+/* Keys and lookups both go through the almanac's spelling fixes
+   (spelling.ts), so a key written in upstream's old spelling ("धन्तेरस")
+   still finds today's data ("धनतेरस"), and the other way round. That also
+   collapses the spacing drift ("काय  अष्टमी"). */
 function normalize(name: string): string {
-  return name.replace(/\s+/g, ' ').trim()
+  return fixFestivalText(name)
 }
 
 /** The English for one festival name as the almanac writes it, or nothing.
