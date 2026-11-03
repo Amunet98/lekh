@@ -93,6 +93,13 @@ const ENTRIES: [string[], FestivalInfo][] = [
   }],
 
   // ---------- Tihar ----------
+  /* Rama, not Ram: रमा is a name of Lakshmi (Hamro Patro's English page
+     says "Rama Ekadashi"; checked 2026-11-04). Added at the owner's request
+     so the English widget stops skipping it on the way to Dhanteras. */
+  [['रमा एकादशी'], {
+    en: 'Rama Ekadashi',
+    about: 'An Ekadashi fast for Vishnu and Lakshmi, four days before Laxmi Puja; Rama is one of Lakshmi’s names.',
+  }],
   [['धनतेरस', 'धनत्रयोदशी'], {
     en: 'Dhanteras',
     about: 'A lucky day to buy gold, silver or new kitchen utensils, just before Tihar.',

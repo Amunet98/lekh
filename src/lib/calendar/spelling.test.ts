@@ -51,5 +51,6 @@ describe('fixFestivalText', () => {
     expect(festivalInfo('धन्तेरस')?.en).toBe('Dhanteras')
     expect(festivalInfo('धनतेरस')?.en).toBe('Dhanteras')
     expect(festivalInfo('गुरूनानक जयन्ती')?.en).toBe(festivalInfo('गुरु नानक जयन्ती')?.en)
+    expect(festivalInfo('रमा एकादशी')?.en).toBe('Rama Ekadashi')
   })
 })
