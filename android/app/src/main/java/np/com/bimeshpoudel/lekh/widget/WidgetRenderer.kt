@@ -2,6 +2,7 @@ package np.com.bimeshpoudel.lekh.widget
 
 import android.app.PendingIntent
 import android.content.Context
+import android.os.Build
 import android.widget.RemoteViews
 import np.com.bimeshpoudel.lekh.R
 import android.util.TypedValue
@@ -51,7 +52,7 @@ object WidgetRenderer {
         R.id.widget_week_l0, R.id.widget_week_l1, R.id.widget_week_l2, R.id.widget_week_l3,
         R.id.widget_week_l4, R.id.widget_week_l5, R.id.widget_week_l6,
     )
-    private val weekCellIds = intArrayOf(
+    internal val weekCellIds = intArrayOf(
         R.id.widget_week_c0, R.id.widget_week_c1, R.id.widget_week_c2, R.id.widget_week_c3,
         R.id.widget_week_c4, R.id.widget_week_c5, R.id.widget_week_c6,
     )
@@ -172,7 +173,13 @@ object WidgetRenderer {
 
         if (onClick != null) views.setOnClickPendingIntent(R.id.widget_root, onClick)
         // The app's "Wallpaper colours" setting, carried over — see WidgetTheme.
-        if (WidgetTheme.useStatic(context)) WidgetTheme.applyStatic(views, layoutRes)
+        if (WidgetTheme.useStatic(context)) {
+            WidgetTheme.applyStatic(views, layoutRes)
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // Material You, resolved here rather than by the launcher — see WidgetPalette.
+            WidgetPalette.apply(context, views, layoutRes)
+            WidgetTheme.rememberPalette(context)
+        }
         return views
     }
 

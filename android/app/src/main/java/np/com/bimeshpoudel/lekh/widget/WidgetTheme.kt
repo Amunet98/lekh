@@ -26,6 +26,13 @@ import np.com.bimeshpoudel.lekh.R
  * configuration — so light and dark mode still flip correctly, the property
  * res/color/widget_day.xml exists to protect. Below Android 12 there is no
  * Material You and nothing to swap.
+ *
+ * "On" no longer leaves the colours to those -v31 references either. Since
+ * 1.9.113 WidgetPalette resolves them in this process and passes the values,
+ * because launchers that tint widgets by the wallpaper behind them can swap
+ * the references (a widget over a black patch came out blue). The -v31
+ * resources still cover the moment before our actions apply, and the picker
+ * preview.
  */
 object WidgetTheme {
     private const val PREFS = "lekh_widget"
@@ -72,6 +79,31 @@ object WidgetTheme {
         prefs.edit().putBoolean(KEY_ENGLISH, english).apply()
         if (changed) refreshAll(context)
     }
+
+    private const val KEY_PALETTE = "palette"
+
+    /** Records the Material You colours the widgets were just drawn in. */
+    internal fun rememberPalette(context: Context) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+            .putString(KEY_PALETTE, WidgetPalette.fingerprint(context)).apply()
+    }
+
+    /**
+     * Redraws every placed widget if the wallpaper colours have changed since
+     * they were last drawn. The widget's colours are fixed values since
+     * 1.9.113 (see WidgetPalette), so they no longer follow a theme change by
+     * themselves. Cheap when nothing changed: it only reads twelve colours.
+     * Called from ThemeWatchWorker and MainActivity.onResume.
+     */
+    fun refreshIfPaletteChanged(context: Context) {
+        if (!useDynamicPalette(context) || !anyPlaced(context)) return
+        val stored = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY_PALETTE, null)
+        if (stored != WidgetPalette.fingerprint(context)) refreshAll(context)
+    }
+
+    private fun useDynamicPalette(context: Context): Boolean =
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && isDynamic(context)
 
     /** True when the fixed palette has to be applied over the layout's own. */
     fun useStatic(context: Context): Boolean =

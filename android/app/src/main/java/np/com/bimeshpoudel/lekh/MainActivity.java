@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import com.getcapacitor.BridgeActivity;
+import np.com.bimeshpoudel.lekh.widget.WidgetTheme;
 
 /**
  * Handles the widget's explicit-intent deep link (see
@@ -33,6 +34,20 @@ public class MainActivity extends BridgeActivity {
          * that WebView instance belonged to Chrome, not this app. */
         getBridge().getWebView().setVerticalScrollBarEnabled(false);
         getBridge().getWebView().setHorizontalScrollBarEnabled(false);
+    }
+
+    /* The widget's wallpaper colours are fixed values since 1.9.113 (see
+     * widget/WidgetPalette.kt). Opening the app after a theme change is the
+     * surest moment to bring them up to date. ThemeWatchWorker usually got
+     * there first, and then this costs twelve colour reads. */
+    @Override
+    public void onResume() {
+        super.onResume();
+        try {
+            WidgetTheme.INSTANCE.refreshIfPaletteChanged(this);
+        } catch (Throwable ignored) {
+            // Never let a widget redraw take the app down with it.
+        }
     }
 
     @Override

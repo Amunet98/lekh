@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The leaf under Material You (API 31+), as a mask for a MULTIPLY tint —
+     see WidgetPalette.apply. A white fill comes out as the tint colour. The
+     outline is 90% grey, so it comes out a tone darker than the fill, which
+     is roughly the gap between widget_leaf (tone 99) and widget_border
+     (tone 90) in values-v31/colors.xml. Never shown untinted.
+
+     Same geometry as widget_leaf.xml. If the radius or the stroke changes,
+     change both files. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="#FFFFFFFF" />
+    <stroke android:width="1dp" android:color="#FFE6E6E6" />
+    <corners android:radius="10dp" />
+</shape>
