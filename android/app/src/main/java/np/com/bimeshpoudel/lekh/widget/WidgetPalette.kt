@@ -116,8 +116,8 @@ internal class WidgetPaint private constructor(private val mode: Mode, private v
         private fun c(id: Int) = context.getColor(id)
         private fun alpha(color: Int, a: Float) = (color and 0x00FFFFFF) or ((a * 255).toInt() shl 24)
 
-        // Opaque, although the card is translucent on purpose (frosted since
-        // 1.9.114; see drawable/widget_background.xml). The SRC_IN tint
+        // Opaque, although the card is translucent on purpose (milky glass
+        // since 1.9.115; see drawable/widget_background.xml). The SRC_IN tint
         // multiplies its own alpha into the drawable's, and the drawable
         // already carries it. An alpha here as well came out visibly greyer
         // (A024, light mode, 1.9.113).
@@ -129,10 +129,12 @@ internal class WidgetPaint private constructor(private val mode: Mode, private v
         val today = Pair(c(android.R.color.system_accent1_100), c(android.R.color.system_accent1_800))
         val head = Pair(c(android.R.color.system_accent1_600), c(android.R.color.system_accent1_200))
         val onHead = Pair(c(android.R.color.system_accent1_0), c(android.R.color.system_accent1_800))
-        // The leaf's page is frosted like the card, a lighter layer on it.
-        // The leaf drawable is opaque, so this alpha is the one that shows.
+        // The leaf's page: a faint layer on the card, with no outline since
+        // 1.9.114. In light mode a tinted grey, because a white page on the
+        // near-white card vanished; in dark a lighter wash. The leaf drawable
+        // is opaque, so this alpha is the one that shows.
         val leaf = Pair(
-            alpha(c(android.R.color.system_neutral1_10), 0.6f),
+            alpha(c(android.R.color.system_neutral2_100), 0.7f),
             alpha(c(android.R.color.system_neutral1_600), 0.45f),
         )
 

@@ -2,7 +2,7 @@
 <!-- The widget card's fill under Material You, light.
 
      A one-item ColorStateList rather than a <color> in values-v31/, and that
-     is the whole reason this file exists: the card is translucent on purpose (72% light, 62% dark since 1.9.114, frosted)
+     is the whole reason this file exists: the card is translucent on purpose (86% light, 82% dark since 1.9.115: milky glass; see drawable/widget_background.xml)
      (see drawable/widget_background.xml for why — launchers that blur behind
      widgets need something to blur through), and XML has no way to bolt an
      alpha onto a colour *reference*. android:alpha on a ColorStateList item
@@ -13,5 +13,5 @@
      widget_surface as a plain colour for API 26-30, and only the -v31 drawable
      below reaches for this one. -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:alpha="0.72" android:color="@android:color/system_neutral1_0" />
+    <item android:alpha="0.86" android:color="@android:color/system_neutral1_0" />
 </selector>

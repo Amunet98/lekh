@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The milky-glass sheen over the card (1.9.115): white, strongest at the
+     top edge and gone by the middle. Real frosted glass would blur the
+     wallpaper, and no app widget can: Nothing Launcher frosts only its own
+     card widgets (FrostedCardWidgetHostView), and Android does not let an app
+     read the wallpaper image to blur it itself. A near-opaque card and this
+     wash are the honest substitute. Same 20dp corners as the card. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <gradient
+        android:angle="270"
+        android:startColor="#24FFFFFF"
+        android:centerColor="#08FFFFFF"
+        android:endColor="#00FFFFFF" />
+    <corners android:radius="20dp" />
+</shape>

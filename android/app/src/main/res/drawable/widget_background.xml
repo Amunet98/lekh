@@ -1,27 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- widget_surface is translucent, not solid: frosted glass since 1.9.114
-     (72% in light mode, 62% in dark; it was 90% before).
+<!-- widget_surface is milky glass: 86% opaque in light mode, 82% in dark
+     (1.9.115), with a white sheen from the top on its own layer
+     (widget_sheen, the first child of every widget layout's root).
 
-     A RemoteViews widget cannot blur what's behind it itself — there is no
-     API for that; real background blur is the launcher's job, drawn
-     underneath whatever the widget hands it. Nothing OS 5.0 (Android 17)
-     and some other launchers now do exactly that: a live Gaussian blur
-     behind every widget's card, as part of a translucent/frosted material
-     across the whole home screen. An opaque fill would paint straight over
-     that blur and just look like a flat card again; translucent lets it
-     read through, on the launchers that provide it.
-
-     On a launcher without that feature this still works fine on its own —
-     a soft frosted-over-wallpaper look — it just isn't live-blurred.
+     Not frosted, and it cannot be. A RemoteViews widget has no way to blur
+     what is behind it; only the launcher can, and Nothing Launcher does so
+     only for its own card widgets (FrostedCardWidgetHostView, confirmed in
+     its code on the A024, 2026-11-03), not for app widgets. An app cannot
+     blur the wallpaper itself either: Android does not let it read the
+     wallpaper image. An earlier note here said Nothing OS blurs behind every
+     widget; that was never true for app widgets. 1.9.114 tried 72%/62% for
+     a frosted look and on the phone it was simply see-through.
 
      No stroke: most system/launcher widgets don't outline their own card,
-     leaning on the launcher's shadow/blur for separation instead, and a flat
-     solid-color outline stood out as an obviously hand-drawn extra layer
-     next to those — worse once the fill went translucent and started
-     sitting over a real blur on launchers that provide one.
+     and a flat outline read as a hand-drawn extra layer next to them.
      @color/widget_border is still used for the internal dividers between
-     sections (see widget_patro_wide.xml / widget_patro_xl*.xml), just not
-     as the card's own edge. -->
+     sections, just not as the card's own edge. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
     <solid android:color="@color/widget_surface" />
     <corners android:radius="20dp" />

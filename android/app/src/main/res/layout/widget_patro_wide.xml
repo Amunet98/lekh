@@ -13,15 +13,30 @@
      throws "Class not allowed to be inflated", which on a home screen reads
      as "Problem loading widget" and nothing more. The divider is an
      ImageView. -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_background">
+
+    <!-- The milky-glass sheen (1.9.115): a soft white wash from the top,
+         under the content. Its own view because the card behind it is
+         tinted at draw time, and a tint would flatten a sheen drawn into
+         the card's own drawable. Not clickable, so taps fall through. -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/widget_sheen"
+        android:importantForAccessibility="no"
+        android:contentDescription="@null" />
+
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
     android:gravity="center_vertical"
     android:paddingHorizontal="12dp"
-    android:paddingVertical="8dp"
-    android:background="@drawable/widget_background">
+    android:paddingVertical="8dp">
 
     <LinearLayout
         android:id="@+id/widget_leaf"
@@ -160,3 +175,4 @@
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:visibility="gone" android:text="" />
 </LinearLayout>
+</FrameLayout>

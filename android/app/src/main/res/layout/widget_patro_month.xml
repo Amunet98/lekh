@@ -12,15 +12,30 @@
      The android:text values are placeholders for the moment before the first
      render; the widget picker shows the preview image instead (an empty grid
      would look broken there). -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_background">
+
+    <!-- The milky-glass sheen (1.9.115): a soft white wash from the top,
+         under the content. Its own view because the card behind it is
+         tinted at draw time, and a tint would flatten a sheen drawn into
+         the card's own drawable. Not clickable, so taps fall through. -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/widget_sheen"
+        android:importantForAccessibility="no"
+        android:contentDescription="@null" />
+
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:paddingHorizontal="10dp"
     android:paddingTop="8dp"
-    android:paddingBottom="8dp"
-    android:background="@drawable/widget_background">
+    android:paddingBottom="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -163,3 +178,4 @@
             android:text="धन्तेरस ३ दिनमा" />
     </LinearLayout>
 </LinearLayout>
+</FrameLayout>
