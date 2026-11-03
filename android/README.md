@@ -71,7 +71,7 @@ Android App Links.
 
 ## The widget
 
-Four sizes, four separate `AppWidgetProvider` subclasses (`widget/LekhWidget*.kt`,
+Five sizes, five separate `AppWidgetProvider` subclasses (`widget/LekhWidget*.kt`,
 all extending `BaseLekhWidgetProvider`), each with its own `res/xml/widget_info*.xml`
 and `res/layout/widget_patro_*.xml`:
 
@@ -81,6 +81,12 @@ and `res/layout/widget_patro_*.xml`:
 | `LekhWidgetProvider` | 2×2 | `widget_info.xml` |
 | `LekhWidgetWideProvider` | 4×1 | `widget_info_wide.xml` |
 | `LekhWidgetXlProvider` | 5×1 | `widget_info_xl.xml` |
+| `LekhWidgetMonthProvider` | 5×4 | `widget_info_month.xml` |
+
+The Month widget (added in 1.9.114, shipped in 2.0.0) is the odd one out: it is
+drawn by `MonthRenderer`, not `WidgetRenderer`, adds its day cells at runtime
+(`RemoteViews.addView` with `widget_month_cell.xml`), and keeps each placed
+widget's month offset in prefs (`month_offset_<id>`), reset when the date changes.
 
 Separate providers rather than one resizable widget so each shows as its own
 entry in the launcher's widget picker — most people never think to drag a
@@ -96,7 +102,7 @@ carrying the week strip — once the host reports at least
 `OPTION_APPWIDGET_MAX_HEIGHT` rather than `MIN_HEIGHT`, because min is the
 height the content was laid out at rather than the room the widget has.
 
-**`WidgetRenderer.build()` populates all four from one function.** Every
+**`WidgetRenderer.build()` populates the four day widgets from one function.** Every
 layout declares the same view ids and hides whichever ones its shape has no
 room for with `visibility="gone"` — a RemoteViews action that targets a
 missing id just returns quietly, so writing to a hidden view is harmless.

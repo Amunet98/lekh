@@ -224,9 +224,13 @@ the only route.
 
 It shares the web app's calendar data rather than duplicating it
 (`npm run android:assets`), and its date algorithm was validated against
-`nepali-date-converter` over 3,970 conversions. It ships in four sizes — 2x1,
-2x2, 4x1 and 5x1 — each built around a small calendar leaf, a crimson strip
-carrying the weekday over the date, taken from the logo's शिरोरेखा. It draws in
+`nepali-date-converter` over 3,970 conversions. It ships in five sizes. Four of
+them — 2x1, 2x2, 4x1 and 5x1 — are built around a small calendar leaf, a strip
+carrying the weekday over the date, taken from the logo's शिरोरेखा, on a
+borderless glass card tinted in the wallpaper's colours; they show the moon's
+phase beside the tithi and count down to the next festival. The fifth, a 5x4
+Month widget, shows the whole Bikram Sambat month with holidays and festivals
+marked, and steps to the next or previous month. It draws in
 Nepali by default and in English if you choose it in Settings → Home-screen
 widget. The English mode uses only the hand-checked festival names above
 (exported to the widget by `npm run android:assets`); a festival without one is
