@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Material You variant of drawable/widget_leaf.xml (read that file). The page
+     is a faint layer on the card, so its fill carries an alpha, which XML can
+     only attach to a colour reference through a ColorStateList
+     (color-v31/widget_leaf_dynamic.xml), as widget_background does.
+
+     These are the values WidgetPalette paints a placed widget with (Role.LEAF).
+     They matter where nothing repaints the layout: the widget picker's
+     preview. Until 2.0.0 this was an opaque neutral1_10 / neutral1_700, so the
+     picker showed a darker page than the placed widget had. Change both
+     together. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/widget_leaf_dynamic" />
+    <corners android:radius="10dp" />
+</shape>

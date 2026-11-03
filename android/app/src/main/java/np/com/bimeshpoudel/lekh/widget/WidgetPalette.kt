@@ -114,7 +114,6 @@ internal class WidgetPaint private constructor(private val mode: Mode, private v
     @RequiresApi(Build.VERSION_CODES.S)
     class Roles(private val context: Context) {
         private fun c(id: Int) = context.getColor(id)
-        private fun alpha(color: Int, a: Float) = (color and 0x00FFFFFF) or ((a * 255).toInt() shl 24)
 
         // Opaque, although the card is translucent on purpose (tinted glass
         // since 1.9.116; see drawable/widget_background.xml). The SRC_IN tint
@@ -135,11 +134,14 @@ internal class WidgetPaint private constructor(private val mode: Mode, private v
         val onHead = Pair(c(android.R.color.system_accent1_0), c(android.R.color.system_accent1_800))
         // The leaf's page: a faint layer on the card, with no outline since
         // 1.9.114. In light mode a tinted grey, because a white page on the
-        // near-white card vanished; in dark a faint light wash, so the smoked card stays smoked. The leaf drawable
-        // is opaque, so this alpha is the one that shows.
+        // near-white card vanished; in dark a faint light wash, so the smoked card stays smoked.
+        // Opaque, like surface: since 2.0.0 the -v31 leaf drawable carries the
+        // alpha itself (70% light, 12% dark; color-v31/widget_leaf_dynamic.xml)
+        // so the widget picker's preview shows the same page, and the SRC_IN
+        // tint multiplies its own alpha into the drawable's.
         val leaf = Pair(
-            alpha(c(android.R.color.system_neutral2_100), 0.7f),
-            alpha(c(android.R.color.system_neutral1_50), 0.12f),
+            c(android.R.color.system_neutral2_100),
+            c(android.R.color.system_neutral1_50),
         )
 
         fun of(role: Role): Pair = when (role) {

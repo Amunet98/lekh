@@ -7,8 +7,10 @@ import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.RemoteViews
 import android.widget.ScrollView
 import android.widget.TextView
+import np.com.bimeshpoudel.lekh.R
 
 /**
  * Debug-only harness that renders the widget's RemoteViews into a normal
@@ -80,11 +82,17 @@ class WidgetPreviewActivity : Activity() {
             Triple("month, declared minimum (250dp)", np.com.bimeshpoudel.lekh.R.layout.widget_patro_month, 250 to 250),
             Triple("month, A024 launcher 5x4 (362x280dp)", np.com.bimeshpoudel.lekh.R.layout.widget_patro_month, 362 to 280),
             Triple("month, next month", np.com.bimeshpoudel.lekh.R.layout.widget_patro_month, 362 to 280),
-            /* The picker preview (drawable-nodpi/widget_preview_month.png) is
-               made from these two: the same render on black and on white gives
-               the card's real translucency back by difference matting. */
-            Triple("month, preview on black", np.com.bimeshpoudel.lekh.R.layout.widget_patro_month, 362 to 280),
-            Triple("month, preview on white", np.com.bimeshpoudel.lekh.R.layout.widget_patro_month, 362 to 280),
+            /* The widget picker's previews: each provider's android:previewLayout
+               inflated bare, as the launcher does, with nothing from the
+               renderers. With the phone's date on the sample day (Kartik 17
+               2083, 3 Nov 2026) each should match the real render of its size
+               above, and all five should show the same day. See
+               scripts/render-widget-previews.mjs. */
+            Triple("picker  2x1", R.layout.widget_patro_small, 160 to 70),
+            Triple("picker  2x2", R.layout.widget_patro, 160 to 160),
+            Triple("picker  4x1", R.layout.widget_patro_wide, 330 to 70),
+            Triple("picker  5x1", R.layout.widget_patro_xl, 360 to 70),
+            Triple("picker  month", R.layout.widget_preview_month, 362 to 280),
         )
 
         for ((label, layout, dims) in sizes) {
@@ -95,7 +103,9 @@ class WidgetPreviewActivity : Activity() {
             })
             val host = FrameLayout(this)
             // Built for the height it is shown at, as the provider builds it.
-            val views = if (layout == np.com.bimeshpoudel.lekh.R.layout.widget_patro_month) {
+            val views = if (label.startsWith("picker")) {
+                RemoteViews(packageName, layout)
+            } else if (layout == R.layout.widget_patro_month) {
                 MonthRenderer.build(this, if (label.endsWith("next month")) 1 else 0, null, null)
             } else {
                 WidgetRenderer.build(this, layout, heightDp = dims.second)
@@ -105,8 +115,6 @@ class WidgetPreviewActivity : Activity() {
             if (label.endsWith("long festival day")) {
                 views.setTextViewText(np.com.bimeshpoudel.lekh.R.id.widget_note, "लक्ष्मी पूजा · कुकुर तिहार · नरक चतुर्दशी")
             }
-            if (label.endsWith("on black")) host.setBackgroundColor(android.graphics.Color.BLACK)
-            if (label.endsWith("on white")) host.setBackgroundColor(android.graphics.Color.WHITE)
             host.addView(views.apply(applicationContext, host))
             root.addView(host, ViewGroup.LayoutParams(dp(dims.first), dp(dims.second)))
         }

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The leaf's page under Material You, light: WidgetPalette's Role.LEAF
+     (neutral2_100 at 70%). See drawable-v31/widget_leaf.xml. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:alpha="0.7" android:color="@android:color/system_neutral2_100" />
+</selector>

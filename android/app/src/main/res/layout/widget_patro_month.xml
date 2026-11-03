@@ -10,8 +10,9 @@
      that fits in five.
 
      The android:text values are placeholders for the moment before the first
-     render; the widget picker shows the preview image instead (an empty grid
-     would look broken there). -->
+     render. The widget picker shows widget_preview_month instead, generated
+     from this file by scripts/render-widget-previews.mjs: rerun it after
+     changing anything here. -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
@@ -141,6 +142,7 @@
         android:gravity="center_vertical">
         <ImageView
             android:id="@+id/widget_moon"
+            android:src="@drawable/widget_moon_preview"
             android:layout_width="12dp"
             android:layout_height="12dp"
             android:layout_marginEnd="5dp"
@@ -165,7 +167,7 @@
             android:maxLines="1"
             android:ellipsize="end"
             android:textColor="@color/widget_accent"
-            android:text="धन्तेरस ३ दिनमा" />
+            android:text="रमा एकादशी २ दिनमा" />
     </LinearLayout>
 </LinearLayout>
 </FrameLayout>

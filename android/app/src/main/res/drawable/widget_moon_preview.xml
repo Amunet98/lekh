@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The moon in the widget picker's previews: Kartik 17 2083 (नवमी, कृष्ण
+     पक्ष, age 23), the sample day every picker preview shows (see
+     scripts/render-widget-previews.mjs). A placed widget never shows this:
+     WidgetRenderer.drawMoon replaces it with MoonPhase's bitmap for today.
+
+     Drawn the way MoonPhase.bitmap draws it, on a 24-unit square: the whole
+     disc at 25% (its alpha 64), then the lit part, r = 12 × 0.92 = 11.04,
+     illuminated fraction k = (1 − cos(2π·23/30)) / 2 = 0.448, so the
+     terminator's half-width is r·|1 − 2k| = 1.15. Waning, so the lit limb is
+     on the left. Filled with @color/widget_text, the colour drawMoon tints
+     the bitmap, rather than android:tint on the ImageView, which would also
+     tint the real (untinted, grey) bitmap below Android 12. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="12dp"
+    android:height="12dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="@color/widget_text"
+        android:fillAlpha="0.25"
+        android:pathData="M12,0.96 A11.04,11.04 0 1,1 12,23.04 A11.04,11.04 0 1,1 12,0.96 Z" />
+    <path
+        android:fillColor="@color/widget_text"
+        android:pathData="M12,0.96 A11.04,11.04 0 0,0 12,23.04 A1.15,11.04 0 0,1 12,0.96 Z" />
+</vector>

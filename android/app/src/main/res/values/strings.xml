@@ -7,8 +7,8 @@
 
     <!-- Shown under each entry in the launcher's widget picker. They differ so
          four near-identical rows are actually distinguishable. -->
-    <string name="widget_description">Date, tithi and today\'s festival</string>
-    <string name="widget_description_small">Just the Bikram Sambat date</string>
+    <string name="widget_description">Date, tithi and the next festival</string>
+    <string name="widget_description_small">The Bikram Sambat date, with the English date</string>
     <string name="widget_description_wide">Date, tithi, festival and what\'s next</string>
     <string name="widget_description_month">The whole month, with holidays and festivals</string>
     <string name="widget_description_xl">The 4×1, wider; drag it taller for the week</string>

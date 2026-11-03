@@ -47,7 +47,7 @@
             android:maxLines="1"
             android:textColor="@color/widget_on_head"
             android:background="@drawable/widget_leaf_head"
-            android:text="आइत" />
+            android:text="मङ्गल" />
 
         <TextView
             android:id="@+id/widget_day"
@@ -61,7 +61,7 @@
             android:includeFontPadding="false"
             android:maxLines="1"
             android:textColor="@color/widget_day"
-            android:text="२५" />
+            android:text="१७" />
     </LinearLayout>
 
     <LinearLayout
@@ -78,7 +78,7 @@
             android:textStyle="bold"
             android:maxLines="1"
             android:textColor="@color/widget_text"
-            android:text="असोज २०८३" />
+            android:text="कार्तिक २०८३" />
 
         <!-- The AD date, the moon at today's phase and the tithi (1.9.114, design
              A). The moon is a bitmap drawn by MoonPhase and tinted at draw time. -->
@@ -94,9 +94,10 @@
                 android:textSize="11sp"
                 android:maxLines="1"
                 android:textColor="@color/widget_muted"
-                android:text="11 Oct 2026" />
+                android:text="3 Nov 2026" />
             <ImageView
                 android:id="@+id/widget_moon"
+                android:src="@drawable/widget_moon_preview"
                 android:layout_width="12dp"
                 android:layout_height="12dp"
                 android:layout_marginStart="6dp"
@@ -109,7 +110,7 @@
                 android:textSize="11sp"
                 android:maxLines="1"
                 android:textColor="@color/widget_muted"
-                android:text="प्रतिपदा" />
+                android:text="नवमी" />
         </LinearLayout>
     </LinearLayout>
 
@@ -139,7 +140,7 @@
             android:ellipsize="end"
             android:gravity="end"
             android:textColor="@color/widget_accent"
-            android:text="घटस्थापना" />
+            android:text="रमा एकादशी" />
 
         <!-- How far off it is, as a pill (design A): "३ दिनमा", or "आज" when
              the festival above is today's. -->
@@ -156,7 +157,7 @@
             android:maxLines="1"
             android:ellipsize="end"
             android:textColor="@color/widget_text"
-            android:text="६ दिनमा" />
+            android:text="२ दिनमा" />
     </LinearLayout>
 
     <!-- Present so one renderer can populate every layout. The weekday is in

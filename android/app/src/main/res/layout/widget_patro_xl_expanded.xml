@@ -56,7 +56,7 @@
             android:maxLines="1"
             android:textColor="@color/widget_on_head"
             android:background="@drawable/widget_leaf_head"
-            android:text="आइत" />
+            android:text="मङ्गल" />
 
         <TextView
             android:id="@+id/widget_day"
@@ -70,7 +70,7 @@
             android:includeFontPadding="false"
             android:maxLines="1"
             android:textColor="@color/widget_day"
-            android:text="२५" />
+            android:text="१७" />
     </LinearLayout>
 
     <LinearLayout
@@ -87,7 +87,7 @@
             android:textStyle="bold"
             android:maxLines="1"
             android:textColor="@color/widget_text"
-            android:text="असोज २०८३" />
+            android:text="कार्तिक २०८३" />
 
         <!-- The AD date, the moon at today's phase and the tithi (1.9.114, design
              A). The moon is a bitmap drawn by MoonPhase and tinted at draw time. -->
@@ -103,9 +103,10 @@
                 android:textSize="11sp"
                 android:maxLines="1"
                 android:textColor="@color/widget_muted"
-                android:text="11 Oct 2026" />
+                android:text="3 Nov 2026" />
             <ImageView
                 android:id="@+id/widget_moon"
+                android:src="@drawable/widget_moon_preview"
                 android:layout_width="12dp"
                 android:layout_height="12dp"
                 android:layout_marginStart="6dp"
@@ -118,7 +119,7 @@
                 android:textSize="11sp"
                 android:maxLines="1"
                 android:textColor="@color/widget_muted"
-                android:text="प्रतिपदा" />
+                android:text="नवमी" />
         </LinearLayout>
     </LinearLayout>
 
@@ -148,7 +149,7 @@
             android:ellipsize="end"
             android:gravity="end"
             android:textColor="@color/widget_accent"
-            android:text="घटस्थापना" />
+            android:text="रमा एकादशी" />
 
         <!-- How far off it is, as a pill (design A): "३ दिनमा", or "आज" when
              the festival above is today's. -->
@@ -165,7 +166,7 @@
             android:maxLines="1"
             android:ellipsize="end"
             android:textColor="@color/widget_text"
-            android:text="६ दिनमा" />
+            android:text="२ दिनमा" />
     </LinearLayout>
     </LinearLayout>
 
@@ -202,7 +203,7 @@
             <TextView android:id="@+id/widget_week_d0"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="13sp" android:textStyle="bold" android:includeFontPadding="false"
-                android:textColor="@color/widget_week_day" android:text="२५" />
+                android:textColor="@color/widget_week_day" android:text="१५" />
             <ImageView android:id="@+id/widget_week_f0"
                 android:layout_width="4dp" android:layout_height="4dp"
                 android:layout_marginTop="2dp"
@@ -224,7 +225,7 @@
             <TextView android:id="@+id/widget_week_d1"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="13sp" android:textStyle="bold" android:includeFontPadding="false"
-                android:textColor="@color/widget_week_day" android:text="२६" />
+                android:textColor="@color/widget_week_day" android:text="१६" />
             <ImageView android:id="@+id/widget_week_f1"
                 android:layout_width="4dp" android:layout_height="4dp"
                 android:layout_marginTop="2dp"
@@ -246,7 +247,7 @@
             <TextView android:id="@+id/widget_week_d2"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="13sp" android:textStyle="bold" android:includeFontPadding="false"
-                android:textColor="@color/widget_week_day" android:text="२७" />
+                android:textColor="@color/widget_week_day" android:text="१७" />
             <ImageView android:id="@+id/widget_week_f2"
                 android:layout_width="4dp" android:layout_height="4dp"
                 android:layout_marginTop="2dp"
@@ -268,7 +269,7 @@
             <TextView android:id="@+id/widget_week_d3"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="13sp" android:textStyle="bold" android:includeFontPadding="false"
-                android:textColor="@color/widget_week_day" android:text="२८" />
+                android:textColor="@color/widget_week_day" android:text="१८" />
             <ImageView android:id="@+id/widget_week_f3"
                 android:layout_width="4dp" android:layout_height="4dp"
                 android:layout_marginTop="2dp"
@@ -290,7 +291,7 @@
             <TextView android:id="@+id/widget_week_d4"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="13sp" android:textStyle="bold" android:includeFontPadding="false"
-                android:textColor="@color/widget_week_day" android:text="२९" />
+                android:textColor="@color/widget_week_day" android:text="१९" />
             <ImageView android:id="@+id/widget_week_f4"
                 android:layout_width="4dp" android:layout_height="4dp"
                 android:layout_marginTop="2dp"
@@ -312,7 +313,7 @@
             <TextView android:id="@+id/widget_week_d5"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="13sp" android:textStyle="bold" android:includeFontPadding="false"
-                android:textColor="@color/widget_week_day" android:text="३०" />
+                android:textColor="@color/widget_week_day" android:text="२०" />
             <ImageView android:id="@+id/widget_week_f5"
                 android:layout_width="4dp" android:layout_height="4dp"
                 android:layout_marginTop="2dp"
@@ -334,7 +335,7 @@
             <TextView android:id="@+id/widget_week_d6"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="13sp" android:textStyle="bold" android:includeFontPadding="false"
-                android:textColor="@color/widget_week_day" android:text="३१" />
+                android:textColor="@color/widget_week_day" android:text="२१" />
             <ImageView android:id="@+id/widget_week_f6"
                 android:layout_width="4dp" android:layout_height="4dp"
                 android:layout_marginTop="2dp"
