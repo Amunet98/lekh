@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One day of the month widget, added to a row of widget_patro_month by
+     MonthRenderer (RemoteViews.addView). The layout_ attributes on the root
+     apply: addView inflates the child into its parent row, so each cell takes
+     an equal seventh of the row.
+
+     The BS date, its AD date and its festival dot travel as one group, centred
+     in the cell. Pinned to the cell's own corners instead, they drifted apart
+     on a tall widget (the dot read as belonging to the AD date of the row
+     below; A024, 2026-11-03). The AD date sits up at the BS date's shoulder,
+     as on a printed patro; the BS date carries today's circle. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="0dp"
+    android:layout_height="match_parent"
+    android:layout_weight="1">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/widget_mc_bs"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginStart="9dp"
+                android:layout_marginEnd="9dp"
+                android:minWidth="28dp"
+                android:minHeight="28dp"
+                android:gravity="center"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:textColor="@color/widget_day"
+                android:text="१७" />
+
+            <TextView
+                android:id="@+id/widget_mc_ad"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|end"
+                android:textSize="9sp"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:textColor="@color/widget_week_label"
+                android:text="3" />
+        </FrameLayout>
+
+        <ImageView
+            android:id="@+id/widget_mc_dot"
+            android:layout_width="4dp"
+            android:layout_height="4dp"
+            android:layout_marginTop="1dp"
+            android:src="@drawable/widget_dot"
+            android:visibility="invisible"
+            android:contentDescription="@null" />
+    </LinearLayout>
+</FrameLayout>

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The month widget (1.9.114): the whole Bikram Sambat month as a patro
+     sheet, the way Hamro Patro and Google Calendar lay one out. Big BS date,
+     the AD date small in the corner, days off in the accent, a dot on
+     festival days, today in a filled circle.
+
+     The forty-two day cells are not written out here. MonthRenderer adds them
+     to the six rows with RemoteViews.addView, one widget_month_cell each, so
+     a cell exists in exactly one file. The sixth row is hidden in a month
+     that fits in five.
+
+     The android:text values are placeholders for the moment before the first
+     render; the widget picker shows the preview image instead (an empty grid
+     would look broken there). -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingHorizontal="10dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:background="@drawable/widget_background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="6dp">
+
+        <!-- Tapping the title comes back to this month. -->
+        <LinearLayout
+            android:id="@+id/widget_m_title_box"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <TextView
+                android:id="@+id/widget_m_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:textColor="@color/widget_text"
+                android:text="कार्तिक २०८३" />
+            <TextView
+                android:id="@+id/widget_m_sub"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:textSize="11sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textColor="@color/widget_muted"
+                android:text="Oct–Nov 2026" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/widget_m_prev"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:padding="8dp"
+            android:background="@drawable/widget_nav"
+            android:src="@drawable/ic_widget_prev"
+            android:contentDescription="@string/widget_month_prev" />
+        <ImageView
+            android:id="@+id/widget_m_next"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="6dp"
+            android:padding="8dp"
+            android:background="@drawable/widget_nav"
+            android:src="@drawable/ic_widget_next"
+            android:contentDescription="@string/widget_month_next" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:orientation="horizontal">
+        <TextView android:id="@+id/widget_m_h0" android:layout_width="0dp" android:layout_weight="1"
+            android:layout_height="wrap_content" android:gravity="center" android:textSize="11sp"
+            android:maxLines="1" android:textColor="@color/widget_week_label" android:enabled="false" android:text="आइत" />
+        <TextView android:id="@+id/widget_m_h1" android:layout_width="0dp" android:layout_weight="1"
+            android:layout_height="wrap_content" android:gravity="center" android:textSize="11sp"
+            android:maxLines="1" android:textColor="@color/widget_week_label" android:text="सोम" />
+        <TextView android:id="@+id/widget_m_h2" android:layout_width="0dp" android:layout_weight="1"
+            android:layout_height="wrap_content" android:gravity="center" android:textSize="11sp"
+            android:maxLines="1" android:textColor="@color/widget_week_label" android:text="मङ्गल" />
+        <TextView android:id="@+id/widget_m_h3" android:layout_width="0dp" android:layout_weight="1"
+            android:layout_height="wrap_content" android:gravity="center" android:textSize="11sp"
+            android:maxLines="1" android:textColor="@color/widget_week_label" android:text="बुध" />
+        <TextView android:id="@+id/widget_m_h4" android:layout_width="0dp" android:layout_weight="1"
+            android:layout_height="wrap_content" android:gravity="center" android:textSize="11sp"
+            android:maxLines="1" android:textColor="@color/widget_week_label" android:text="बिहि" />
+        <TextView android:id="@+id/widget_m_h5" android:layout_width="0dp" android:layout_weight="1"
+            android:layout_height="wrap_content" android:gravity="center" android:textSize="11sp"
+            android:maxLines="1" android:textColor="@color/widget_week_label" android:text="शुक्र" />
+        <TextView android:id="@+id/widget_m_h6" android:layout_width="0dp" android:layout_weight="1"
+            android:layout_height="wrap_content" android:gravity="center" android:textSize="11sp"
+            android:maxLines="1" android:textColor="@color/widget_week_label" android:enabled="false" android:text="शनि" />
+    </LinearLayout>
+
+    <LinearLayout android:id="@+id/widget_m_row0" android:layout_width="match_parent"
+        android:layout_height="0dp" android:layout_weight="1" android:orientation="horizontal" />
+    <LinearLayout android:id="@+id/widget_m_row1" android:layout_width="match_parent"
+        android:layout_height="0dp" android:layout_weight="1" android:orientation="horizontal" />
+    <LinearLayout android:id="@+id/widget_m_row2" android:layout_width="match_parent"
+        android:layout_height="0dp" android:layout_weight="1" android:orientation="horizontal" />
+    <LinearLayout android:id="@+id/widget_m_row3" android:layout_width="match_parent"
+        android:layout_height="0dp" android:layout_weight="1" android:orientation="horizontal" />
+    <LinearLayout android:id="@+id/widget_m_row4" android:layout_width="match_parent"
+        android:layout_height="0dp" android:layout_weight="1" android:orientation="horizontal" />
+    <LinearLayout android:id="@+id/widget_m_row5" android:layout_width="match_parent"
+        android:layout_height="0dp" android:layout_weight="1" android:orientation="horizontal" />
+
+    <ImageView
+        android:id="@+id/widget_divider1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginHorizontal="6dp"
+        android:contentDescription="@null"
+        android:background="@color/widget_border" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:paddingHorizontal="6dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+        <ImageView
+            android:id="@+id/widget_moon"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:layout_marginEnd="5dp"
+            android:contentDescription="@null" />
+        <TextView
+            android:id="@+id/widget_tithi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="11sp"
+            android:maxLines="1"
+            android:textColor="@color/widget_muted"
+            android:text="नवमी · कृष्ण पक्ष" />
+        <TextView
+            android:id="@+id/widget_note"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:gravity="end"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="@color/widget_accent"
+            android:text="धन्तेरस ३ दिनमा" />
+    </LinearLayout>
+</LinearLayout>

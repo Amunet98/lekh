@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The countdown pill under the festival name ("in 3 days", "आज"), round 1
+     design A, 1.9.114. Tinted at draw time like every other coloured view
+     (see WidgetPaint); this colour is only what shows before that. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/widget_today" />
+    <corners android:radius="999dp" />
+</shape>

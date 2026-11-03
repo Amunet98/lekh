@@ -132,6 +132,23 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_info_xl" />
         </receiver>
+
+        <!-- The month sheet (1.9.114). MONTH_NAV is its own previous/next
+             buttons, sent by explicit intent, so it needs no filter entry. -->
+        <receiver
+            android:name=".widget.LekhWidgetMonthProvider"
+            android:label="@string/widget_label_month"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.DATE_CHANGED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info_month" />
+        </receiver>
     </application>
 
     <!-- Permissions -->

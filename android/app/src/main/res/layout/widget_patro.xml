@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 2x2. Here the whole card is the calendar leaf: a strip across the top
      carrying the weekday (widget_leaf_head, on the card-wide widget_band),
-     then the date large, the month, the AD date and the festival line.
+     then the date large, the month, the moon and tithi, and the festival line.
 
      A widget is drawn through RemoteViews, which supports only a fixed set of
      views and cannot load a custom font, so the Devanagari renders in
@@ -65,17 +65,35 @@
             android:textColor="@color/widget_text"
             android:text="असोज २०८३" />
 
-        <TextView
-            android:id="@+id/widget_ad"
+        <!-- The moon at today's phase and the tithi (design A, 1.9.114). The AD
+             date is not shown at this size any more; widget_ad stays below,
+             hidden, so the one renderer can still write to it. -->
+        <LinearLayout
+            android:id="@+id/widget_tithi_row"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="10sp"
-            android:maxLines="1"
-            android:textColor="@color/widget_muted"
-            android:text="11 Oct 2026" />
+            android:layout_marginTop="1dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <ImageView
+                android:id="@+id/widget_moon"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginEnd="5dp"
+                android:contentDescription="@null" />
+            <TextView
+                android:id="@+id/widget_tithi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="11sp"
+                android:maxLines="1"
+                android:textColor="@color/widget_muted"
+                android:text="प्रतिपदा" />
+        </LinearLayout>
 
-        <!-- The festival line. maxLines=2 with ellipsize because festival
-             names run long and a widget cannot scroll. -->
+        <!-- The festival line: today's festival, else the next one and how far
+             off it is. maxLines=2 with ellipsize because festival names run
+             long and a widget cannot scroll. -->
         <TextView
             android:id="@+id/widget_note"
             android:layout_width="match_parent"
@@ -86,15 +104,15 @@
             android:maxLines="2"
             android:ellipsize="end"
             android:textColor="@color/widget_accent"
-            android:text="घटस्थापना" />
+            android:text="घटस्थापना · ६ दिनमा" />
     </LinearLayout>
 
     <!-- Present so one renderer can populate every layout. The weekday is in
-         the strip here; tithi falls back into the festival line. -->
+         the strip here, and the AD date has no room since 1.9.114. -->
     <TextView android:id="@+id/widget_weekday"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:visibility="gone" android:text="" />
-    <TextView android:id="@+id/widget_tithi"
+    <TextView android:id="@+id/widget_ad"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:visibility="gone" android:text="" />
     <TextView android:id="@+id/widget_next"

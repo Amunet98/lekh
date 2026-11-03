@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.SizeF
+import android.widget.RemoteViews
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
@@ -88,6 +89,14 @@ abstract class BaseLekhWidgetProvider : AppWidgetProvider() {
      *  it is then rendered per instance rather than as one batch. */
     protected open val fitsToHeight: Boolean = false
 
+    /** Whether every placed instance is drawn on its own, through [buildFor].
+     *  The month widget is: each instance can be showing a different month. */
+    protected open val perInstance: Boolean = false
+
+    /** Draws one placed instance. The month widget overrides this. */
+    protected open fun buildFor(context: Context, appWidgetId: Int, options: Bundle, onClick: PendingIntent): RemoteViews =
+        WidgetRenderer.build(context, layoutFor(options), onClick, if (fitsToHeight) heightOf(options) else 0)
+
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) {
         render(context, manager, ids)
         scheduleMidnight(context)
@@ -141,19 +150,15 @@ abstract class BaseLekhWidgetProvider : AppWidgetProvider() {
        AppWidgetManager's batch overload, rather than rebuilding both per id.
        A size with an expandedLayoutRes can have differently-sized instances,
        so those go one at a time instead. */
-    private fun render(context: Context, manager: AppWidgetManager, ids: IntArray) {
+    protected fun render(context: Context, manager: AppWidgetManager, ids: IntArray) {
         if (ids.isEmpty()) return
-        if (expandedLayoutRes == null && !fitsToHeight) {
+        if (expandedLayoutRes == null && !fitsToHeight && !perInstance) {
             manager.updateAppWidget(ids, WidgetRenderer.build(context, layoutRes, openPatro(context)))
             return
         }
         val onClick = openPatro(context)
         for (id in ids) {
-            val options = manager.getAppWidgetOptions(id)
-            manager.updateAppWidget(
-                id,
-                WidgetRenderer.build(context, layoutFor(options), onClick, if (fitsToHeight) heightOf(options) else 0),
-            )
+            manager.updateAppWidget(id, buildFor(context, id, manager.getAppWidgetOptions(id), onClick))
         }
     }
 
@@ -213,7 +218,7 @@ abstract class BaseLekhWidgetProvider : AppWidgetProvider() {
     // browser tab, the same verification that has already failed silently
     // once for this project (see assetlinks.json's history). MainActivity
     // reads the data URI itself and points the WebView at it.
-    private fun openPatro(context: Context): PendingIntent =
+    protected fun openPatro(context: Context): PendingIntent =
         PendingIntent.getActivity(
             context,
             requestCode(),
@@ -231,9 +236,9 @@ abstract class BaseLekhWidgetProvider : AppWidgetProvider() {
        would share one PendingIntent: whichever registered last would own the
        alarm, and removing that size would cancel the other sizes' refresh
        as well. */
-    private fun midnightAction() = "np.com.bimeshpoudel.lekh.widget.MIDNIGHT.${javaClass.simpleName}"
+    protected fun midnightAction() = "np.com.bimeshpoudel.lekh.widget.MIDNIGHT.${javaClass.simpleName}"
 
-    private fun requestCode() = javaClass.name.hashCode()
+    protected fun requestCode() = javaClass.name.hashCode()
 
     private fun midnightIntent(context: Context): PendingIntent =
         PendingIntent.getBroadcast(

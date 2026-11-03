@@ -17,7 +17,7 @@
     <color name="ic_launcher_background">#151A2B</color>
 
     <!-- Translucent, not opaque: see the comment on widget_background.xml for why. -->
-    <color name="widget_surface">#E6FFFFFF</color>
+    <color name="widget_surface">#B8FFFFFF</color>
     <color name="widget_border">#DDE1E9</color>
     <color name="widget_text">#141824</color>
     <color name="widget_muted">#646C7E</color>
@@ -40,8 +40,8 @@
          text, widget_leaf the page under it. White on #A80D26 is 7.7:1. -->
     <color name="widget_head">#A80D26</color>
     <color name="widget_on_head">#FFFFFF</color>
-    <color name="widget_leaf">#FFFFFF</color>
+    <color name="widget_leaf">#99FFFFFF</color>
     <color name="widget_static_head">#A80D26</color>
     <color name="widget_static_on_head">#FFFFFF</color>
-    <color name="widget_static_leaf">#FFFFFF</color>
+    <color name="widget_static_leaf">#99FFFFFF</color>
 </resources>

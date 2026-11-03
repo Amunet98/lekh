@@ -75,6 +75,16 @@ class WidgetPreviewActivity : Activity() {
             Triple("5x1  xl", np.com.bimeshpoudel.lekh.R.layout.widget_patro_xl, 360 to 70),
             Triple("5x1  xl, A024 launcher (61dp)", np.com.bimeshpoudel.lekh.R.layout.widget_patro_xl, 360 to 61),
             Triple("5x1  xl, expanded", np.com.bimeshpoudel.lekh.R.layout.widget_patro_xl_expanded, 360 to 170),
+            Triple("5x1  xl, expanded, A024 launcher (137dp)", np.com.bimeshpoudel.lekh.R.layout.widget_patro_xl_expanded, 362 to 137),
+            // The month sheet at its declared minimum and at a 5x4 on the A024.
+            Triple("month, declared minimum (250dp)", np.com.bimeshpoudel.lekh.R.layout.widget_patro_month, 250 to 250),
+            Triple("month, A024 launcher 5x4 (362x280dp)", np.com.bimeshpoudel.lekh.R.layout.widget_patro_month, 362 to 280),
+            Triple("month, next month", np.com.bimeshpoudel.lekh.R.layout.widget_patro_month, 362 to 280),
+            /* The picker preview (drawable-nodpi/widget_preview_month.png) is
+               made from these two: the same render on black and on white gives
+               the card's real translucency back by difference matting. */
+            Triple("month, preview on black", np.com.bimeshpoudel.lekh.R.layout.widget_patro_month, 362 to 280),
+            Triple("month, preview on white", np.com.bimeshpoudel.lekh.R.layout.widget_patro_month, 362 to 280),
         )
 
         for ((label, layout, dims) in sizes) {
@@ -85,12 +95,18 @@ class WidgetPreviewActivity : Activity() {
             })
             val host = FrameLayout(this)
             // Built for the height it is shown at, as the provider builds it.
-            val views = WidgetRenderer.build(this, layout, heightDp = dims.second)
+            val views = if (layout == np.com.bimeshpoudel.lekh.R.layout.widget_patro_month) {
+                MonthRenderer.build(this, if (label.endsWith("next month")) 1 else 0, null, null)
+            } else {
+                WidgetRenderer.build(this, layout, heightDp = dims.second)
+            }
             /* Kartik 22, 2083 — three festivals, the longest line the 2x2
                shows that year — so the two-line case is always on screen. */
             if (label.endsWith("long festival day")) {
                 views.setTextViewText(np.com.bimeshpoudel.lekh.R.id.widget_note, "लक्ष्मी पूजा · कुकुर तिहार · नरक चतुर्दशी")
             }
+            if (label.endsWith("on black")) host.setBackgroundColor(android.graphics.Color.BLACK)
+            if (label.endsWith("on white")) host.setBackgroundColor(android.graphics.Color.WHITE)
             host.addView(views.apply(applicationContext, host))
             root.addView(host, ViewGroup.LayoutParams(dp(dims.first), dp(dims.second)))
         }

@@ -10,6 +10,7 @@
     <string name="widget_description">Date, tithi and today\'s festival</string>
     <string name="widget_description_small">Just the Bikram Sambat date</string>
     <string name="widget_description_wide">Date, tithi, festival and what\'s next</string>
+    <string name="widget_description_month">The whole month, with holidays and festivals</string>
     <string name="widget_description_xl">The 4×1, wider; drag it taller for the week</string>
     <!-- The widget picker's name for each size. Without them all four inherit
          the app's name and the picker lists "Lekh Patro" four times; on a
@@ -19,6 +20,9 @@
     <string name="widget_label">Today</string>
     <string name="widget_label_small">Date</string>
     <string name="widget_label_wide">Date and festival</string>
+    <string name="widget_label_month">Month</string>
+    <string name="widget_month_prev">Previous month</string>
+    <string name="widget_month_next">Next month</string>
     <string name="widget_label_xl">Date, festival and week</string>
     <string name="widget_config_title">Widget language</string>
 

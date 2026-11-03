@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- widget_surface is translucent (90% opacity), not solid.
+<!-- widget_surface is translucent, not solid: frosted glass since 1.9.114
+     (72% in light mode, 62% in dark; it was 90% before).
 
      A RemoteViews widget cannot blur what's behind it itself — there is no
      API for that; real background blur is the launcher's job, drawn

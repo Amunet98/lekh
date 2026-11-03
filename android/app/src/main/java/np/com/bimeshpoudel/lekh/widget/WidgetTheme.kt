@@ -147,7 +147,8 @@ object WidgetTheme {
             views.setColor(R.id.widget_divider1, "setBackgroundColor", R.color.widget_static_border)
         }
         if (wide || xl || xlExpanded) {
-            views.setColorStateList(R.id.widget_next, "setTextColor", R.color.widget_static_muted)
+            // The countdown pill's text; the pill itself is tinted by WidgetPaint.
+            views.setColorStateList(R.id.widget_next, "setTextColor", R.color.widget_static_text)
         }
         if (xlExpanded) {
             views.setColor(R.id.widget_divider2, "setBackgroundColor", R.color.widget_static_border)
@@ -163,6 +164,7 @@ object WidgetTheme {
         LekhWidgetSmallProvider::class.java,
         LekhWidgetWideProvider::class.java,
         LekhWidgetXlProvider::class.java,
+        LekhWidgetMonthProvider::class.java,
     )
 
     /** Whether any widget of any size is on a home screen. */

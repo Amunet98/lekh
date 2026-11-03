@@ -13,7 +13,9 @@
      BaseLekhWidgetProvider.expandedLayoutRes and onAppWidgetOptionsChanged.
 
      No plain <View>: RemoteViews cannot inflate android.view.View. The
-     dividers are ImageViews. -->
+     dividers are ImageViews.
+     Each day carries a festival dot (widget_week_fN, 1.9.114), invisible
+     rather than gone on a day without one so every column keeps one height. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
@@ -82,17 +84,37 @@
             android:textColor="@color/widget_text"
             android:text="असोज २०८३" />
 
-        <!-- The AD date, and on this size the tithi after it: WidgetRenderer
-             writes "11 Oct 2026 · प्रतिपदा" here, which frees the right-hand
-             column for the festival and what comes next. -->
-        <TextView
-            android:id="@+id/widget_ad"
+        <!-- The AD date, the moon at today's phase and the tithi (1.9.114, design
+             A). The moon is a bitmap drawn by MoonPhase and tinted at draw time. -->
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="10sp"
-            android:maxLines="1"
-            android:textColor="@color/widget_muted"
-            android:text="11 Oct 2026 · प्रतिपदा" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <TextView
+                android:id="@+id/widget_ad"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="11sp"
+                android:maxLines="1"
+                android:textColor="@color/widget_muted"
+                android:text="11 Oct 2026" />
+            <ImageView
+                android:id="@+id/widget_moon"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginEnd="4dp"
+                android:contentDescription="@null" />
+            <TextView
+                android:id="@+id/widget_tithi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="11sp"
+                android:maxLines="1"
+                android:textColor="@color/widget_muted"
+                android:text="प्रतिपदा" />
+        </LinearLayout>
     </LinearLayout>
 
     <ImageView
@@ -110,8 +132,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Today's festival; hidden (setViewVisibility) on a day with none,
-             because the tithi already shows on the left. -->
+        <!-- Today's festival, or else the next one (design A, 1.9.114). -->
         <TextView
             android:id="@+id/widget_note"
             android:layout_width="match_parent"
@@ -124,26 +145,28 @@
             android:textColor="@color/widget_accent"
             android:text="घटस्थापना" />
 
+        <!-- How far off it is, as a pill (design A): "३ दिनमा", or "आज" when
+             the festival above is today's. -->
         <TextView
             android:id="@+id/widget_next"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="10sp"
+            android:layout_gravity="end"
+            android:layout_marginTop="2dp"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="1dp"
+            android:background="@drawable/widget_chip"
+            android:textSize="11sp"
             android:maxLines="1"
             android:ellipsize="end"
-            android:gravity="end"
-            android:layout_marginTop="1dp"
-            android:textColor="@color/widget_muted"
-            android:text="आगामी · फूलपाती · ६ दिनमा" />
+            android:textColor="@color/widget_text"
+            android:text="६ दिनमा" />
     </LinearLayout>
     </LinearLayout>
 
     <!-- Present so one renderer can populate every layout. The weekday is in
-         the leaf's strip, and the tithi rides on the AD line. -->
+         the leaf's strip, and the tithi has its own view beside the AD date. -->
     <TextView android:id="@+id/widget_weekday"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:visibility="gone" android:text="" />
-    <TextView android:id="@+id/widget_tithi"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:visibility="gone" android:text="" />
 
@@ -169,12 +192,18 @@
             android:paddingVertical="3dp">
             <TextView android:id="@+id/widget_week_l0"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:textSize="9sp" android:textColor="@color/widget_week_label"
+                android:textSize="10sp" android:textColor="@color/widget_week_label"
                 android:text="आइत" />
             <TextView android:id="@+id/widget_week_d0"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="13sp" android:textStyle="bold" android:includeFontPadding="false"
                 android:textColor="@color/widget_week_day" android:text="२५" />
+            <ImageView android:id="@+id/widget_week_f0"
+                android:layout_width="4dp" android:layout_height="4dp"
+                android:layout_marginTop="2dp"
+                android:src="@drawable/widget_dot"
+                android:visibility="invisible"
+                android:contentDescription="@null" />
         </LinearLayout>
 
         <LinearLayout
@@ -185,12 +214,18 @@
             android:paddingVertical="3dp">
             <TextView android:id="@+id/widget_week_l1"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:textSize="9sp" android:textColor="@color/widget_week_label"
+                android:textSize="10sp" android:textColor="@color/widget_week_label"
                 android:text="सोम" />
             <TextView android:id="@+id/widget_week_d1"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="13sp" android:textStyle="bold" android:includeFontPadding="false"
                 android:textColor="@color/widget_week_day" android:text="२६" />
+            <ImageView android:id="@+id/widget_week_f1"
+                android:layout_width="4dp" android:layout_height="4dp"
+                android:layout_marginTop="2dp"
+                android:src="@drawable/widget_dot"
+                android:visibility="invisible"
+                android:contentDescription="@null" />
         </LinearLayout>
 
         <LinearLayout
@@ -201,12 +236,18 @@
             android:paddingVertical="3dp">
             <TextView android:id="@+id/widget_week_l2"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:textSize="9sp" android:textColor="@color/widget_week_label"
+                android:textSize="10sp" android:textColor="@color/widget_week_label"
                 android:text="मङ्गल" />
             <TextView android:id="@+id/widget_week_d2"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="13sp" android:textStyle="bold" android:includeFontPadding="false"
                 android:textColor="@color/widget_week_day" android:text="२७" />
+            <ImageView android:id="@+id/widget_week_f2"
+                android:layout_width="4dp" android:layout_height="4dp"
+                android:layout_marginTop="2dp"
+                android:src="@drawable/widget_dot"
+                android:visibility="invisible"
+                android:contentDescription="@null" />
         </LinearLayout>
 
         <LinearLayout
@@ -217,12 +258,18 @@
             android:paddingVertical="3dp">
             <TextView android:id="@+id/widget_week_l3"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:textSize="9sp" android:textColor="@color/widget_week_label"
+                android:textSize="10sp" android:textColor="@color/widget_week_label"
                 android:text="बुध" />
             <TextView android:id="@+id/widget_week_d3"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="13sp" android:textStyle="bold" android:includeFontPadding="false"
                 android:textColor="@color/widget_week_day" android:text="२८" />
+            <ImageView android:id="@+id/widget_week_f3"
+                android:layout_width="4dp" android:layout_height="4dp"
+                android:layout_marginTop="2dp"
+                android:src="@drawable/widget_dot"
+                android:visibility="invisible"
+                android:contentDescription="@null" />
         </LinearLayout>
 
         <LinearLayout
@@ -233,12 +280,18 @@
             android:paddingVertical="3dp">
             <TextView android:id="@+id/widget_week_l4"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:textSize="9sp" android:textColor="@color/widget_week_label"
+                android:textSize="10sp" android:textColor="@color/widget_week_label"
                 android:text="बिहि" />
             <TextView android:id="@+id/widget_week_d4"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="13sp" android:textStyle="bold" android:includeFontPadding="false"
                 android:textColor="@color/widget_week_day" android:text="२९" />
+            <ImageView android:id="@+id/widget_week_f4"
+                android:layout_width="4dp" android:layout_height="4dp"
+                android:layout_marginTop="2dp"
+                android:src="@drawable/widget_dot"
+                android:visibility="invisible"
+                android:contentDescription="@null" />
         </LinearLayout>
 
         <LinearLayout
@@ -249,12 +302,18 @@
             android:paddingVertical="3dp">
             <TextView android:id="@+id/widget_week_l5"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:textSize="9sp" android:textColor="@color/widget_week_label"
+                android:textSize="10sp" android:textColor="@color/widget_week_label"
                 android:text="शुक्र" />
             <TextView android:id="@+id/widget_week_d5"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="13sp" android:textStyle="bold" android:includeFontPadding="false"
                 android:textColor="@color/widget_week_day" android:text="३०" />
+            <ImageView android:id="@+id/widget_week_f5"
+                android:layout_width="4dp" android:layout_height="4dp"
+                android:layout_marginTop="2dp"
+                android:src="@drawable/widget_dot"
+                android:visibility="invisible"
+                android:contentDescription="@null" />
         </LinearLayout>
 
         <LinearLayout
@@ -265,12 +324,18 @@
             android:paddingVertical="3dp">
             <TextView android:id="@+id/widget_week_l6"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:textSize="9sp" android:textColor="@color/widget_week_label"
+                android:textSize="10sp" android:textColor="@color/widget_week_label"
                 android:text="शनि" />
             <TextView android:id="@+id/widget_week_d6"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="13sp" android:textStyle="bold" android:includeFontPadding="false"
                 android:textColor="@color/widget_week_day" android:text="३१" />
+            <ImageView android:id="@+id/widget_week_f6"
+                android:layout_width="4dp" android:layout_height="4dp"
+                android:layout_marginTop="2dp"
+                android:src="@drawable/widget_dot"
+                android:visibility="invisible"
+                android:contentDescription="@null" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

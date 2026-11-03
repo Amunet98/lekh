@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The month widget (1.9.114): five cells wide, four tall where the grid
+     allows. minHeight 250dp is a header, weekday row, six rows of dates and
+     the footer at a size the dates stay readable; a four-column launcher
+     clamps the width rather than hiding it, as it does the 5x1.
+
+     The picker shows previewImage, not a previewLayout: the layout's day
+     cells are added at draw time, so the bare layout is an empty grid. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="250dp"
+    android:minHeight="250dp"
+    android:minResizeWidth="250dp"
+    android:minResizeHeight="200dp"
+    android:targetCellWidth="5"
+    android:targetCellHeight="4"
+    android:description="@string/widget_description_month"
+    android:previewImage="@drawable/widget_preview_month"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen"
+    android:configure="np.com.bimeshpoudel.lekh.widget.LekhWidgetConfigActivity"
+    android:widgetFeatures="reconfigurable|configuration_optional"
+    android:initialLayout="@layout/widget_patro_month"
+    android:updatePeriodMillis="0" />

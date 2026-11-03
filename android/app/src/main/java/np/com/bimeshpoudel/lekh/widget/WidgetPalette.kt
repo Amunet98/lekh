@@ -2,7 +2,6 @@ package np.com.bimeshpoudel.lekh.widget
 
 import android.content.Context
 import android.content.res.ColorStateList
-import android.graphics.BlendMode
 import android.os.Build
 import android.widget.RemoteViews
 import androidx.annotation.RequiresApi
@@ -42,14 +41,86 @@ import np.com.bimeshpoudel.lekh.R
 @RequiresApi(Build.VERSION_CODES.S)
 internal object WidgetPalette {
 
-    private class Pair(val light: Int, val dark: Int)
+    /**
+     * A short fingerprint of the colours a redraw would use now. It is
+     * compared with the one stored at the last draw to tell whether the theme
+     * moved underneath a placed widget.
+     */
+    fun fingerprint(context: Context): String = WidgetPaint.Roles(context).fingerprint()
 
-    private class Roles(private val context: Context) {
+    /** The same view list as WidgetTheme.applyStatic. Keep the two in step. */
+    fun apply(context: Context, views: RemoteViews, layoutRes: Int, paint: WidgetPaint) {
+        val small = layoutRes == R.layout.widget_patro_small
+        val wide = layoutRes == R.layout.widget_patro_wide
+        val xl = layoutRes == R.layout.widget_patro_xl
+        val xlExpanded = layoutRes == R.layout.widget_patro_xl_expanded
+        val square = layoutRes == R.layout.widget_patro
+
+        paint.tint(views, R.id.widget_root, Role.SURFACE)
+        paint.tint(views, R.id.widget_leaf_head, Role.HEAD)
+        if (!square) paint.tint(views, R.id.widget_leaf, Role.LEAF)
+        paint.text(views, R.id.widget_leaf_head, Role.ON_HEAD)
+        paint.offText(views, R.id.widget_day, Role.TEXT)
+        paint.text(views, R.id.widget_month, Role.TEXT)
+        paint.text(views, R.id.widget_ad, Role.MUTED)
+        if (small) return
+
+        paint.text(views, R.id.widget_weekday, Role.MUTED)
+        paint.text(views, R.id.widget_tithi, Role.MUTED)
+        paint.text(views, R.id.widget_note, Role.ACCENT)
+        if (wide || xl || xlExpanded) {
+            paint.line(views, R.id.widget_divider1)
+            paint.text(views, R.id.widget_next, Role.TEXT)
+        }
+        if (xlExpanded) {
+            paint.line(views, R.id.widget_divider2)
+            for (i in 0..6) {
+                paint.offText(views, WidgetRenderer.weekDayIds[i], Role.TEXT)
+                paint.offText(views, WidgetRenderer.weekLabelIds[i], Role.MUTED)
+                // Only today's cell has a background (the pill); tinting the
+                // six empty ones does nothing.
+                paint.tint(views, WidgetRenderer.weekCellIds[i], Role.TODAY)
+            }
+        }
+    }
+}
+
+/** What a colour is for. Each maps to one Material You shade and one fixed one. */
+internal enum class Role { TEXT, MUTED, ACCENT, ON_HEAD, HEAD, TODAY, LEAF, BORDER, SURFACE }
+
+/**
+ * Colours for one render, in whichever of three modes is in force:
+ *
+ * - LEGACY, below Android 12: nothing to do. The layouts' own @color
+ *   references resolve to the fixed palette in values/ and values-night/,
+ *   and the launcher flips them with the phone's dark mode.
+ * - STATIC, "Wallpaper colours" off: the fixed palette, passed as resource
+ *   ids (the API 31 setColorStateList overload), which the launcher resolves
+ *   against its own configuration, so light and dark still flip.
+ * - DYNAMIC: Material You, as day/night value pairs; see WidgetPalette.
+ *
+ * Built once per render, so the twenty-odd colour reads happen once rather
+ * than once per view (the month widget has forty-two cells).
+ */
+internal class WidgetPaint private constructor(private val mode: Mode, private val roles: Roles?) {
+
+    enum class Mode { LEGACY, STATIC, DYNAMIC }
+
+    val isLegacy: Boolean get() = mode == Mode.LEGACY
+    val isDynamic: Boolean get() = mode == Mode.DYNAMIC
+
+    class Pair(val light: Int, val dark: Int)
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    class Roles(private val context: Context) {
         private fun c(id: Int) = context.getColor(id)
-        // Opaque, although the card is 90% opaque on purpose (see
-        // drawable/widget_background.xml). The SRC_IN tint multiplies its own
-        // alpha into the drawable's, and the drawable is already at 0.9. An
-        // alpha here as well came out at 81%, visibly greyer (A024, light mode).
+        private fun alpha(color: Int, a: Float) = (color and 0x00FFFFFF) or ((a * 255).toInt() shl 24)
+
+        // Opaque, although the card is translucent on purpose (frosted since
+        // 1.9.114; see drawable/widget_background.xml). The SRC_IN tint
+        // multiplies its own alpha into the drawable's, and the drawable
+        // already carries it. An alpha here as well came out visibly greyer
+        // (A024, light mode, 1.9.113).
         val surface = Pair(c(android.R.color.system_neutral1_0), c(android.R.color.system_neutral1_800))
         val border = Pair(c(android.R.color.system_neutral2_100), c(android.R.color.system_neutral2_700))
         val text = Pair(c(android.R.color.system_neutral1_900), c(android.R.color.system_neutral1_50))
@@ -58,82 +129,109 @@ internal object WidgetPalette {
         val today = Pair(c(android.R.color.system_accent1_100), c(android.R.color.system_accent1_800))
         val head = Pair(c(android.R.color.system_accent1_600), c(android.R.color.system_accent1_200))
         val onHead = Pair(c(android.R.color.system_accent1_0), c(android.R.color.system_accent1_800))
-        val leaf = Pair(c(android.R.color.system_neutral1_10), c(android.R.color.system_neutral1_700))
-    }
+        // The leaf's page is frosted like the card, a lighter layer on it.
+        // The leaf drawable is opaque, so this alpha is the one that shows.
+        val leaf = Pair(
+            alpha(c(android.R.color.system_neutral1_10), 0.6f),
+            alpha(c(android.R.color.system_neutral1_600), 0.45f),
+        )
 
-    /**
-     * A short fingerprint of the colours a redraw would use now. It is
-     * compared with the one stored at the last draw to tell whether the theme
-     * moved underneath a placed widget.
-     */
-    fun fingerprint(context: Context): String {
-        val r = Roles(context)
-        return listOf(r.surface, r.text, r.muted, r.accent, r.head, r.leaf)
+        fun of(role: Role): Pair = when (role) {
+            Role.TEXT -> text
+            Role.MUTED -> muted
+            Role.ACCENT -> accent
+            Role.ON_HEAD -> onHead
+            Role.HEAD -> head
+            Role.TODAY -> today
+            Role.LEAF -> leaf
+            Role.BORDER -> border
+            Role.SURFACE -> surface
+        }
+
+        fun fingerprint(): String = listOf(surface, text, muted, accent, head, leaf)
             .joinToString(",") { "%08x:%08x".format(it.light, it.dark) }
     }
 
-    private fun solid(color: Int) = ColorStateList.valueOf(color)
+    companion object {
+        fun of(context: Context): WidgetPaint = when {
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.S -> WidgetPaint(Mode.LEGACY, null)
+            !WidgetTheme.isDynamic(context) -> WidgetPaint(Mode.STATIC, null)
+            else -> WidgetPaint(Mode.DYNAMIC, Roles(context))
+        }
 
-    /** Normal state [base], a day off (setEnabled(false)) [off]. Same states
-     *  as res/color/widget_day.xml. */
-    private fun dayList(off: Int, base: Int) = ColorStateList(
-        arrayOf(intArrayOf(-android.R.attr.state_enabled), intArrayOf()),
-        intArrayOf(off, base),
-    )
+        private fun staticRes(role: Role): Int = when (role) {
+            Role.TEXT -> R.color.widget_static_text
+            Role.MUTED -> R.color.widget_static_muted
+            Role.ACCENT -> R.color.widget_static_accent
+            Role.ON_HEAD -> R.color.widget_static_on_head
+            Role.HEAD -> R.color.widget_static_head
+            Role.TODAY -> R.color.widget_static_today
+            Role.LEAF -> R.color.widget_static_leaf
+            Role.BORDER -> R.color.widget_static_border
+            Role.SURFACE -> R.color.widget_surface
+        }
 
-    private fun RemoteViews.text(id: Int, p: Pair) =
-        setColorStateList(id, "setTextColor", solid(p.light), solid(p.dark))
+        private fun solid(color: Int) = ColorStateList.valueOf(color)
 
-    private fun RemoteViews.dayText(id: Int, off: Pair, base: Pair) =
-        setColorStateList(id, "setTextColor", dayList(off.light, base.light), dayList(off.dark, base.dark))
+        /** Normal state [base], a day off (setEnabled(false)) [off]. Same
+         *  states as res/color/widget_day.xml. */
+        private fun dayList(off: Int, base: Int) = ColorStateList(
+            arrayOf(intArrayOf(-android.R.attr.state_enabled), intArrayOf()),
+            intArrayOf(off, base),
+        )
+    }
+
+    private fun set(views: RemoteViews, id: Int, method: String, role: Role) {
+        when (mode) {
+            Mode.LEGACY -> Unit
+            Mode.STATIC -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                views.setColorStateList(id, method, staticRes(role))
+            }
+            Mode.DYNAMIC -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val p = roles!!.of(role)
+                views.setColorStateList(id, method, solid(p.light), solid(p.dark))
+            }
+        }
+    }
+
+    fun text(views: RemoteViews, id: Int, role: Role) = set(views, id, "setTextColor", role)
 
     /** Recolours a view's background drawable whatever colour it was drawn
      *  in. The default tint mode is SRC_IN, which keeps the drawable's shape
      *  and alpha and replaces its colour. */
-    private fun RemoteViews.tint(id: Int, p: Pair) =
-        setColorStateList(id, "setBackgroundTintList", solid(p.light), solid(p.dark))
+    fun tint(views: RemoteViews, id: Int, role: Role) = set(views, id, "setBackgroundTintList", role)
 
-    /** The same view list as WidgetTheme.applyStatic. Keep the two in step. */
-    fun apply(context: Context, views: RemoteViews, layoutRes: Int) {
-        val r = Roles(context)
-        val small = layoutRes == R.layout.widget_patro_small
-        val wide = layoutRes == R.layout.widget_patro_wide
-        val xl = layoutRes == R.layout.widget_patro_xl
-        val xlExpanded = layoutRes == R.layout.widget_patro_xl_expanded
-        val square = layoutRes == R.layout.widget_patro
+    fun imageTint(views: RemoteViews, id: Int, role: Role) = set(views, id, "setImageTintList", role)
 
-        views.tint(R.id.widget_root, r.surface)
-        views.tint(R.id.widget_leaf_head, r.head)
-        if (!square) {
-            // The leaf has a fill and a 1dp outline, which one tint colour
-            // would merge. widget_leaf_mask draws a white fill and a grey
-            // outline, and MULTIPLY carries that difference over: the fill
-            // comes out the leaf colour and the outline about a tone darker.
-            views.setInt(R.id.widget_leaf, "setBackgroundResource", R.drawable.widget_leaf_mask)
-            views.setBlendMode(R.id.widget_leaf, "setBackgroundTintBlendMode", BlendMode.MULTIPLY)
-            views.tint(R.id.widget_leaf, r.leaf)
+    /** A text colour that turns accent on a day off (setEnabled(false)). */
+    fun offText(views: RemoteViews, id: Int, base: Role) {
+        when (mode) {
+            Mode.LEGACY -> Unit
+            Mode.STATIC -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val res = if (base == Role.MUTED) R.color.widget_static_week_label else R.color.widget_static_day
+                views.setColorStateList(id, "setTextColor", res)
+            }
+            Mode.DYNAMIC -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val r = roles!!
+                val b = r.of(base)
+                views.setColorStateList(
+                    id, "setTextColor",
+                    dayList(r.accent.light, b.light), dayList(r.accent.dark, b.dark),
+                )
+            }
         }
-        views.text(R.id.widget_leaf_head, r.onHead)
-        views.dayText(R.id.widget_day, r.accent, r.text)
-        views.text(R.id.widget_month, r.text)
-        views.text(R.id.widget_ad, r.muted)
-        if (small) return
+    }
 
-        views.text(R.id.widget_weekday, r.muted)
-        views.text(R.id.widget_tithi, r.muted)
-        views.text(R.id.widget_note, r.accent)
-        if (wide || xl || xlExpanded) {
-            views.setColorInt(R.id.widget_divider1, "setBackgroundColor", r.border.light, r.border.dark)
-            views.text(R.id.widget_next, r.muted)
-        }
-        if (xlExpanded) {
-            views.setColorInt(R.id.widget_divider2, "setBackgroundColor", r.border.light, r.border.dark)
-            for (i in 0..6) {
-                views.dayText(WidgetRenderer.weekDayIds[i], r.accent, r.text)
-                views.dayText(WidgetRenderer.weekLabelIds[i], r.accent, r.muted)
-                // Only today's cell has a background (the pill); tinting the
-                // six empty ones does nothing.
-                views.tint(WidgetRenderer.weekCellIds[i], r.today)
+    /** A divider line. */
+    fun line(views: RemoteViews, id: Int) {
+        when (mode) {
+            Mode.LEGACY -> Unit
+            Mode.STATIC -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                views.setColor(id, "setBackgroundColor", R.color.widget_static_border)
+            }
+            Mode.DYNAMIC -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val p = roles!!.border
+                views.setColorInt(id, "setBackgroundColor", p.light, p.dark)
             }
         }
     }
