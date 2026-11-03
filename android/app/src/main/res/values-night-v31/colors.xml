@@ -12,7 +12,7 @@
     <color name="widget_accent">@android:color/system_accent1_200</color>
     <!-- Today's cell: a lifted dark tint, not a bright wash — a tone-80 fill
          behind a tone-95 date would invert the strip's whole hierarchy. -->
-    <color name="widget_today">@android:color/system_accent1_800</color>
+    <color name="widget_today">@android:color/system_accent1_600</color>
 
     <!-- Dark M3 primary / onPrimary (tone 80 / tone 20), and the page one
          step lighter than the tone-20 card so it lifts off it. -->

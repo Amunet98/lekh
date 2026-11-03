@@ -17,7 +17,7 @@
     <color name="ic_launcher_background">#151A2B</color>
 
     <!-- Translucent, not opaque: see the comment on widget_background.xml for why. -->
-    <color name="widget_surface">#DBFFFFFF</color>
+    <color name="widget_surface">#EBFFFFFF</color>
     <color name="widget_border">#DDE1E9</color>
     <color name="widget_text">#141824</color>
     <color name="widget_muted">#646C7E</color>

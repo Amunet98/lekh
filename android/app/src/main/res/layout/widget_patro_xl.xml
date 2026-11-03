@@ -12,16 +12,6 @@
     android:layout_height="match_parent"
     android:background="@drawable/widget_background">
 
-    <!-- The milky-glass sheen (1.9.115): a soft white wash from the top,
-         under the content. Its own view because the card behind it is
-         tinted at draw time, and a tint would flatten a sheen drawn into
-         the card's own drawable. Not clickable, so taps fall through. -->
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/widget_sheen"
-        android:importantForAccessibility="no"
-        android:contentDescription="@null" />
 
 <LinearLayout
     android:layout_width="match_parent"

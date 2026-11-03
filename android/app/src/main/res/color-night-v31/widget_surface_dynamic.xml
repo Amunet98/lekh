@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Dark counterpart; see color-v31/widget_surface_dynamic.xml.
 
-     neutral1_800 (tone 20), not neutral1_900 (tone 10): the card has to read
-     as lifted off the wallpaper, and tone 10 is the colour the app's own
-     background uses. -->
+     Tinted glass (1.9.116): the wallpaper's secondary colour at tone 20
+     (accent2_800), 88% opaque. The owner asked for "more opaque with
+     wallpaper colors"; the neutral ramp read as near-black. Why it is not
+     frosted: drawable/widget_background.xml. -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:alpha="0.82" android:color="@android:color/system_neutral1_800" />
+    <item android:alpha="0.88" android:color="@android:color/system_accent2_800" />
 </selector>

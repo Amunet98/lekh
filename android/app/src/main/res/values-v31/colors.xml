@@ -42,8 +42,9 @@
     <color name="widget_text">@android:color/system_neutral1_900</color>
     <color name="widget_muted">@android:color/system_neutral2_600</color>
     <color name="widget_accent">@android:color/system_accent1_700</color>
-    <!-- Today's cell in the week strip: the pale accent wash, tone 90. -->
-    <color name="widget_today">@android:color/system_accent1_100</color>
+    <!-- Today's cell in the week strip and the countdown pill: tone 80, one
+         step past tone 90 so it shows on the accent2_50 card (1.9.116). -->
+    <color name="widget_today">@android:color/system_accent1_200</color>
 
     <!-- The leaf under Material You: the M3 primary / onPrimary pair (tone
          40 / tone 100), which M3 guarantees at 4.5:1 or better on any
