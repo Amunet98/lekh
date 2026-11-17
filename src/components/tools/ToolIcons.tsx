@@ -4,7 +4,7 @@ import type { ToolId } from '../../lib/prefs'
  * (SectionIcons.tsx): a 24-unit box, 2-unit round stroke, no fill — Lucide's
  * grid, which is what the rest of the app's icons are drawn on. */
 
-type IconName = ToolId | 'swap' | 'expand' | 'search' | 'refresh' | 'phone' | 'x'
+type IconName = ToolId | 'swap' | 'expand' | 'search' | 'refresh' | 'phone' | 'x' | 'speaker' | 'stop'
 
 export function ToolIcon({ name, size = 20 }: { name: IconName; size?: number }) {
   const props = {
@@ -54,6 +54,20 @@ export function ToolIcon({ name, size = 20 }: { name: IconName; size?: number })
       return (
         <svg {...props}>
           <path d="m21 16-4 4-4-4M17 20V4M3 8l4-4 4 4M7 4v16" />
+        </svg>
+      )
+    // Lucide volume-2 and a rounded square: read aloud, and stop it.
+    case 'speaker':
+      return (
+        <svg {...props}>
+          <path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z" />
+          <path d="M16 9a5 5 0 0 1 0 6M19.364 18.364a9 9 0 0 0 0-12.728" />
+        </svg>
+      )
+    case 'stop':
+      return (
+        <svg {...props}>
+          <rect x="6" y="6" width="12" height="12" rx="2" />
         </svg>
       )
     case 'expand':

@@ -841,6 +841,51 @@
 .phrases > li + li {
   border-top: 1px solid var(--border);
 }
+/* The row and its speaker (2.0.3) side by side. The row keeps every pixel it
+   had; where there is no voice the speaker is not rendered and the li holds
+   the row alone, exactly as before. */
+.phrases__item {
+  display: flex;
+  align-items: stretch;
+}
+.phrases__item > .phrase {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+/* Quiet like the expand glyph beside it, with the whole height of the row as
+   its target. The rule between them says these are two things to press. */
+.phrase__speak {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  padding: 0;
+  border: 0;
+  border-inline-start: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+@media (hover: hover) {
+  .phrase__speak:hover {
+    background: var(--answer-bg);
+    color: var(--accent-text);
+  }
+}
+.phrase__speak:active {
+  background: var(--accent-bg);
+}
+.phrase__speak:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.phrase__speak.is-speaking {
+  color: var(--accent-text);
+  background: var(--accent-bg);
+}
 
 /* A line of the phrasebook as a table row, and the row is the Show button:
    the English you find it by, then the Nepali over how to say it, then the

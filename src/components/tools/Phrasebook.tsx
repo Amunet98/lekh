@@ -6,6 +6,7 @@ import type { Shown } from '../translate/ShowScreen'
 import { ToolHeader } from '../ToolHeader'
 import { ClearField } from './ClearField'
 import { ToolIcon } from './ToolIcons'
+import { SpeakButton } from '../SpeakButton'
 
 /* What a visitor needs to say, ready-made and offline — Translate needs a
  * network or a 900 MB model, and a trail at 4,000 m has neither. The
@@ -106,7 +107,7 @@ export function Phrasebook({ onShow }: { onShow: (shown: Shown) => void }) {
       {phrases.length > 0 ? (
         <ul className="phrases" aria-live={q ? 'polite' : undefined}>
           {phrases.map((p) => (
-            <li key={p.en}>
+            <li key={p.en} className="phrases__item">
               <button
                 type="button"
                 className="phrase"
@@ -127,6 +128,10 @@ export function Phrasebook({ onShow }: { onShow: (shown: Shown) => void }) {
                   <span className="sr-only">Show full screen</span>
                 </span>
               </button>
+              {/* Beside the row, not in it: the row is itself a button (Show),
+                  and a button cannot hold another. Renders nothing where the
+                  device has no Nepali voice, leaving the row as it was. */}
+              <SpeakButton text={p.ne} lang="ne" what={`“${p.en}” in Nepali`} className="phrase__speak" />
             </li>
           ))}
         </ul>

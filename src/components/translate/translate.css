@@ -801,6 +801,13 @@
   }
 }
 
+/* The speaker while it is reading (SpeakButton): the stop square sits on the
+   accent wash, so the one control making noise is the one that looks on. */
+.translate-output__actions .btn.is-speaking {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+
 /* Under an on-device answer that still looks invented (invented.ts): small,
    in the warning colour, inside the answer it is about. */
 .translate-output__caution {

@@ -7,6 +7,7 @@ import { useMediaQuery } from '../../hooks/useMediaQuery'
 import { useToast } from '../../hooks/useToast'
 import { DOCK_QUERY } from '../../hooks/useDockDetached'
 import { pronounce } from '../../lib/engine/pronounce'
+import { SpeakButton } from '../SpeakButton'
 import './translate.css'
 
 const formatMB = (bytes: number) => `${Math.round(bytes / 1e6)} MB`
@@ -21,6 +22,12 @@ export function TranslationOutput({ t, onShow }: { t: TranslateState; onShow: ()
   /* Same as the Type tab's: a share sheet that fails to open has nowhere
      else to say so. Dismissing it is not a failure (see share.ts). */
   const share = () => void t.share().catch(() => toast.problem('Could not open the share sheet'))
+  /* Read aloud (2.0.3), in whichever language the answer is in. Only once
+     settled, like Show: reading a chunked translation that is still arriving
+     would start over each time a part landed. */
+  const speaker = settled && (t.targetLang.code === 'ne' || t.targetLang.code === 'en') && (
+    <SpeakButton text={t.translated} lang={t.targetLang.code} what="the translation" />
+  )
   return (
     <>
       <div className="translate-output dev" aria-live="polite">
@@ -143,6 +150,9 @@ export function TranslationOutput({ t, onShow }: { t: TranslateState; onShow: ()
            and Show — the same actions in a different arrangement from the
            tab next door. */
         <div className="translate-output__actions reveal">
+          {/* The row's empty left end: the one place a fourth control adds
+              nothing to the right-hand cluster the thumb already knows. */}
+          {speaker}
           <span className="translate-output__spacer" />
           <button type="button" className="btn btn--primary" onClick={() => void t.copy()}>
             {t.copied ? 'Copied' : 'Copy'}
@@ -171,6 +181,7 @@ export function TranslationOutput({ t, onShow }: { t: TranslateState; onShow: ()
             label="translation"
             compact
           />
+          {speaker}
           <span className="translate-output__spacer" />
           {/* The primary action of this screen — see .btn--primary in Editor.css. */}
           <button
