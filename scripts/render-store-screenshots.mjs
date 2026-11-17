@@ -16,7 +16,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { requireChromium, shot } from './lib/chromium.mjs'
 
-const SLIDES = ['type', 'letters', 'patro', 'dark', 'translate', 'widgets', 'private']
+const SLIDES = ['type', 'patro', 'translate', 'phrases', 'widgets', 'dark', 'letters', 'private']
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const source = join(root, 'design', 'store-screenshots.html')

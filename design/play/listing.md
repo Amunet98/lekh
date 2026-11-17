@@ -23,7 +23,13 @@ keywords that indicate price or promotion" — "ad-free" counts. Price and
 promotion words are kept out of the title and this line; the full
 description's "No ads, ever" and "free and open source" are allowed there.
 
-## Full description (2006 / 4000)
+## Full description (2473 / 4000)
+
+Updated 2026-11-18 for 2.0.8: read aloud, the tithi under every date, the
+"this month" key, five widget sizes up to the whole month (it still said four,
+up to a week), and the phrasebook's 46 phrases with fill-in blanks. The
+TRANSLATE section now comes before TOOLS.
+
 
 Rewritten 2026-10-07 for search: the phrases people type into Play (Nepali
 typing, Romanized Nepali Unicode, Nepali calendar/patro, BS, साइत) in plain
@@ -40,28 +46,30 @@ TYPE NEPALI (नेपाली टाइपिङ)
 • Copy, share, or save as a text file, Word document or PDF
 
 NEPALI CALENDAR (नेपाली पात्रो)
-• Bikram Sambat (BS) calendar with festivals, public holidays and tithi
+• Bikram Sambat (BS) calendar with the tithi under every date, festivals and public holidays
+• This month at a glance: how many days off, public holidays and festivals the month has. Tap one to light those days up in the calendar
 • शुभ साइत: auspicious dates for weddings (विवाह) and bratabandha (ब्रतबन्ध)
 • Partial holidays show who they are for (Kathmandu Valley only, women employees, and so on)
 • BS ↔ AD date converter
 • Add any festival to your phone's calendar
-• Home-screen widgets in four sizes, from a small date to a full week with the next festival, in your wallpaper's colours or Lekh's own
+• Home-screen widgets in five sizes, from a small date to the whole month with each day's tithi, in your wallpaper's colours or Lekh's own
 • No ads, ever
+
+TRANSLATE (अनुवाद)
+• English ↔ Nepali translation, with a line on how to say the Nepali
+• Hear it: tap the speaker and your phone reads the translation aloud in Nepali, offline once the Nepali voice is downloaded
+• Translate photos, screenshots, PDFs and documents
+• Download the offline model once and translate with no internet at all
 
 TOOLS (उपकरण)
 • Amount in words for cheques: type 1250075.50 and get बाह्र लाख पचास हजार पचहत्तर रुपैयाँ पचास पैसा मात्र, in Nepali and in English
 • Preeti to Unicode: paste old Preeti-font text and get proper Nepali Unicode, or turn Unicode back into Preeti
 • Currency converter with the day's Nepal Rastra Bank exchange rates
 • Nepali digits and lakh/crore grouping: 12,50,075 ↔ १२,५०,०७५
-• A traveller's phrasebook with pronunciation and emergency numbers, offline
-
-TRANSLATE (अनुवाद)
-• English ↔ Nepali translation
-• Translate photos, screenshots, PDFs and documents
-• Download the offline model once and translate with no internet at all
+• A traveller's phrasebook that works offline: 46 everyday phrases with pronunciation, read aloud, with blanks for your name or where you're going, under Nepal's emergency numbers
 
 PRIVATE BY DESIGN
-Typing, text recognition and the calendar all run on your phone. There are no accounts, no ads and no tracking. Lekh Patro is free and open source.
+Typing, text recognition and the calendar all run on your phone. Read aloud uses your phone's own voice. There are no accounts, no ads and no tracking. Lekh Patro is free and open source.
 
 ## Data safety
 

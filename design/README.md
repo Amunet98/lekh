@@ -99,11 +99,29 @@ icons go live on the next deploy.
 npm run play:screenshots
 ```
 
-The seven Play Store phone screenshots (1440×2560): a headline, a Devanagari
-kicker and a **real** device capture from `design/play/raw/` in a phone frame,
-each on its own ground (crimson, paper, flag blue, night, marigold, wallpaper
-violet, paper). The renderer flattens to RGB because Play rejects screenshots
-with an alpha channel.
+The eight Play Store phone screenshots (1440×2560), redesigned 2026-11-18 for
+2.0.8: type, patro, translate, phrases, widgets, dark, letters, private. Each
+is a short headline under a Devanagari kicker, a **real** capture from
+`design/play/raw/` in a phone that fills the width and runs off the bottom, and
+a magnified close-up of the one thing the slide is about (the capture itself,
+cropped by `background-position`), so it still reads at Play's thumbnail size.
+The renderer flattens to RGB because Play rejects screenshots with an alpha
+channel.
+
+**2026-11-18 recipe (emulator, replaces the A024 one below):** the `lekh36` AVD
+at `wm size 1440x3200` / `wm density 560` (the A024's 412dp width at 3.5x),
+the `.dev` build pointed at the live site, wallpaper colours off
+(`localStorage['lekh:dynamic-color']='off'`, and
+`Capacitor.Plugins.DynamicColor.setWidgetDynamic({enabled:false})` for the
+widgets), SystemUI demo mode, and **every IME disabled** (`ime disable` each
+entry of `ime list -s`, restore after) so no keyboard covers the screen while
+text arrives over CDP `Input.insertText`. The captures have the system status
+bar (171px) trimmed; the frame draws its own in the app bar colour, because a
+dark screen otherwise sits under a light-grey bar. Widgets come from
+`WidgetPreviewActivity` at the A024 launcher sizes, including the
+`month, this month 5x5` row added for this. swiftshader's emulator throws
+"System UI isn't responding" now and then: tap Wait before every capture.
+Restore `wm size`/`density`, the IMEs and demo mode afterwards.
 
 The captures are real on purpose — re-shoot them when the UI changes rather
 than editing pixels. Recipe (2026-09-30): the `.dev` debug APK driven over CDP
@@ -132,10 +150,22 @@ change does not re-run the slide picker).
 ## `promo-video.html` → `play/lekh-patro-promo.mp4`
 
 A 30-second, 1920×1080 promo video for the Play listing (Play takes it as a
-YouTube link, so the MP4 is what gets uploaded there). Intro and outro cards on
-paper with the wordmark; four feature cards (Type, Letters, Translate, Patro)
-on the screenshots' grounds, each with a real screen recording composited into
-a phone frame. `promo-video.html#<card>` renders each card; `#frame` is the
+YouTube link, so the MP4 is what gets uploaded there). Rebuilt 2026-11-18:
+wordmark intro, then Type, Translate (the speaker tapped), Patro (holidays and
+festivals lit from the key), Phrasebook (a name typed into the blank, then
+read aloud), the widgets, and an outro, on the screenshots' grounds. Each scene
+has the recording in a phone on the left AND a live magnified crop of the same
+recording under the headline (at 860,560, 940px wide, rounded, soft shadow):
+at video size the phone's own text is ~13px, so the close-up is what is read.
+Every scene pushes in 4%; scenes join with 0.5s fades; the track is silent
+(music is added in YouTube Studio).
+
+2026-11-18 recordings: the same emulator setup as the screenshots,
+`screenrecord --size 1080x2400 --bit-rate 16000000`, one recording per scene,
+sped up to fit (type 10.8s→5.6s, translate 11.5→5.6, patro 9.2→5.6,
+phrases 7.1→5.2). The phone screen is 432×960 at (288,60) in every card; the
+crop rectangles (in 1080×2400 recording pixels) are type y270 h300, translate
+y830 h230, patro y510 h380, phrases y1360 h330. `promo-video.html#<card>` renders each card; `#frame` is the
 bezel layer with a transparent screen, laid over the recording so its inner
 curve rounds the recording's corners.
 

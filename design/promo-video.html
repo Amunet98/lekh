@@ -5,18 +5,22 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Anek+Devanagari:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=block"
+      href="https://fonts.googleapis.com/css2?family=Anek+Devanagari:wght@600;700;800&family=Inter:wght@500;600;700;800&family=Noto+Sans+Devanagari:wght@600;700&display=block"
       rel="stylesheet"
     />
     <style>
-      /* Play Store promo video cards, 1920x1080. One card per location.hash:
-         intro and outro are full cards; the four feature cards leave a phone
-         frame on the left that the screen recording is composited into, and
-         #frame is the bezel layer drawn on top of that recording (transparent
-         everywhere else). Built by scripts/render-promo-video.mjs.
+      /* Play Store promo video cards, 1920x1080, one per location.hash.
+         Redesigned 2026-11-18 for 2.0.8, to match the new screenshots
+         (store-screenshots.html): same grounds, same headlines, same phone.
 
-         Same grounds, faces and voice as store-screenshots.html, so the video
-         and the screenshots read as one listing. */
+         A scene card is the ground, the headline on the right and an EMPTY
+         phone on the left; the screen recording is composited into the phone
+         by ffmpeg (recipe in design/README.md), through #mask (white where
+         the screen is) and under #frame (the bezel, transparent screen), so
+         the recording gets the screen's rounded corners.
+
+         Phone geometry, shared by every card, #mask and #frame: the screen is
+         432x960 at (288, 60), i.e. a 1080x2400 recording at 0.4. */
       :root {
         --ink: #141824;
         --paper: #f6f1e7;
@@ -25,178 +29,162 @@
         --marigold: #f3a712;
         --en: 'Inter', system-ui, sans-serif;
         --dev: 'Anek Devanagari', 'Noto Sans Devanagari', sans-serif;
-        --dev-text: 'Noto Sans Devanagari', sans-serif;
-        --mono: 'JetBrains Mono', ui-monospace, monospace;
-        /* The phone. The screen is the recording's 720x1600 at 0.5625. */
-        --sx: 330px;
-        --sy: 90px;
-        --sw: 405px;
-        --sh: 900px;
-        --bezel: 16px;
       }
       * { box-sizing: border-box; margin: 0; padding: 0; }
-      html, body { width: 1920px; height: 1080px; overflow: hidden; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: transparent; }
       body { font-family: var(--en); -webkit-font-smoothing: antialiased; }
-      body.frame { background: transparent; }
       .card { display: none; position: relative; width: 1920px; height: 1080px; overflow: hidden; }
       .card.on { display: block; }
 
-      /* Behind the recording: the phone body and its shadow. */
-      .body {
+      .phone {
         position: absolute;
-        left: calc(var(--sx) - var(--bezel));
-        top: calc(var(--sy) - var(--bezel));
-        width: calc(var(--sw) + 2 * var(--bezel));
-        height: calc(var(--sh) + 2 * var(--bezel));
-        border-radius: 62px;
-        background: #0a0a0d;
-        box-shadow: 0 50px 100px -30px rgba(0, 0, 0, 0.5), 0 24px 48px -18px rgba(0, 0, 0, 0.35);
+        left: 266px;
+        top: 38px;
+        width: 476px;
+        height: 1004px;
+        border-radius: 70px;
+        background: #0b0d12;
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.08) inset, 0 50px 90px -30px rgba(8, 10, 18, 0.55);
       }
-      /* On top of the recording: the bezel ring, whose inner curve also masks
-         the recording's square corners, and the camera hole. */
-      .bezel {
-        position: absolute;
-        left: calc(var(--sx) - var(--bezel));
-        top: calc(var(--sy) - var(--bezel));
-        width: calc(var(--sw) + 2 * var(--bezel));
-        height: calc(var(--sh) + 2 * var(--bezel));
-        border-radius: 62px;
-        border: var(--bezel) solid #0a0a0d;
-        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.07) inset;
-      }
-      .bezel::after {
-        content: '';
-        position: absolute;
-        top: 14px;
-        left: 50%;
-        width: 18px;
-        height: 18px;
-        margin-left: -9px;
-        border-radius: 50%;
-        background: #050507;
-      }
+      .copy { position: absolute; left: 860px; right: 120px; top: 130px; }
+      /* The scene's close-up goes under the headline: a live, magnified crop
+         of the same recording, composited by ffmpeg at (860, 600). */
+      .kicker { font-family: var(--dev); font-weight: 700; font-size: 46px; line-height: 1.15; }
+      h1 { font-weight: 800; font-size: 104px; line-height: 1; letter-spacing: -0.04em; margin-top: 18px; text-wrap: balance; }
+      .sub { font-size: 38px; line-height: 1.3; font-weight: 500; margin-top: 28px; opacity: 0.85; }
+      .eg { margin-top: 34px; display: inline-flex; align-items: center; gap: 22px; padding: 18px 30px; border-radius: 999px; font-size: 40px; font-weight: 600; }
+      .eg b { font-family: 'Noto Sans Devanagari', sans-serif; font-weight: 700; }
 
-      .copy {
-        position: absolute;
-        left: 900px;
-        right: 120px;
-        top: 50%;
-        transform: translateY(-50%);
-      }
-      .kicker { font-family: var(--dev); font-weight: 700; font-size: 52px; line-height: 1.1; }
-      h1 { font-weight: 800; font-size: 96px; line-height: 1.03; letter-spacing: -0.035em; margin-top: 18px; }
-      .sub { font-size: 38px; line-height: 1.32; font-weight: 500; margin-top: 28px; opacity: 0.88; }
-      .chips { display: flex; gap: 16px; margin-top: 34px; flex-wrap: wrap; }
-      .chip { font-size: 32px; font-weight: 600; padding: 12px 26px; border-radius: 999px; border: 3px solid currentColor; }
+      #type { background: radial-gradient(1300px 900px at 90% 0%, #e2283f, var(--crimson) 50%, #a50d26); color: #fff; }
+      #type .kicker { color: #ffd9a0; }
+      #type .eg { background: rgba(255, 255, 255, 0.95); color: var(--ink); }
+      #type .eg code { font: 600 38px/1 ui-monospace, monospace; color: #5b6275; }
 
-      .mark { font-family: var(--dev); font-weight: 700; line-height: 1; color: var(--ink); }
+      #translate { background: radial-gradient(1300px 900px at 90% 0%, #ffc54a, var(--marigold) 50%, #e3920a); color: var(--ink); }
+      #translate .kicker { color: #8a1a10; }
+
+      #patro { background: radial-gradient(1300px 900px at 90% 0%, #fffaf0, var(--paper) 55%, #efe6d4); color: var(--ink); }
+      #patro .kicker { color: var(--crimson); }
+      #patro h1 em { font-style: normal; color: var(--crimson); }
+
+      #phrases { background: radial-gradient(1300px 900px at 90% 0%, #1d55b8, var(--flag-blue) 50%, #072a68); color: #fff; }
+      #phrases .kicker { color: #ffd9a0; }
+
+      #widgets {
+        background:
+          radial-gradient(900px 800px at 0% 100%, rgba(255, 120, 150, 0.45), transparent 60%),
+          radial-gradient(900px 800px at 100% 0%, rgba(80, 140, 255, 0.45), transparent 60%),
+          linear-gradient(160deg, #4b2a8f, #2a1c63 55%, #1a1446);
+        color: #fff;
+      }
+      #widgets .kicker { color: #ffd9a0; }
+      #widgets .wmonth { position: absolute; left: 150px; top: 90px; width: 640px; border-radius: 36px; box-shadow: 0 40px 80px -30px rgba(5, 4, 30, 0.7); }
+      #widgets .w5 { position: absolute; left: 120px; top: 760px; width: 700px; border-radius: 36px; box-shadow: 0 40px 80px -30px rgba(5, 4, 30, 0.7); }
+      #widgets .copy { left: 900px; top: 50%; transform: translateY(-50%); }
+
+      #intro, #outro { background: radial-gradient(1400px 900px at 50% 0%, #fffaf0, var(--paper) 60%, #efe6d4); color: var(--ink); text-align: center; }
+      .center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+      .mark { font-family: 'Noto Sans Devanagari', sans-serif; font-weight: 700; font-size: 220px; line-height: 1.1; }
       .mark i { font-style: normal; color: #1c3f94; }
       .mark .slash { color: #9aa1b2; font-weight: 500; margin: 0 0.04em; }
       .mark em { font-style: normal; color: var(--crimson); }
+      .tag { font-weight: 700; font-size: 64px; letter-spacing: -0.03em; margin-top: 18px; }
+      .tag span { color: var(--crimson); }
+      .small { font-size: 40px; font-weight: 600; color: #5b6275; margin-top: 26px; }
+      .play { margin-top: 56px; display: inline-flex; align-items: center; gap: 22px; padding: 26px 48px; border-radius: 999px; background: var(--ink); color: #fff; font-size: 44px; font-weight: 700; }
+      .play svg { width: 44px; height: 44px; }
 
-      .bubble {
-        display: inline-flex;
-        align-items: center;
-        gap: 26px;
-        padding: 26px 42px;
-        border-radius: 999px;
-        background: #fff;
-        color: var(--ink);
-        box-shadow: 0 30px 60px -18px rgba(0, 0, 0, 0.25);
-      }
-      .bubble .roman { font-family: var(--mono); font-size: 44px; color: #646c7e; }
-      .bubble .arrow { font-size: 42px; color: var(--crimson); font-weight: 700; }
-      .bubble .deva { font-family: var(--dev-text); font-weight: 700; font-size: 54px; }
-
-      /* Intro and outro: centred, on paper, wearing the real wordmark. */
-      .centre {
+      /* Compositing layers: white where the screen is, and the bezel alone. */
+      #mask { background: #000; }
+      #mask .scr { position: absolute; left: 288px; top: 60px; width: 432px; height: 960px; border-radius: 52px; background: #fff; }
+      #frame .phone { background: transparent; box-shadow: none; }
+      #frame .phone::before {
+        content: '';
         position: absolute;
         inset: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        gap: 40px;
+        border-radius: 70px;
+        border: 22px solid #0b0d12;
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.08) inset;
       }
-      #intro, #outro { background: var(--paper); color: var(--ink); }
-      #intro .mark, #outro .mark { font-size: 190px; }
-      #intro .tag { font-weight: 800; font-size: 80px; letter-spacing: -0.03em; }
-      #outro .tag { font-weight: 800; font-size: 72px; letter-spacing: -0.03em; }
-      #outro .tag em { font-style: normal; color: var(--crimson); }
-      #outro .play { font-size: 40px; font-weight: 600; color: #4b5266; }
-
-      #type { background: var(--crimson); color: #fff; }
-      #letters { background: var(--paper); color: var(--ink); }
-      #letters .kicker { color: var(--crimson); }
-      #translate { background: var(--marigold); color: var(--ink); }
-      #patro { background: var(--flag-blue); color: #fff; }
-      #patro .chip { color: #cfdcff; }
+      /* The inner corners: a ring that fills the gap between the bezel's
+         inner edge and the screen's tighter radius. */
+      #frame .phone::after {
+        content: '';
+        position: absolute;
+        inset: 22px;
+        border-radius: 52px;
+        box-shadow: 0 0 0 30px #0b0d12;
+        clip-path: inset(-22px round 70px);
+      }
     </style>
   </head>
   <body>
     <section class="card" id="intro">
-      <div class="centre">
+      <div class="center">
         <div class="mark">ले<i>ख</i><span class="slash">/</span><em>पात्रो</em></div>
-        <div class="tag">Type Nepali the way you text</div>
-        <div class="bubble">
-          <span class="roman">kasto chha</span><span class="arrow">&rarr;</span><span class="deva">कस्तो छ</span>
-        </div>
+        <div class="tag">Type Nepali the way you <span>text</span></div>
       </div>
     </section>
 
     <section class="card" id="type">
-      <div class="body"></div>
+      <div class="phone"></div>
       <div class="copy">
         <div class="kicker">नेपाली लेख्नुहोस्</div>
-        <h1>English letters in,<br />Nepali out</h1>
-        <p class="sub">Romanized Nepali Unicode that pastes into any app.</p>
-      </div>
-    </section>
-
-    <section class="card" id="letters">
-      <div class="body"></div>
-      <div class="copy">
-        <div class="kicker">क ख ग</div>
-        <h1>Every letter,<br />one look away</h1>
-        <p class="sub">A searchable map from sound to letter.</p>
+        <h1>Type Nepali the way you text</h1>
       </div>
     </section>
 
     <section class="card" id="translate">
-      <div class="body"></div>
+      <div class="phone"></div>
       <div class="copy">
-        <div class="kicker">अनुवाद</div>
-        <h1>English &harr; Nepali<br />in a tap</h1>
-        <div class="chips"><span class="chip">Text</span><span class="chip">Photos</span><span class="chip">PDFs</span><span class="chip">Offline</span></div>
+        <div class="kicker">अनुवाद, अनि आवाज</div>
+        <h1>Translate it. Hear it.</h1>
       </div>
     </section>
 
     <section class="card" id="patro">
-      <div class="body"></div>
+      <div class="phone"></div>
       <div class="copy">
         <div class="kicker">बिक्रम सम्बत पात्रो</div>
-        <h1>Your patro,<br />without the ads</h1>
-        <div class="chips"><span class="chip">Festivals</span><span class="chip">Public holidays</span><span class="chip">Tithi</span></div>
+        <h1>Every tithi, every <em>holiday</em></h1>
+      </div>
+    </section>
+
+    <section class="card" id="phrases">
+      <div class="phone"></div>
+      <div class="copy">
+        <div class="kicker">यात्रीका लागि</div>
+        <h1>Say it in Nepali, out loud</h1>
+      </div>
+    </section>
+
+    <section class="card" id="widgets">
+      <img class="wmonth" src="play/raw/widget-month.png" alt="" />
+      <img class="w5" src="play/raw/widget-w5x1x.png" alt="" />
+      <div class="copy">
+        <div class="kicker">गृह स्क्रिन विजेट</div>
+        <h1>Your patro on the home screen</h1>
       </div>
     </section>
 
     <section class="card" id="outro">
-      <div class="centre">
+      <div class="center">
         <div class="mark">ले<i>ख</i><span class="slash">/</span><em>पात्रो</em></div>
-        <div class="tag">Free. No ads. <em>No sign-up.</em></div>
-        <div class="play">Get it on Google Play</div>
+        <div class="small">Free. No ads. No sign-up.</div>
+        <div class="play">
+          <!-- lucide: play -->
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 3.5v17a1 1 0 0 0 1.5.86l14-8.5a1 1 0 0 0 0-1.72l-14-8.5A1 1 0 0 0 6 3.5Z" /></svg>
+          Get it on Google Play
+        </div>
       </div>
     </section>
 
-    <section class="card" id="frame">
-      <div class="bezel"></div>
-    </section>
+    <section class="card" id="mask"><div class="scr"></div></section>
+    <section class="card" id="frame"><div class="phone"></div></section>
 
     <script>
-      const id = location.hash.slice(1) || 'intro'
-      document.getElementById(id)?.classList.add('on')
-      if (id === 'frame') document.body.classList.add('frame')
+      const id = (location.hash || '#intro').slice(1)
+      ;(document.getElementById(id) || document.getElementById('intro')).classList.add('on')
     </script>
   </body>
 </html>
