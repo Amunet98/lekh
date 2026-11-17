@@ -106,7 +106,14 @@
           0 30px 50px -16px rgba(40, 0, 8, 0.55);
         z-index: 1;
       }
-      .phone img { display: block; width: 100%; border-radius: 27px; }
+      /* The captures have their status bar trimmed (2026-11-18, see
+         store-screenshots.html), so the frame draws it, in the app bar's
+         colour: 171 capture px at 218/1440. */
+      .scr { border-radius: 27px; overflow: hidden; }
+      .scr img { display: block; width: 100%; }
+      .bar { height: 26px; padding: 4px 0 0 20px; font: 600 9px/22px 'Inter', system-ui, sans-serif; }
+      .light { background: #faf8f5; color: #141824; }
+      .dark { background: #0d1221; color: #eef0f6; }
       .phone::after {
         content: '';
         position: absolute;
@@ -130,7 +137,7 @@
       </div>
       <div class="line">Type<span>·</span>Patro<span>·</span>Translate</div>
     </div>
-    <div class="phone p1"><img src="play/raw/type.png" alt="" /></div>
-    <div class="phone p2"><img src="play/raw/patro-dark.png" alt="" /></div>
+    <div class="phone p1"><div class="scr"><div class="bar light">9:41</div><img src="play/raw/type.png" alt="" /></div></div>
+    <div class="phone p2"><div class="scr"><div class="bar dark">9:41</div><img src="play/raw/patro-dark.png" alt="" /></div></div>
   </body>
 </html>
