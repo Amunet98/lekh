@@ -1,5 +1,7 @@
 import { useId, useRef, useState } from 'react'
 import { pronounce } from '../../lib/engine/pronounce'
+import { fillBlank } from '../../lib/phraseBlank'
+import { usePref } from '../../hooks/usePref'
 import { tick } from '../../lib/haptics'
 import { EMERGENCY_NUMBERS, PHRASE_GROUPS, type Phrase } from '../../data/phrases'
 import type { Shown } from '../translate/ShowScreen'
@@ -37,6 +39,10 @@ export function Phrasebook({ onShow }: { onShow: (shown: Shown) => void }) {
   const [groupId, setGroupId] = useState(PHRASE_GROUPS[0].id)
   const [query, setQuery] = useState('')
   const findRef = useRef<HTMLInputElement>(null)
+  /* What fills the blanks (2.0.7). The name is remembered; the place is
+     shared by every "… कहाँ छ?"-style line, so it is typed once. */
+  const [name, setName] = usePref('phraseName')
+  const [place, setPlace] = useState('')
   const group = PHRASE_GROUPS.find((g) => g.id === groupId) ?? PHRASE_GROUPS[0]
   const q = query.trim()
   const phrases = q ? PHRASE_GROUPS.flatMap((g) => g.phrases).filter((p) => matches(p, q)) : group.phrases
@@ -106,22 +112,33 @@ export function Phrasebook({ onShow }: { onShow: (shown: Shown) => void }) {
 
       {phrases.length > 0 ? (
         <ul className="phrases" aria-live={q ? 'polite' : undefined}>
-          {phrases.map((p) => (
+          {phrases.map((p, i) => {
+            /* One field per kind of blank, on the first such line on show:
+               the place is shared, so a field under every place line was
+               the same box four times over. The lines below it fill in as
+               it is typed. */
+            const hasField = p.blank !== undefined && phrases.findIndex((q) => q.blank === p.blank) === i
+            const value = p.blank === 'name' ? name : p.blank === 'place' ? place : ''
+            const ne = p.blank ? fillBlank(p.ne, value, p.blank) : p.ne
+            // A hand-written `say` belongs to the line as written.
+            const say = p.blank ? pronounce(ne) : (p.say ?? pronounce(p.ne))
+            const ready = !p.blank || value.trim() !== ''
+            return (
             <li key={p.en} className="phrases__item">
               <button
                 type="button"
                 className="phrase"
                 onClick={() => {
                   tick()
-                  onShow({ text: p.ne, lang: 'ne', say: p.say })
+                  onShow({ text: ne, lang: 'ne', say })
                 }}
               >
                 <span className="phrase__en">{p.en}</span>
                 <span className="phrase__ne dev" lang="ne">
-                  {p.ne}
+                  {ne}
                 </span>
                 <span className="phrase__say" lang="ne-Latn">
-                  {p.say ?? pronounce(p.ne)}
+                  {say}
                 </span>
                 <span className="phrase__show">
                   <ToolIcon name="expand" size={16} />
@@ -131,9 +148,29 @@ export function Phrasebook({ onShow }: { onShow: (shown: Shown) => void }) {
               {/* Beside the row, not in it: the row is itself a button (Show),
                   and a button cannot hold another. Renders nothing where the
                   device has no Nepali voice, leaving the row as it was. */}
-              <SpeakButton text={p.ne} lang="ne" what={`“${p.en}” in Nepali`} className="phrase__speak" />
+              {/* Silent until the blank is filled: read aloud, "मेरो नाम …
+                  हो" is a sentence with a hole in it. */}
+              <SpeakButton text={ready ? ne : ''} lang="ne" what={`“${p.en}” in Nepali`} className="phrase__speak" />
+              {hasField && (
+                <label className="phrase-blank">
+                  <span className="phrase-blank__label">{p.blank === 'name' ? 'Your name' : 'Place'}</span>
+                  <input
+                    className="phrase-blank__input"
+                    type="text"
+                    value={value}
+                    maxLength={40}
+                    autoComplete="off"
+                    autoCapitalize="words"
+                    spellCheck={false}
+                    enterKeyHint="done"
+                    placeholder={p.blank === 'name' ? 'e.g. Sita' : 'e.g. Thamel, airport'}
+                    onChange={(e) => (p.blank === 'name' ? setName : setPlace)(e.target.value)}
+                  />
+                </label>
+              )}
             </li>
-          ))}
+            )
+          })}
         </ul>
       ) : (
         <p className="tools__empty" aria-live="polite">

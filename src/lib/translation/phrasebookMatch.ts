@@ -9,8 +9,9 @@ import { PHRASE_GROUPS } from '../../data/phrases'
  * Exact matches only, after the forgiving normalisation below; anything else
  * goes to the translator as before.
  *
- * Alternatives are paired with care. "Yes / No" ↔ "हो / होइन" splits one to
- * one; "Hello / Goodbye" ↔ "नमस्ते" is one Nepali word for both, so both
+ * Alternatives are paired with care. A line with as many Nepali halves as
+ * English ones splits one to one (Yes and No were one such line until they
+ * became two in 2.0.7); "Hello / Goodbye" ↔ "नमस्ते" is one Nepali word for both, so both
  * English halves map to it. Lines with a blank to fill ("My name is …") are
  * left out: they are templates, not translations. */
 

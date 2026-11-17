@@ -12,6 +12,10 @@ export interface Phrase {
   ne: string
   /** Hand-written pronunciation, when the generated one is not good enough. */
   say?: string
+  /** The line has a … to fill (2.0.7): the phrasebook gives it a field, and
+   *  what is typed there goes into the Nepali (see lib/phraseBlank.ts). A
+   *  place is shared by every place line; a name is remembered. */
+  blank?: 'name' | 'place'
 }
 
 export interface PhraseGroup {
@@ -30,8 +34,12 @@ export const PHRASE_GROUPS: PhraseGroup[] = [
       { en: 'How are you?', ne: 'तपाईंलाई कस्तो छ?' },
       { en: 'I’m fine', ne: 'म ठिक छु।' },
       { en: 'What is your name?', ne: 'तपाईंको नाम के हो?' },
-      { en: 'My name is …', ne: 'मेरो नाम … हो।' },
-      { en: 'Yes / No', ne: 'हो / होइन', say: 'Ho / hoina' },
+      { en: 'My name is …', ne: 'मेरो नाम … हो।', blank: 'name' },
+      /* One answer per line (2.0.7). "हो / होइन" as one line was read aloud
+         as both words in one breath and held up full screen as both, which
+         is no answer at all. */
+      { en: 'Yes', ne: 'हो', say: 'Ho' },
+      { en: 'No', ne: 'होइन', say: 'Hoina' },
       { en: 'Excuse me / Sorry', ne: 'माफ गर्नुहोस्।', say: 'Maaf garnuhos.' },
       { en: 'I don’t understand', ne: 'मैले बुझिनँ।' },
       { en: 'Do you speak English?', ne: 'तपाईं अंग्रेजी बोल्नुहुन्छ?' },
@@ -42,13 +50,15 @@ export const PHRASE_GROUPS: PhraseGroup[] = [
     id: 'around',
     label: 'Getting around',
     phrases: [
-      { en: 'Where is …?', ne: '… कहाँ छ?' },
-      { en: 'Please take me to …', ne: 'मलाई … लैजानुहोस्।' },
-      { en: 'How much to go to …?', ne: '… जान कति लाग्छ?' },
+      { en: 'Where is …?', ne: '… कहाँ छ?', blank: 'place' },
+      { en: 'Please take me to …', ne: 'मलाई … लैजानुहोस्।', blank: 'place' },
+      { en: 'How much to go to …?', ne: '… जान कति लाग्छ?', blank: 'place' },
       { en: 'Please charge by the meter', ne: 'मिटर अनुसार लिनुहोस्।', say: 'Meter anusar linuhos.' },
       { en: 'Stop here, please', ne: 'यहीँ रोक्नुहोस्।' },
-      { en: 'Left / Right / Straight on', ne: 'देब्रे / दाहिने / सिधा' },
-      { en: 'Which bus goes to …?', ne: '… जाने बस कुन हो?' },
+      { en: 'Left', ne: 'देब्रे' },
+      { en: 'Right', ne: 'दाहिने' },
+      { en: 'Straight on', ne: 'सिधा' },
+      { en: 'Which bus goes to …?', ne: '… जाने बस कुन हो?', blank: 'place' },
       { en: 'How far is it?', ne: 'कति टाढा छ?' },
     ],
   },

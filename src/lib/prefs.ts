@@ -53,6 +53,9 @@ export interface Prefs {
   widgetEnglish: boolean
   /** Type: the strip under the text showing it in Preeti keys (1.9.96). */
   preetiStrip: boolean
+  /** Phrasebook: the name typed into "My name is …", so it is there next
+   *  time. On this device only, like every other preference. */
+  phraseName: string
 }
 
 const DEFAULTS: Prefs = {
@@ -67,6 +70,7 @@ const DEFAULTS: Prefs = {
   currency: 'USD',
   widgetEnglish: false,
   preetiStrip: false,
+  phraseName: '',
 }
 
 const KEY_PREFIX = 'lekh:pref:'
@@ -91,6 +95,7 @@ const VALIDATORS: { [K in keyof Prefs]: (raw: unknown) => Prefs[K] | undefined }
   currency: (raw) => (typeof raw === 'string' && /^[A-Z]{3}$/.test(raw) ? raw : undefined),
   widgetEnglish: (raw) => (typeof raw === 'boolean' ? raw : undefined),
   preetiStrip: (raw) => (typeof raw === 'boolean' ? raw : undefined),
+  phraseName: (raw) => (typeof raw === 'string' && raw.length <= 60 ? raw : undefined),
 }
 
 export function getPref<K extends keyof Prefs>(key: K): Prefs[K] {
