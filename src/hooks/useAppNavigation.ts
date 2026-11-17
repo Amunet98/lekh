@@ -83,6 +83,35 @@ function landingTab(): Tab {
   return getPref('restoreLastTab') ? getPref('lastTab') : HOME
 }
 
+/* Sheets that can be put back up from history alone. 'show' holds text that
+   lives only in App's state, so a resumed one would be an empty screen. */
+const RESUMABLE: Sheet[] = ['settings', 'about', 'cheatsheet']
+
+/* Where to pick up when the page is loaded back onto an entry this app wrote:
+   Back from privacy.html (a separate document, so the WebView reloads the
+   app rather than restoring it), Forward, or a reload. The history below that
+   entry is still exactly what this hook built, so the right move is to carry
+   on from it, not to reseed it.
+ *
+   Before 2.0.13 every load reseeded from the URL, so Back from the privacy
+   page, opened from About, landed on the bare tab with Settings and About
+   gone — and a reload of ?tab= pushed a duplicate entry on top as well. */
+function resumedState(): NavState | null {
+  try {
+    const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined
+    if (!nav || (nav.type !== 'back_forward' && nav.type !== 'reload')) return null
+    const stored = (history.state as { lekh?: Partial<NavState> } | null)?.lekh
+    if (!stored || !isTab(stored.tab)) return null
+    const sheet = stored.sheet && RESUMABLE.includes(stored.sheet) ? stored.sheet : null
+    return { tab: stored.tab, sheet }
+  } catch {
+    return null
+  }
+}
+/* Read once per page load: the effect that seeds history below must agree
+   with the initial state, and it runs after a render that has already used it. */
+const RESUMED = resumedState()
+
 function urlForTab(tab: Tab): string {
   const url = new URL(location.href)
   if (tab === HOME) url.searchParams.delete('tab')
@@ -116,7 +145,7 @@ function write(next: NavState, mode: 'push' | 'replace') {
 }
 
 export function useAppNavigation() {
-  const [tab, setTab] = useState<Tab>(landingTab)
+  const [tab, setTab] = useState<Tab>(() => RESUMED?.tab ?? landingTab())
   /* Where each section was left. The document scrolls (not .page), and
      switching away and back used to dump you at whatever offset the previous
      section happened to be at — halfway down the calendar after coming back
@@ -125,7 +154,7 @@ export function useAppNavigation() {
      an app from a page. */
   const scrollByTab = useRef<Partial<Record<Tab, number>>>({})
   const tabRef = useRef(tab)
-  const [sheet, setSheet] = useState<Sheet | null>(null)
+  const [sheet, setSheet] = useState<Sheet | null>(() => RESUMED?.sheet ?? null)
   /* A tab change asked for while a sheet is open cannot be done in one step:
      the sheet's entries have to come off first, and history.back() only
      reports back asynchronously through popstate. This is the "and then go
@@ -154,6 +183,7 @@ export function useAppNavigation() {
       // Not supported — the per-tab map still works going forward, and the
       // browser's own restoration is a reasonable thing to be stuck with.
     }
+    if (RESUMED) return
     const landed = landingTab()
     write({ tab: HOME, sheet: null }, 'replace')
     if (landed !== HOME) write({ tab: landed, sheet: null }, 'push')
@@ -319,5 +349,5 @@ export function useAppNavigation() {
     return () => window.removeEventListener('popstate', onPopState)
   }, [goToTab, transitionToTab])
 
-  return { tab, goToTab, sheet, openSheet, closeSheet, savedScroll, onceSwapped }
+  return { tab, goToTab, sheet, openSheet, closeSheet, savedScroll, onceSwapped, resumed: RESUMED !== null }
 }

@@ -88,8 +88,56 @@ export function Screen({ open, depth, labelledBy, onDismiss, children }: ScreenP
        whole app. Nothing opens on those browsers now; the CSS keeps the
        screen out of the page in the meantime. */
     if (typeof el.showModal !== 'function' || typeof el.close !== 'function') return
-    if (open && !el.open) el.showModal()
+    if (open && !el.open) {
+      /* Put back from history (see resumedState in useAppNavigation): the
+         screen was already up when the user left, so it is already up when
+         they come back — no rise, and each pane's list where they left it. */
+      const saved = (history.state as { screenScroll?: number[] } | null)?.screenScroll
+      const resuming = !everOpened.current && Array.isArray(saved)
+      if (resuming) el.classList.add('screen--resumed')
+      el.showModal()
+      everOpened.current = true
+      if (resuming) {
+        /* Again once the frame has laid out and again once the fonts are in:
+           a pane is shorter before then, and a scroll set too early is
+           clamped to what fits (measured on the A024: 256 came back as 194). */
+        const put = () =>
+          el.querySelectorAll<HTMLElement>('.screen__pane .screen__body').forEach((body, i) => {
+            body.scrollTop = saved[i] ?? 0
+          })
+        put()
+        requestAnimationFrame(() =>
+          requestAnimationFrame(() => {
+            put()
+            el.classList.remove('screen--resumed')
+          }),
+        )
+        if ('fonts' in document) void document.fonts.ready.then(put)
+      }
+    }
     if (!open && el.open) el.close()
+  }, [open])
+
+  /* Leaving the document with this screen up (the privacy page is a separate
+     page): write where each pane was scrolled into the current history entry,
+     so the load that Back brings can put the screen back as it was. */
+  const everOpened = useRef(false)
+  useEffect(() => {
+    if (!open) return
+    const onLeave = () => {
+      const el = ref.current
+      if (!el) return
+      const screenScroll = [...el.querySelectorAll<HTMLElement>('.screen__pane .screen__body')].map(
+        (b) => b.scrollTop,
+      )
+      try {
+        history.replaceState({ ...(history.state as object), screenScroll }, '')
+      } catch {
+        // Restricted context: Back still returns to the screen, just at the top.
+      }
+    }
+    window.addEventListener('pagehide', onLeave)
+    return () => window.removeEventListener('pagehide', onLeave)
   }, [open])
 
   /* Focus follows the push, because inert would otherwise strand it. The row

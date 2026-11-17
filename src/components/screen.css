@@ -61,6 +61,13 @@
   transform: none;
   transition: opacity 240ms var(--ease), transform var(--dur-slow) var(--ease-expo);
 }
+/* Coming back to a screen that never left (Back from the privacy page): no
+   rise, no fade, for the first frames only — see Screen.tsx. */
+.screen--resumed,
+.screen--resumed::backdrop,
+.screen--resumed .screen__pane {
+  transition: none !important;
+}
 @starting-style {
   .screen[open] {
     opacity: 0;
