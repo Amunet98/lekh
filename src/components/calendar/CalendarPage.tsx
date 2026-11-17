@@ -446,14 +446,14 @@ export function CalendarPage() {
             <span className="cal__cell cal__cell--off cal__legend-cell" aria-hidden="true">
               <span className="cal__bs dev">७</span>
             </span>
-            <span><span className="cal__legend-ne dev" lang="ne">बिदा</span> Day off</span>
+            <span className="cal__legend-label"><span className="cal__legend-ne dev" lang="ne">बिदा</span><span className="cal__legend-en">Day off</span></span>
           </li>
           {covered && (
             <li>
               <span className="cal__cell cal__cell--off cal__cell--holiday cal__legend-cell" aria-hidden="true">
                 <span className="cal__bs dev">१</span>
               </span>
-              <span><span className="cal__legend-ne dev" lang="ne">सार्वजनिक बिदा</span> Public holiday</span>
+              <span className="cal__legend-label"><span className="cal__legend-ne dev" lang="ne">सार्वजनिक बिदा</span><span className="cal__legend-en">Public holiday</span></span>
             </li>
           )}
           {covered && namedHolidays.some((h) => h.partialFor) && (
@@ -461,7 +461,7 @@ export function CalendarPage() {
               <span className="cal__cell cal__cell--partial cal__legend-cell" aria-hidden="true">
                 <span className="cal__bs dev">८</span>
               </span>
-              <span><span className="cal__legend-ne dev" lang="ne">आंशिक बिदा</span> Some people only</span>
+              <span className="cal__legend-label"><span className="cal__legend-ne dev" lang="ne">आंशिक बिदा</span><span className="cal__legend-en">Some people only</span></span>
             </li>
           )}
           {covered && (
@@ -470,14 +470,14 @@ export function CalendarPage() {
                 <span className="cal__bs dev">३</span>
                 <span className="cal__dot" />
               </span>
-              <span><span className="cal__legend-ne dev" lang="ne">चाडपर्व</span> Festival</span>
+              <span className="cal__legend-label"><span className="cal__legend-ne dev" lang="ne">चाडपर्व</span><span className="cal__legend-en">Festival</span></span>
             </li>
           )}
           <li>
             <span className="cal__cell cal__cell--today cal__legend-cell" aria-hidden="true">
               <span className="cal__bs dev">१०</span>
             </span>
-            <span><span className="cal__legend-ne dev" lang="ne">आज</span> Today</span>
+            <span className="cal__legend-label"><span className="cal__legend-ne dev" lang="ne">आज</span><span className="cal__legend-en">Today</span></span>
           </li>
         </ul>
       </div>

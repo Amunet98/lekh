@@ -545,39 +545,78 @@
   background: var(--on-accent);
 }
 
-/* The key under the grid. Small and muted: it is read once, by someone
-   meeting the calendar for the first time, and then it should disappear into
-   the page. Each mark repeats the cell rule it explains rather than a
-   lookalike colour, so the two can never drift apart. */
+/* The key under the grid (redesigned 2.0.5, at the owner's request).
+ *
+ * It was a centred flex-wrap of "sample · Nepali English" runs: five items in
+ * ragged lines of different lengths, the English trailing the Nepali like a
+ * sentence, and samples of different visual weights floating at different
+ * heights — it read as loose text, not as a key.
+ *
+ * Now a grid of equal slots. Every sample sits in the same box at the start
+ * of its slot, so they line up in a column; the Nepali names the mark and the
+ * English sits small beneath it. Two columns on a phone; on a wide screen one
+ * row, as many columns as there are entries (three to five, depending on
+ * whether this month has almanac data — grid-auto-flow: column, so nothing is
+ * left dangling on a second line).
+ *
+ * Still small and muted: it is read once, by someone meeting the calendar
+ * for the first time, and then it should disappear into the page. Each mark
+ * repeats the cell rule it explains rather than a lookalike colour, so the
+ * two can never drift apart. */
 .cal__legend {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--sp-2) var(--sp-4);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-3) var(--sp-4);
   margin: 0;
-  padding: var(--sp-3) var(--sp-3) var(--sp-3);
+  padding: var(--sp-4);
   border-top: 1px solid var(--border);
   list-style: none;
-  font-size: 0.72rem;
-  line-height: 1.3;
-  color: var(--muted);
+}
+/* Larger text on a narrow phone: two columns leave ~6rem for a label, and
+   "Some people only" broke over three lines (320px, measured). One column
+   there. Keyed off the attribute App.tsx writes, as ToolsPage.css does, since
+   a media query cannot see the setting; 468px is 360 × 1.3. */
+@media (max-width: 468px) {
+  :root[data-ui-scale='xl'] .cal__legend {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (min-width: 600px) {
+  .cal__legend {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+  }
 }
 .cal__legend li {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.65rem;
+  min-width: 0;
+}
+.cal__legend-label {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
 }
 .cal__legend-ne {
+  font-family: var(--display-dev);
+  font-size: 0.8rem;
+  font-weight: 600;
   color: var(--text);
-  margin-inline-end: 0.2rem;
+}
+.cal__legend-en {
+  font-size: 0.7rem;
+  color: var(--muted);
 }
 /* A date from the grid, small. It carries the real .cal__cell state classes,
    so its numeral colour, fill, dot and ring are the grid's own rules; this
    only shrinks it and takes away what makes a cell a button. */
 .cal__legend-cell {
   flex: 0 0 auto;
-  width: 1.9rem;
-  height: 1.9rem;
+  width: 2.1rem;
+  height: 2.1rem;
   min-height: 0;
   aspect-ratio: auto;
   padding: 0;
