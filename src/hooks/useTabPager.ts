@@ -115,12 +115,17 @@ function clear(el: HTMLElement | null) {
  *
  * How the neighbour is shown without disturbing anything: it is the same kept
  * Section, lifted out of flow as a fixed, overflow-hidden box the size of the
- * viewport, padded down to where sections start and scrolled *inside itself*
+ * viewport, pushed down to where sections start and scrolled *inside itself*
  * to the offset the user left it at. That reproduces the in-flow picture
  * exactly — sticky headers included, since they now stick against that box
  * the way they stick against the document — so when the finger lifts and the
  * real swap happens (instantly, see useAppNavigation), the section the user
- * was looking at does not move by a pixel. Fixed inside .page is safe because
+ * was looking at does not move by a pixel.
+ *
+ * Pushed down by a ::before spacer (--peek-top, App.css), NOT padding-top.
+ * Chromium measures sticky offsets from inside the scroll container's padding,
+ * so with padding Patro's month bar stuck a whole app-bar height too low and
+ * sat in the middle of the grid during the swipe (2.0.9, owner's A024). Fixed inside .page is safe because
  * .page never takes a transform (App.css); only the outgoing section does, and
  * only for the length of the gesture.
  *
@@ -169,7 +174,7 @@ export function useTabPager({ enabled, tab, savedScroll, onceSwapped, onCommit }
       `height:${window.innerHeight}px`,
       'overflow:hidden',
       'box-sizing:border-box',
-      `padding-top:${top}px`,
+      `--peek-top:${top}px`,
       `padding-bottom:${bottom}px`,
       'pointer-events:none',
       'will-change:transform',

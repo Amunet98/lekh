@@ -196,18 +196,26 @@ export function useAppNavigation() {
     (next: Tab) => {
       /* popstate fires for sheet opens and closes too, and those arrive here
          with the tab unchanged. */
+      const fn = afterSwap.current
+      afterSwap.current = null
       if (next !== tabRef.current) {
         /* flushSync, and it is not decoration: restoreScroll has to run
            against the section it is restoring. Without it setTab was still
            pending, the scroll landed on the *outgoing* screen, and a short one
            clamped it to nearly zero — so the saved offset was thrown away
-           every time by the very code meant to honour it. */
+           every time by the very code meant to honour it.
+         *
+           The swipe's cleanup goes between the two, for the same reason: it
+           puts the dragged-in section back into the page, and until it does
+           that section is a fixed box, the page is too short, and the scroll
+           clamps to 0 (found on the A024 — Patro landed at the top after a
+           peek that showed it scrolled). */
         flushSync(() => applyTab(next))
+        fn?.()
         restoreScroll(next)
+      } else {
+        fn?.()
       }
-      const fn = afterSwap.current
-      afterSwap.current = null
-      fn?.()
     },
     [applyTab, restoreScroll],
   )

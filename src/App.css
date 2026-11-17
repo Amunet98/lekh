@@ -525,6 +525,14 @@
   }
 }
 
+/* A section being dragged in by a swipe (useTabPager). The spacer stands in
+   for the page above it; it must be content, not padding — see the hook. */
+.section[data-peek]::before {
+  content: '';
+  display: block;
+  height: var(--peek-top, 0px);
+}
+
 /* While a modal sheet is open. See the effect in App.tsx for why.
  *
  * The dock keeps its own background here rather than falling through to
