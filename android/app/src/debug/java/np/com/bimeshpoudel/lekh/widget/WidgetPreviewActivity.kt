@@ -82,6 +82,10 @@ class WidgetPreviewActivity : Activity() {
             Triple("month, declared minimum (250dp)", np.com.bimeshpoudel.lekh.R.layout.widget_patro_month, 250 to 250),
             Triple("month, A024 launcher 5x4 (362x280dp)", np.com.bimeshpoudel.lekh.R.layout.widget_patro_month, 362 to 280),
             Triple("month, next month", np.com.bimeshpoudel.lekh.R.layout.widget_patro_month, 362 to 280),
+            // The tightest case for the tithi cells: the next month that needs six week rows.
+            Triple("month, six weeks", np.com.bimeshpoudel.lekh.R.layout.widget_patro_month, 362 to 280),
+            Triple("month, six weeks, tithi threshold (362x330dp)", np.com.bimeshpoudel.lekh.R.layout.widget_patro_month, 362 to 330),
+            Triple("month, six weeks, 5x5 (362x350dp)", np.com.bimeshpoudel.lekh.R.layout.widget_patro_month, 362 to 350),
             /* The widget picker's previews: each provider's android:previewLayout
                inflated bare, as the launcher does, with nothing from the
                renderers. With the phone's date on the sample day (Kartik 17
@@ -106,7 +110,17 @@ class WidgetPreviewActivity : Activity() {
             val views = if (label.startsWith("picker")) {
                 RemoteViews(packageName, layout)
             } else if (layout == R.layout.widget_patro_month) {
-                MonthRenderer.build(this, if (label.endsWith("next month")) 1 else 0, null, null)
+                MonthRenderer.build(
+                    this,
+                    when {
+                        label.endsWith("next month") -> 1
+                        label.contains("six weeks") -> (1..24).firstOrNull { MonthRenderer.rowsAt(this, it) == 6 } ?: 0
+                        else -> 0
+                    },
+                    null,
+                    null,
+                    dims.second,
+                )
             } else {
                 WidgetRenderer.build(this, layout, heightDp = dims.second)
             }

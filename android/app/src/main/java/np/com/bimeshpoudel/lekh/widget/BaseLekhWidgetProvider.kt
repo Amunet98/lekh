@@ -111,11 +111,11 @@ abstract class BaseLekhWidgetProvider : AppWidgetProvider() {
         newOptions: Bundle,
     ) {
         super.onAppWidgetOptionsChanged(context, manager, appWidgetId, newOptions)
-        if (expandedLayoutRes == null && !fitsToHeight) return
-        manager.updateAppWidget(
-            appWidgetId,
-            WidgetRenderer.build(context, layoutFor(newOptions), openPatro(context), heightOf(newOptions)),
-        )
+        if (expandedLayoutRes == null && !fitsToHeight && !perInstance) return
+        // Through buildFor, so a per-instance size redraws on a resize too:
+        // the month widget gains or drops its tithis with the height (2.0.3),
+        // and returned here unredrawn it kept whichever it was placed with.
+        manager.updateAppWidget(appWidgetId, buildFor(context, appWidgetId, newOptions, openPatro(context)))
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -198,7 +198,7 @@ abstract class BaseLekhWidgetProvider : AppWidgetProvider() {
      * (portrait). Expanding (layoutFor) asks the opposite question and takes
      * the larger.
      */
-    private fun heightOf(options: Bundle): Int {
+    protected fun heightOf(options: Bundle): Int {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             @Suppress("DEPRECATION")
             val sizes = options.getParcelableArrayList<SizeF>(AppWidgetManager.OPTION_APPWIDGET_SIZES)

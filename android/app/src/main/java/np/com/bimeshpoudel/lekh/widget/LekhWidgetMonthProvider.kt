@@ -31,6 +31,7 @@ class LekhWidgetMonthProvider : BaseLekhWidgetProvider() {
                 next = navIntent(context, appWidgetId, +1),
                 today = navIntent(context, appWidgetId, 0),
             ),
+            heightOf(options),
         )
 
     override fun onReceive(context: Context, intent: Intent) {

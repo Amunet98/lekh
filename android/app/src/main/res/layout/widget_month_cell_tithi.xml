@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One day of the month widget WITH its tithi (2.0.3), used once the widget
+     is tall enough for it (MonthRenderer.TITHI_MIN_HEIGHT_DP); below that,
+     widget_month_cell. The owner asked for the tithi on the widget after it
+     went into the app's grid (2.0.2), the way Hamro Patro sets one.
+
+     Tighter than widget_month_cell so the extra line fits a 5x4 on the A024
+     (362x280dp, rows ~31-35dp): a 13sp numeral, a 24dp today circle, and no
+     separate festival dot. On a festival day the tithi itself turns the
+     accent colour instead (setEnabled(false) on widget_week_label, the same
+     selector the day-off numerals use), so the mark costs no height. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="0dp"
+    android:layout_height="match_parent"
+    android:layout_weight="1">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/widget_mc_bs"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginStart="9dp"
+                android:layout_marginEnd="9dp"
+                android:minWidth="24dp"
+                android:minHeight="24dp"
+                android:gravity="center"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:textColor="@color/widget_day"
+                android:text="१७" />
+
+            <TextView
+                android:id="@+id/widget_mc_ad"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|end"
+                android:textSize="8.5sp"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:textColor="@color/widget_week_label"
+                android:text="3" />
+        </FrameLayout>
+
+        <!-- Fixed height and autosize: the English names run to Chaturdashi,
+             wider than a ~50dp column at 8sp, and a launcher cell is never
+             wider than it was laid out for. -->
+        <TextView
+            android:id="@+id/widget_mc_tithi"
+            android:layout_width="match_parent"
+            android:layout_height="11dp"
+            android:paddingHorizontal="1dp"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMinTextSize="6sp"
+            android:autoSizeMaxTextSize="8sp"
+            android:autoSizeStepGranularity="0.5sp"
+            android:textColor="@color/widget_week_label"
+            android:text="एकादशी" />
+    </LinearLayout>
+</FrameLayout>

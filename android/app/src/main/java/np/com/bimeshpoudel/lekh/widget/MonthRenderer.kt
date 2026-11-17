@@ -42,6 +42,16 @@ object MonthRenderer {
         return Math.floorDiv(index, 12) to Math.floorMod(index, 12)
     }
 
+    /** How many week rows the month [offset] months from today needs, 0 if
+     *  the table does not have it. Used by the debug harness to find a
+     *  six-row month, the tightest case. */
+    fun rowsAt(context: Context, offset: Int): Int {
+        NepaliCalendar.load(context)
+        val (y, m) = shift(NepaliCalendar.today(), offset)
+        val length = NepaliCalendar.monthLength(y, m) ?: return 0
+        return (NepaliCalendar.weekdayOf(BsDate(y, m, 1)) + length + 6) / 7
+    }
+
     /** Whether the calendar table has the month [offset] months from today. */
     fun exists(context: Context, offset: Int): Boolean {
         NepaliCalendar.load(context)
@@ -49,7 +59,22 @@ object MonthRenderer {
         return NepaliCalendar.monthLength(y, m) != null
     }
 
-    fun build(context: Context, offset: Int, onClick: PendingIntent?, nav: Nav?): RemoteViews {
+    /**
+     * The least widget height, in dp, at which each day also shows its tithi
+     * (widget_month_cell_tithi). Below it the rows are too short for a third
+     * line and the cells stay as they were. 0, a launcher that has not said,
+     * counts as too short: the point is to never clip.
+     *
+     * Sized for a six-week month, the tightest, and the same for every month:
+     * a widget whose tithis came and went as you paged would read as broken.
+     * Measured in the debug harness (2026-11-17): at the A024's 5x4 (280dp) a
+     * five-week month just fits but a six-week one cuts the tithi to the tops
+     * of its vowel signs; 330dp holds six weeks, and a 5x5 there is ~350dp.
+     */
+    const val TITHI_MIN_HEIGHT_DP = 330
+
+    fun build(context: Context, offset: Int, onClick: PendingIntent?, nav: Nav?, heightDp: Int = 0): RemoteViews {
+        val withTithi = heightDp >= TITHI_MIN_HEIGHT_DP
         NepaliCalendar.load(context)
         Panchang.load(context)
         val english = WidgetTheme.isEnglish(context)
@@ -100,7 +125,7 @@ object MonthRenderer {
             if (r >= rows) continue
             for (col in 0..6) {
                 val day = r * 7 + col - firstWeekday + 1
-                views.addView(rowIds[r], cell(context, paint, year, month, day, length, isThisMonth && day == today.day, english))
+                views.addView(rowIds[r], cell(context, paint, year, month, day, length, isThisMonth && day == today.day, english, withTithi))
             }
         }
 
@@ -165,11 +190,16 @@ object MonthRenderer {
         length: Int,
         isToday: Boolean,
         english: Boolean,
+        withTithi: Boolean,
     ): RemoteViews {
-        val cell = RemoteViews(context.packageName, R.layout.widget_month_cell)
+        val cell = RemoteViews(
+            context.packageName,
+            if (withTithi) R.layout.widget_month_cell_tithi else R.layout.widget_month_cell,
+        )
         if (day < 1 || day > length) {
             cell.setTextViewText(R.id.widget_mc_bs, "")
             cell.setTextViewText(R.id.widget_mc_ad, "")
+            if (withTithi) cell.setTextViewText(R.id.widget_mc_tithi, "")
             return cell
         }
         val date = BsDate(year, month, day)
@@ -196,6 +226,17 @@ object MonthRenderer {
         }
 
         val festive = info != null && WidgetRenderer.majorOnly(info.festivals).isNotEmpty()
+        if (withTithi) {
+            // English drops the "(new moon)"/"(full moon)" the footer carries:
+            // in a ~50dp cell the name alone is what fits.
+            val name = info?.tithi?.let { if (english) FestivalsEn.tithi(it).substringBefore(" (") else it } ?: ""
+            cell.setTextViewText(R.id.widget_mc_tithi, name)
+            // A festival turns the tithi the accent colour in place of the
+            // dot this layout has no room for (see widget_month_cell_tithi).
+            cell.setBoolean(R.id.widget_mc_tithi, "setEnabled", !festive)
+            paint.offText(cell, R.id.widget_mc_tithi, Role.MUTED)
+            return cell
+        }
         if (festive) {
             cell.setViewVisibility(R.id.widget_mc_dot, View.VISIBLE)
             paint.imageTint(cell, R.id.widget_mc_dot, Role.ACCENT)
