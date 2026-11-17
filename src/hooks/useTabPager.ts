@@ -45,16 +45,22 @@ const EASE = 'cubic-bezier(0.22, 0.9, 0.3, 1)'
  * test: a field someone has tapped into and dismissed the keyboard from is
  * being read, not edited.
  *
- * Inputs and selects keep the gesture regardless. They are a date field, a
- * file picker and a search box, small, with native drag behaviour of their
- * own, and nobody starts a section swipe on top of one.
+ * Text inputs follow the same rule (2.0.14): at Larger text the phrasebook's
+ * search box is a full-width band across the middle of Tools, and a swipe
+ * started on it did nothing. Every other control — date, range, file, select,
+ * contenteditable — keeps the gesture, because a sideways drag can mean
+ * something to it.
  */
+const TEXT_INPUTS = new Set(['text', 'search', 'email', 'url', 'tel', 'number', 'password'])
 function ownsHorizontalDrag(target: EventTarget | null): boolean {
   const el = target instanceof Element ? target : null
   if (!el) return false
   const field = el.closest('textarea, input, select, [contenteditable=""], [contenteditable="true"]')
   if (field) {
-    if (!(field instanceof HTMLTextAreaElement)) return true
+    const textLike =
+      field instanceof HTMLTextAreaElement ||
+      (field instanceof HTMLInputElement && TEXT_INPUTS.has(field.type))
+    if (!textLike) return true
     const typing =
       document.activeElement === field &&
       document.documentElement.classList.contains('has-keyboard')
