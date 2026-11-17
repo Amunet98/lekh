@@ -128,9 +128,9 @@ export function UpdatePrompt({ suppressed = false }: UpdatePromptProps) {
    *
    * Also waits out `suppressed` (boot screen / About sheet) before actually
    * reloading. Reloading mid-boot would restart the splash animation from
-   * zero the instant it finished — sessionStorage's boot flag isn't set
-   * until finishBoot runs, so an interrupted boot looks exactly like a fresh
-   * one to bootedThisSession and plays again. Detection can happen early;
+   * zero the instant it finished — the welcomed flag isn't set until
+   * finishBoot runs, so an interrupted first boot looks exactly like a fresh
+   * one to welcomedBefore and plays again. Detection can happen early;
    * the reload itself waits for a moment with nothing on screen worth
    * cutting off. No local setState here — the effect's only job is the
    * external call, and reloadRequested is a ref precisely because writing it

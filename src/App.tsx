@@ -8,7 +8,7 @@ import {
 } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslateState } from './hooks/useTranslateState'
-import { TAB_ORDER, useAppNavigation } from './hooks/useAppNavigation'
+import { TAB_ORDER, isTab, useAppNavigation } from './hooks/useAppNavigation'
 import type { Tab } from './components/TabSwitcher'
 import { TabSwitcher } from './components/TabSwitcher'
 import { LekhMark } from './components/LekhMark'
@@ -32,34 +32,42 @@ import { usePref } from './hooks/usePref'
 import { useOnline } from './hooks/useOnline'
 import { useKeyboardComing, useKeyboardOpen } from './hooks/useKeyboardOpen'
 import { useDockDetached } from './hooks/useDockDetached'
-import { useTabSwipe } from './hooks/useTabSwipe'
+import { useTabPager } from './hooks/useTabPager'
 import { useToast } from './hooks/useToast'
 import { warmOcrCacheInBackground } from './lib/ocr/prefetch'
 import { reconcileWidgetLanguage, refreshDynamicColor } from './lib/dynamicColor'
 import { tick } from './lib/haptics'
 import './App.css'
 
-const BOOT_KEY = 'lekh-booted'
+const BOOT_KEY = 'lekh-welcomed'
 
-/* sessionStorage, and the choice of *session* is the whole point. The splash's
- * real job is hiding the Devanagari font reflow — BootScreen gates its dismiss
- * on document.fonts.ready, because Anek and Noto are fetched from Google Fonts
- * and the wordmark used to visibly re-shape a beat after paint. Fonts stay warm
- * for the rest of a session and may be cold in a new one, so once-per-session
- * keeps the screen for the case it was built for and stops charging ~1.5s to
- * every launch after the first. localStorage would go too far and let a
- * genuinely cold start reflow in the open.
+/* The wordmark splash plays once per device, on the very first launch — not
+ * once per session.
  *
- * The redesign deleted the old lekh-seen-landing flag and never replaced it,
- * which is how this became a toll on every single launch, PWA shortcuts too. */
-function bootedThisSession(): boolean {
+ * It used to be per session (sessionStorage), on the reasoning that fonts may
+ * be cold in a new session. Inside the Android app that meant every launch:
+ * Android kills the process in the background, each cold start is a new
+ * WebView session, and so the icon, the widget and every launcher shortcut all
+ * opened onto 1.5s of splash before the screen they had asked for. The owner
+ * found it annoying, rightly — a splash is a first impression, not a toll.
+ *
+ * The splash's real job, hiding the Devanagari font reflow, does not need it
+ * after the first launch: the fonts are cached by the service worker
+ * (CacheFirst, vite.config.ts), so on every later launch the "quiet start"
+ * below waits for them invisibly — a frame or two — and shows the app.
+ * localStorage, so it survives the process being killed. */
+function welcomedBefore(): boolean {
   try {
-    return sessionStorage.getItem(BOOT_KEY) === '1'
+    return localStorage.getItem(BOOT_KEY) === '1'
   } catch {
-    // Storage blocked — show the splash. Never worth throwing over.
-    return false
+    // Storage blocked — no splash; a splash every launch is the worse failure.
+    return true
   }
 }
+
+/* How long a quiet start will wait for fonts before showing the app anyway.
+   Cached fonts land well inside this; a missing one must not hold anyone. */
+const QUIET_START_MAX_MS = 350
 
 /* A section, kept.
  *
@@ -88,7 +96,7 @@ function bootedThisSession(): boolean {
  * inert as well, and not as decoration: it is the one guarantee that does not
  * depend on either property being implemented the way the spec describes. An
  * off-screen section must not hold a tab stop or answer a screen reader. */
-function Section({ active, children }: { active: boolean; children: ReactNode }) {
+function Section({ id, active, children }: { id: Tab; active: boolean; children: ReactNode }) {
   /* Laid out once while nothing is happening, then hidden again.
    *
    * The idle pre-mount below builds a section's DOM, but content-visibility
@@ -129,6 +137,7 @@ function Section({ active, children }: { active: boolean; children: ReactNode })
   return (
     <div
       className={`section${active ? '' : ' section--idle'}${warming && !active ? ' section--warming' : ''}`}
+      data-tab={id}
       inert={!active}
     >
       {children}
@@ -139,8 +148,11 @@ function Section({ active, children }: { active: boolean; children: ReactNode })
 function App() {
   /* Tabs and sheets are both history, not just state — see useAppNavigation
      for the stack shape and for what Back is supposed to do at each level. */
-  const { tab, goToTab, sheet, openSheet, closeSheet } = useAppNavigation()
-  const [booting, setBooting] = useState(() => !bootedThisSession())
+  const { tab, goToTab, sheet, openSheet, closeSheet, savedScroll, onceSwapped } = useAppNavigation()
+  /* Decided once, at mount: the full splash on a first launch, otherwise a
+     quiet start that only waits out the fonts with nothing on screen. */
+  const [splash] = useState(() => !welcomedBefore())
+  const [booting, setBooting] = useState(true)
   /* Whatever Save-as-PDF last asked to print. Subscribed rather than lifted
      into state that App owns, so a toolbar deep in the tree can fill the
      sheet without App having to know either toolbar exists. */
@@ -198,48 +210,38 @@ function App() {
      to leave the bar's subtree to do it — see useDockDetached. */
   const dockDetached = useDockDetached()
 
-  /* Swipe sideways to change section — the same goToTab the dock calls, so it
-     inherits the history behaviour and the directional transition rather than
-     inventing either. Clamped at both ends: TAB_ORDER is a row of four, not a
-     carousel, and a phone that jumps from Patro back to Type on an overshoot
-     is a phone that has lost your place.
+  /* Swipe sideways to change section, with the section on the end of the
+     finger — see useTabPager. It commits through the same goToTab the dock
+     calls, so it inherits the history behaviour. Clamped at both ends:
+     TAB_ORDER is a row of four, not a carousel.
    *
-     tick() here because the dock taps its own haptic inside TabSwitcher, and a
-     swipe that changes screens without one feels like the screen changed on
-     its own. Suppressed while the boot screen is up for the same reason the
-     shell is not hit-testable there: nothing invisible should be operable. */
-  const swipe = useTabSwipe({
-    /* Not while a sheet is open, and that is a correctness fix rather than a
-       refinement. The handler is on .page, and the cheat sheet and the date
-       converter were <dialog>s rendered *inside* their section — the top layer
-       is where they paint, not where they sit in the tree, so their touches
-       bubble straight out to this. A sideways drag while reading the cheat
-       sheet therefore closed it and changed section (goToTab unwinds the
-       sheet's history entries first), losing the reader's place with nothing
-       to explain why. Found on a phone.
-
-       showModal already makes the rest of the document inert, which is what
-       stops the dock doing this — so all this does is say the same thing to
-       the one gesture that was reaching past it. Keyed on the Sheet union
-       rather than on a DOM check because every sheet has to join that union
-       anyway for Back to unwind it, so a new one cannot quietly miss this.
-
-       The Settings/About screen is unaffected either way: it renders as a
-       sibling of .page, not a descendant. */
+     tick() on commit because the dock taps its own haptic inside TabSwitcher,
+     and a swipe that changes screens without one feels like the screen
+     changed on its own. Off while booting: nothing invisible is operable.
+   *
+     Off while a sheet is open, and that is a correctness fix: the cheat sheet
+     is a <dialog> rendered *inside* its section, so its touches bubble out to
+     .page, and a sideways drag while reading it used to close it and change
+     section. Keyed on the Sheet union because every sheet has to join it for
+     Back to unwind it anyway. The Settings/About screen renders as a sibling
+     of .page, so it is unaffected either way. */
+  const swipe = useTabPager({
     enabled: !booting && sheet === null,
-    onPrev: () => {
-      const index = TAB_ORDER.indexOf(tab)
-      if (index <= 0) return
+    tab,
+    savedScroll,
+    onceSwapped,
+    onCommit: (next) => {
       tick()
-      goToTab(TAB_ORDER[index - 1])
-    },
-    onNext: () => {
-      const index = TAB_ORDER.indexOf(tab)
-      if (index < 0 || index >= TAB_ORDER.length - 1) return
-      tick()
-      goToTab(TAB_ORDER[index + 1])
+      goToTab(next)
     },
   })
+
+  /* Tapping the section you are already on takes it back to the top, the
+     way Instagram's home button does. Smooth unless reduced motion is on —
+     index.css already forces scroll-behavior to auto there. */
+  const reselectTab = useCallback(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
 
   /* On :root, because everything reads it. The property scales the root font
      size and every size in the app is a rem against that — see --ui-scale in
@@ -256,6 +258,28 @@ function App() {
     document.documentElement.style.setProperty('--ui-scale', scale)
     document.documentElement.dataset.uiScale = editorSize
   }, [editorSize])
+
+  /* A widget or launcher shortcut tapped while the app is already running.
+     MainActivity.onNewIntent calls this instead of reloading the WebView, so
+     the tap lands on the section at once rather than restarting the page —
+     and returns false (so the native side falls back to loading the URL) if
+     an older page without this is what is showing. */
+  useEffect(() => {
+    const w = window as { lekhOpen?: (url: string) => boolean }
+    w.lekhOpen = (url: string) => {
+      try {
+        const wanted = new URL(url, location.href).searchParams.get('tab') ?? 'type'
+        if (!isTab(wanted)) return false
+        goToTab(wanted)
+        return true
+      } catch {
+        return false
+      }
+    }
+    return () => {
+      delete w.lekhOpen
+    }
+  }, [goToTab])
 
   /* Alt+1..4 switch tabs, matching TAB_ORDER's left-to-right order. Alt-digit isn't
      text any browser inserts into a focused field, and useEditorState's own
@@ -290,11 +314,36 @@ function App() {
   const finishBoot = useCallback(() => {
     setBooting(false)
     try {
-      sessionStorage.setItem(BOOT_KEY, '1')
+      localStorage.setItem(BOOT_KEY, '1')
     } catch {
-      // Blocked storage — the splash simply shows again next launch.
+      // Blocked storage — welcomedBefore() already treats that as welcomed.
     }
   }, [])
+
+  /* The quiet start: no splash, the shell held hidden on --bg (the colour the
+     native launch screen and the pre-paint script already show) until the
+     fonts are in, so the Devanagari never visibly re-shapes. One frame first,
+     because document.fonts.ready resolves at once if no load has been asked
+     for yet — the first layout is what asks. */
+  useEffect(() => {
+    if (splash) return
+    let done = false
+    const finish = () => {
+      if (done) return
+      done = true
+      finishBoot()
+    }
+    const cap = setTimeout(finish, QUIET_START_MAX_MS)
+    const frame = requestAnimationFrame(() => {
+      if ('fonts' in document) void document.fonts.ready.then(finish)
+      else finish()
+    })
+    return () => {
+      done = true
+      clearTimeout(cap)
+      cancelAnimationFrame(frame)
+    }
+  }, [splash, finishBoot])
 
   /* Hand over the caret, in an effect rather than inside finishBoot. Nothing
      was focused when the splash left, so the first keystroke after launch went
@@ -383,7 +432,7 @@ function App() {
 
   return (
     <>
-      {booting && <BootScreen onDone={finishBoot} />}
+      {booting && splash && <BootScreen onDone={finishBoot} />}
 
       {/* One strip of chrome, not two. The section nav used to be a floating
           pill below this bar, which cost ~60px of vertical room on every
@@ -399,7 +448,7 @@ function App() {
           the two apart is what stops the next property from doing it again.
           .app-bar--is-booting still animates margin-top rather than transform
           for the desktop case, where the nav really is a child of this bar. */}
-      <header className={`app-bar${booting ? ' app-bar--is-booting' : ''}`}>
+      <header className={`app-bar${booting ? (splash ? ' app-bar--is-booting' : ' app-bar--holding') : ''}`}>
         <div className="app-bar__inner">
           {/* Not a button any more. It opened the About sheet, which was the
               only way in until the sheet got its own control in the actions
@@ -414,7 +463,7 @@ function App() {
               <span className="app-bar__brand-patro">पात्रो</span>
             </span>
           </span>
-          {!dockDetached && <TabSwitcher active={tab} onChange={goToTab} />}
+          {!dockDetached && <TabSwitcher active={tab} onChange={goToTab} onReselect={reselectTab} />}
           <div className="app-bar__actions">
             <InstallButton />
             {/* One icon, not two. About moved to a row at the bottom of
@@ -426,7 +475,7 @@ function App() {
       </header>
       <div className={`page${booting ? ' page--is-booting' : ''}`} {...swipe}>
         {visited.includes('type') && (
-          <Section active={tab === 'type'}>
+          <Section id="type" active={tab === 'type'}>
             <TypePage
               cheatOpen={sheet === 'cheatsheet'}
               onOpenCheatSheet={() => openSheet('cheatsheet')}
@@ -435,7 +484,7 @@ function App() {
           </Section>
         )}
         {visited.includes('translate') && (
-          <Section active={tab === 'translate'}>
+          <Section id="translate" active={tab === 'translate'}>
             <TranslatePage
               t={translateState}
               onShow={() => show({ text: translateState.translated, lang: translateState.targetLang.code })}
@@ -443,12 +492,12 @@ function App() {
           </Section>
         )}
         {visited.includes('calendar') && (
-          <Section active={tab === 'calendar'}>
+          <Section id="calendar" active={tab === 'calendar'}>
             <CalendarPage />
           </Section>
         )}
         {visited.includes('tools') && (
-          <Section active={tab === 'tools'}>
+          <Section id="tools" active={tab === 'tools'}>
             <ToolsPage onShow={show} />
           </Section>
         )}
@@ -469,7 +518,12 @@ function App() {
           useDockDetached for why it cannot simply stay where it is. */}
       {dockDetached &&
         createPortal(
-          <TabSwitcher active={tab} onChange={goToTab} booting={booting} />,
+          <TabSwitcher
+            active={tab}
+            onChange={goToTab}
+            onReselect={reselectTab}
+            booting={booting ? (splash ? 'splash' : 'quiet') : false}
+          />,
           document.body,
         )}
 

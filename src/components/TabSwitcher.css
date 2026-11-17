@@ -8,8 +8,7 @@
  * Below 768px the dock is not a descendant of the app bar at all — App.tsx
  * portals it to <body> (see useDockDetached). It is `position: fixed`, and a
  * fixed element inside the bar was re-anchored by any of transform, filter or
- * backdrop-filter there, and had its own frost flattened by the bar's
- * view-transition-name. If you change the 767px in the media queries below,
+ * backdrop-filter there. If you change the 767px in the media queries below,
  * change DOCK_QUERY in useDockDetached.ts to match. */
 
 /* Desktop: segmented control, in the bar */
@@ -179,6 +178,11 @@
   .tab-switcher--is-booting {
     opacity: 0;
     pointer-events: none;
+  }
+  /* A quiet start (no splash) shows the dock in the same frame as the page —
+     a 200ms fade-in on its own would be the dock arriving late. */
+  .tab-switcher--holding {
+    transition: none;
   }
   @media (prefers-reduced-motion: reduce) {
     .tab-switcher {

@@ -7,11 +7,11 @@ import { useMediaQuery } from './useMediaQuery'
  * in CSS alone: below this width the nav is `position: fixed` at the bottom
  * of the screen, and it must not be a DOM descendant of .app-bar while it is.
  *
- * .app-bar carries a view-transition-name (see the section-transition block
- * in App.css). A named element is a *backdrop root*, which flattens
- * backdrop-filter everywhere inside it — the dock's own frost included. No
- * amount of styling reaches that; only moving the element out of the bar's
- * subtree does, which is a DOM question and therefore a React one.
+ * .app-bar blurs (backdrop-filter), and an ancestor with backdrop-filter,
+ * filter or transform becomes the containing block for a fixed descendant —
+ * and once carried a view-transition-name, which flattened the dock's own
+ * frost. No amount of styling reaches either; only moving the element out of
+ * the bar's subtree does, which is a DOM question and therefore a React one.
  *
  * Above this width the nav goes back inside the bar, where it is an ordinary
  * flex child of .app-bar__inner and sits between the wordmark and the

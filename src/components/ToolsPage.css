@@ -815,7 +815,7 @@
 
 /* One row that scrolls sideways rather than wrapping into two. The swipe
    between sections measures for sideways scrollers and leaves them alone
-   (useTabSwipe), so this does not fight it. The negative margin lets the row
+   (useTabPager), so this does not fight it. The negative margin lets the row
    run to the card's edge while its first chip still lines up with the text. */
 .phrase-topics {
   display: flex;

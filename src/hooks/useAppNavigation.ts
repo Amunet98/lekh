@@ -37,13 +37,12 @@ import { getPref, setPref } from '../lib/prefs'
  * manifest shortcuts, the native long-press shortcuts and the widget's deep
  * link all depend on.
  *
- * Every tab change is also routed through the View Transitions API, in one
- * place, which is the reason this hook owns the setState rather than handing
- * it out: the section swap used to be an instant ternary in App, and an
- * instant swap is the single loudest "this is a web page" tell in the whole
- * interface. See the ::view-transition rules in App.css for what actually
- * moves. Unsupported engines and reduced-motion users fall through to exactly
- * the old behaviour.
+ * A tab change is instant, the way Instagram's bottom bar is. It used to run
+ * through the View Transitions API (a 16px slide with a fade), which meant
+ * every tap waited a frame for a snapshot and then dipped through half
+ * opacity — on a phone it read as a page transition, the opposite of what it
+ * was for. Movement now belongs to the gesture: a sideways swipe drags the
+ * next section in under the finger (useTabPager), and a tap simply lands.
  */
 
 /* Being in this union is what makes Back close a sheet rather than leave the
@@ -62,7 +61,7 @@ interface NavState {
   sheet: Sheet | null
 }
 
-function isTab(value: unknown): value is Tab {
+export function isTab(value: unknown): value is Tab {
   return typeof value === 'string' && (TAB_ORDER as string[]).includes(value)
 }
 
@@ -113,23 +112,6 @@ function write(next: NavState, mode: 'push' | 'replace') {
   } catch {
     // Non-browser or restricted context — the view still switches, the URL
     // just doesn't follow. Never worth throwing over.
-  }
-}
-
-/* Direction is the whole point of doing this by hand rather than letting the
-   default cross-fade run: moving right through the dock should look like
-   moving right. The attribute is read by the ::view-transition keyframes and
-   set before the snapshot is taken. */
-function setDirection(from: Tab, to: Tab) {
-  const forward = TAB_ORDER.indexOf(to) > TAB_ORDER.indexOf(from)
-  document.documentElement.dataset.navDir = forward ? 'forward' : 'back'
-}
-
-function prefersReducedMotion(): boolean {
-  try {
-    return matchMedia('(prefers-reduced-motion: reduce)').matches
-  } catch {
-    return false
   }
 }
 
@@ -190,54 +172,42 @@ export function useAppNavigation() {
     const current = tabRef.current
     if (current === next) return
     scrollByTab.current[current] = window.scrollY
-    setDirection(current, next)
     tabRef.current = next
     setTab(next)
   }, [])
 
-  /* Straight after the DOM has the new section in it — inside the view
-     transition's callback, where the old frame is still on screen, so the
-     jump is never seen. */
+  /* Straight after the DOM has the new section in it, in the same task, so
+     the jump is never painted. */
   const restoreScroll = useCallback((next: Tab) => {
     window.scrollTo(0, scrollByTab.current[next] ?? 0)
   }, [])
 
+  /* Run once, straight after the next section swap has been painted into the
+     DOM and scrolled — see useTabPager, which has a dragged section sitting on
+     screen that has to come off in the same task as the swap, or there is a
+     frame of it in the wrong place. A ref, not state: nothing renders off it. */
+  const afterSwap = useRef<(() => void) | null>(null)
+  const onceSwapped = useCallback((fn: () => void) => {
+    afterSwap.current = fn
+  }, [])
+  const savedScroll = useCallback((t: Tab) => scrollByTab.current[t] ?? 0, [])
+
   const transitionToTab = useCallback(
     (next: Tab) => {
-      /* Nothing is moving, so nothing should animate. popstate fires for sheet
-         opens and closes too, and those arrive here with the tab unchanged —
-         applyTab correctly did nothing, but the transition had already been
-         started, so the whole page was snapshotted and slid 16px against an
-         identical copy of itself. That is the flicker on closing a sheet. */
-      if (next === tabRef.current) return
-      const start = document.startViewTransition?.bind(document)
-      if (!start || prefersReducedMotion()) {
-        /* flushSync here too, and it is not decoration: restoreScroll has to
-           run against the section it is restoring. Without it setTab was
-           still pending, the scroll landed on the *outgoing* screen, and a
-           short one clamped it to nearly zero — so the saved offset was
-           thrown away every time by the very code meant to honour it. */
+      /* popstate fires for sheet opens and closes too, and those arrive here
+         with the tab unchanged. */
+      if (next !== tabRef.current) {
+        /* flushSync, and it is not decoration: restoreScroll has to run
+           against the section it is restoring. Without it setTab was still
+           pending, the scroll landed on the *outgoing* screen, and a short one
+           clamped it to nearly zero — so the saved offset was thrown away
+           every time by the very code meant to honour it. */
         flushSync(() => applyTab(next))
         restoreScroll(next)
-        return
       }
-      /* startViewTransition takes the "before" snapshot synchronously, runs
-         the callback, then takes the "after" one — so the state change has to
-         happen inside it and React has to have flushed by the time it
-         returns. flushSync is what guarantees that; without it the callback
-         resolves before the re-render and both snapshots are the old screen. */
-      const transition = start(() => {
-        flushSync(() => applyTab(next))
-        restoreScroll(next)
-      })
-      /* A transition started while another is still running is *skipped*, and
-         the browser reports that by rejecting these promises. Tapping through
-         the dock quickly is an ordinary thing to do and the DOM update still
-         happened — the animation is the only casualty — so this is swallowed
-         rather than surfaced. Unhandled, it reached window.onerror as
-         "Transition was skipped". */
-      void transition.ready.catch(() => {})
-      void transition.finished.catch(() => {})
+      const fn = afterSwap.current
+      afterSwap.current = null
+      fn?.()
     },
     [applyTab, restoreScroll],
   )
@@ -336,5 +306,5 @@ export function useAppNavigation() {
     return () => window.removeEventListener('popstate', onPopState)
   }, [goToTab, transitionToTab])
 
-  return { tab, goToTab, sheet, openSheet, closeSheet }
+  return { tab, goToTab, sheet, openSheet, closeSheet, savedScroll, onceSwapped }
 }

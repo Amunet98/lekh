@@ -8,13 +8,16 @@ export type Tab = 'type' | 'translate' | 'calendar' | 'tools'
 interface TabSwitcherProps {
   active: Tab
   onChange: (tab: Tab) => void
+  /** A tap on the section already showing. */
+  onReselect?: () => void
   /* Only the phone dock needs this, and only because it portals out of the
      app bar: inside the bar it inherited .app-bar--is-booting's opacity and
      pointer-events, and parented to <body> it inherits nothing. The boot
      screen sets pointer-events: none on itself, so without this the dock is
      invisible under the splash but still perfectly tappable — the exact
-     failure App.css warns about for the bar. */
-  booting?: boolean
+     failure App.css warns about for the bar. 'quiet' is the launch with no
+     splash (see App.tsx): hidden the same way, but shown without a fade. */
+  booting?: 'splash' | 'quiet' | false
 }
 
 const TABS: { id: Tab; label: string; icon: ReactNode }[] = [
@@ -24,7 +27,7 @@ const TABS: { id: Tab; label: string; icon: ReactNode }[] = [
   { id: 'tools', label: 'Tools', icon: <SectionIcon name="tools" /> },
 ]
 
-export function TabSwitcher({ active, onChange, booting = false }: TabSwitcherProps) {
+export function TabSwitcher({ active, onChange, onReselect, booting = false }: TabSwitcherProps) {
   const ref = useRef<HTMLDivElement>(null)
 
   /* The dock's real height, for the Type page to fill the screen down to it
@@ -57,7 +60,7 @@ export function TabSwitcher({ active, onChange, booting = false }: TabSwitcherPr
   return (
     <div
       ref={ref}
-      className={`tab-switcher${booting ? ' tab-switcher--is-booting' : ''}`}
+      className={`tab-switcher${booting ? ' tab-switcher--is-booting' : ''}${booting === 'quiet' ? ' tab-switcher--holding' : ''}`}
       role="tablist"
       aria-label="Section"
     >
@@ -73,7 +76,8 @@ export function TabSwitcher({ active, onChange, booting = false }: TabSwitcherPr
              is the tap; Alt+digit reaches the same place and should not buzz. */
           onClick={() => {
             tick()
-            onChange(id)
+            if (active === id) onReselect?.()
+            else onChange(id)
           }}
         >
           <span className="tab-switcher__icon">{icon}</span>

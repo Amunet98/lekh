@@ -3,7 +3,9 @@ package np.com.bimeshpoudel.lekh;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.webkit.WebView;
 import com.getcapacitor.BridgeActivity;
+import org.json.JSONObject;
 import np.com.bimeshpoudel.lekh.widget.WidgetTheme;
 
 /**
@@ -25,7 +27,7 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(CalendarIntentPlugin.class);
         registerPlugin(VoiceSettingsPlugin.class);
         super.onCreate(savedInstanceState);
-        handleIntent(getIntent());
+        handleIntent(getIntent(), false);
         /* activity_main.xml's android:scrollbars="none" is not enough — the
          * Bridge re-touches the WebView's own scrollbar settings after
          * inflating that layout, so it has to be turned off again here,
@@ -54,13 +56,30 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        handleIntent(intent);
+        handleIntent(intent, true);
     }
 
-    private void handleIntent(Intent intent) {
+    /**
+     * Cold: load the intent's URL. Warm (the app already running, a widget or
+     * shortcut tapped): hand the URL to the page, which switches section in
+     * place — loadUrl here used to restart the whole page for what is only a
+     * tab change. The page answers false if it predates window.lekhOpen, and
+     * then this falls back to the old reload.
+     */
+    private void handleIntent(Intent intent, boolean warm) {
         Uri data = intent.getData();
-        if (data != null) {
-            getBridge().getWebView().loadUrl(data.toString());
+        if (data == null) return;
+        String url = data.toString();
+        WebView webView = getBridge().getWebView();
+        String current = webView.getUrl();
+        Uri showing = current != null ? Uri.parse(current) : null;
+        if (warm && showing != null && data.getHost() != null && data.getHost().equals(showing.getHost())) {
+            String js = "(function(){try{return !!(window.lekhOpen&&window.lekhOpen(" + JSONObject.quote(url) + "))}catch(e){return false}})()";
+            webView.evaluateJavascript(js, result -> {
+                if (!"true".equals(result)) webView.loadUrl(url);
+            });
+            return;
         }
+        webView.loadUrl(url);
     }
 }
