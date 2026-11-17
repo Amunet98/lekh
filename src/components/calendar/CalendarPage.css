@@ -412,7 +412,14 @@
    Half the holiday tint and no red numeral: marked, but not saying "day off"
    to everyone who is not in that group. */
 .cal__cell--partial::before {
-  background: color-mix(in srgb, var(--bida-bg) 32%, var(--surface));
+  /* A faint tint AND a dashed edge (2.0.6). The tint alone, 32% of the
+     already-pale --bida-bg, measured 1.04:1 against the paper in light and
+     1.01:1 in dark: the owner could not see it at all. A fill this light
+     cannot carry the mark by itself, and the dash also says "holiday, but
+     not for everyone" in a way a weaker fill never could. */
+  background: color-mix(in srgb, var(--bida) 6%, var(--surface));
+  outline: 1px dashed color-mix(in srgb, var(--bida) 55%, transparent);
+  outline-offset: -1px;
 }
 
 .cal__dot {
@@ -510,7 +517,13 @@
   color: var(--bida);
 }
 .cal__cell--holiday::before {
-  background: color-mix(in srgb, var(--bida-bg) 70%, var(--surface));
+  /* Mixed from --bida itself, not from --bida-bg (2.0.6). --bida-bg is
+     already near-white in light (#fdecee), so 70% of it over the paper
+     measured 1.09:1 light and 1.03:1 dark — the owner could not see the
+     holiday tiles or their key. 16% of the red is 1.35:1 light / 1.26:1
+     dark, and the red numeral on it stays 5.67:1 / 4.96:1. --bida is exempt
+     from Material You, so this holds on Android too. */
+  background: color-mix(in srgb, var(--bida) 16%, var(--surface));
 }
 
 .cal__dot {
@@ -545,71 +558,6 @@
   background: var(--on-accent);
 }
 
-/* The key under the grid (redesigned 2.0.5, at the owner's request).
- *
- * It was a centred flex-wrap of "sample · Nepali English" runs: five items in
- * ragged lines of different lengths, the English trailing the Nepali like a
- * sentence, and samples of different visual weights floating at different
- * heights — it read as loose text, not as a key.
- *
- * Now a grid of equal slots. Every sample sits in the same box at the start
- * of its slot, so they line up in a column; the Nepali names the mark and the
- * English sits small beneath it. Two columns on a phone; on a wide screen one
- * row, as many columns as there are entries (three to five, depending on
- * whether this month has almanac data — grid-auto-flow: column, so nothing is
- * left dangling on a second line).
- *
- * Still small and muted: it is read once, by someone meeting the calendar
- * for the first time, and then it should disappear into the page. Each mark
- * repeats the cell rule it explains rather than a lookalike colour, so the
- * two can never drift apart. */
-.cal__legend {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--sp-3) var(--sp-4);
-  margin: 0;
-  padding: var(--sp-4);
-  border-top: 1px solid var(--border);
-  list-style: none;
-}
-/* Larger text on a narrow phone: two columns leave ~6rem for a label, and
-   "Some people only" broke over three lines (320px, measured). One column
-   there. Keyed off the attribute App.tsx writes, as ToolsPage.css does, since
-   a media query cannot see the setting; 468px is 360 × 1.3. */
-@media (max-width: 468px) {
-  :root[data-ui-scale='xl'] .cal__legend {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-@media (min-width: 600px) {
-  .cal__legend {
-    grid-template-columns: none;
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(0, 1fr);
-  }
-}
-.cal__legend li {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  min-width: 0;
-}
-.cal__legend-label {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  line-height: 1.25;
-}
-.cal__legend-ne {
-  font-family: var(--display-dev);
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text);
-}
-.cal__legend-en {
-  font-size: 0.7rem;
-  color: var(--muted);
-}
 /* A date from the grid, small. It carries the real .cal__cell state classes,
    so its numeral colour, fill, dot and ring are the grid's own rules; this
    only shrinks it and takes away what makes a cell a button. */
@@ -706,7 +654,8 @@
   color: var(--muted);
 }
 
-.cal__holidays-title {
+.cal__holidays-title,
+.cal-key__title {
   font-family: var(--sans);
   font-size: 0.72rem;
   font-weight: 600;
@@ -715,7 +664,8 @@
   color: var(--muted);
   margin-bottom: var(--sp-2);
 }
-.cal__holidays-title .dev {
+.cal__holidays-title .dev,
+.cal-key__title .dev {
   font-family: var(--display-dev);
   text-transform: none;
   letter-spacing: 0;
@@ -1014,4 +964,141 @@
   font-size: 0.76rem;
   color: var(--muted);
   line-height: 1.4;
+}
+
+
+/* ── The key (2.0.6) — see CalendarKey ────────────────────────────────────
+ *
+ * Off the grid and into its own section, headed the way the holiday list
+ * below is headed, so the page reads grid → key → day → holidays rather than
+ * a grid with a footnote stuck to it. */
+.cal-key__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+/* The month at a glance. A list of rows like the holiday list, each one
+   the sample, its name, and how many such days this month has, in the
+   grid own numeral face so the count reads as part of the calendar. */
+.cal-key__list > li + li {
+  border-top: 1px solid var(--border);
+}
+.cal-key__item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  min-height: 3.5rem;
+  padding: var(--sp-2) var(--sp-4);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--dur-fast) var(--ease);
+}
+@media (hover: hover) {
+  .cal-key__item:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--accent) 5%, var(--surface));
+  }
+}
+.cal-key__item:active:not(:disabled) {
+  background: var(--accent-bg);
+}
+.cal-key__item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.cal-key__item[aria-pressed='true'] {
+  background: var(--accent-bg);
+}
+.cal-key__item:disabled {
+  cursor: default;
+}
+.cal-key__item:disabled .cal-key__sample {
+  opacity: 0.4;
+}
+/* "० दिन" is information (no public holidays this month), not a dead
+   control, so it stays readable: the count drops to the muted colour at full
+   strength instead of fading with the sample. Faded it measured 2.5:1 on
+   paper; muted is the app's AA secondary text. */
+.cal-key__item:disabled .cal-key__count .dev {
+  color: var(--muted);
+}
+.cal-key__label {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+.cal-key__ne {
+  font-family: var(--display-dev);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-h);
+}
+.cal-key__en {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+.cal-key__count {
+  font-family: var(--display-dev);
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-h);
+  font-variant-numeric: tabular-nums;
+  min-width: 2ch;
+  text-align: end;
+}
+.cal-key__item[aria-pressed='true'] .cal-key__count {
+  color: var(--accent-text);
+}
+/* The unit: small and muted after the count, on the numeral baseline. */
+.cal-key__count {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+.cal-key__unit {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+.cal-key__go {
+  display: inline-flex;
+  color: var(--accent-text);
+}
+.cal-key__sample {
+  width: 2.3rem;
+  height: 2.3rem;
+}
+.cal-key__hint {
+  margin: var(--sp-2) 0 0;
+  padding-inline: 0.15rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+/* The grid while a mark is lit: every other day fades back, the lit ones
+   keep exactly the marks they always have. Fading the cell contents and its
+   shape rather than the button, so the cells keep their tap targets and
+   today ring position. */
+.cal__days .cal__cell > *,
+.cal__days .cal__cell::before {
+  transition: opacity var(--dur) var(--ease);
+}
+.cal__days--focus .cal__cell:not(.cal__cell--blank):not(.cal__cell--match) > *,
+.cal__days--focus .cal__cell:not(.cal__cell--blank):not(.cal__cell--match)::before {
+  /* 0.3: the other days recede but stay legible on a second look (0.18
+     measured ~1.3:1 — gone, not quieter). */
+  opacity: 0.3;
 }

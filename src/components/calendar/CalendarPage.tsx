@@ -187,6 +187,124 @@ function SaitRow({ label, gloss, kind, days, view, selectedDay, onPick, onJump }
   )
 }
 
+type KeyKind = 'off' | 'holiday' | 'partial' | 'festival'
+
+const KEY_ENTRIES: { kind: KeyKind; ne: string; en: string; one: string; many: string; cls: string; dot?: boolean }[] = [
+  { kind: 'off', ne: 'बिदा', en: 'Day off', one: 'day off', many: 'days off', cls: 'cal__cell--off' },
+  { kind: 'holiday', ne: 'सार्वजनिक बिदा', en: 'Public holiday', one: 'public holiday', many: 'public holidays', cls: 'cal__cell--off cal__cell--holiday' },
+  { kind: 'partial', ne: 'आंशिक बिदा', en: 'Some people only', one: 'partial holiday', many: 'partial holidays', cls: 'cal__cell--partial' },
+  { kind: 'festival', ne: 'चाडपर्व', en: 'Festival', one: 'festival day', many: 'festival days', cls: '', dot: true },
+]
+
+/* The key: what the grid's marks mean, and how many of each this month has
+ * (2.0.6, the owner's pick of two prototypes).
+ *
+ * It used to be a strip of samples glued to the foot of the grid — read once
+ * and then skipped, and the owner called it dull. Now it is its own section,
+ * headed like the holiday list below it, and it earns its place: each mark
+ * counts its days in this month, and pressing one lights those days up in
+ * the grid and fades the rest, so "which days are off this month?" is one
+ * tap. आज returns to today and clears a lit mark.
+ *
+ * Every sample is the month's own first date of that kind, drawn by the
+ * grid's cell classes, so it is a day you can find above; and every count
+ * carries its unit, दिन. The first prototype had made-up numerals there and
+ * the owner read "७ … ८" as two numbers to reconcile. */
+function CalendarKey({
+  covered,
+  counts,
+  showPartial,
+  focus,
+  onFocus,
+  isThisMonth,
+  todayDay,
+  onToday,
+}: {
+  covered: boolean
+  counts: { count: Record<KeyKind, number>; first: Partial<Record<KeyKind, number>> }
+  showPartial: boolean
+  focus: KeyKind | null
+  onFocus: (k: KeyKind) => void
+  isThisMonth: boolean
+  todayDay: string
+  onToday: () => void
+}) {
+  const entries = KEY_ENTRIES.filter((e) =>
+    e.kind === 'off' ? true : e.kind === 'partial' ? covered && showPartial : covered,
+  )
+  const sample = (e: (typeof KEY_ENTRIES)[number]) => (
+    <span className={`cal__cell ${e.cls} cal__legend-cell cal-key__sample`} aria-hidden="true">
+      <span className="cal__bs dev">
+        {counts.first[e.kind] ? toDevanagari(counts.first[e.kind]!) : ''}
+      </span>
+      {e.dot && <span className="cal__dot" />}
+    </span>
+  )
+  const todaySample = (
+    <span className="cal__cell cal__cell--today cal__legend-cell cal-key__sample" aria-hidden="true">
+      <span className="cal__bs dev">{todayDay}</span>
+    </span>
+  )
+  const label = (ne: string, en: string) => (
+    <span className="cal-key__label">
+      <span className="cal-key__ne dev" lang="ne">{ne}</span>
+      <span className="cal-key__en">{en}</span>
+    </span>
+  )
+
+  const shown = focus ? KEY_ENTRIES.find((e) => e.kind === focus) : null
+  return (
+    <section className="cal-key" aria-labelledby="cal-key-title">
+      <h2 className="cal-key__title" id="cal-key-title">
+        <span className="dev" lang="ne">यो महिना</span> · this month
+      </h2>
+      <ul className="cal-key__list">
+        {entries.map((e) => (
+          <li key={e.kind}>
+            <button
+              type="button"
+              className="cal-key__item"
+              aria-pressed={focus === e.kind}
+              disabled={counts.count[e.kind] === 0}
+              onClick={() => onFocus(e.kind)}
+            >
+              {sample(e)}
+              {label(e.ne, e.en)}
+              {/* With its unit, so it reads as a quantity and not as one
+                  more date beside the sample. */}
+              <span className="cal-key__count" aria-hidden="true">
+                <span className="dev">{toDevanagari(counts.count[e.kind])}</span>
+                <span className="cal-key__unit dev">दिन</span>
+              </span>
+              <span className="sr-only">
+                {counts.count[e.kind]} {counts.count[e.kind] === 1 ? e.one : e.many}. Show them in the calendar.
+              </span>
+            </button>
+          </li>
+        ))}
+        <li>
+          {/* Never disabled: on this month it still clears a lit mark and puts
+              the selection back on today, and a faded आज read as broken. */}
+          <button type="button" className="cal-key__item" onClick={onToday}>
+            {todaySample}
+            {label('आज', isThisMonth ? 'Today' : 'Back to today')}
+            {!isThisMonth && (
+              <span className="cal-key__go" aria-hidden="true">
+                <ChevronIcon dir="right" />
+              </span>
+            )}
+          </button>
+        </li>
+      </ul>
+      <p className="cal-key__hint" aria-live="polite">
+        {shown
+          ? `Showing ${counts.count[shown.kind]} ${counts.count[shown.kind] === 1 ? shown.one : shown.many} — tap it again to show every day.`
+          : 'Tap a mark to light up those days.'}
+      </p>
+    </section>
+  )
+}
+
 export function CalendarPage() {
   const toast = useToast()
   const today = useMemo(() => todayBs(), [])
@@ -204,7 +322,11 @@ export function CalendarPage() {
      any other. It used to stay behind, so paging from Kartik to Mangsir left
      the panel headed "कार्तिक २२" while reading Mangsir's data for it — and
      announcing "No festival listed" for Laxmi Puja. */
+  /* Which kind of day the key is lighting up in the grid, if any. */
+  const [focus, setFocus] = useState<KeyKind | null>(null)
+
   const show = (next: { year: number; month: number }) => {
+    setFocus(null)
     setView(next)
     setSelected(next.year === today.year && next.month === today.month ? today : { ...next, day: 1 })
   }
@@ -220,6 +342,38 @@ export function CalendarPage() {
     () => (panchang?.holidays ?? []).filter((h) => h.names.length > 0),
     [panchang],
   )
+
+  /* Every day of the month on screen, sorted into the kinds the key names —
+     by the same rules the cells use for their classes, so a count and the
+     days it lights up can never disagree with what the grid draws. */
+  const kindsOf = (day: number): Set<KeyKind> => {
+    const info = panchang?.byDay.get(day)
+    const weekday = (leadingBlanks + day - 1) % 7
+    const weeklyOff = isWeeklyOff({ year: view.year, month: view.month, day }, weekday)
+    const kinds = new Set<KeyKind>()
+    if (info?.isHoliday || weeklyOff) kinds.add('off')
+    if (info?.isHoliday && info.festivals.length > 0) kinds.add('holiday')
+    if (info?.partialFor && !weeklyOff) kinds.add('partial')
+    if (info && info.festivals.length > 0) kinds.add('festival')
+    return kinds
+  }
+  /* How many of each kind, and the first date of each — the key draws that
+     real date as its sample, so the sample is a day you can find in the grid
+     above rather than a made-up numeral sitting beside the count (the owner
+     read "७ … ८" as two numbers to reconcile). */
+  const counts = useMemo(() => {
+    const count: Record<KeyKind, number> = { off: 0, holiday: 0, partial: 0, festival: 0 }
+    const first: Partial<Record<KeyKind, number>> = {}
+    for (let d = 1; d <= monthLength; d++) {
+      kindsOf(d).forEach((k) => {
+        count[k]++
+        first[k] ??= d
+      })
+    }
+    return { count, first }
+    // kindsOf reads only these.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [panchang, view.year, view.month, monthLength, leadingBlanks])
 
   const selectedAd = bsToAd(selected.year, selected.month, selected.day)
   /* Read from the month currently on screen rather than re-deriving. Selecting
@@ -334,7 +488,7 @@ export function CalendarPage() {
           })}
         </div>
 
-        <div className="cal__days" role="rowgroup">
+        <div className={'cal__days' + (focus ? ' cal__days--focus' : '')} role="rowgroup">
           {/* Inert spacers for the days before the 1st. aria-hidden so a screen
               reader walks straight from the header to the first real date. */}
           {Array.from({ length: leadingBlanks }, (_, i) => (
@@ -399,6 +553,7 @@ export function CalendarPage() {
                      else they have the day off. */
                   (info?.partialFor && !weeklyOff ? ' cal__cell--partial' : '') +
                   (isToday ? ' cal__cell--today' : '') +
+                  (focus && kindsOf(day).has(focus) ? ' cal__cell--match' : '') +
                   (isSelected ? ' cal__cell--selected' : '')
                 }
                 onClick={() => {
@@ -427,60 +582,26 @@ export function CalendarPage() {
             )
           })}
         </div>
-
-        {/* What the marks mean. The grid encodes five things — a red numeral,
-            two strengths of fill, a dot and a ring — and until 1.9.71 only the
-            panel below explained any of them, one day at a time. Each swatch
-            is drawn by the same rule as the cell it explains, so the key stays
-            true under Material You and in both themes. The festival and
-            holiday entries need the almanac; a month without data shows only
-            what the calendar knows by rule. */}
-        <ul className="cal__legend" aria-label="Calendar key">
-          {/* Each sample is a miniature date drawn by the grid's own cell
-              classes (see .cal__legend-cell), so the key looks like the
-              calendar it explains. The first version used bare swatches: a
-              grey ७ (a label rule was recolouring it) and a holiday square
-              too faint to see on the dark theme, which left the owner asking
-              what they meant. */}
-          <li>
-            <span className="cal__cell cal__cell--off cal__legend-cell" aria-hidden="true">
-              <span className="cal__bs dev">७</span>
-            </span>
-            <span className="cal__legend-label"><span className="cal__legend-ne dev" lang="ne">बिदा</span><span className="cal__legend-en">Day off</span></span>
-          </li>
-          {covered && (
-            <li>
-              <span className="cal__cell cal__cell--off cal__cell--holiday cal__legend-cell" aria-hidden="true">
-                <span className="cal__bs dev">१</span>
-              </span>
-              <span className="cal__legend-label"><span className="cal__legend-ne dev" lang="ne">सार्वजनिक बिदा</span><span className="cal__legend-en">Public holiday</span></span>
-            </li>
-          )}
-          {covered && namedHolidays.some((h) => h.partialFor) && (
-            <li>
-              <span className="cal__cell cal__cell--partial cal__legend-cell" aria-hidden="true">
-                <span className="cal__bs dev">८</span>
-              </span>
-              <span className="cal__legend-label"><span className="cal__legend-ne dev" lang="ne">आंशिक बिदा</span><span className="cal__legend-en">Some people only</span></span>
-            </li>
-          )}
-          {covered && (
-            <li>
-              <span className="cal__cell cal__legend-cell" aria-hidden="true">
-                <span className="cal__bs dev">३</span>
-                <span className="cal__dot" />
-              </span>
-              <span className="cal__legend-label"><span className="cal__legend-ne dev" lang="ne">चाडपर्व</span><span className="cal__legend-en">Festival</span></span>
-            </li>
-          )}
-          <li>
-            <span className="cal__cell cal__cell--today cal__legend-cell" aria-hidden="true">
-              <span className="cal__bs dev">१०</span>
-            </span>
-            <span className="cal__legend-label"><span className="cal__legend-ne dev" lang="ne">आज</span><span className="cal__legend-en">Today</span></span>
-          </li>
-        </ul>
       </div>
+
+      {/* What the marks mean, and how many of each this month has — its own
+          section since 2.0.6, see CalendarKey. */}
+      <CalendarKey
+        covered={covered}
+        counts={counts}
+        showPartial={namedHolidays.some((h) => h.partialFor)}
+        focus={focus}
+        onFocus={(k) => {
+          tick()
+          setFocus(focus === k ? null : k)
+        }}
+        isThisMonth={view.year === today.year && view.month === today.month}
+        todayDay={toDevanagari(today.day)}
+        onToday={() => {
+          tick()
+          show({ year: today.year, month: today.month })
+        }}
+      />
 
       {/* The detail panel. This is where a festival name actually gets read,
           which is what lets the grid cells stay as numerals and a dot. */}
