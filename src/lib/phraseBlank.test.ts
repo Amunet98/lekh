@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
+import { readFileSync } from 'node:fs'
 import { blankToNepali, fillBlank } from './phraseBlank'
+import { setWikiWords } from './engine/wiki'
 
 describe('blankToNepali', () => {
   it('converts the words the dictionary knows', () => {
@@ -20,6 +22,25 @@ describe('blankToNepali', () => {
     expect(blankToNepali('  Sarah   Jane ', 'name')).toBe('Sarah Jane')
     expect(blankToNepali('Hari', 'name')).toBe('Hari')
     expect(blankToNepali('हरि', 'name')).toBe('हरि')
+  })
+})
+
+describe('with the Wikipedia word list loaded', () => {
+  it('finds a place the dictionary lacks when exactly one word sounds like it', () => {
+    setWikiWords(readFileSync('src/data/wikiWords.txt', 'utf8'))
+    expect(blankToNepali('Nagarkot')).toBe('नगरकोट')
+    expect(blankToNepali('Swayambhunath')).toBe('स्वयम्भूनाथ')
+    expect(blankToNepali('Jomsom')).toBe('जोमसोम')
+    expect(blankToNepali('Ratnapark')).toBe('रत्नपार्क')
+  })
+  it('leaves an ambiguous one as typed', () => {
+    // Patan is पतन ("downfall"), Asan आसन ("seat"), Dharan three words.
+    expect(blankToNepali('Patan')).toBe('Patan')
+    expect(blankToNepali('Asan')).toBe('Asan')
+    expect(blankToNepali('Dharan')).toBe('Dharan')
+  })
+  it('still never touches a name', () => {
+    expect(blankToNepali('John', 'name')).toBe('John')
   })
 })
 

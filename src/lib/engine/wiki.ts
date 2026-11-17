@@ -80,6 +80,13 @@ export function loadWikiWords(): Promise<void> {
 
 export const wikiReady = () => index !== null
 
+/** Whether this exact spelling is itself one of the list's words. */
+export function isWikiWord(dev: string): boolean {
+  if (!index) return false
+  const sk = skeleton(dev)
+  return (index.get(bucketKey(sk)) ?? []).some((e) => e.word === dev)
+}
+
 /**
  * Words for a converted Devanagari spelling: first the ones that sound the
  * same (a loose spelling of a real word), then the ones that start the same

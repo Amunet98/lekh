@@ -1,6 +1,7 @@
-import { useId, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { pronounce } from '../../lib/engine/pronounce'
 import { fillBlank } from '../../lib/phraseBlank'
+import { loadWikiWords, wikiReady } from '../../lib/engine/wiki'
 import { usePref } from '../../hooks/usePref'
 import { tick } from '../../lib/haptics'
 import { EMERGENCY_NUMBERS, PHRASE_GROUPS, type Phrase } from '../../data/phrases'
@@ -43,6 +44,19 @@ export function Phrasebook({ onShow }: { onShow: (shown: Shown) => void }) {
      shared by every "… कहाँ छ?"-style line, so it is typed once. */
   const [name, setName] = usePref('phraseName')
   const [place, setPlace] = useState('')
+  /* The Wikipedia word list spells places the dictionary lacks (see
+     phraseBlank.ts). ~1MB, so it is fetched only once a place is typed, and
+     the lines redraw when it lands. */
+  const [, setWikiLoaded] = useState(wikiReady())
+  const wantWiki = place.trim() !== ''
+  useEffect(() => {
+    if (!wantWiki || wikiReady()) return
+    let live = true
+    void loadWikiWords().then(() => live && setWikiLoaded(true))
+    return () => {
+      live = false
+    }
+  }, [wantWiki])
   const group = PHRASE_GROUPS.find((g) => g.id === groupId) ?? PHRASE_GROUPS[0]
   const q = query.trim()
   const phrases = q ? PHRASE_GROUPS.flatMap((g) => g.phrases).filter((p) => matches(p, q)) : group.phrases
