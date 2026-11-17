@@ -408,6 +408,17 @@ export function CalendarPage() {
               >
                 <span className="cal__bs dev">{toDevanagari(day)}</span>
                 <span className="cal__ad">{ad.getDate()}</span>
+                {/* The tithi under the date, the way every printed patro
+                    (and Hamro Patro) sets it — the owner asked for it
+                    (2026-11-17). Unlike a festival name it fits: there are
+                    only sixteen, the longest is त्रयोदशी, and the English date
+                    moved to the corner to make the room. aria-hidden because
+                    the cell's label already reads it. */}
+                {info?.tithi && (
+                  <span className="cal__tithi dev" lang="ne" aria-hidden="true">
+                    {info.tithi}
+                  </span>
+                )}
                 {/* A dot, not the name — at seven columns on a 360px screen
                     there is no room for text, and a truncated festival name is
                     worse than a mark that says "tap me". */}

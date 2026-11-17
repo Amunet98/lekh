@@ -318,6 +318,8 @@
 }
 
 .cal__days {
+  --cal-ad-top: 9px;
+  --cal-ad-size: 0.68rem;
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
 }
@@ -332,7 +334,12 @@
   /* Square-ish cells that grow with the container, so the grid fills the
      width on a phone without a media query per size. */
   aspect-ratio: 1 / 1;
-  min-height: 2.75rem;
+  /* 4.1rem, not 2.75: a cell now stacks the corner date, the numeral, the
+     tithi and the dot, and on a 360px phone the column is ~51px, so a square
+     is too short for the four without them touching. On a wide screen the
+     square is already taller than this and wins. In rem so it grows with the
+     text-size setting along with the type inside it. */
+  min-height: 4.1rem;
   /* The width is the column's, stated. Left to aspect-ratio, the 2.75rem
      min-height came back as a WIDTH (57px at Larger in a 45.7px column) and
      the week ran off the grid: up to 390px at Large/Larger the Saturday
@@ -340,7 +347,11 @@
      is short of 2.75rem just comes out a little taller than wide. */
   width: 100%;
   min-width: 0;
-  padding: 0.2rem;
+  /* The top padding is the English date's row: it sits in the corner (see
+     .cal__ad), and a two-digit numeral is wide enough to run into it unless
+     the numeral starts below it. Its offset plus its size, so the two move
+     together with the text-size setting. */
+  padding: calc(var(--cal-ad-top) + var(--cal-ad-size)) 0.1rem 0.55rem;
   border: 0;
   background: var(--surface);
   font: inherit;
@@ -390,8 +401,11 @@
 /* Above the shape. .cal__dot is already absolute, so it only needs the
    stacking; these two are in flow and need the position as well. */
 .cal__cell > .cal__bs,
-.cal__cell > .cal__ad {
+.cal__cell > .cal__tithi {
   position: relative;
+  z-index: 1;
+}
+.cal__cell > .cal__ad {
   z-index: 1;
 }
 /* A holiday for some people only — the Valley, women employees, a community.
@@ -435,9 +449,42 @@
      against a bank slip, an office form or another phone, and at 0.6rem it was
      the smallest type in the app — 9.6px, and 8.8px under the narrow override
      below. It is not a footnote, it is half of what a dual calendar is for. */
-  font-size: 0.68rem;
+  font-size: var(--cal-ad-size);
   color: var(--muted);
   line-height: 1;
+  /* In the top corner, the way printed patros and Hamro Patro set it, so the
+     space under the numeral can go to the tithi. Same size as before — the
+     move costs it no legibility. */
+  position: absolute;
+  /* Inside the rounded tile (inset 3px, radius 10px — .cal__cell::before),
+     not on its edge: any closer and today's ring ran through the digits. */
+  top: var(--cal-ad-top);
+  inset-inline-end: 10px;
+}
+
+/* The tithi. Small and muted, because it is read on the way past rather than
+   scanned for — the numeral and the red stay the loudest things in a cell.
+   Sized to the narrowest case: त्रयोदशी and चतुर्दशी at 320px. nowrap and a
+   clip rather than an ellipsis, since a Devanagari word cut at a cluster
+   boundary with … after it reads as a different word; at every size measured
+   nothing clips anyway.
+
+   overflow-x: clip and NOT overflow: hidden. hidden clips both axes, and the
+   ि and ी matras rise above the line box — at Larger every tithi lost the
+   top of its vowel sign and नवमी read नवमां (measured, 320px). clip is the one
+   overflow value that can be set per axis. */
+.cal__tithi {
+  max-width: 100%;
+  overflow-x: clip;
+  white-space: nowrap;
+  font-family: var(--display-dev);
+  /* Grows with the column like .cal__bs does: 0.6rem in a phone's ~51px
+     cell, up to 0.78rem in the ~100px cells of a tablet or desktop, where
+     the phone size was a speck. */
+  font-size: clamp(0.6rem, 1.9vw, 0.78rem);
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--muted);
 }
 
 /* Holidays and weekends, and they are no longer drawn the same way.
@@ -490,7 +537,8 @@
   box-shadow: inset 0 0 0 2px var(--accent), inset 0 0 0 4px var(--on-accent);
 }
 .cal__cell--selected .cal__bs,
-.cal__cell--selected .cal__ad {
+.cal__cell--selected .cal__ad,
+.cal__cell--selected .cal__tithi {
   color: var(--on-accent);
 }
 .cal__cell--selected .cal__dot {
@@ -859,8 +907,14 @@
   .cal__cell {
     padding: 0.1rem;
   }
+  .cal__days {
+    --cal-ad-size: 0.62rem;
+  }
   .cal__ad {
-    font-size: 0.62rem;
+    inset-inline-end: 8px;
+  }
+  .cal__tithi {
+    font-size: 0.56rem;
   }
   .cal__weekday {
     font-size: 0.68rem;
