@@ -164,13 +164,23 @@ export function useTabPager({ enabled, tab, savedScroll, onceSwapped, onCommit }
     const top = rect.top + window.scrollY
     const bottom = parseFloat(getComputedStyle(d.page).paddingBottom) || 0
     el.setAttribute('data-peek', '')
+    /* The full width of the screen, with the gutters as padding — not the
+       section's own column. Type and Translate open on full-bleed surfaces
+       that reach out into the gutters with negative margins, and a box only
+       as wide as the column clipped them there, so a strip of page
+       background showed between the two sections on every swipe (2.0.10,
+       owner's A024: "a black bar in every swipe"). overflow clips at the
+       padding edge, so the bleed now shows exactly as it does at rest. */
+    const vw = document.documentElement.clientWidth
     el.style.cssText = [
       'display:block',
       'content-visibility:visible',
       'position:fixed',
       'top:0',
-      `left:${rect.left}px`,
-      `width:${rect.width}px`,
+      'left:0',
+      `width:${vw}px`,
+      `padding-left:${rect.left}px`,
+      `padding-right:${vw - rect.right}px`,
       `height:${window.innerHeight}px`,
       'overflow:hidden',
       'box-sizing:border-box',
@@ -185,7 +195,7 @@ export function useTabPager({ enabled, tab, savedScroll, onceSwapped, onCommit }
   }
 
   const paint = (d: Drag) => {
-    const width = window.innerWidth
+    const width = document.documentElement.clientWidth
     const dir: 1 | -1 = d.dx < 0 ? 1 : -1
     const wanted = neighbour(dir)
     if (wanted !== d.peekTab) {
@@ -211,7 +221,7 @@ export function useTabPager({ enabled, tab, savedScroll, onceSwapped, onCommit }
      either swap sections (and clean up in the same task as the swap) or put
      everything back. */
   const release = (d: Drag) => {
-    const width = window.innerWidth
+    const width = document.documentElement.clientWidth
     const dir: 1 | -1 = d.dx < 0 ? 1 : -1
     const towards = Math.sign(d.vx) === -dir || Math.abs(d.vx) < 0.05
     const commit =
