@@ -48,10 +48,14 @@ Four tabs — **Type**, **Translate**, **Patro** and **Tools**:
   private and offline-capable once cached (large download, fetched in
   phases with progress). Every Nepali translation carries a plain-Latin
   pronunciation line under it (`कृपया मलाई ठमेल लैजानुहोस्` → *Kripaya malai
-  thamel laijanuhos*), and **Show** holds it up full-screen in large type for
-  a taxi driver or shopkeeper.
-- **Patro** — a Bikram Sambat calendar with festivals, public holidays and
-  tithi. About 70 festivals and national days also have an English name, a
+  thamel laijanuhos*), **Show** holds it up full-screen in large type for
+  a taxi driver or shopkeeper, and a **speaker** reads it aloud in the
+  phone's own Nepali voice (offline once Google's Nepali voice is
+  downloaded; Lekh has no voice of its own).
+- **Patro** — a Bikram Sambat calendar with the tithi under every date,
+  festivals and public holidays. A **this month** key under the grid counts
+  the month's days off, public holidays and festival days, and tapping one
+  lights those days up in the grid. About 70 festivals and national days also have an English name, a
   line on what happens and, where it matters, a note for visitors ("offices,
   banks and many shops close from Fulpati until after Tika") — written by
   hand, see below. No ads, no account.
@@ -63,8 +67,11 @@ Four tabs — **Type**, **Translate**, **Patro** and **Tools**:
   Rastra Bank's daily rates for the 22 currencies it quotes (the buying rate
   into rupees, the selling rate out of them, the rupee figure in words too,
   and the last rates kept for offline use); **Preeti ↔ Unicode**, which
-  also notices romanized Nepali pasted into it; and an **offline phrasebook** for travellers — 43 phrases in five
-  topics, searchable, each with its pronunciation and a full-screen Show,
+  also notices romanized Nepali pasted into it; and an **offline phrasebook** for travellers — 46 phrases in five
+  topics, searchable, each with its pronunciation, read aloud and a
+  full-screen Show (lines with a gap, like *My name is …* or *Where is …?*,
+  take a name or a place typed into them; a place Lekh can spell becomes
+  Devanagari, a name stays exactly as typed),
   under the emergency numbers (Police 100, Tourist Police 1144, Ambulance
   102, Fire 101) as tap-to-dial links.
 
@@ -230,7 +237,8 @@ carrying the weekday over the date, taken from the logo's शिरोरेख�
 borderless glass card tinted in the wallpaper's colours; they show the moon's
 phase beside the tithi and count down to the next festival. The fifth, a 5x4
 Month widget, shows the whole Bikram Sambat month with holidays and festivals
-marked, and steps to the next or previous month. It draws in
+marked, and steps to the next or previous month; made 5x5 or taller, it also
+shows the tithi under each date. It draws in
 Nepali by default and in English if you choose it in Settings → Home-screen
 widget. The English mode uses only the hand-checked festival names above
 (exported to the widget by `npm run android:assets`); a festival without one is
