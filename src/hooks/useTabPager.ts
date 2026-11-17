@@ -1,4 +1,4 @@
-import { useEffect, useRef, type TouchEvent as ReactTouchEvent } from 'react'
+import { useEffect, useLayoutEffect, useRef, type TouchEvent as ReactTouchEvent } from 'react'
 import type { Tab } from '../components/TabSwitcher'
 import { TAB_ORDER } from './useAppNavigation'
 
@@ -28,31 +28,37 @@ const EASE = 'cubic-bezier(0.22, 0.9, 0.3, 1)'
  * Two kinds of thing do, and getting this wrong is how a swipe feature makes
  * an app worse rather than better:
  *
- * - A text field. Dragging in one places the caret and selects — that is the
+ * - A text field being typed in. While the keyboard is up the field is the
  *   whole interaction, and the editor is what this app is for.
  * - Anything that scrolls sideways. The suggestion strip does, and the cheat
  *   sheet grid can. These are found by *measuring* rather than by naming the
  *   classes, so the next horizontally-scrolling thing anyone adds does not
  *   silently start losing its gestures to the navigation.
  *
- * An *empty* textarea is the exception to the first of those, and it matters
- * more than it sounds. There is nothing in one to put a caret into and nothing
- * to select, so the interaction being protected does not exist — while on the
- * Type tab an empty editor is most of the launch screen. Measured on a phone:
- * on a first run, two swipes across the untouched editor did nothing at all,
- * and the same swipe from the strip above it or the hint below it changed
- * section. The gesture was dead on the one screen every new user sees first.
+ * A textarea that is NOT being typed in does not, and that matters more than
+ * it sounds. On a touch screen a one-finger sideways drag over a field neither
+ * places the caret nor selects (that is a tap and a long-press), so there is
+ * nothing to protect — while the Type editor and the Translate box are most of
+ * their screens. Until 2.0.12 any textarea with text in it claimed the drag,
+ * and the swipe went dead on both tabs the moment anything had been typed
+ * (found in the 2.0.11 device sweep). Focused AND with the keyboard up is the
+ * test: a field someone has tapped into and dismissed the keyboard from is
+ * being read, not edited.
  *
- * Only textarea, deliberately. The inputs in this app are a date field, a file
- * picker and a search box, and a native control with its own drag behaviour is
- * not worth the risk for a gesture nobody would start on top of one.
+ * Inputs and selects keep the gesture regardless. They are a date field, a
+ * file picker and a search box, small, with native drag behaviour of their
+ * own, and nobody starts a section swipe on top of one.
  */
 function ownsHorizontalDrag(target: EventTarget | null): boolean {
   const el = target instanceof Element ? target : null
   if (!el) return false
   const field = el.closest('textarea, input, select, [contenteditable=""], [contenteditable="true"]')
-  if (field && !(field instanceof HTMLTextAreaElement && field.value === '')) {
-    return true
+  if (field) {
+    if (!(field instanceof HTMLTextAreaElement)) return true
+    const typing =
+      document.activeElement === field &&
+      document.documentElement.classList.contains('has-keyboard')
+    if (typing) return true
   }
   for (let node: Element | null = el; node; node = node.parentElement) {
     // +1 for sub-pixel layout: a box can measure a fraction wider than itself
@@ -70,12 +76,16 @@ interface TabPagerOptions {
   tab: Tab
   /** Where the user left a section, so the peek can show it from there. */
   savedScroll: (tab: Tab) => number
-  /** Register a one-shot callback for right after the next section swap. */
-  onceSwapped: (fn: () => void) => void
+  /** Register a one-shot callback for right after the next section swap;
+      returns a function that withdraws it. */
+  onceSwapped: (fn: () => void) => () => void
   onCommit: (tab: Tab) => void
 }
 
 interface Drag {
+  /* The section the drag started on, read from the DOM at touchstart — not
+     from React state, which can be a render behind straight after a swap. */
+  from: Tab
   x: number
   y: number
   axis: 'none' | 'x' | 'y'
@@ -95,6 +105,21 @@ interface Drag {
 
 function sectionFor(page: HTMLElement, tab: Tab): HTMLElement | null {
   return page.querySelector<HTMLElement>(`:scope > .section[data-tab="${tab}"]`)
+}
+
+/* A release that is still animating. A new touch or a tab change from
+   anywhere else must not wait for it: the touch finishes it at once (so a
+   second quick swipe is not lost), and a tab change — a dock tap mid-settle —
+   drops it, or the swipe would land afterwards and undo the tap. */
+interface Settle {
+  from: Tab
+  to: Tab | null
+  finishNow: () => void
+  abort: () => void
+}
+
+function currentSection(page: HTMLElement): HTMLElement | null {
+  return page.querySelector<HTMLElement>(':scope > .section:not(.section--idle)')
 }
 
 function clear(el: HTMLElement | null) {
@@ -140,16 +165,23 @@ function clear(el: HTMLElement | null) {
  */
 export function useTabPager({ enabled, tab, savedScroll, onceSwapped, onCommit }: TabPagerOptions) {
   const drag = useRef<Drag | null>(null)
-  /* While a release is animating, a new touch is ignored rather than
-     allowed to grab a section mid-flight. */
-  const settling = useRef(false)
-  const opts = useRef({ tab, savedScroll, onceSwapped, onCommit })
+  const settle = useRef<Settle | null>(null)
+  const opts = useRef({ savedScroll, onceSwapped, onCommit })
   useEffect(() => {
-    opts.current = { tab, savedScroll, onceSwapped, onCommit }
+    opts.current = { savedScroll, onceSwapped, onCommit }
   })
 
-  const neighbour = (dir: 1 | -1): Tab | null => {
-    const i = TAB_ORDER.indexOf(opts.current.tab)
+  /* The tab moved while a release was still animating, and not to where the
+     release was going: someone tapped the dock (or pressed Back) mid-settle.
+     Layout effect, so the half-slid sections are gone before that frame
+     paints. */
+  useLayoutEffect(() => {
+    const s = settle.current
+    if (s && tab !== s.from && tab !== s.to) s.abort()
+  }, [tab])
+
+  const neighbour = (from: Tab, dir: 1 | -1): Tab | null => {
+    const i = TAB_ORDER.indexOf(from)
     if (i < 0) return null
     return TAB_ORDER[i + dir] ?? null
   }
@@ -197,7 +229,7 @@ export function useTabPager({ enabled, tab, savedScroll, onceSwapped, onCommit }
   const paint = (d: Drag) => {
     const width = document.documentElement.clientWidth
     const dir: 1 | -1 = d.dx < 0 ? 1 : -1
-    const wanted = neighbour(dir)
+    const wanted = neighbour(d.from, dir)
     if (wanted !== d.peekTab) {
       clear(d.peek)
       d.peek = null
@@ -236,8 +268,7 @@ export function useTabPager({ enabled, tab, savedScroll, onceSwapped, onCommit }
     const ms = Math.round(Math.min(SETTLE_MS, Math.max(140, remaining / speed)))
     const target = commit ? -dir * width : 0
     const transition = `transform ${ms}ms ${EASE}`
-    const { cur, peek, peekTab } = d
-    settling.current = true
+    const { cur, peek, peekTab, from, page } = d
     if (cur) {
       cur.style.transition = transition
       cur.style.transform = `translate3d(${target}px,0,0)`
@@ -247,30 +278,46 @@ export function useTabPager({ enabled, tab, savedScroll, onceSwapped, onCommit }
       peek.style.transform = `translate3d(${target + dir * width}px,0,0)`
     }
 
+    let done = false
+    let withdraw: (() => void) | null = null
+    const cleanup = () => {
+      if (done) return
+      done = true
+      withdraw?.()
+      clear(peek)
+      if (cur) {
+        cur.style.transition = ''
+        cur.style.transform = ''
+      }
+      if (settle.current === me) settle.current = null
+    }
     let finished = false
     const finish = () => {
       if (finished) return
       finished = true
-      const cleanup = () => {
-        clear(peek)
-        if (cur) {
-          cur.style.transition = ''
-          cur.style.transform = ''
-        }
-        settling.current = false
-      }
-      if (commit && peekTab) {
-        opts.current.onceSwapped(cleanup)
+      /* Commit only if the screen is still the one the swipe left from —
+         anything else means the tab already changed under it. */
+      const still = page ? currentSection(page)?.dataset.tab === from : true
+      if (commit && peekTab && still) {
+        withdraw = opts.current.onceSwapped(cleanup)
         opts.current.onCommit(peekTab)
         /* Going home is a history.back() and lands on popstate; if that never
            comes, do not leave a section hanging off the side of the screen. */
-        setTimeout(() => {
-          if (settling.current) cleanup()
-        }, 700)
+        setTimeout(cleanup, 700)
       } else {
         cleanup()
       }
     }
+    const me: Settle = {
+      from,
+      to: commit ? peekTab : null,
+      finishNow: finish,
+      abort: () => {
+        finished = true
+        cleanup()
+      },
+    }
+    settle.current = me
     cur?.addEventListener('transitionend', finish, { once: true })
     setTimeout(finish, ms + 60)
   }
@@ -283,18 +330,28 @@ export function useTabPager({ enabled, tab, savedScroll, onceSwapped, onCommit }
 
   const onTouchStart = (e: ReactTouchEvent<HTMLElement>) => {
     reset()
-    if (!enabled || settling.current) return
+    if (!enabled) return
+    /* A finger down while the last swipe is still settling: finish that one
+       now rather than dropping this one, the way a native pager lets you
+       catch it and keep going. Going home finishes on popstate, a moment
+       later, and that one touch is let go. */
+    settle.current?.finishNow()
+    if (settle.current) return
     // A second finger means a pinch or a two-finger scroll, neither of which
     // is a request to change section.
     if (e.touches.length !== 1) return
     if (ownsHorizontalDrag(e.target)) return
+    const cur = currentSection(e.currentTarget)
+    const from = cur?.dataset.tab as Tab | undefined
+    if (!cur || !from) return
     const touch = e.touches[0]
     drag.current = {
+      from,
       x: touch.clientX,
       y: touch.clientY,
       axis: 'none',
       page: e.currentTarget,
-      cur: sectionFor(e.currentTarget, opts.current.tab),
+      cur,
       peek: null,
       peekTab: null,
       dx: 0,

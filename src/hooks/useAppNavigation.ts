@@ -189,6 +189,11 @@ export function useAppNavigation() {
   const afterSwap = useRef<(() => void) | null>(null)
   const onceSwapped = useCallback((fn: () => void) => {
     afterSwap.current = fn
+    /* Withdrawn if the swap never comes (the swipe's own timeout), so a stale
+       cleanup cannot fire on some later, unrelated tab change. */
+    return () => {
+      if (afterSwap.current === fn) afterSwap.current = null
+    }
   }, [])
   const savedScroll = useCallback((t: Tab) => scrollByTab.current[t] ?? 0, [])
 
