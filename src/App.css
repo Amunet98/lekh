@@ -20,6 +20,13 @@
      env() resolves to 0px and nothing about this changes. */
   padding: var(--sp-5) var(--gutter)
     calc(clamp(var(--sp-5), 4vw, var(--sp-7)) + env(safe-area-inset-bottom, 0px));
+  /* At least down to the bottom of the screen. The swipe listens on .page
+     (useTabPager), and .page was only as tall as its section, so on a short
+     one — Tools on Date — the blank screen under the card was #root, not
+     .page, and a swipe started there did nothing (owner, 2.0.14). svh, the
+     smallest viewport, so a short section never scrolls by a browser bar's
+     height; border-box, so the padding is inside this. */
+  min-height: calc(100svh - var(--bar-h));
 }
 
 /* App bar — one strip carrying brand, section nav and actions.
