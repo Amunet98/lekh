@@ -1249,3 +1249,23 @@
     animation: none !important;
   }
 }
+
+/* One face for every date on this screen (2.0.18).
+ *
+ * .dev is the body Devanagari, Noto Sans (index.css), and Patro's display
+ * type is Anek. The parents below all ask for Anek, but the .dev span inside
+ * each one sets Noto on itself, so it won: the आज button's "मङ्गल ८", the key
+ * counts, the day panel's "पुष १, बुधबार" beside an Anek date tile, the
+ * picker's year and the साइत "Next" month were all Noto, among Anek grid
+ * numerals. The two faces draw ८ differently, so the same date looked like two
+ * glyphs a few rows apart (owner's screenshot, 2026-11-24). Measured with
+ * computed font-family over every Devanagari numeral in .cal: after this, all
+ * of them are Anek. Running text (festival names, notes) stays Noto on
+ * purpose: it is reading text, not a date. */
+.cal__today-btn .dev,
+.cal-key__count .dev,
+.cal__detail-date .dev,
+.cal__sait-next .dev,
+.month-picker__year .dev {
+  font-family: var(--display-dev);
+}
