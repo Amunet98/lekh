@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState, type KeyboardEvent } from 'react'
 import {
   NP_MONTHS,
   NP_MONTHS_EN,
@@ -211,6 +211,7 @@ const KEY_ENTRIES: { kind: KeyKind; ne: string; en: string; one: string; many: s
  * carries its unit, दिन. The first prototype had made-up numerals there and
  * the owner read "७ … ८" as two numbers to reconcile. */
 function CalendarKey({
+  bare = false,
   covered,
   counts,
   showPartial,
@@ -220,6 +221,8 @@ function CalendarKey({
   todayDay,
   onToday,
 }: {
+  /** Inside the month tabs: the tab names the section, so no heading. */
+  bare?: boolean
   covered: boolean
   counts: { count: Record<KeyKind, number>; first: Partial<Record<KeyKind, number>> }
   showPartial: boolean
@@ -257,10 +260,12 @@ function CalendarKey({
 
   const shown = focus ? KEY_ENTRIES.find((e) => e.kind === focus) : null
   return (
-    <section className="cal-key" aria-labelledby="cal-key-title">
-      <h2 className="cal-key__title" id="cal-key-title">
-        <span className="dev" lang="ne">यो महिना</span> · this month
-      </h2>
+    <section className="cal-key" aria-labelledby={bare ? undefined : 'cal-key-title'}>
+      {!bare && (
+        <h2 className="cal-key__title" id="cal-key-title">
+          <span className="dev" lang="ne">यो महिना</span> · this month
+        </h2>
+      )}
       <ul className="cal-key__list">
         {entries.map((e) => (
           <li key={e.kind}>
@@ -308,6 +313,14 @@ function CalendarKey({
   )
 }
 
+type MonthTab = 'holidays' | 'sait' | 'key'
+
+const MONTH_TABS: { id: MonthTab; ne: string; en: string }[] = [
+  { id: 'holidays', ne: 'बिदा', en: 'Holidays' },
+  { id: 'sait', ne: 'साइत', en: 'Auspicious' },
+  { id: 'key', ne: 'चिन्ह', en: 'Key' },
+]
+
 export function CalendarPage() {
   const toast = useToast()
   const today = useMemo(() => todayBs(), [])
@@ -338,6 +351,34 @@ export function CalendarPage() {
     setSelected(next.year === today.year && next.month === today.month ? today : { ...next, day: 1 })
   }
   const goto = (delta: number) => show(stepMonth(view.year, view.month, delta))
+
+  /* Which of the month tabs is open. It stays put across month changes, so
+     paging through the year with साइत open keeps showing साइत. */
+  const [monthTab, setMonthTab] = useState<MonthTab>('holidays')
+  const monthTabRefs = useRef<Partial<Record<MonthTab, HTMLButtonElement | null>>>({})
+  const pickMonthTab = (next: MonthTab, moveFocus = false) => {
+    if (next === monthTab) return
+    tick()
+    setMonthTab(next)
+    /* A lit mark belongs to the key. Left on behind another tab it would fade
+       most of the grid with nothing on screen saying why. */
+    setFocus(null)
+    if (moveFocus) monthTabRefs.current[next]?.focus()
+  }
+  /* Arrow keys along the strip, Home and End to its ends, as in the Tools tabs. */
+  const onMonthTabKey = (e: KeyboardEvent<HTMLDivElement>) => {
+    const ids = MONTH_TABS.map((t) => t.id)
+    const i = ids.indexOf(monthTab)
+    const to =
+      e.key === 'ArrowRight' ? (i + 1) % ids.length
+      : e.key === 'ArrowLeft' ? (i - 1 + ids.length) % ids.length
+      : e.key === 'Home' ? 0
+      : e.key === 'End' ? ids.length - 1
+      : -1
+    if (to < 0) return
+    e.preventDefault()
+    pickMonthTab(ids[to], true)
+  }
 
   /* Named holidays only. The source flags a lot of bare weekend days as
      holidays — inconsistently, at that: 29 of 53 Saturdays in BS 2081 but 48
@@ -712,29 +753,10 @@ export function CalendarPage() {
         )}
       </div>
 
-      {/* What the marks mean, and how many of each this month has — its own
-          section since 2.0.6, see CalendarKey. */}
-      <CalendarKey
-        covered={covered}
-        counts={counts}
-        showPartial={namedHolidays.some((h) => h.partialFor)}
-        focus={focus}
-        onFocus={(k) => {
-          tick()
-          setFocus(focus === k ? null : k)
-        }}
-        isThisMonth={view.year === today.year && view.month === today.month}
-        todayDay={toDevanagari(today.day)}
-        onToday={() => {
-          tick()
-          show({ year: today.year, month: today.month })
-        }}
-      />
-
       {/* Coverage, stated rather than implied. An uncovered month must say so:
           rendering it as a month that simply has no festivals in it would be a
           lie the user has no way to detect. */}
-      {!covered ? (
+      {!covered && (
         <div className="cal__coverage cal__coverage--warn" role="note">
           {loading ? (
             'Looking for festival data for this month…'
@@ -780,12 +802,57 @@ export function CalendarPage() {
             </>
           )}
         </div>
-      ) : (
-        panchang && (
-          <div className="cal__holidays">
-            <h2 className="cal__holidays-title">
-              <span className="dev">यो महिनाका बिदा</span> · public holidays
-            </h2>
+      )}
+
+      {/* The month, in three tabs (2.0.23, the owner's pick of three mockups).
+          The key, the named holidays and the साइत used to stack under the day
+          panel as three more headed sections, each with its own chip style,
+          and the page read as cluttered below the grid. Now one strip holds
+          them and one panel shows at a time; the day panel stays the first
+          thing under the grid. A month with no festival data has only the
+          weekly days off to explain, so it gets the key on its own. */}
+      {covered && panchang ? (
+        <section className="cal-month" aria-label="This month">
+          <div className="cal-month__tabs" role="tablist" aria-label="This month" onKeyDown={onMonthTabKey}>
+            {MONTH_TABS.map((t) => {
+              const n =
+                t.id === 'holidays' ? namedHolidays.length
+                : t.id === 'sait' ? panchang.marriage.length + panchang.bratabandha.length
+                : 0
+              return (
+                <button
+                  key={t.id}
+                  ref={(el) => {
+                    monthTabRefs.current[t.id] = el
+                  }}
+                  type="button"
+                  role="tab"
+                  id={`cal-month-tab-${t.id}`}
+                  aria-selected={monthTab === t.id}
+                  aria-controls={`cal-month-panel-${t.id}`}
+                  tabIndex={monthTab === t.id ? 0 : -1}
+                  className="cal-month__tab"
+                  onClick={() => pickMonthTab(t.id)}
+                >
+                  <span className="cal-month__tab-top">
+                    <span className="cal-month__ne dev" lang="ne">{t.ne}</span>
+                    {n > 0 && (
+                      <span className="cal-month__count dev" aria-hidden="true">{toDevanagari(n)}</span>
+                    )}
+                  </span>
+                  <span className="cal-month__en">{t.en}</span>
+                </button>
+              )
+            })}
+          </div>
+
+          <div
+            role="tabpanel"
+            id="cal-month-panel-holidays"
+            aria-labelledby="cal-month-tab-holidays"
+            className="cal-month__panel cal__holidays"
+            hidden={monthTab !== 'holidays'}
+          >
             {namedHolidays.length === 0 ? (
               <p className="cal__detail-none">
                 No named holiday this month — only the weekly {sundayOff ? 'Saturdays and Sundays' : 'Saturdays'}.
@@ -827,52 +894,93 @@ export function CalendarPage() {
               </ul>
             )}
           </div>
-        )
-      )}
 
-      {/* शुभ साइत — the days the almanac gives for a wedding and a bratabandha.
-          The question people bring is "when", so a month with none says where
-          the next ones are instead of stopping at "none". */}
-      {covered && panchang && (
-        <section className="cal__sait" aria-labelledby="cal-sait-title">
-          <h2 className="cal__holidays-title" id="cal-sait-title">
-            <span className="dev">शुभ साइत</span> · auspicious dates
-          </h2>
-          <SaitRow
-            label="विवाह"
-            gloss="wedding"
-            kind="marriage"
-            days={panchang.marriage}
-            view={view}
-            selectedDay={selected.year === view.year && selected.month === view.month ? selected.day : null}
-            onPick={(day) => {
-              tick()
-              setSelected({ year: view.year, month: view.month, day })
-            }}
-            onJump={(y, m, d) => {
-              tick()
-              show({ year: y, month: m })
-              setSelected({ year: y, month: m, day: d })
-            }}
-          />
-          <SaitRow
-            label="ब्रतबन्ध"
-            gloss="bratabandha"
-            kind="bratabandha"
-            days={panchang.bratabandha}
-            view={view}
-            selectedDay={selected.year === view.year && selected.month === view.month ? selected.day : null}
-            onPick={(day) => {
-              tick()
-              setSelected({ year: view.year, month: view.month, day })
-            }}
-            onJump={(y, m, d) => {
-              tick()
-              show({ year: y, month: m })
-              setSelected({ year: y, month: m, day: d })
-            }}
-          />
+          <div
+            role="tabpanel"
+            id="cal-month-panel-sait"
+            aria-labelledby="cal-month-tab-sait"
+            className="cal-month__panel cal__sait"
+            hidden={monthTab !== 'sait'}
+          >
+            <SaitRow
+              label="विवाह"
+              gloss="wedding"
+              kind="marriage"
+              days={panchang.marriage}
+              view={view}
+              selectedDay={selected.year === view.year && selected.month === view.month ? selected.day : null}
+              onPick={(day) => {
+                tick()
+                setSelected({ year: view.year, month: view.month, day })
+              }}
+              onJump={(y, m, d) => {
+                tick()
+                show({ year: y, month: m })
+                setSelected({ year: y, month: m, day: d })
+              }}
+            />
+            <SaitRow
+              label="ब्रतबन्ध"
+              gloss="bratabandha"
+              kind="bratabandha"
+              days={panchang.bratabandha}
+              view={view}
+              selectedDay={selected.year === view.year && selected.month === view.month ? selected.day : null}
+              onPick={(day) => {
+                tick()
+                setSelected({ year: view.year, month: view.month, day })
+              }}
+              onJump={(y, m, d) => {
+                tick()
+                show({ year: y, month: m })
+                setSelected({ year: y, month: m, day: d })
+              }}
+            />
+          </div>
+
+          <div
+            role="tabpanel"
+            id="cal-month-panel-key"
+            aria-labelledby="cal-month-tab-key"
+            className="cal-month__panel"
+            hidden={monthTab !== 'key'}
+          >
+            <CalendarKey
+              bare
+                covered={covered}
+                counts={counts}
+                showPartial={namedHolidays.some((h) => h.partialFor)}
+                focus={focus}
+                onFocus={(k) => {
+                  tick()
+                  setFocus(focus === k ? null : k)
+                }}
+                isThisMonth={view.year === today.year && view.month === today.month}
+                todayDay={toDevanagari(today.day)}
+                onToday={() => {
+                  tick()
+                  show({ year: today.year, month: today.month })
+                }}
+            />
+          </div>
         </section>
+      ) : (
+        <CalendarKey
+          covered={covered}
+          counts={counts}
+          showPartial={namedHolidays.some((h) => h.partialFor)}
+          focus={focus}
+          onFocus={(k) => {
+            tick()
+            setFocus(focus === k ? null : k)
+          }}
+          isThisMonth={view.year === today.year && view.month === today.month}
+          todayDay={toDevanagari(today.day)}
+          onToday={() => {
+            tick()
+            show({ year: today.year, month: today.month })
+          }}
+        />
       )}
 
       {/* Disclosure, not decoration.

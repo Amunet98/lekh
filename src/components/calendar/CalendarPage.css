@@ -1273,3 +1273,102 @@
     animation: none !important;
   }
 }
+
+/* ── The month tabs (2.0.23) — बिदा · साइत · चिन्ह ─────────────────────────
+ *
+ * The holidays, the साइत and the key used to stack under the day panel as
+ * three headed sections; now one strip holds them and one panel shows at a
+ * time. The strip is the Tools tab bar's, so the app has one segmented
+ * control rather than two that nearly match. */
+.cal-month {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.cal-month__tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2px;
+  padding: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+}
+.cal-month__tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.05rem;
+  min-height: 3.25rem;
+  padding: var(--sp-1) 2px;
+  border: 0;
+  border-radius: calc(var(--radius-card) - 4px);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease),
+    transform var(--dur-fast) var(--ease-expo);
+}
+.cal-month__tab[aria-selected='true'] {
+  background: var(--accent-bg);
+  color: var(--accent-text);
+}
+@media (hover: hover) {
+  .cal-month__tab:hover:not([aria-selected='true']) {
+    color: var(--text-h);
+    background: color-mix(in srgb, var(--text) 7%, transparent);
+  }
+}
+.cal-month__tab:active {
+  transform: scale(0.96);
+}
+.cal-month__tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.cal-month__tab-top {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+.cal-month__ne {
+  font-family: var(--display-dev);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text-h);
+}
+.cal-month__tab[aria-selected='true'] .cal-month__ne {
+  color: inherit;
+}
+.cal-month__count {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.cal-month__en {
+  font: 500 0.68rem/1.2 var(--sans);
+  letter-spacing: 0.02em;
+}
+/* The panels sit straight under the strip: the tab already names them, so
+   the headings they carried as sections are gone, and with them their gap. */
+.cal-month__panel:not([hidden]) {
+  animation: cal-month-in var(--dur) var(--ease-expo);
+}
+@keyframes cal-month-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cal-month__panel:not([hidden]) {
+    animation: none;
+  }
+}
+/* .cal__sait is display: flex, and any author display beats the browser's own
+   [hidden] rule, so a hidden साइत panel would still show under the others. */
+.cal-month__panel[hidden] {
+  display: none;
+}
