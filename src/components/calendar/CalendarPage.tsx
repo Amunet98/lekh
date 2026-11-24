@@ -599,25 +599,6 @@ export function CalendarPage() {
         </div>
       </div>
 
-      {/* What the marks mean, and how many of each this month has — its own
-          section since 2.0.6, see CalendarKey. */}
-      <CalendarKey
-        covered={covered}
-        counts={counts}
-        showPartial={namedHolidays.some((h) => h.partialFor)}
-        focus={focus}
-        onFocus={(k) => {
-          tick()
-          setFocus(focus === k ? null : k)
-        }}
-        isThisMonth={view.year === today.year && view.month === today.month}
-        todayDay={toDevanagari(today.day)}
-        onToday={() => {
-          tick()
-          show({ year: today.year, month: today.month })
-        }}
-      />
-
       {/* The detail panel. This is where a festival name actually gets read,
           which is what lets the grid cells stay as numerals and a dot. */}
       <div className="cal__detail" aria-live="polite">
@@ -730,6 +711,25 @@ export function CalendarPage() {
           </p>
         )}
       </div>
+
+      {/* What the marks mean, and how many of each this month has — its own
+          section since 2.0.6, see CalendarKey. */}
+      <CalendarKey
+        covered={covered}
+        counts={counts}
+        showPartial={namedHolidays.some((h) => h.partialFor)}
+        focus={focus}
+        onFocus={(k) => {
+          tick()
+          setFocus(focus === k ? null : k)
+        }}
+        isThisMonth={view.year === today.year && view.month === today.month}
+        todayDay={toDevanagari(today.day)}
+        onToday={() => {
+          tick()
+          show({ year: today.year, month: today.month })
+        }}
+      />
 
       {/* Coverage, stated rather than implied. An uncovered month must say so:
           rendering it as a month that simply has no festivals in it would be a
