@@ -1076,6 +1076,13 @@
    still lights them up in the grid. Inset with the gutter rather than bled to
    the edges like the lists, because chips at the screen edge read as cut. */
 .cal-key__list {
+  /* Holds its own stacking context, as .cal__grid does and for the same
+     reason. The samples are real .cal__cell markup, whose numeral and dot
+     carry z-index: 1 above the cell shape. Out here, outside the grid's
+     isolation, that z-index tied with the sticky .cal__nav and won on source
+     order, so a scrolled-up chip's "१" and dot painted over the month bar
+     (owner's screenshot, 2026-11-24, 2.0.16). */
+  isolation: isolate;
   margin: 0;
   padding: 0;
   list-style: none;
