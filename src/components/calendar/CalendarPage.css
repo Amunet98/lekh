@@ -102,6 +102,13 @@
 .cal__month-caret {
   color: var(--muted);
 }
+/* The year a step down from the month: lighter, and in body text colour, so
+   the month leads and the year reads as its qualifier — the way a printed
+   patro heads the page. Same line, same size, so the bar is no taller. */
+.cal__month-year {
+  font-weight: 500;
+  color: var(--text);
+}
 @media (hover: hover) {
   .cal__month-btn:hover {
     background: var(--accent-bg);
@@ -168,9 +175,8 @@
    opposite edges of the screen. Each half is still a full 44px target. */
 .cal__step {
   display: inline-flex;
-  border: 1px solid var(--border-field);
+  gap: 2px;
   border-radius: var(--radius-pill);
-  background: var(--surface);
   overflow: hidden;
 }
 .cal__arrow {
@@ -187,8 +193,16 @@
   -webkit-tap-highlight-color: transparent;
   transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
 }
-.cal__arrow + .cal__arrow {
-  border-inline-start: 1px solid var(--border);
+/* Two tonal halves with a 2px seam of page between them — a Material
+   connected button group. The outlined pill read as a form field. */
+.cal__arrow {
+  background: var(--surface-2);
+}
+.cal__arrow:first-child {
+  border-radius: var(--radius-pill) 6px 6px var(--radius-pill);
+}
+.cal__arrow:last-child {
+  border-radius: 6px var(--radius-pill) var(--radius-pill) 6px;
 }
 @media (hover: hover) {
   .cal__arrow:hover {
@@ -316,6 +330,28 @@
 .cal__weekday--off {
   color: var(--bida);
 }
+.cal__weekday {
+  position: relative;
+}
+/* Today's column on today's month: the name in full text colour (or still
+   red on a weekend) and a short accent bar under it. */
+.cal__weekday--today {
+  color: var(--text-h);
+}
+.cal__weekday--today.cal__weekday--off {
+  color: var(--bida);
+}
+.cal__weekday--today::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 3px;
+  width: 1rem;
+  height: 3px;
+  margin-left: -0.5rem;
+  border-radius: 999px;
+  background: var(--accent);
+}
 
 .cal__days {
   --cal-ad-top: 9px;
@@ -329,8 +365,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 0.05rem;
+  /* Top-aligned, not centred: every numeral in a week then sits on the same
+     line whether or not its cell carries a dot, and the dot hangs just under
+     its tithi instead of floating at the foot of the cell. */
+  justify-content: flex-start;
+  gap: 0.1rem;
   /* Square-ish cells that grow with the container, so the grid fills the
      width on a phone without a media query per size. */
   aspect-ratio: 1 / 1;
@@ -351,7 +390,10 @@
      .cal__ad), and a two-digit numeral is wide enough to run into it unless
      the numeral starts below it. Its offset plus its size, so the two move
      together with the text-size setting. */
-  padding: calc(var(--cal-ad-top) + var(--cal-ad-size)) 0.1rem 0.55rem;
+  /* The extra 0.35rem since 2.0.16: the bigger numeral draws its ink at
+     the very top of its line box, and level with the corner date the two read
+     as one number ("१७17"). */
+  padding: calc(var(--cal-ad-top) + var(--cal-ad-size) + 0.35rem) 0.1rem 0.4rem;
   border: 0;
   background: var(--surface);
   font: inherit;
@@ -393,8 +435,8 @@
 .cal__cell::before {
   content: '';
   position: absolute;
-  inset: 3px;
-  border-radius: 10px;
+  inset: 2px;
+  border-radius: 12px;
   z-index: 0;
   transition: background-color var(--dur) var(--ease);
 }
@@ -433,7 +475,7 @@
    instead of --accent's bright one. Exactly what selecting a date on a
    phone showed. */
 @media (hover: hover) {
-  .cal__cell:hover:not(.cal__cell--blank)::before {
+  .cal__cell:hover:not(.cal__cell--blank):not(.cal__cell--today)::before {
     background: var(--accent-bg);
   }
 }
@@ -445,9 +487,12 @@
 
 .cal__bs {
   font-family: var(--display-dev);
-  font-size: clamp(0.95rem, 3.4vw, 1.15rem);
+  /* The loudest thing in the cell by a clear step (2.0.16): it was 1.07rem
+     against a 0.62rem corner date and a 0.56rem tithi, close enough that the
+     three read as one grey texture. */
+  font-size: clamp(1.15rem, 4.6vw, 1.5rem);
   font-weight: 600;
-  line-height: 1.1;
+  line-height: 1.05;
   color: var(--text-h);
 }
 .cal__ad {
@@ -527,35 +572,49 @@
 }
 
 .cal__dot {
-  position: absolute;
-  bottom: 4px;
-  width: 4px;
-  height: 4px;
+  /* In flow under the tithi (2.0.16), not pinned to the cell's foot where it
+     floated a finger's width from the day it belonged to. */
+  position: relative;
+  flex: 0 0 auto;
+  margin-top: 1px;
+  width: 5px;
+  height: 5px;
   border-radius: 999px;
-  background: var(--accent);
+  /* --flag-blue, not the accent. In the crimson theme the accent IS the
+     holiday red, so a festival on a working day wore the same colour as a day
+     off; and today's fill is the accent too. Material You repaints this from
+     the wallpaper's tertiary, so it stays a second hue there as well. */
+  background: var(--flag-blue);
 }
 
-/* Today gets a ring rather than a fill, so it can coexist with the holiday
-   tint and the selected state without any of the three hiding the others. */
+/* Today is the filled tile; the day you tapped is a ring (2.0.16).
+ *
+ * It was the other way round, and the calendar opens with today selected, so
+ * the first thing anyone saw was the fill, the ring, an inner ring to keep the
+ * ring visible through the fill, and — on a partial holiday — a dashed edge
+ * around all three: four outlines on one 50px square (owner's screenshot,
+ * 2026-11-24, पूर्णिमा).
+ *
+ * Now each mark means one thing. The fill is today and only today, the way
+ * every phone calendar and the printed patro's red-circled date say it, and
+ * it wins over the holiday tint and the dashed edge, which the day's panel
+ * still spells out. The ring is the selection, and selecting today adds
+ * nothing because today already stands out. */
 .cal__cell--today::before {
-  box-shadow: inset 0 0 0 2px var(--accent);
-}
-.cal__cell--selected::before {
   background: var(--accent);
+  box-shadow: var(--shadow-accent);
+  outline: 0;
 }
-/* Today, selected — which is how the calendar opens. The fill used to bury
-   the ring, so the one ring the key under the grid points at was the one day
-   it never showed on. An inner ring in the fill's own text colour keeps it. */
-.cal__cell--today.cal__cell--selected::before {
-  box-shadow: inset 0 0 0 2px var(--accent), inset 0 0 0 4px var(--on-accent);
-}
-.cal__cell--selected .cal__bs,
-.cal__cell--selected .cal__ad,
-.cal__cell--selected .cal__tithi {
+.cal__cell--today .cal__bs,
+.cal__cell--today .cal__ad,
+.cal__cell--today .cal__tithi {
   color: var(--on-accent);
 }
-.cal__cell--selected .cal__dot {
+.cal__cell--today .cal__dot {
   background: var(--on-accent);
+}
+.cal__cell--selected:not(.cal__cell--today)::before {
+  box-shadow: inset 0 0 0 2px var(--text-h);
 }
 
 /* A date from the grid, small. It carries the real .cal__cell state classes,
@@ -578,8 +637,14 @@
 .cal__legend-cell .cal__bs {
   font-size: 0.85rem;
 }
+.cal__legend-cell {
+  justify-content: center;
+  gap: 1px;
+}
 .cal__legend-cell .cal__dot {
-  bottom: 2px;
+  width: 4px;
+  height: 4px;
+  margin-top: 0;
 }
 
 /* Selected-day detail */
@@ -596,6 +661,37 @@
   background: color-mix(in srgb, var(--accent) 5%, var(--surface));
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
+}
+.cal__detail-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+/* The day's numeral as a leaf of the month: a tile in the grid's own shape,
+   big enough to be the first thing read in the panel. */
+.cal__detail-num {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-family: var(--display-dev);
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-h);
+}
+.cal__detail-num--off {
+  color: var(--bida);
+  background: color-mix(in srgb, var(--bida) 12%, var(--surface));
+  border-color: transparent;
+}
+.cal__detail-names {
+  min-width: 0;
 }
 .cal__detail-date {
   font-family: var(--display-dev);
@@ -894,10 +990,11 @@
 
 @media (max-width: 420px) {
   .cal__cell {
-    padding: 0.1rem;
+    padding-inline: 0.1rem;
   }
   .cal__days {
     --cal-ad-size: 0.62rem;
+    --cal-ad-top: 7px;
   }
   .cal__ad {
     inset-inline-end: 8px;
@@ -972,117 +1069,134 @@
  * Off the grid and into its own section, headed the way the holiday list
  * below is headed, so the page reads grid → key → day → holidays rather than
  * a grid with a footnote stuck to it. */
+/* Chips, not rows (2.0.16, the owner's pick). Five full-width 56px rows
+   spent a whole screen-third on a legend and pushed the day you tapped below
+   the fold. Each mark is now a chip sized to its own words, wrapping two to a
+   line on a phone and onto one line on a tablet; it still counts its days and
+   still lights them up in the grid. Inset with the gutter rather than bled to
+   the edges like the lists, because chips at the screen edge read as cut. */
 .cal-key__list {
   margin: 0;
   padding: 0;
   list-style: none;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
-  background: var(--surface);
-  overflow: hidden;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
 }
-
-/* The month at a glance. A list of rows like the holiday list, each one
-   the sample, its name, and how many such days this month has, in the
-   grid own numeral face so the count reads as part of the calendar. */
-.cal-key__list > li + li {
-  border-top: 1px solid var(--border);
+.cal-key__list > li {
+  flex: 1 1 auto;
+  display: flex;
+}
+/* आज is a way back, not a count: it keeps its own size at the end of the
+   cloud rather than stretching across a line it ended up alone on. */
+.cal-key__list > li:last-child {
+  flex-grow: 0;
 }
 .cal-key__item {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  flex: 1 1 auto;
+  display: flex;
   align-items: center;
-  gap: 0.85rem;
-  width: 100%;
-  min-height: 3.5rem;
-  padding: var(--sp-2) var(--sp-4);
-  border: 0;
-  background: transparent;
+  gap: 0.6rem;
+  min-height: 3rem;
+  padding: 0.3rem 0.85rem 0.3rem 0.35rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
   color: inherit;
   font: inherit;
   text-align: start;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  transition: background-color var(--dur-fast) var(--ease);
+  transition: background-color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease),
+    transform var(--dur-fast) var(--ease-expo);
+}
+/* A chip with no sample (a kind this month has none of) pads its own start. */
+.cal-key__item:not(:has(.cal-key__sample)) {
+  padding-inline-start: 0.85rem;
 }
 @media (hover: hover) {
   .cal-key__item:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--accent) 5%, var(--surface));
+    background: color-mix(in srgb, var(--accent) 6%, var(--surface));
   }
 }
 .cal-key__item:active:not(:disabled) {
-  background: var(--accent-bg);
+  transform: scale(0.97);
 }
 .cal-key__item:focus-visible {
   outline: 2px solid var(--accent);
-  outline-offset: -2px;
+  outline-offset: 2px;
 }
 .cal-key__item[aria-pressed='true'] {
   background: var(--accent-bg);
+  border-color: var(--accent);
 }
 .cal-key__item:disabled {
   cursor: default;
-}
-.cal-key__item:disabled .cal-key__sample {
-  opacity: 0.4;
+  background: transparent;
+  border-style: dashed;
 }
 /* "० दिन" is information (no public holidays this month), not a dead
-   control, so it stays readable: the count drops to the muted colour at full
-   strength instead of fading with the sample. Faded it measured 2.5:1 on
-   paper; muted is the app's AA secondary text. */
+   control, so its words stay at full readable strength. */
 .cal-key__item:disabled .cal-key__count .dev {
   color: var(--muted);
 }
 .cal-key__label {
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   min-width: 0;
-  line-height: 1.25;
+  line-height: 1.2;
 }
 .cal-key__ne {
   font-family: var(--display-dev);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: var(--text-h);
+  white-space: nowrap;
 }
 .cal-key__en {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: var(--muted);
+  white-space: nowrap;
 }
 .cal-key__count {
+  /* The unit stacked under the count rather than beside it: the same "८ दिन"
+     read top to bottom, ~20px narrower, which is what lets two chips share a
+     line on a phone. */
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  margin-inline-start: auto;
+  padding-inline-start: 0.25rem;
   font-family: var(--display-dev);
-  font-size: 1.3rem;
+  font-size: 1.15rem;
   font-weight: 700;
   line-height: 1;
   color: var(--text-h);
   font-variant-numeric: tabular-nums;
-  min-width: 2ch;
-  text-align: end;
 }
-.cal-key__item[aria-pressed='true'] .cal-key__count {
+.cal-key__item[aria-pressed='true'] .cal-key__count,
+.cal-key__item[aria-pressed='true'] .cal-key__ne {
   color: var(--accent-text);
 }
-/* The unit: small and muted after the count, on the numeral baseline. */
-.cal-key__count {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.25rem;
-}
 .cal-key__unit {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 500;
   color: var(--muted);
 }
 .cal-key__go {
   display: inline-flex;
+  margin-inline-start: auto;
   color: var(--accent-text);
 }
 .cal-key__sample {
-  width: 2.3rem;
-  height: 2.3rem;
+  width: 2.25rem;
+  height: 2.25rem;
 }
 .cal-key__hint {
   margin: var(--sp-2) 0 0;
+  min-height: 1.2em;
   padding-inline: 0.15rem;
   font-size: 0.75rem;
   color: var(--muted);
@@ -1101,4 +1215,30 @@
   /* 0.3: the other days recede but stay legible on a second look (0.18
      measured ~1.3:1 — gone, not quieter). */
   opacity: 0.3;
+}
+
+/* A page turn (2.0.16). The month slides a short way in from the side it came
+   from and fades up: one authored moment for the one thing this screen does
+   most. transform and opacity only, from an already-visible start so a dropped
+   frame shows the month, not a gap. data-dir="0" (first paint) does not move.
+   Off in Android WebView reduced-motion settings like everywhere else. */
+@keyframes cal-month-in {
+  from {
+    opacity: 0.35;
+    transform: translateX(calc(var(--cal-turn) * 14px));
+  }
+}
+.cal__days[data-dir='1'] {
+  --cal-turn: 1;
+}
+.cal__days[data-dir='-1'] {
+  --cal-turn: -1;
+}
+.cal__days:not([data-dir='0']) {
+  animation: cal-month-in var(--dur-slow) var(--ease-expo) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cal__days {
+    animation: none !important;
+  }
 }

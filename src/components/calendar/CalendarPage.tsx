@@ -232,7 +232,10 @@ function CalendarKey({
   const entries = KEY_ENTRIES.filter((e) =>
     e.kind === 'off' ? true : e.kind === 'partial' ? covered && showPartial : covered,
   )
-  const sample = (e: (typeof KEY_ENTRIES)[number]) => (
+  /* No sample for a kind the month does not have. It used to draw the mark
+     around nothing — an empty tinted square that read as a rendering fault
+     (owner's screenshot, 2026-11-24). "० दिन" says it on its own. */
+  const sample = (e: (typeof KEY_ENTRIES)[number]) => counts.count[e.kind] === 0 ? null : (
     <span className={`cal__cell ${e.cls} cal__legend-cell cal-key__sample`} aria-hidden="true">
       <span className="cal__bs dev">
         {counts.first[e.kind] ? toDevanagari(counts.first[e.kind]!) : ''}
@@ -324,9 +327,13 @@ export function CalendarPage() {
      announcing "No festival listed" for Laxmi Puja. */
   /* Which kind of day the key is lighting up in the grid, if any. */
   const [focus, setFocus] = useState<KeyKind | null>(null)
+  /* Which way the last month change went, so the new month slides in from
+     that side. 0 on first paint: nothing animates on arrival. */
+  const [dir, setDir] = useState(0)
 
   const show = (next: { year: number; month: number }) => {
     setFocus(null)
+    setDir(Math.sign((next.year - view.year) * 12 + (next.month - view.month)))
     setView(next)
     setSelected(next.year === today.year && next.month === today.month ? today : { ...next, day: 1 })
   }
@@ -386,6 +393,7 @@ export function CalendarPage() {
       : undefined
   const selectedWeekday = bsWeekday(selected.year, selected.month, selected.day)
   const todayWeekday = bsWeekday(today.year, today.month, today.day)
+  const selectedOff = Boolean(selectedInfo?.isHoliday) || isWeeklyOff(selected, selectedWeekday)
 
   return (
     <section className="cal">
@@ -416,7 +424,7 @@ export function CalendarPage() {
               aria-label={`${NP_MONTHS_EN[view.month]} ${view.year}, choose another month or year`}
               onClick={() => setPicking(true)}
             >
-              {NP_MONTHS[view.month]} {toDevanagari(view.year)}
+              {NP_MONTHS[view.month]} <span className="cal__month-year">{toDevanagari(view.year)}</span>
               <svg className="cal__month-caret" viewBox="0 0 24 24" width="16" height="16" fill="none"
                    stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"
                    aria-hidden="true">
@@ -436,10 +444,7 @@ export function CalendarPage() {
               type="button"
               className="cal__today-btn"
               aria-label={`Back to today, ${NP_MONTHS_EN[today.month]} ${today.day}`}
-              onClick={() => {
-                setView({ year: today.year, month: today.month })
-                setSelected(today)
-              }}
+              onClick={() => show({ year: today.year, month: today.month })}
             >
               <span className="dev" lang="ne">
                 आज
@@ -475,11 +480,14 @@ export function CalendarPage() {
                actually covers, so paging back to 2081 shows the week as it
                was rather than as it is now. */
             const off = i === SATURDAY || (i === SUNDAY && sundayOff)
+            /* Today's column, on today's month: a small mark under its name,
+               so the week you are in reads from the top of the grid. */
+            const now = view.year === today.year && view.month === today.month && i === todayWeekday
             return (
               <span
                 key={d}
                 role="columnheader"
-                className={`cal__weekday dev${off ? ' cal__weekday--off' : ''}`}
+                className={`cal__weekday dev${off ? ' cal__weekday--off' : ''}${now ? ' cal__weekday--today' : ''}`}
                 aria-label={NP_WEEKDAYS_FULL[i]}
               >
                 {d}
@@ -488,7 +496,14 @@ export function CalendarPage() {
           })}
         </div>
 
-        <div className={'cal__days' + (focus ? ' cal__days--focus' : '')} role="rowgroup">
+        {/* Keyed by month so a page turn remounts it and plays the slide-in
+            once, from the side the month came from (data-dir). */}
+        <div
+          key={`${view.year}-${view.month}`}
+          className={'cal__days' + (focus ? ' cal__days--focus' : '')}
+          data-dir={dir}
+          role="rowgroup"
+        >
           {/* Inert spacers for the days before the 1st. aria-hidden so a screen
               reader walks straight from the header to the first real date. */}
           {Array.from({ length: leadingBlanks }, (_, i) => (
@@ -606,15 +621,27 @@ export function CalendarPage() {
       {/* The detail panel. This is where a festival name actually gets read,
           which is what lets the grid cells stay as numerals and a dot. */}
       <div className="cal__detail" aria-live="polite">
-        <p className="cal__detail-date">
-          <span className="dev">
-            {NP_MONTHS[selected.month]} {toDevanagari(selected.day)}, {NP_WEEKDAYS_FULL[selectedWeekday]}
+        {/* The day as a leaf torn off the month: its numeral large, red when
+            the day is off, and the names of the day beside it. */}
+        <div className="cal__detail-head">
+          <span
+            className={`cal__detail-num dev${selectedOff ? ' cal__detail-num--off' : ''}`}
+            aria-hidden="true"
+          >
+            {toDevanagari(selected.day)}
           </span>
-        </p>
-        <p className="cal__detail-ad">
-          {formatAd(selectedAd)}
-          {selectedInfo?.tithi && <> · <span className="dev">{selectedInfo.tithi}</span></>}
-        </p>
+          <div className="cal__detail-names">
+            <p className="cal__detail-date">
+              <span className="dev">
+                {NP_MONTHS[selected.month]} {toDevanagari(selected.day)}, {NP_WEEKDAYS_FULL[selectedWeekday]}
+              </span>
+            </p>
+            <p className="cal__detail-ad">
+              {formatAd(selectedAd)}
+              {selectedInfo?.tithi && <> · <span className="dev">{selectedInfo.tithi}</span></>}
+            </p>
+          </div>
+        </div>
         {/* What kind of day it is, before what is on it: a partial holiday
             and its people, and the साइत this day carries. */}
         {selectedInfo && (selectedInfo.partialFor || selectedInfo.marriage || selectedInfo.bratabandha) && (
@@ -824,7 +851,7 @@ export function CalendarPage() {
             }}
             onJump={(y, m, d) => {
               tick()
-              setView({ year: y, month: m })
+              show({ year: y, month: m })
               setSelected({ year: y, month: m, day: d })
             }}
           />
@@ -841,7 +868,7 @@ export function CalendarPage() {
             }}
             onJump={(y, m, d) => {
               tick()
-              setView({ year: y, month: m })
+              show({ year: y, month: m })
               setSelected({ year: y, month: m, day: d })
             }}
           />
