@@ -43,6 +43,7 @@
             android:text="मङ्गल" />
 
         <TextView
+        android:textLocale="ne-NP"
             android:id="@+id/widget_day"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

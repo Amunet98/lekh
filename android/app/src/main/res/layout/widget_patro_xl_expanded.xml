@@ -59,6 +59,7 @@
             android:text="मङ्गल" />
 
         <TextView
+        android:textLocale="ne-NP"
             android:id="@+id/widget_day"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -200,7 +201,8 @@
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="10sp" android:textColor="@color/widget_week_label"
                 android:text="आइत" />
-            <TextView android:id="@+id/widget_week_d0"
+            <TextView
+        android:textLocale="ne-NP" android:id="@+id/widget_week_d0"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="13sp" android:textStyle="bold" android:includeFontPadding="false"
                 android:textColor="@color/widget_week_day" android:text="१५" />
@@ -222,7 +224,8 @@
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="10sp" android:textColor="@color/widget_week_label"
                 android:text="सोम" />
-            <TextView android:id="@+id/widget_week_d1"
+            <TextView
+        android:textLocale="ne-NP" android:id="@+id/widget_week_d1"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="13sp" android:textStyle="bold" android:includeFontPadding="false"
                 android:textColor="@color/widget_week_day" android:text="१६" />
@@ -244,7 +247,8 @@
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="10sp" android:textColor="@color/widget_week_label"
                 android:text="मङ्गल" />
-            <TextView android:id="@+id/widget_week_d2"
+            <TextView
+        android:textLocale="ne-NP" android:id="@+id/widget_week_d2"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="13sp" android:textStyle="bold" android:includeFontPadding="false"
                 android:textColor="@color/widget_week_day" android:text="१७" />
@@ -266,7 +270,8 @@
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="10sp" android:textColor="@color/widget_week_label"
                 android:text="बुध" />
-            <TextView android:id="@+id/widget_week_d3"
+            <TextView
+        android:textLocale="ne-NP" android:id="@+id/widget_week_d3"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="13sp" android:textStyle="bold" android:includeFontPadding="false"
                 android:textColor="@color/widget_week_day" android:text="१८" />
@@ -288,7 +293,8 @@
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="10sp" android:textColor="@color/widget_week_label"
                 android:text="बिही" />
-            <TextView android:id="@+id/widget_week_d4"
+            <TextView
+        android:textLocale="ne-NP" android:id="@+id/widget_week_d4"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="13sp" android:textStyle="bold" android:includeFontPadding="false"
                 android:textColor="@color/widget_week_day" android:text="१९" />
@@ -310,7 +316,8 @@
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="10sp" android:textColor="@color/widget_week_label"
                 android:text="शुक्र" />
-            <TextView android:id="@+id/widget_week_d5"
+            <TextView
+        android:textLocale="ne-NP" android:id="@+id/widget_week_d5"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="13sp" android:textStyle="bold" android:includeFontPadding="false"
                 android:textColor="@color/widget_week_day" android:text="२०" />
@@ -332,7 +339,8 @@
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="10sp" android:textColor="@color/widget_week_label"
                 android:text="शनि" />
-            <TextView android:id="@+id/widget_week_d6"
+            <TextView
+        android:textLocale="ne-NP" android:id="@+id/widget_week_d6"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:textSize="13sp" android:textStyle="bold" android:includeFontPadding="false"
                 android:textColor="@color/widget_week_day" android:text="२१" />

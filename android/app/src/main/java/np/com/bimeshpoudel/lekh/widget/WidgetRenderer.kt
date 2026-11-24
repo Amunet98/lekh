@@ -99,14 +99,14 @@ object WidgetRenderer {
         val festivals = info?.festivals?.let { majorOnly(it) }?.let { if (english) FestivalsEn.forDay(it) else it } ?: emptyList()
         val ad = NepaliCalendar.toGregorian(today).format(adFormat)
 
-        views.setTextViewText(R.id.widget_day, num(today.day))
-        views.setTextViewText(R.id.widget_month, "${months[today.month]} ${num(today.year)}")
+        views.setNepaliText(R.id.widget_day, num(today.day))
+        views.setNepaliText(R.id.widget_month, "${months[today.month]} ${num(today.year)}")
         // The leaf's strip: the whole weekday across the 2x2's band, the
         // short form on the small leaf of every other size.
-        views.setTextViewText(R.id.widget_leaf_head, if (square) weekdayFull else weekdayShort)
-        views.setTextViewText(R.id.widget_weekday, weekdayFull)
-        views.setTextViewText(R.id.widget_tithi, tithi)
-        views.setTextViewText(R.id.widget_ad, ad)
+        views.setNepaliText(R.id.widget_leaf_head, if (square) weekdayFull else weekdayShort)
+        views.setNepaliText(R.id.widget_weekday, weekdayFull)
+        views.setNepaliText(R.id.widget_tithi, tithi)
+        views.setNepaliText(R.id.widget_ad, ad)
         val paint = WidgetPaint.of(context)
         if (layoutRes != R.layout.widget_patro_small) drawMoon(context, views, today, tithi.isNotEmpty(), paint)
 
@@ -153,10 +153,10 @@ object WidgetRenderer {
         if (square) {
             // Today's festival keeps both lines to itself; a coming one shares.
             squareNote = if (festivals.isNotEmpty() || away.isEmpty()) name else "$name · $away"
-            views.setTextViewText(R.id.widget_note, squareNote)
+            views.setNepaliText(R.id.widget_note, squareNote)
         } else {
-            views.setTextViewText(R.id.widget_note, name)
-            views.setTextViewText(R.id.widget_next, away)
+            views.setNepaliText(R.id.widget_note, name)
+            views.setNepaliText(R.id.widget_next, away)
             if (row) {
                 views.setViewVisibility(R.id.widget_note, if (name.isEmpty()) View.GONE else View.VISIBLE)
                 views.setViewVisibility(R.id.widget_next, if (away.isEmpty()) View.GONE else View.VISIBLE)
@@ -271,7 +271,7 @@ object WidgetRenderer {
             val festive = dayInfo != null && majorOnly(dayInfo.festivals).isNotEmpty()
             views.setViewVisibility(weekDotIds[i], if (festive) View.VISIBLE else View.INVISIBLE)
             paint.imageTint(views, weekDotIds[i], Role.ACCENT)
-            views.setTextViewText(
+            views.setNepaliText(
                 weekDayIds[i],
                 if (english) day.day.toString() else NepaliCalendar.toDevanagari(day.day),
             )
@@ -279,7 +279,7 @@ object WidgetRenderer {
             views.setBoolean(weekLabelIds[i], "setEnabled", !off)
             // The layout XML holds the Devanagari labels as placeholders; the
             // language decides what is actually drawn.
-            views.setTextViewText(
+            views.setNepaliText(
                 weekLabelIds[i],
                 if (english) FestivalsEn.weekdayShort[i] else NepaliCalendar.weekdayShort[i],
             )

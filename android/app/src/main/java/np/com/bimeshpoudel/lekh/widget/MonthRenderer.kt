@@ -95,12 +95,12 @@ object MonthRenderer {
 
         val views = RemoteViews(context.packageName, R.layout.widget_patro_month)
         val months = if (english) FestivalsEn.monthNames else NepaliCalendar.monthNames
-        views.setTextViewText(R.id.widget_m_title, "${months[month]} ${num(year)}")
+        views.setNepaliText(R.id.widget_m_title, "${months[month]} ${num(year)}")
 
         val first = BsDate(year, month, 1)
         val start = NepaliCalendar.toGregorian(first)
         val end = NepaliCalendar.toGregorian(BsDate(year, month, length))
-        views.setTextViewText(
+        views.setNepaliText(
             R.id.widget_m_sub,
             if (start.year == end.year) "${start.format(monthOnly)}–${end.format(monthYear)}"
             else "${start.format(monthYear)} – ${end.format(monthYear)}",
@@ -109,7 +109,7 @@ object MonthRenderer {
         val firstWeekday = NepaliCalendar.weekdayOf(first)
         val labels = if (english) FestivalsEn.weekdayShort else NepaliCalendar.weekdayShort
         for (col in 0..6) {
-            views.setTextViewText(headIds[col], labels[col])
+            views.setNepaliText(headIds[col], labels[col])
             // A weekday column is a day off if its first date in this month
             // is one; the Sunday rule is dated (see NepaliCalendar).
             val sample = BsDate(year, month, 1 + Math.floorMod(col - firstWeekday, 7))
@@ -135,7 +135,7 @@ object MonthRenderer {
         val tithi = info?.tithi?.let { if (english) FestivalsEn.tithi(it) else it } ?: ""
         val age = MoonPhase.age(today)
         val paksha = age?.let { MoonPhase.paksha(it, english) }
-        views.setTextViewText(R.id.widget_tithi, listOfNotNull(tithi.ifEmpty { null }, paksha).joinToString(" · "))
+        views.setNepaliText(R.id.widget_tithi, listOfNotNull(tithi.ifEmpty { null }, paksha).joinToString(" · "))
         WidgetRenderer.drawMoon(context, views, today, tithi.isNotEmpty(), paint)
 
         val todays = info?.festivals?.let { WidgetRenderer.majorOnly(it) }
@@ -154,7 +154,7 @@ object MonthRenderer {
                 }
             } ?: ""
         }
-        views.setTextViewText(R.id.widget_note, note)
+        views.setNepaliText(R.id.widget_note, note)
 
         if (onClick != null) views.setOnClickPendingIntent(R.id.widget_root, onClick)
         if (nav != null) {
@@ -197,16 +197,16 @@ object MonthRenderer {
             if (withTithi) R.layout.widget_month_cell_tithi else R.layout.widget_month_cell,
         )
         if (day < 1 || day > length) {
-            cell.setTextViewText(R.id.widget_mc_bs, "")
-            cell.setTextViewText(R.id.widget_mc_ad, "")
-            if (withTithi) cell.setTextViewText(R.id.widget_mc_tithi, "")
+            cell.setNepaliText(R.id.widget_mc_bs, "")
+            cell.setNepaliText(R.id.widget_mc_ad, "")
+            if (withTithi) cell.setNepaliText(R.id.widget_mc_tithi, "")
             return cell
         }
         val date = BsDate(year, month, day)
         val info = Panchang.forDay(date)
         val off = NepaliCalendar.isWeeklyOff(date) || info?.isHoliday == true
-        cell.setTextViewText(R.id.widget_mc_bs, if (english) day.toString() else NepaliCalendar.toDevanagari(day))
-        cell.setTextViewText(R.id.widget_mc_ad, NepaliCalendar.toGregorian(date).dayOfMonth.toString())
+        cell.setNepaliText(R.id.widget_mc_bs, if (english) day.toString() else NepaliCalendar.toDevanagari(day))
+        cell.setNepaliText(R.id.widget_mc_ad, NepaliCalendar.toGregorian(date).dayOfMonth.toString())
         cell.setBoolean(R.id.widget_mc_bs, "setEnabled", !off)
         cell.setBoolean(R.id.widget_mc_ad, "setEnabled", !off)
         paint.offText(cell, R.id.widget_mc_ad, Role.MUTED)
@@ -230,7 +230,7 @@ object MonthRenderer {
             // English drops the "(new moon)"/"(full moon)" the footer carries:
             // in a ~50dp cell the name alone is what fits.
             val name = info?.tithi?.let { if (english) FestivalsEn.tithi(it).substringBefore(" (") else it } ?: ""
-            cell.setTextViewText(R.id.widget_mc_tithi, name)
+            cell.setNepaliText(R.id.widget_mc_tithi, name)
             // A festival turns the tithi the accent colour in place of the
             // dot this layout has no room for (see widget_month_cell_tithi).
             cell.setBoolean(R.id.widget_mc_tithi, "setEnabled", !festive)

@@ -50,6 +50,7 @@
         android:paddingBottom="8dp">
 
         <TextView
+        android:textLocale="ne-NP"
             android:id="@+id/widget_day"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

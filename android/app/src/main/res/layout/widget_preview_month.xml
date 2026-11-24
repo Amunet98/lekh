@@ -120,6 +120,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -172,6 +173,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -224,6 +226,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -276,6 +279,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -328,6 +332,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -380,6 +385,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -432,6 +438,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -487,6 +494,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -539,6 +547,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -591,6 +600,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -643,6 +653,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -695,6 +706,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -747,6 +759,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -799,6 +812,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -854,6 +868,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -906,6 +921,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -958,6 +974,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -1010,6 +1027,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -1062,6 +1080,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -1114,6 +1133,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -1166,6 +1186,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -1221,6 +1242,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -1273,6 +1295,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -1325,6 +1348,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -1377,6 +1401,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -1429,6 +1454,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -1481,6 +1507,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -1533,6 +1560,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -1588,6 +1616,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -1640,6 +1669,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -1692,6 +1722,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -1744,6 +1775,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -1796,6 +1828,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -1848,6 +1881,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -1900,6 +1934,7 @@
                     android:layout_height="wrap_content">
         
                     <TextView
+                android:textLocale="ne-NP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
