@@ -28,27 +28,31 @@
  * comes from a hairline and one shadow. The only blur left is on the two bars,
  * where content genuinely scrolls underneath and the blur is doing work.
  */
-/* Lekh Digits: Anek Devanagari's ०–९ and nothing else (2.0.19).
+/* Lekh Digits: one set of Nepali numerals for the whole app (2.0.20).
  *
- * Patro sets its dates in Anek, the display face; everything else in Nepali
- * is Noto Sans. The two draw ८ (and ५) differently, so a date in a sentence,
- * a typed number or a Money total looked like a different numeral from the
- * one on the calendar. Owner's call: Anek for every number on every tab.
+ * The owner's pick is the numerals of the आज button in Patro's month bar:
+ * Noto Sans Devanagari in its Nepali forms, where ५ and ८ differ from the
+ * Hindi defaults (८ has the flat top and the hook). Before this, a date could
+ * show three different eights on one screen: Anek's in the grid and headings,
+ * Noto's Hindi form in text without lang="ne", and Noto's Nepali form in the
+ * few spans that had lang="ne".
  *
- * A face that only covers the digits, first in --devanagari, does that
- * without touching a letter: the browser takes ०–९ from here and every other
- * character falls through to Noto. Measured against Noto at 100px: digit
- * ascent 64 vs 64, run width +2.5%, so no size-adjust is needed and line
- * heights do not move.
+ * This face holds only ०–९ and sits first in --devanagari, --display-dev and
+ * --display, so every Devanagari numeral in the app comes from it while every
+ * letter falls through to the face that was already there.
  *
- * Self-hosted, not Google's URL: a 4.6 KB pyftsubset cut of Anek v17
- * (U+0966-096F, wght axis 100-800 kept, layout features kept), so it is in
- * the offline precache and cannot break when Google bumps the font version.
- * OFL 1.1, license beside it in public/fonts/. */
+ * The Nepali forms are baked in, not left to the locl feature: locl only
+ * fires under lang="ne", which most of the app does not carry (<html> is
+ * lang="en"). scripts/build-digit-font.py takes Noto Sans Devanagari v33's
+ * Devanagari file, points U+096B and U+096E at the NEP locl glyphs, and
+ * subsets to U+0966-096F with the wght axis (100-900) kept: 3.7 KB, self-
+ * hosted so it is precached for offline and cannot break on a Google version
+ * bump. Its digits measure the same ascent as Anek's, so the Patro grid
+ * sizing holds. OFL 1.1, license beside it in public/fonts/. */
 @font-face {
   font-family: 'Lekh Digits';
   src: url('/fonts/lekh-digits.woff2') format('woff2');
-  font-weight: 100 800;
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
   unicode-range: U+0966-096F;
@@ -284,14 +288,14 @@
 
   /* Anek Devanagari covers Devanagari *and* Latin, so display type does not
      need a second face for the two scripts. */
-  --display: 'Anek Devanagari', 'Inter', system-ui, sans-serif;
-  --display-dev: 'Anek Devanagari', 'Noto Sans Devanagari', sans-serif;
+  --display: 'Lekh Digits', 'Anek Devanagari', 'Inter', system-ui, sans-serif;
+  --display-dev: 'Lekh Digits', 'Anek Devanagari', 'Noto Sans Devanagari', sans-serif;
   --sans: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   /* Body Devanagari stays Noto Sans: it is what the user's own writing is set
      in, and a display face at 16px is a worse read however good it looks.
-     Its numerals are the exception — 'Lekh Digits' (the @font-face above) puts Anek's ०–९
-     in front of it, so a date reads the same in a sentence as on the grid. */
+     Its numerals come from 'Lekh Digits' (the @font-face above), the same
+     ones every other face in the app uses. */
   --devanagari: 'Lekh Digits', 'Noto Sans Devanagari', 'Nirmala UI', 'Kohinoor Devanagari',
     'Devanagari MT', 'Lohit Devanagari', sans-serif;
 
