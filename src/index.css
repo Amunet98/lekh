@@ -28,6 +28,32 @@
  * comes from a hairline and one shadow. The only blur left is on the two bars,
  * where content genuinely scrolls underneath and the blur is doing work.
  */
+/* Lekh Digits: Anek Devanagari's ०–९ and nothing else (2.0.19).
+ *
+ * Patro sets its dates in Anek, the display face; everything else in Nepali
+ * is Noto Sans. The two draw ८ (and ५) differently, so a date in a sentence,
+ * a typed number or a Money total looked like a different numeral from the
+ * one on the calendar. Owner's call: Anek for every number on every tab.
+ *
+ * A face that only covers the digits, first in --devanagari, does that
+ * without touching a letter: the browser takes ०–९ from here and every other
+ * character falls through to Noto. Measured against Noto at 100px: digit
+ * ascent 64 vs 64, run width +2.5%, so no size-adjust is needed and line
+ * heights do not move.
+ *
+ * Self-hosted, not Google's URL: a 4.6 KB pyftsubset cut of Anek v17
+ * (U+0966-096F, wght axis 100-800 kept, layout features kept), so it is in
+ * the offline precache and cannot break when Google bumps the font version.
+ * OFL 1.1, license beside it in public/fonts/. */
+@font-face {
+  font-family: 'Lekh Digits';
+  src: url('/fonts/lekh-digits.woff2') format('woff2');
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0966-096F;
+}
+
 :root {
   /* The light ground is paper, and warm. It was #fafafb — a blue-tinted
      near-white — which put the entire light theme inside 1.08:1 of #ffffff:
@@ -263,8 +289,10 @@
   --sans: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   /* Body Devanagari stays Noto Sans: it is what the user's own writing is set
-     in, and a display face at 16px is a worse read however good it looks. */
-  --devanagari: 'Noto Sans Devanagari', 'Nirmala UI', 'Kohinoor Devanagari',
+     in, and a display face at 16px is a worse read however good it looks.
+     Its numerals are the exception — 'Lekh Digits' (the @font-face above) puts Anek's ०–९
+     in front of it, so a date reads the same in a sentence as on the grid. */
+  --devanagari: 'Lekh Digits', 'Noto Sans Devanagari', 'Nirmala UI', 'Kohinoor Devanagari',
     'Devanagari MT', 'Lohit Devanagari', sans-serif;
 
   color-scheme: light dark;
