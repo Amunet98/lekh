@@ -67,6 +67,8 @@ object WidgetRenderer {
         onClick: PendingIntent? = null,
         /** The placed height in dp, when the provider knows it; 0 = unknown. */
         heightDp: Int = 0,
+        /** The placed width in dp, likewise; 0 = unknown. */
+        widthDp: Int = 0,
     ): RemoteViews {
         NepaliCalendar.load(context)
         Panchang.load(context)
@@ -182,7 +184,10 @@ object WidgetRenderer {
         val isOff = NepaliCalendar.isWeeklyOff(today) || (info?.isHoliday == true)
         views.setBoolean(R.id.widget_day, "setEnabled", !isOff)
 
-        if (showsWeek) renderWeek(views, today, WidgetTheme.pill(context), english, paint)
+        if (showsWeek) {
+            renderWeek(views, today, WidgetTheme.pill(context), english, paint)
+            fitXl(views, heightDp, widthDp)
+        }
         if (square) fitSquare(context, views, heightDp, squareNote.length > LONG_NOTE_CHARS)
 
         if (onClick != null) views.setOnClickPendingIntent(R.id.widget_root, onClick)
@@ -237,6 +242,56 @@ object WidgetRenderer {
         views.setViewPadding(R.id.widget_body, px(10), 0, px(10), px(2))
         views.setViewPadding(R.id.widget_leaf_head, px(8), px(3), px(8), px(3))
     }
+
+    /**
+     * Grows the expanded 5x1 to fill a box taller than the one it was drawn for.
+     *
+     * The layout is sized for Launcher3's 5x2 (Nothing, Pixel), 362x137dp on
+     * the A024, where it fills the card. One UI gives the same widget
+     * 434x240dp (Galaxy A07, One UI 7, 2026-11-28) and draws it at 83%. The
+     * layout's two weighted halves spread the extra height, but at the
+     * Launcher3 text sizes the content still came out small in a big card.
+     * So past [XL_BASE_HEIGHT_DP] everything scales by one factor, held back
+     * by the width as well, since the festival name shares the top row with
+     * the leaf and the date and ellipsizes first.
+     *
+     * API 31+ only: the leaf, moon and dots are fixed-dp views, and only
+     * setViewLayoutWidth (31) can resize them to match. Below that the halves
+     * still spread the content, at its normal size.
+     */
+    private fun fitXl(views: RemoteViews, heightDp: Int, widthDp: Int) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || heightDp <= 0) return
+        val byWidth = if (widthDp > 0) widthDp / XL_BASE_WIDTH_DP else XL_MAX_SCALE
+        val scale = minOf(heightDp / XL_BASE_HEIGHT_DP, byWidth, XL_MAX_SCALE)
+        if (scale < XL_MIN_SCALE) return
+        fun text(id: Int, sp: Float) = views.setTextViewTextSize(id, TypedValue.COMPLEX_UNIT_SP, sp * scale)
+        fun size(id: Int, w: Float, h: Float) {
+            views.setViewLayoutWidth(id, w * scale, TypedValue.COMPLEX_UNIT_DIP)
+            views.setViewLayoutHeight(id, h * scale, TypedValue.COMPLEX_UNIT_DIP)
+        }
+        // The layout's own sizes, in step with widget_patro_xl_expanded.xml.
+        text(R.id.widget_leaf_head, 9f)
+        text(R.id.widget_day, 21f)
+        text(R.id.widget_month, 13f)
+        text(R.id.widget_ad, 11f)
+        text(R.id.widget_tithi, 11f)
+        text(R.id.widget_note, 12f)
+        text(R.id.widget_next, 11f)
+        views.setViewLayoutWidth(R.id.widget_leaf, 44f * scale, TypedValue.COMPLEX_UNIT_DIP)
+        size(R.id.widget_moon, 12f, 12f)
+        for (i in 0..6) {
+            text(weekLabelIds[i], 10f)
+            text(weekDayIds[i], 13f)
+            size(weekDotIds[i], 4f, 4f)
+        }
+    }
+
+    /** The expanded 5x1's design box: Launcher3's 5x2 on the A024 (362x137dp). */
+    private const val XL_BASE_HEIGHT_DP = 140f
+    private const val XL_BASE_WIDTH_DP = 300f
+    private const val XL_MAX_SCALE = 1.45f
+    /** Under this the difference is not worth a different look from Launcher3's. */
+    private const val XL_MIN_SCALE = 1.08f
 
     private const val FULL_HEIGHT_DP = 156
     private const val TIGHT_HEIGHT_DP = 124

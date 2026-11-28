@@ -78,6 +78,8 @@ class WidgetPreviewActivity : Activity() {
             Triple("5x1  xl, A024 launcher (61dp)", np.com.bimeshpoudel.lekh.R.layout.widget_patro_xl, 360 to 61),
             Triple("5x1  xl, expanded", np.com.bimeshpoudel.lekh.R.layout.widget_patro_xl_expanded, 360 to 170),
             Triple("5x1  xl, expanded, A024 launcher (137dp)", np.com.bimeshpoudel.lekh.R.layout.widget_patro_xl_expanded, 362 to 137),
+            // One UI's 5x2 (Galaxy A07, 2026-11-28): much taller, so fitXl scales it.
+            Triple("5x1  xl, expanded, One UI 5x2 (434x240dp)", np.com.bimeshpoudel.lekh.R.layout.widget_patro_xl_expanded, 434 to 240),
             // The month sheet at its declared minimum and at a 5x4 on the A024.
             Triple("month, declared minimum (250dp)", np.com.bimeshpoudel.lekh.R.layout.widget_patro_month, 250 to 250),
             Triple("month, A024 launcher 5x4 (362x280dp)", np.com.bimeshpoudel.lekh.R.layout.widget_patro_month, 362 to 280),
@@ -124,7 +126,7 @@ class WidgetPreviewActivity : Activity() {
                     dims.second,
                 )
             } else {
-                WidgetRenderer.build(this, layout, heightDp = dims.second)
+                WidgetRenderer.build(this, layout, heightDp = dims.second, widthDp = dims.first)
             }
             /* Kartik 22, 2083 — three festivals, the longest line the 2x2
                shows that year — so the two-line case is always on screen. */
