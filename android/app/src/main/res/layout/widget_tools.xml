@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The Tools widget (2.0.25): option 1 from the owner's canvas, "tabs".
+     Four tools in one 4x2: Money (NRB rates, the currency cycles on a tap),
+     Phrase (the phrasebook, read aloud from the widget), Preeti and Date
+     (each a button into the app). A tab tap redraws the widget in place
+     through LekhToolsProvider; nothing here can take typed text, which is
+     why Preeti and Date hand over to the app.
+
+     Colours come from the same palette as the calendar widgets (Patro, or
+     the wallpaper's), applied by ToolsRenderer through WidgetPaint. The
+     sample text is what the widget picker shows. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_background">
+
+<LinearLayout
+    android:id="@+id/widget_body"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingHorizontal="12dp"
+    android:paddingVertical="10dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView android:id="@+id/widget_tab0"
+            android:layout_width="wrap_content" android:layout_height="32dp"
+            android:layout_marginEnd="6dp"
+            android:gravity="center" android:paddingHorizontal="12dp"
+            android:textSize="12sp" android:textStyle="bold" android:maxLines="1"
+            android:background="@drawable/widget_count"
+            android:textColor="@color/widget_on_head"
+            android:text="Money" />
+        <TextView android:id="@+id/widget_tab1"
+            android:layout_width="wrap_content" android:layout_height="32dp"
+            android:layout_marginEnd="6dp"
+            android:gravity="center" android:paddingHorizontal="12dp"
+            android:textSize="12sp" android:textStyle="bold" android:maxLines="1"
+            android:background="@drawable/widget_row"
+            android:textColor="@color/widget_text"
+            android:text="Phrase" />
+        <TextView android:id="@+id/widget_tab2"
+            android:layout_width="wrap_content" android:layout_height="32dp"
+            android:layout_marginEnd="6dp"
+            android:gravity="center" android:paddingHorizontal="12dp"
+            android:textSize="12sp" android:textStyle="bold" android:maxLines="1"
+            android:background="@drawable/widget_row"
+            android:textColor="@color/widget_text"
+            android:text="Preeti" />
+        <TextView android:id="@+id/widget_tab3"
+            android:layout_width="wrap_content" android:layout_height="32dp"
+            android:layout_marginEnd="6dp"
+            android:gravity="center" android:paddingHorizontal="12dp"
+            android:textSize="12sp" android:textStyle="bold" android:maxLines="1"
+            android:background="@drawable/widget_row"
+            android:textColor="@color/widget_text"
+            android:text="Date" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout android:id="@+id/widget_panel_money"
+            android:layout_width="match_parent" android:layout_height="match_parent"
+            android:orientation="vertical" android:gravity="center_vertical">
+            <LinearLayout
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:gravity="center_vertical">
+                <LinearLayout android:id="@+id/widget_cur"
+                    android:layout_width="wrap_content" android:layout_height="36dp"
+                    android:orientation="horizontal" android:gravity="center_vertical"
+                    android:paddingStart="12dp" android:paddingEnd="8dp"
+                    android:background="@drawable/widget_row">
+                    <TextView android:id="@+id/widget_cur_code"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:textSize="13sp" android:textStyle="bold" android:maxLines="1"
+                        android:textColor="@color/widget_text" android:text="USD 1" />
+                    <ImageView android:id="@+id/widget_cur_more"
+                        android:layout_width="16dp" android:layout_height="16dp"
+                        android:layout_marginStart="4dp"
+                        android:src="@drawable/ic_tool_more" android:contentDescription="@null" />
+                </LinearLayout>
+                <FrameLayout android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
+                <TextView android:id="@+id/widget_rate"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="24sp" android:textStyle="bold" android:maxLines="1"
+                    android:textColor="@color/widget_text" android:text="रु 148.22" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:orientation="horizontal">
+                <LinearLayout android:id="@+id/widget_amt0"
+                    android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                    
+                    android:orientation="vertical" android:paddingHorizontal="10dp" android:paddingVertical="4dp"
+                    android:background="@drawable/widget_row">
+                    <TextView android:id="@+id/widget_amt_from0"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:textSize="11sp" android:maxLines="1" android:textColor="@color/widget_muted"
+                        android:text="USD 100" />
+                    <TextView android:id="@+id/widget_amt_to0"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:textSize="14sp" android:textStyle="bold" android:maxLines="1" android:textColor="@color/widget_text"
+                        android:text="रु 14,822" />
+                </LinearLayout>
+                <LinearLayout android:id="@+id/widget_amt1"
+                    android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:orientation="vertical" android:paddingHorizontal="10dp" android:paddingVertical="4dp"
+                    android:background="@drawable/widget_row">
+                    <TextView android:id="@+id/widget_amt_from1"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:textSize="11sp" android:maxLines="1" android:textColor="@color/widget_muted"
+                        android:text="USD 500" />
+                    <TextView android:id="@+id/widget_amt_to1"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:textSize="14sp" android:textStyle="bold" android:maxLines="1" android:textColor="@color/widget_text"
+                        android:text="रु 74,110" />
+                </LinearLayout>
+                <LinearLayout android:id="@+id/widget_amt2"
+                    android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:orientation="vertical" android:paddingHorizontal="10dp" android:paddingVertical="4dp"
+                    android:background="@drawable/widget_row">
+                    <TextView android:id="@+id/widget_amt_from2"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:textSize="11sp" android:maxLines="1" android:textColor="@color/widget_muted"
+                        android:text="USD 1,000" />
+                    <TextView android:id="@+id/widget_amt_to2"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:textSize="14sp" android:textStyle="bold" android:maxLines="1" android:textColor="@color/widget_text"
+                        android:text="रु 1,48,220" />
+                </LinearLayout>
+            </LinearLayout>
+            <TextView android:id="@+id/widget_money_note"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textSize="11sp" android:maxLines="1" android:ellipsize="end"
+                android:textColor="@color/widget_muted" android:text="NRB sell rate · 27 Nov · buy 147.62" />
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/widget_panel_phrase"
+            android:layout_width="match_parent" android:layout_height="match_parent"
+            android:orientation="horizontal" android:gravity="center_vertical"
+            android:visibility="gone">
+            <LinearLayout
+                android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView android:id="@+id/widget_ph_en"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textSize="12sp" android:maxLines="1" android:ellipsize="end"
+                android:textColor="@color/widget_muted"
+                android:text="Where is the toilet?" />
+                <TextView android:id="@+id/widget_ph_ne"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="20sp" android:textStyle="bold" android:maxLines="2" android:ellipsize="end"
+                    android:textColor="@color/widget_text" android:text="ट्वाइलेट कहाँ छ?" />
+                <TextView android:id="@+id/widget_ph_say"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textSize="12sp" android:maxLines="1" android:ellipsize="end"
+                android:textColor="@color/widget_muted"
+                android:textStyle="italic"
+                android:text="Toilet kahan chha?" />
+            </LinearLayout>
+            <FrameLayout android:id="@+id/widget_ph_listen"
+                android:layout_width="48dp" android:layout_height="48dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/widget_count">
+                <ImageView android:id="@+id/widget_ph_listen_icon"
+                    android:layout_width="22dp" android:layout_height="22dp" android:layout_gravity="center"
+                    android:src="@drawable/ic_tool_speak" android:contentDescription="@string/widget_tools_listen" />
+            </FrameLayout>
+            <FrameLayout android:id="@+id/widget_ph_next"
+                android:layout_width="48dp" android:layout_height="48dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/widget_row">
+                <ImageView android:id="@+id/widget_ph_next_icon"
+                    android:layout_width="22dp" android:layout_height="22dp" android:layout_gravity="center"
+                    android:src="@drawable/ic_widget_next" android:contentDescription="@string/widget_tools_next" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/widget_panel_preeti"
+            android:layout_width="match_parent" android:layout_height="match_parent"
+            android:orientation="horizontal" android:gravity="center_vertical"
+            android:visibility="gone">
+            <LinearLayout
+                android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView android:id="@+id/widget_pr_title"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="15sp" android:textStyle="bold" android:maxLines="1" android:ellipsize="end"
+                    android:textColor="@color/widget_text" android:text="Preeti to Unicode" />
+                <TextView android:id="@+id/widget_pr_body"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="12sp" android:maxLines="2" android:ellipsize="end"
+                    android:textColor="@color/widget_muted" android:text="Copy text typed in Preeti, then paste it here." />
+            </LinearLayout>
+            <TextView android:id="@+id/widget_pr_go"
+                android:layout_width="wrap_content" android:layout_height="48dp"
+                android:layout_marginStart="10dp"
+                android:gravity="center" android:paddingHorizontal="16dp"
+                android:textSize="13sp" android:textStyle="bold" android:maxLines="1"
+                android:background="@drawable/widget_count"
+                android:textColor="@color/widget_on_head"
+                android:text="Paste" />
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/widget_panel_date"
+            android:layout_width="match_parent" android:layout_height="match_parent"
+            android:orientation="horizontal" android:gravity="center_vertical"
+            android:visibility="gone">
+            <LinearLayout
+                android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView android:id="@+id/widget_dt_bs"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="20sp" android:textStyle="bold" android:maxLines="1" android:ellipsize="end"
+                    android:textColor="@color/widget_text" android:text="मंसिर १२, २०८३" />
+                <TextView android:id="@+id/widget_dt_ad"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="12sp" android:maxLines="2" android:ellipsize="end"
+                    android:textColor="@color/widget_muted" android:text="शनिबार · Saturday, 28 November 2026" />
+            </LinearLayout>
+            <TextView android:id="@+id/widget_dt_go"
+                android:layout_width="wrap_content" android:layout_height="48dp"
+                android:layout_marginStart="10dp"
+                android:gravity="center" android:paddingHorizontal="16dp"
+                android:textSize="13sp" android:textStyle="bold" android:maxLines="1"
+                android:background="@drawable/widget_count"
+                android:textColor="@color/widget_on_head"
+                android:text="Convert" />
+        </LinearLayout>
+    </FrameLayout>
+</LinearLayout>
+</FrameLayout>

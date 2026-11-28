@@ -17,31 +17,41 @@
     <color name="ic_launcher_background">#151A2B</color>
 
     <!-- Translucent, not opaque: see the comment on widget_background.xml for why. -->
-    <color name="widget_surface">#EBFFFFFF</color>
-    <color name="widget_border">#DDE1E9</color>
-    <color name="widget_text">#141824</color>
-    <color name="widget_muted">#646C7E</color>
-    <color name="widget_accent">#A80D26</color>
+    <color name="widget_surface">#F5F7F2E8</color>
+    <color name="widget_border">#E3D6BF</color>
+    <color name="widget_text">#3A2A1E</color>
+    <color name="widget_muted">#6B5A48</color>
+    <color name="widget_accent">#A4161A</color>
     <!-- Today's cell in the week strip: the web app's pale accent wash. -->
-    <color name="widget_today">#FBE9EC</color>
+    <color name="widget_today">#E9DCC2</color>
     <!-- The same Crimson & Paper widget colours under names values-v31/ does NOT
          override, so they stay fixed when Material You is on. WidgetTheme.kt
          swaps a widget onto these when the app's "Wallpaper colours" setting is
          off. widget_surface needs no twin: values-v31/ never overrides it. -->
-    <color name="widget_static_text">#141824</color>
-    <color name="widget_static_muted">#646C7E</color>
-    <color name="widget_static_accent">#A80D26</color>
-    <color name="widget_static_border">#DDE1E9</color>
-    <color name="widget_static_today">#FBE9EC</color>
+    <color name="widget_static_text">#3A2A1E</color>
+    <color name="widget_static_muted">#6B5A48</color>
+    <color name="widget_static_accent">#A4161A</color>
+    <color name="widget_static_border">#E3D6BF</color>
+    <color name="widget_static_today">#E9DCC2</color>
 
     <!-- The calendar leaf (2026-10-14): a crimson header strip carrying the
          weekday over the date, the hanging-page logo's शिरोरेखा made into the
          widget's signature. widget_head is the strip, widget_on_head its
          text, widget_leaf the page under it. White on #A80D26 is 7.7:1. -->
-    <color name="widget_head">#A80D26</color>
+    <color name="widget_head">#A4161A</color>
     <color name="widget_on_head">#FFFFFF</color>
-    <color name="widget_leaf">#B3E6E9F0</color>
-    <color name="widget_static_head">#A80D26</color>
+    <color name="widget_leaf">#FFFFFF</color>
+    <color name="widget_static_head">#A4161A</color>
     <color name="widget_static_on_head">#FFFFFF</color>
-    <color name="widget_static_leaf">#B3E6E9F0</color>
+    <color name="widget_static_leaf">#FFFFFF</color>
+
+    <!-- Patro (2.0.25): the widgets' fixed palette is the wall patro's ivory
+         paper and crimson, chosen by the owner from the design canvas. It is
+         what the widgets wear when the app's "Wallpaper colours" setting is
+         off, and below Android 12. Contrast on the #F7F2E8 card: text 12:1,
+         muted 5.9:1, crimson 7.2:1; white on the crimson band 7.4:1.
+         widget_chip is the agenda rows and the Tools widget's buttons: the
+         paper one shade darker. widget_today is the second, quieter chip. -->
+    <color name="widget_chip">#EFE4CF</color>
+    <color name="widget_static_chip">#EFE4CF</color>
 </resources>

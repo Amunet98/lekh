@@ -53,4 +53,7 @@
     <color name="widget_on_head">@android:color/system_accent1_0</color>
     <!-- widget_leaf has no override here: the Material You page is
          color-v31/widget_leaf_dynamic.xml, which carries its alpha. -->
+    <!-- Agenda rows and Tools buttons under Material You: one step past the
+         accent2_50 card (2.0.25). -->
+    <color name="widget_chip">@android:color/system_accent2_100</color>
 </resources>

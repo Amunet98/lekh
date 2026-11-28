@@ -48,12 +48,12 @@ internal object WidgetPalette {
      */
     fun fingerprint(context: Context): String = WidgetPaint.Roles(context).fingerprint()
 
-    /** The same view list as WidgetTheme.applyStatic. Keep the two in step. */
+    /** The same view list as WidgetTheme.applyStatic. Keep the two in step.
+     *  The tall layout colours itself (WidgetRenderer.renderTall). */
     fun apply(context: Context, views: RemoteViews, layoutRes: Int, paint: WidgetPaint) {
         val small = layoutRes == R.layout.widget_patro_small
         val wide = layoutRes == R.layout.widget_patro_wide
         val xl = layoutRes == R.layout.widget_patro_xl
-        val xlExpanded = layoutRes == R.layout.widget_patro_xl_expanded
         val square = layoutRes == R.layout.widget_patro
 
         paint.tint(views, R.id.widget_root, Role.SURFACE)
@@ -68,25 +68,12 @@ internal object WidgetPalette {
         paint.text(views, R.id.widget_weekday, Role.MUTED)
         paint.text(views, R.id.widget_tithi, Role.MUTED)
         paint.text(views, R.id.widget_note, Role.ACCENT)
-        if (wide || xl || xlExpanded) {
-            paint.line(views, R.id.widget_divider1)
-            paint.text(views, R.id.widget_next, Role.TEXT)
-        }
-        if (xlExpanded) {
-            paint.line(views, R.id.widget_divider2)
-            for (i in 0..6) {
-                paint.offText(views, WidgetRenderer.weekDayIds[i], Role.TEXT)
-                paint.offText(views, WidgetRenderer.weekLabelIds[i], Role.MUTED)
-                // Only today's cell has a background (the pill); tinting the
-                // six empty ones does nothing.
-                paint.tint(views, WidgetRenderer.weekCellIds[i], Role.TODAY)
-            }
-        }
+        if (wide || xl) paint.text(views, R.id.widget_next, Role.MUTED)
     }
 }
 
 /** What a colour is for. Each maps to one Material You shade and one fixed one. */
-internal enum class Role { TEXT, MUTED, ACCENT, ON_HEAD, HEAD, TODAY, LEAF, BORDER, SURFACE }
+internal enum class Role { TEXT, MUTED, ACCENT, ON_HEAD, HEAD, TODAY, LEAF, BORDER, SURFACE, CHIP }
 
 /**
  * Colours for one render, in whichever of three modes is in force:
@@ -114,6 +101,7 @@ internal class WidgetPaint private constructor(private val mode: Mode, private v
     @RequiresApi(Build.VERSION_CODES.S)
     class Roles(private val context: Context) {
         private fun c(id: Int) = context.getColor(id)
+        private fun withAlpha(color: Int, alpha: Int) = (color and 0x00FFFFFF) or (alpha shl 24)
 
         // Opaque, although the card is translucent on purpose (tinted glass
         // since 1.9.116; see drawable/widget_background.xml). The SRC_IN tint
@@ -143,6 +131,16 @@ internal class WidgetPaint private constructor(private val mode: Mode, private v
             c(android.R.color.system_neutral2_100),
             c(android.R.color.system_neutral1_50),
         )
+        // The agenda rows and the Tools widget's buttons (2.0.25): a
+        // translucent wash of the wallpaper's secondary colour over the card.
+        // A solid tone one step off the card (accent2_100/700) vanished:
+        // the card itself is translucent, so over a dark wallpaper it reads
+        // a tone or two away from its own value. An overlay keeps its
+        // distance from whatever the card ends up looking like.
+        val chip = Pair(
+            withAlpha(c(android.R.color.system_accent2_700), 0x22),
+            withAlpha(c(android.R.color.system_accent2_100), 0x24),
+        )
 
         fun of(role: Role): Pair = when (role) {
             Role.TEXT -> text
@@ -154,6 +152,7 @@ internal class WidgetPaint private constructor(private val mode: Mode, private v
             Role.LEAF -> leaf
             Role.BORDER -> border
             Role.SURFACE -> surface
+            Role.CHIP -> chip
         }
 
         fun fingerprint(): String = listOf(surface, text, muted, accent, head, leaf)
@@ -177,6 +176,7 @@ internal class WidgetPaint private constructor(private val mode: Mode, private v
             Role.LEAF -> R.color.widget_static_leaf
             Role.BORDER -> R.color.widget_static_border
             Role.SURFACE -> R.color.widget_surface
+            Role.CHIP -> R.color.widget_static_chip
         }
 
         private fun solid(color: Int) = ColorStateList.valueOf(color)

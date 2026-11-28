@@ -98,7 +98,6 @@ abstract class BaseLekhWidgetProvider : AppWidgetProvider() {
         WidgetRenderer.build(
             context, layoutFor(options), onClick,
             if (fitsToHeight || expandedLayoutRes != null) heightOf(options) else 0,
-            if (expandedLayoutRes != null) widthOf(options) else 0,
         )
 
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) {
@@ -212,22 +211,6 @@ abstract class BaseLekhWidgetProvider : AppWidgetProvider() {
         val reported = listOf(
             options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 0),
             options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 0),
-        ).filter { it > 0 }
-        return reported.minOrNull() ?: 0
-    }
-
-    /** The smallest width this instance is drawn at, in dp, or 0 if the
-     *  launcher has not said. The same reasoning as [heightOf]. */
-    protected fun widthOf(options: Bundle): Int {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            @Suppress("DEPRECATION")
-            val sizes = options.getParcelableArrayList<SizeF>(AppWidgetManager.OPTION_APPWIDGET_SIZES)
-            val least = sizes?.minOfOrNull { it.width }
-            if (least != null && least > 0f) return least.toInt()
-        }
-        val reported = listOf(
-            options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 0),
-            options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, 0),
         ).filter { it > 0 }
         return reported.minOrNull() ?: 0
     }

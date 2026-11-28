@@ -8,7 +8,7 @@ import {
 } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslateState } from './hooks/useTranslateState'
-import { TAB_ORDER, isTab, useAppNavigation } from './hooks/useAppNavigation'
+import { TAB_ORDER, applyToolLink, isTab, useAppNavigation } from './hooks/useAppNavigation'
 import type { Tab } from './components/TabSwitcher'
 import { TabSwitcher } from './components/TabSwitcher'
 import { LekhMark } from './components/LekhMark'
@@ -268,8 +268,10 @@ function App() {
     const w = window as { lekhOpen?: (url: string) => boolean }
     w.lekhOpen = (url: string) => {
       try {
-        const wanted = new URL(url, location.href).searchParams.get('tab') ?? 'type'
+        const link = new URL(url, location.href)
+        const wanted = link.searchParams.get('tab') ?? 'type'
         if (!isTab(wanted)) return false
+        applyToolLink(link.search)
         goToTab(wanted)
         return true
       } catch {

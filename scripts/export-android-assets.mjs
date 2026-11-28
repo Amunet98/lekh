@@ -106,11 +106,22 @@ const { festivalNameTable } = await import('../src/lib/calendar/festivalsEn.ts')
 const festivalsEn = festivalNameTable()
 writeFileSync(join(assets, 'festivals-en.json'), JSON.stringify(festivalsEn))
 
+/* The Tools widget's "Phrase" tab (2.0.25): the phrasebook's complete
+   phrases, each with the pronunciation the Phrases tool shows. Phrases with a
+   blank ("… कहाँ छ?") are left out: the widget cannot ask what goes in it. */
+const { PHRASE_GROUPS } = await import('../src/data/phrases.ts')
+const { pronounce } = await import('../src/lib/engine/pronounce.ts')
+const phrases = PHRASE_GROUPS.flatMap((g) => g.phrases)
+  .filter((p) => !p.blank)
+  .map((p) => ({ en: p.en, ne: p.ne, say: p.say ?? pronounce(p.ne) }))
+writeFileSync(join(assets, 'phrases.json'), JSON.stringify(phrases))
+
 const coverage = JSON.parse(readFileSync(panchangSrc, 'utf8')).coverage
 console.log('wrote android/app/src/main/assets/')
 console.log(`  bs-calendar.json  BS ${years[0]}–${years[years.length - 1]}, epoch ${iso(epochDate)} (both checks passed)`)
 console.log(`  panchang.json     festivals BS ${coverage.from}–${coverage.to}`)
 console.log(`  festivals-en.json ${Object.keys(festivalsEn).length} almanac spellings with English`)
+console.log(`  phrases.json      ${phrases.length} phrases for the Tools widget`)
 
 /* The launcher icon used to be rendered here too. It is an adaptive icon now —
    vector layers written by design/logo/build_mark.py, legacy PNGs by

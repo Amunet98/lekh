@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- An agenda row in the tall widget, and a button in the Tools widget
+     (2.0.25): the card one shade darker. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/widget_chip" />
+    <corners android:radius="12dp" />
+</shape>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Today's tile in the tall widget's week (2.0.25): the leaf's crimson (or
+     the wallpaper's primary), filled, with the day's text on it in
+     widget_on_head. Recoloured at draw time by WidgetPaint like the leaf. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/widget_head" />
+    <corners android:radius="12dp" />
+</shape>

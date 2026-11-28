@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import type { Tab } from '../components/TabSwitcher'
-import { getPref, setPref } from '../lib/prefs'
+import { getPref, setPref, TOOL_IDS, type ToolId } from '../lib/prefs'
 
 /* Back, behaving the way Back behaves in an app.
  *
@@ -74,10 +74,26 @@ export function tabFromUrl(): Tab {
   }
 }
 
+/* The Tools widget (2.0.25) opens a particular tool, and the Money tab its
+   currency: ?tab=tools&tool=money&currency=USD. Both are just the prefs the
+   Tools page already keeps, so setting them is all it takes, cold or warm. */
+export function applyToolLink(search: string): void {
+  try {
+    const params = new URLSearchParams(search)
+    const tool = params.get('tool')
+    if (tool && (TOOL_IDS as readonly string[]).includes(tool)) setPref('tool', tool as ToolId)
+    const currency = params.get('currency')
+    if (currency && /^[A-Z]{3}$/.test(currency)) setPref('currency', currency)
+  } catch {
+    // A malformed link still lands on its tab.
+  }
+}
+
 /* Where a cold launch lands. An explicit ?tab= always wins — that is a widget
    deep link or a launcher shortcut, which is someone asking for a specific
    screen right now and outranks a standing preference. */
 function landingTab(): Tab {
+  applyToolLink(location.search)
   const fromUrl = tabFromUrl()
   if (fromUrl !== HOME) return fromUrl
   return getPref('restoreLastTab') ? getPref('lastTab') : HOME

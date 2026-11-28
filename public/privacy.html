@@ -227,13 +227,18 @@
       </div>
 
       <div class="card">
-        <h3>5. Exchange rates, when you open the currency converter</h3>
+        <h3>5. Exchange rates, when you open the currency converter or place the Tools widget</h3>
         <p>
           The currency converter on the Tools tab fetches the day's reference rates from Nepal Rastra
           Bank, the central bank. The request asks for a range of dates and nothing else; nothing you
           type into the converter is sent. It is only made when you open the converter and the rates
           already on your device are not today's, or when you ask for newer ones; the last rates are
           kept on your device so the converter works offline.
+        </p>
+        <p>
+          On Android, while the Tools widget is on your home screen, the app makes the same request
+          about twice a day so the widget's rates stay current. It asks for the same range of dates and
+          nothing else.
         </p>
         <p class="host">www.nrb.org.np</p>
       </div>
@@ -269,9 +274,12 @@
       <h2>The Android app and widget</h2>
       <p>
         The Android app is the same web app in a wrapper, so everything above applies to it
-        unchanged. The home-screen widget is separate and simpler: it draws only from calendar data
-        already on the phone, and its one network request is the daily festival-list download
-        described under Calendar updates above.
+        unchanged. The home-screen widgets are separate and simpler. The calendar widgets draw only
+        from calendar data already on the phone, and their one network request is the daily
+        festival-list download described under Calendar updates above. The Tools widget also fetches
+        exchange rates, as described under Exchange rates above. Its phrases are built into the app,
+        and its Listen button speaks them with your phone's own text-to-speech, as the app's read
+        aloud does.
       </p>
 
       <h2>Children</h2>

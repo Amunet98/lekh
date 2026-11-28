@@ -149,6 +149,25 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_info_month" />
         </receiver>
+
+        <!-- The Tools widget (2.0.25): Money, Phrase, Preeti and Date behind
+             tabs. Its taps come back as explicit broadcasts (TOOLS), so they
+             need no filter entry; DATE_CHANGED redraws the Date tab and the
+             phrase of the day. -->
+        <receiver
+            android:name=".widget.LekhToolsProvider"
+            android:label="@string/widget_label_tools"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.DATE_CHANGED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info_tools" />
+        </receiver>
     </application>
 
     <!-- Permissions -->

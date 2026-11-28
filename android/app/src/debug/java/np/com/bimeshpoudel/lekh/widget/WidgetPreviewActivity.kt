@@ -77,9 +77,16 @@ class WidgetPreviewActivity : Activity() {
             Triple("5x1  xl", np.com.bimeshpoudel.lekh.R.layout.widget_patro_xl, 360 to 70),
             Triple("5x1  xl, A024 launcher (61dp)", np.com.bimeshpoudel.lekh.R.layout.widget_patro_xl, 360 to 61),
             Triple("5x1  xl, expanded", np.com.bimeshpoudel.lekh.R.layout.widget_patro_xl_expanded, 360 to 170),
+            Triple("5x1  xl, expanded, 150dp", np.com.bimeshpoudel.lekh.R.layout.widget_patro_xl_expanded, 362 to 150),
             Triple("5x1  xl, expanded, A024 launcher (137dp)", np.com.bimeshpoudel.lekh.R.layout.widget_patro_xl_expanded, 362 to 137),
-            // One UI's 5x2 (Galaxy A07, 2026-11-28): much taller, so fitXl scales it.
+            // One UI's 5x2 (Galaxy A07, 2026-11-28): tall enough for three agenda rows.
             Triple("5x1  xl, expanded, One UI 5x2 (434x240dp)", np.com.bimeshpoudel.lekh.R.layout.widget_patro_xl_expanded, 434 to 240),
+            // The Tools widget (2.0.25) at Launcher3's 4x2 and at One UI's.
+            Triple("tools, A024 launcher 4x2 (362x137dp)", np.com.bimeshpoudel.lekh.R.layout.widget_tools, 362 to 137),
+            Triple("tools, One UI 4x2 (346x240dp)", np.com.bimeshpoudel.lekh.R.layout.widget_tools, 346 to 240),
+            Triple("tools, phrase tab", np.com.bimeshpoudel.lekh.R.layout.widget_tools, 362 to 137),
+            Triple("tools, date tab", np.com.bimeshpoudel.lekh.R.layout.widget_tools, 362 to 137),
+            Triple("tools, preeti tab", np.com.bimeshpoudel.lekh.R.layout.widget_tools, 362 to 137),
             // The month sheet at its declared minimum and at a 5x4 on the A024.
             Triple("month, declared minimum (250dp)", np.com.bimeshpoudel.lekh.R.layout.widget_patro_month, 250 to 250),
             Triple("month, A024 launcher 5x4 (362x280dp)", np.com.bimeshpoudel.lekh.R.layout.widget_patro_month, 362 to 280),
@@ -113,6 +120,16 @@ class WidgetPreviewActivity : Activity() {
             // Built for the height it is shown at, as the provider builds it.
             val views = if (label.startsWith("picker")) {
                 RemoteViews(packageName, layout)
+            } else if (layout == R.layout.widget_tools) {
+                // Harness-only widget ids, one per tab, so each row shows its own.
+                val tab = when {
+                    label.contains("phrase") -> ToolsRenderer.TAB_PHRASE
+                    label.contains("date") -> ToolsRenderer.TAB_DATE
+                    label.contains("preeti") -> ToolsRenderer.TAB_PREETI
+                    else -> ToolsRenderer.TAB_MONEY
+                }
+                ToolsRenderer.setTab(this, 90_000 + tab, tab)
+                ToolsRenderer.build(this, 90_000 + tab, dims.second)
             } else if (layout == R.layout.widget_patro_month) {
                 MonthRenderer.build(
                     this,
@@ -126,7 +143,7 @@ class WidgetPreviewActivity : Activity() {
                     dims.second,
                 )
             } else {
-                WidgetRenderer.build(this, layout, heightDp = dims.second, widthDp = dims.first)
+                WidgetRenderer.build(this, layout, heightDp = dims.second)
             }
             /* Kartik 22, 2083 — three festivals, the longest line the 2x2
                shows that year — so the two-line case is always on screen. */

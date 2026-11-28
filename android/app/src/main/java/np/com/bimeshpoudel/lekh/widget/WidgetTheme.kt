@@ -109,20 +109,16 @@ object WidgetTheme {
     fun useStatic(context: Context): Boolean =
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !isDynamic(context)
 
-    /** The week strip's today marker, in whichever palette is in force. */
-    fun pill(context: Context): Int =
-        if (useStatic(context)) R.drawable.widget_pill_static else R.drawable.widget_pill
-
     fun applyStatic(views: RemoteViews, layoutRes: Int) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
         /* Only views this layout really has. RemoteViews is meant to skip an
            action whose view is missing, but a widget that fails to draw only
            shows itself on a real home screen ("Can't load widget"), so this
-           does not lean on that. Matches the five layouts' XML. */
+           does not lean on that. Matches the four one-leaf layouts' XML; the
+           tall layout colours itself (WidgetRenderer.renderTall). */
         val small = layoutRes == R.layout.widget_patro_small
         val wide = layoutRes == R.layout.widget_patro_wide
         val xl = layoutRes == R.layout.widget_patro_xl
-        val xlExpanded = layoutRes == R.layout.widget_patro_xl_expanded
         val square = layoutRes == R.layout.widget_patro
 
         views.setInt(R.id.widget_root, "setBackgroundResource", R.drawable.widget_background_static)
@@ -143,19 +139,8 @@ object WidgetTheme {
         views.setColorStateList(R.id.widget_weekday, "setTextColor", R.color.widget_static_muted)
         views.setColorStateList(R.id.widget_tithi, "setTextColor", R.color.widget_static_muted)
         views.setColorStateList(R.id.widget_note, "setTextColor", R.color.widget_static_accent)
-        if (wide || xl || xlExpanded) {
-            views.setColor(R.id.widget_divider1, "setBackgroundColor", R.color.widget_static_border)
-        }
-        if (wide || xl || xlExpanded) {
-            // The countdown pill's text; the pill itself is tinted by WidgetPaint.
-            views.setColorStateList(R.id.widget_next, "setTextColor", R.color.widget_static_text)
-        }
-        if (xlExpanded) {
-            views.setColor(R.id.widget_divider2, "setBackgroundColor", R.color.widget_static_border)
-            for (i in 0..6) {
-                views.setColorStateList(WidgetRenderer.weekDayIds[i], "setTextColor", R.color.widget_static_week_day)
-                views.setColorStateList(WidgetRenderer.weekLabelIds[i], "setTextColor", R.color.widget_static_week_label)
-            }
+        if (wide || xl) {
+            views.setColorStateList(R.id.widget_next, "setTextColor", R.color.widget_static_muted)
         }
     }
 
@@ -165,6 +150,7 @@ object WidgetTheme {
         LekhWidgetWideProvider::class.java,
         LekhWidgetXlProvider::class.java,
         LekhWidgetMonthProvider::class.java,
+        LekhToolsProvider::class.java,
     )
 
     /** Whether any widget of any size is on a home screen. */

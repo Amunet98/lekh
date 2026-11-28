@@ -44,22 +44,6 @@ object WidgetRenderer {
        Nepali, and this line is the one place the widget promises English. */
     private val adFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMM yyyy", Locale.ENGLISH)
 
-    internal val weekDayIds = intArrayOf(
-        R.id.widget_week_d0, R.id.widget_week_d1, R.id.widget_week_d2, R.id.widget_week_d3,
-        R.id.widget_week_d4, R.id.widget_week_d5, R.id.widget_week_d6,
-    )
-    internal val weekLabelIds = intArrayOf(
-        R.id.widget_week_l0, R.id.widget_week_l1, R.id.widget_week_l2, R.id.widget_week_l3,
-        R.id.widget_week_l4, R.id.widget_week_l5, R.id.widget_week_l6,
-    )
-    private val weekDotIds = intArrayOf(
-        R.id.widget_week_f0, R.id.widget_week_f1, R.id.widget_week_f2, R.id.widget_week_f3,
-        R.id.widget_week_f4, R.id.widget_week_f5, R.id.widget_week_f6,
-    )
-    internal val weekCellIds = intArrayOf(
-        R.id.widget_week_c0, R.id.widget_week_c1, R.id.widget_week_c2, R.id.widget_week_c3,
-        R.id.widget_week_c4, R.id.widget_week_c5, R.id.widget_week_c6,
-    )
 
     fun build(
         context: Context,
@@ -67,25 +51,22 @@ object WidgetRenderer {
         onClick: PendingIntent? = null,
         /** The placed height in dp, when the provider knows it; 0 = unknown. */
         heightDp: Int = 0,
-        /** The placed width in dp, likewise; 0 = unknown. */
-        widthDp: Int = 0,
     ): RemoteViews {
         NepaliCalendar.load(context)
         Panchang.load(context)
+        // The tall size is a different design (D) with its own renderer.
+        if (layoutRes == R.layout.widget_patro_xl_expanded) return TallRenderer.build(context, onClick, heightDp)
 
-        // Only the one-row sizes have a widget_next row, and only the expanded
-        // 5x1 has the week strip; the 60-day upcoming() walk and the strip's
-        // seven lookups are skipped for sizes that cannot show them.
+        // Only the one-row sizes have a widget_next row; the 60-day upcoming()
+        // walk is skipped for sizes that cannot show it.
         val english = WidgetTheme.isEnglish(context)
         if (english) FestivalsEn.load(context)
         fun num(n: Int) = if (english) n.toString() else NepaliCalendar.toDevanagari(n)
 
         val square = layoutRes == R.layout.widget_patro
         // The one-row sizes: leaf, month over "AD · tithi", festival over next.
-        val row = layoutRes == R.layout.widget_patro_wide ||
-            layoutRes == R.layout.widget_patro_xl ||
-            layoutRes == R.layout.widget_patro_xl_expanded
-        val showsWeek = layoutRes == R.layout.widget_patro_xl_expanded
+        val row = layoutRes == R.layout.widget_patro_wide || layoutRes == R.layout.widget_patro_xl
+        val small = layoutRes == R.layout.widget_patro_small
 
         val today = NepaliCalendar.today()
         val info = Panchang.forDay(today)
@@ -108,7 +89,9 @@ object WidgetRenderer {
         views.setNepaliText(R.id.widget_leaf_head, if (square) weekdayFull else weekdayShort)
         views.setNepaliText(R.id.widget_weekday, weekdayFull)
         views.setNepaliText(R.id.widget_tithi, tithi)
-        views.setNepaliText(R.id.widget_ad, ad)
+        // The 2x1 has room for one line under the month: the tithi there
+        // (design A, 2.0.25), the AD date when there is no tithi.
+        views.setNepaliText(R.id.widget_ad, if (small && tithi.isNotEmpty()) tithi else ad)
         val paint = WidgetPaint.of(context)
         if (layoutRes != R.layout.widget_patro_small) drawMoon(context, views, today, tithi.isNotEmpty(), paint)
 
@@ -184,10 +167,6 @@ object WidgetRenderer {
         val isOff = NepaliCalendar.isWeeklyOff(today) || (info?.isHoliday == true)
         views.setBoolean(R.id.widget_day, "setEnabled", !isOff)
 
-        if (showsWeek) {
-            renderWeek(views, today, WidgetTheme.pill(context), english, paint)
-            fitXl(views, heightDp, widthDp)
-        }
         if (square) fitSquare(context, views, heightDp, squareNote.length > LONG_NOTE_CHARS)
 
         if (onClick != null) views.setOnClickPendingIntent(R.id.widget_root, onClick)
@@ -202,10 +181,6 @@ object WidgetRenderer {
         // The countdown pill exists on the row sizes only; tinting an id a
         // layout does not have is skipped by RemoteViews, but this does not
         // lean on that (see WidgetTheme.applyStatic).
-        if (row) {
-            paint.tint(views, R.id.widget_next, Role.TODAY)
-            paint.text(views, R.id.widget_next, Role.TEXT)
-        }
         return views
     }
 
@@ -243,108 +218,10 @@ object WidgetRenderer {
         views.setViewPadding(R.id.widget_leaf_head, px(8), px(3), px(8), px(3))
     }
 
-    /**
-     * Grows the expanded 5x1 to fill a box taller than the one it was drawn for.
-     *
-     * The layout is sized for Launcher3's 5x2 (Nothing, Pixel), 362x137dp on
-     * the A024, where it fills the card. One UI gives the same widget
-     * 434x240dp (Galaxy A07, One UI 7, 2026-11-28) and draws it at 83%. The
-     * layout's two weighted halves spread the extra height, but at the
-     * Launcher3 text sizes the content still came out small in a big card.
-     * So past [XL_BASE_HEIGHT_DP] everything scales by one factor, held back
-     * by the width as well, since the festival name shares the top row with
-     * the leaf and the date and ellipsizes first.
-     *
-     * API 31+ only: the leaf, moon and dots are fixed-dp views, and only
-     * setViewLayoutWidth (31) can resize them to match. Below that the halves
-     * still spread the content, at its normal size.
-     */
-    private fun fitXl(views: RemoteViews, heightDp: Int, widthDp: Int) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || heightDp <= 0) return
-        val byWidth = if (widthDp > 0) widthDp / XL_BASE_WIDTH_DP else XL_MAX_SCALE
-        val scale = minOf(heightDp / XL_BASE_HEIGHT_DP, byWidth, XL_MAX_SCALE)
-        if (scale < XL_MIN_SCALE) return
-        fun text(id: Int, sp: Float) = views.setTextViewTextSize(id, TypedValue.COMPLEX_UNIT_SP, sp * scale)
-        fun size(id: Int, w: Float, h: Float) {
-            views.setViewLayoutWidth(id, w * scale, TypedValue.COMPLEX_UNIT_DIP)
-            views.setViewLayoutHeight(id, h * scale, TypedValue.COMPLEX_UNIT_DIP)
-        }
-        // The layout's own sizes, in step with widget_patro_xl_expanded.xml.
-        text(R.id.widget_leaf_head, 9f)
-        text(R.id.widget_day, 21f)
-        text(R.id.widget_month, 13f)
-        text(R.id.widget_ad, 11f)
-        text(R.id.widget_tithi, 11f)
-        text(R.id.widget_note, 12f)
-        text(R.id.widget_next, 11f)
-        views.setViewLayoutWidth(R.id.widget_leaf, 44f * scale, TypedValue.COMPLEX_UNIT_DIP)
-        size(R.id.widget_moon, 12f, 12f)
-        for (i in 0..6) {
-            text(weekLabelIds[i], 10f)
-            text(weekDayIds[i], 13f)
-            size(weekDotIds[i], 4f, 4f)
-        }
-    }
-
-    /** The expanded 5x1's design box: Launcher3's 5x2 on the A024 (362x137dp). */
-    private const val XL_BASE_HEIGHT_DP = 140f
-    private const val XL_BASE_WIDTH_DP = 300f
-    private const val XL_MAX_SCALE = 1.45f
-    /** Under this the difference is not worth a different look from Launcher3's. */
-    private const val XL_MIN_SCALE = 1.08f
-
     private const val FULL_HEIGHT_DP = 156
     private const val TIGHT_HEIGHT_DP = 124
     /** Past this many characters the 2x2's festival line wraps to two. */
     private const val LONG_NOTE_CHARS = 22
-
-    /**
-     * The expanded xl week strip: Sunday to Saturday around [today], today
-     * marked.
-     *
-     * The marker is a background applied through setInt rather than a
-     * visibility toggle on seven pre-placed shapes, because which cell is today
-     * changes daily and there is no layout answer to that. `setBackgroundResource`
-     * is one of the @RemotableViewMethod methods RemoteViews will call by name;
-     * the six other cells are cleared with 0, which is "no background" — not
-     * doing that leaves yesterday's marker behind when the widget redraws
-     * across midnight without being reinflated.
-     */
-    private fun renderWeek(views: RemoteViews, today: BsDate, pill: Int, english: Boolean, paint: WidgetPaint) {
-        val week = NepaliCalendar.weekOf(today)
-
-        for (i in 0..6) {
-            val day = week[i]
-            // A day off is accented in the strip too, so Saturday and Sunday read
-            // as the weekend at a glance rather than needing to be counted to.
-            // Set as a state, not a colour, for the same reason as the date above:
-            // res/color/widget_week_*.xml is resolved by the launcher, a colour
-            // resolved here would be resolved against the wrong configuration.
-            val dayInfo = Panchang.forDay(day)
-            val off = NepaliCalendar.isWeeklyOff(day) || (dayInfo?.isHoliday == true)
-            // A festival day gets a dot under its date (1.9.114).
-            val festive = dayInfo != null && majorOnly(dayInfo.festivals).isNotEmpty()
-            views.setViewVisibility(weekDotIds[i], if (festive) View.VISIBLE else View.INVISIBLE)
-            paint.imageTint(views, weekDotIds[i], Role.ACCENT)
-            views.setNepaliText(
-                weekDayIds[i],
-                if (english) day.day.toString() else NepaliCalendar.toDevanagari(day.day),
-            )
-            views.setBoolean(weekDayIds[i], "setEnabled", !off)
-            views.setBoolean(weekLabelIds[i], "setEnabled", !off)
-            // The layout XML holds the Devanagari labels as placeholders; the
-            // language decides what is actually drawn.
-            views.setNepaliText(
-                weekLabelIds[i],
-                if (english) FestivalsEn.weekdayShort[i] else NepaliCalendar.weekdayShort[i],
-            )
-            views.setInt(
-                weekCellIds[i],
-                "setBackgroundResource",
-                if (i == NepaliCalendar.weekdayOf(today)) pill else 0,
-            )
-        }
-    }
 
     /** The tithi names that also turn up in the almanac's festival column. */
     private val tithiNames = setOf(

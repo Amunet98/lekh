@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The widget card's corner. 20dp below Android 12; from 12 the
+         launcher's own radius (values-v31), which Android's widget quality
+         guide asks for ("use the corner radius provided by the system") and
+         which differs by launcher: One UI reports 24dp. -->
+    <dimen name="widget_radius">20dp</dimen>
+</resources>

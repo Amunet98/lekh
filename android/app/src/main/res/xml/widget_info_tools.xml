@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The Tools widget (2.0.25). 4x2 by the platform's cell formula
+     (4*70-30 = 250dp wide, 2*70-30 = 110dp tall). Resizable both ways; the
+     renderer drops the Money tab's note line when it is short. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="250dp"
+    android:minHeight="110dp"
+    android:targetCellWidth="4"
+    android:targetCellHeight="2"
+    android:description="@string/widget_description_tools"
+    android:previewLayout="@layout/widget_tools"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen"
+    android:initialLayout="@layout/widget_tools"
+    android:updatePeriodMillis="0" />

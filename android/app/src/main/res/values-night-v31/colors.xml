@@ -20,4 +20,5 @@
     <color name="widget_on_head">@android:color/system_accent1_800</color>
     <!-- widget_leaf has no override here: the Material You page is
          color-night-v31/widget_leaf_dynamic.xml, which carries its alpha. -->
+    <color name="widget_chip">@android:color/system_accent2_700</color>
 </resources>
